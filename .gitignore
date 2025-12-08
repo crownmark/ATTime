@@ -1,0 +1,20 @@
+FolderProfile.pubxml.user
+.user
+Server/CrownCRMWASM.Server.csproj.user
+Server/CrownCRMWASM.Server.csproj.user
+Server/Properties/PublishProfiles/Developer CRM FolderProfile.pubxml.user
+Server/Properties/PublishProfiles/ProductionServerFolder.pubxml.user
+/Server/obj
+/Server/obj
+/Server/obj/Debug
+/Server/obj/Debug/net10.0
+Server/obj/Debug/net10.0
+Server/obj/Debug/net10.0
+Server/obj/Debug/net10.0
+Server/obj/Debug/net10.0
+/Client/obj
+/Client/obj/Debug
+/Client/obj/Debug/net10.0
+.vs
+Client/bin/
+Server/bin/
