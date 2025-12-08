@@ -35,7 +35,7 @@
             <RadzenImage Path="images/logo.png"  style="width: 48px; height: 48px;" AlternateText="Application logo"></RadzenImage>
             <RadzenText Text="CrownATTime" TextStyle="Radzen.Blazor.TextStyle.Subtitle1" class="rz-mb-0" style="color: var(--rz-sidebar-color);" />
         </RadzenStack>
-        <RadzenPanelMenu>
+        <RadzenPanelMenu DisplayStyle="MenuItemDisplayStyle.IconAndText" Click="@PanelMenu0Click">
             <RadzenPanelMenuItem Text="My Dashboard" Path="" Icon="dashboard" />
             <RadzenPanelMenuItem Text="My Open Time Entries" Icon="avg_pace" Path="time-entries"></RadzenPanelMenuItem>
         </RadzenPanelMenu>

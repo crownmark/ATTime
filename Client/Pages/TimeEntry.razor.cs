@@ -65,11 +65,18 @@ namespace CrownATTime.Client.Pages
         protected string StatusName { get; set; }
         protected string ContractName { get; set; }
 
+        private System.Timers.Timer? _stopwatchTimer;
+        private bool _isRunning;
+        private DateTime _lastTickUtc;
+        private string ElapsedFormatted => TimeSpan.FromMilliseconds((timeEntryRecord.DurationMs ?? 0)).ToString(@"hh\:mm\:ss");
+
         protected override async Task OnInitializedAsync()
         {
             try
             {
                 pageLoading = true;
+                
+
                 var resourceResult = await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email);
                 resource = resourceResult.Items.FirstOrDefault();
                 var billingCodeItems = await AutotaskTimeEntryService.GetBillingCodes();
@@ -83,7 +90,7 @@ namespace CrownATTime.Client.Pages
                 ticket = await AutotaskTicketService.GetTicket(Convert.ToInt32(TicketId));
                 var contractsResult = await AutotaskTicketService.GetTicketContracts(ticket.item.companyID);
                 contracts = contractsResult.Items;
-                contract = await AutotaskTicketService.GetContract(ticket.item.contractID);
+                contract = await AutotaskTicketService.GetContract(ticket.item.contractID?? 0);
                 contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
                 var statuses = ticketEntityFields.Where(x => x.Name == "status").FirstOrDefault().PicklistValues;
@@ -109,27 +116,42 @@ namespace CrownATTime.Client.Pages
                     if(timeOpenTimeEntries.Value.Count() > 0)
                     {
                         timeEntryRecord = timeOpenTimeEntries.Value.FirstOrDefault();
+                        // If it's null, treat it as 0
+                        timeEntryRecord.DurationMs ??= 0;
                     }
                     else
                     {
                         //Create a time entry record
-
-                        timeEntryRecord = await ATTimeService.CreateTimeEntry(new Server.Models.ATTime.TimeEntry()
+                        var newTimeEntry = new Server.Models.ATTime.TimeEntry()
                         {
                             TicketId = Convert.ToInt32(TicketId),
+                            TicketNumber = ticket.item.ticketNumber,
                             ContractId = ticket.item.contractID,
                             BillingCodeId = Convert.ToInt32(ticket.item.billingCodeID),
-                            RoleId = ticket.item.assignedResourceRoleID,
+                            RoleId = Convert.ToInt32(ticket.item.assignedResourceRoleID),
                             ResourceId = resource.id,
                             StartDateTime = DateTimeOffset.Now,
                             DateWorked = DateTimeOffset.Now,
                             TimeStampStatus = true,
-                            
-                            
+                            DurationMs = 0,
 
-                        });
+
+
+                        };
+                        timeEntryRecord = await ATTimeService.CreateTimeEntry(newTimeEntry);
                     }
                     pageLoading = false;
+
+                    // Create the timer that will update ElapsedMS
+                    _stopwatchTimer = new System.Timers.Timer(250); // 250ms tick
+                    _stopwatchTimer.AutoReset = true;
+                    _stopwatchTimer.Elapsed += OnStopwatchElapsed;
+                    if (timeEntryRecord.TimeStampStatus)
+                    {
+                        _isRunning = true;
+                        _lastTickUtc = DateTime.UtcNow;
+                        _stopwatchTimer?.Start();
+                    }
 
                     StateHasChanged();
                 }
@@ -309,6 +331,12 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                timeEntryRecord.HoursWorked =
+                    Math.Max(
+                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                        - (timeEntryRecord.OffsetHours ?? 0),
+                        0
+                    );
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
 
@@ -324,6 +352,12 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                timeEntryRecord.HoursWorked =
+                    Math.Max(
+                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                        - (timeEntryRecord.OffsetHours ?? 0),
+                        0
+                    );
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
 
@@ -334,5 +368,126 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+
+        protected async System.Threading.Tasks.Task PlayButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                if (_isRunning)
+                    return;
+
+                _isRunning = true;
+                _lastTickUtc = DateTime.UtcNow;
+                _stopwatchTimer?.Start();
+
+                timeEntryRecord.TimeStampStatus = true;
+                await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}" });
+
+            }
+
+        }
+
+        protected async System.Threading.Tasks.Task PauseButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                _isRunning = false;
+                // Timer can keep running; we just ignore ticks when not running.
+                // (Or call _stopwatchTimer?.Stop(); if you prefer.)
+                timeEntryRecord.HoursWorked =
+                    Math.Max(
+                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                        - (timeEntryRecord.OffsetHours ?? 0),
+                        0
+                    );
+                timeEntryRecord.TimeStampStatus = false;
+                timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task StopButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                _isRunning = false;
+
+                timeEntryRecord.TimeStampStatus = false;
+                timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                timeEntryRecord.HoursWorked =
+                    Math.Max(
+                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                        - (timeEntryRecord.OffsetHours ?? 0),
+                        0
+                    );
+                await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task ClearTimerButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                _isRunning = false;
+                timeEntryRecord.DurationMs = 0;
+                timeEntryRecord.HoursWorked = 0;
+                StateHasChanged();
+
+                timeEntryRecord.TimeStampStatus = false;
+                await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}" });
+
+            }
+        }
+
+        private void OnStopwatchElapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (!_isRunning)
+                return;
+
+            var now = DateTime.UtcNow;
+            var diff = now - _lastTickUtc;
+            _lastTickUtc = now;
+
+            var current = timeEntryRecord.DurationMs ?? 0;
+            timeEntryRecord.DurationMs = current + (long)diff.TotalMilliseconds;
+
+            InvokeAsync(StateHasChanged);
+        }
+
+        public void Dispose()
+        {
+            if (_stopwatchTimer is not null)
+            {
+                _stopwatchTimer.Elapsed -= OnStopwatchElapsed;
+                _stopwatchTimer.Dispose();
+            }
+        }
+
     }
 }

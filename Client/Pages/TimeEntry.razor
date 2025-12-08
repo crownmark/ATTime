@@ -14,10 +14,21 @@
 <RadzenRow Visible="@(!pageLoading)">
     <RadzenColumn SizeXL="9" SizeLG="8">
        <RadzenStack>
-            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween">
                 <RadzenText Text="@($"{ticket?.item?.ticketNumber} - {ticket?.item?.title}")" TextStyle="Radzen.Blazor.TextStyle.H4" />
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="border: 2px solid var(--rz-primary-lighter); padding-top: 4px; padding: 4px" AlignItems="Radzen.AlignItems.Center">
+                    <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px solid #874efe" />
+                    
+                    <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)"></RadzenButton>
+<RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)"></RadzenButton>
+<RadzenButton Icon="stop" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@StopButtonClick"></RadzenButton>
+<RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick"></RadzenButton>
+                </RadzenStack>
             </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+<strong>Ticket: </strong>
+                <RadzenLink Text="@timeEntryRecord.TicketNumber" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank"></RadzenLink>
+                
                 <strong>Priority: </strong><RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Danger" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Critical")" Style="padding-left: 10px; padding-right: 10px">
                                                <RadzenStack Style="width: 100%">
                                                    <RadzenText Text="@PriorityName" Style="font-weight: bold" />
@@ -59,12 +70,13 @@
                                                    <RadzenText Text="@StatusName" Style="font-weight: bold" />
                                                </RadzenStack>
                                            </RadzenBadge>
-                
+                                           
             </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal">
-                    <strong>Account: </strong>@company?.item?.companyName
-                    <strong>Contact: </strong>@contact?.item?.firstName @contact?.item?.lastName                                             
+                
+                    <strong>Account: </strong><RadzenLink Text="@company?.item?.companyName" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank"></RadzenLink>
+                    <strong>Contact: </strong><RadzenLink Text="@($"{contact?.item?.firstName} {contact?.item?.lastName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket.item.contactID}")" Target="_blank"></RadzenLink>                                          
                     <strong>Phone: </strong><RadzenButton Size="Radzen.ButtonSize.Small" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.phone))" Click="@CallContactPhoneButtonClick"></RadzenButton>@contact?.item?.phone
                     <strong>Ext: </strong>@contact?.item?.extension
                     <strong>Mobile: </strong><RadzenButton Size="Radzen.ButtonSize.Small" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.mobilePhone))" Click="@CallContactMobileButtonClick"></RadzenButton>@contact?.item?.mobilePhone
@@ -119,13 +131,13 @@
                             <RadzenLabel Text="Hours Worked" Component="HoursWorked" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" />
+                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Offset Hours" Component="OffsetHours" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" />
+                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Min="0" Format="0.00" />
                         </RadzenColumn>
                     </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">

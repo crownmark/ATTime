@@ -62,5 +62,6 @@ namespace CrownATTime.Server.Models.ATTime
         public bool TimeStampStatus { get; set; }
 
         public long? DurationMs { get; set; }
+        
     }
 }

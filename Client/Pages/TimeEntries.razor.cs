@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
+using CrownATTime.Server.Models;
 
 namespace CrownATTime.Client.Pages
 {
@@ -33,9 +34,17 @@ namespace CrownATTime.Client.Pages
         [Inject]
         public ATTimeService ATTimeService { get; set; }
 
+        [Inject]
+        protected AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
+        [Inject]
+        protected AutotaskTicketService AutotaskTicketService { get; set; }
+
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntry> timeEntries;
 
         protected RadzenDataGrid<CrownATTime.Server.Models.ATTime.TimeEntry> grid0;
+
+        protected ResourceDtoResult resource {  get; set; }
+
         protected int count;
         protected bool gridLoading;
 
@@ -57,11 +66,17 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+
                 gridLoading = true;
-                string defaultFilter = $"IsCompleted eq false";
-                var result = await ATTimeService.GetTimeEntries(filter: $@"{defaultFilter} and (contains(SummaryNotes,""{search}"") or contains(InternalNotes,""{search}"")) and {(string.IsNullOrEmpty(args.Filter)? "true" : args.Filter)}", orderby: $"{args.OrderBy}", top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null);
-                timeEntries = result.Value.AsODataEnumerable();
-                count = result.Count;
+                if(resource != null)
+                {
+                    string defaultFilter = $"IsCompleted eq false and ResourceId eq {resource.id}";
+
+                    var result = await ATTimeService.GetTimeEntries(filter: $@"{defaultFilter} and (contains(TicketNumber,""{search}"") or contains(SummaryNotes,""{search}"") or contains(InternalNotes,""{search}"")) and {(string.IsNullOrEmpty(args.Filter) ? "true" : args.Filter)}", orderby: $"{args.OrderBy}", top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null);
+                    timeEntries = result.Value.AsODataEnumerable();
+                    count = result.Count;
+                }
+                
                 gridLoading = false;
             }
             catch (System.Exception ex)
@@ -79,8 +94,8 @@ namespace CrownATTime.Client.Pages
 
         protected async Task EditRow(CrownATTime.Server.Models.ATTime.TimeEntry args)
         {
-            await DialogService.OpenAsync<EditTimeEntry>("Edit TimeEntry", new Dictionary<string, object> { {"TimeEntryId", args.TimeEntryId} });
-            await grid0.Reload();
+            //await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { {"TicketId", args.TicketId.ToString()} }, new DialogOptions { Width = "90%" });
+            //await grid0.Reload();
         }
 
         protected async Task GridDeleteButtonClick(MouseEventArgs args, CrownATTime.Server.Models.ATTime.TimeEntry timeEntry)
@@ -106,6 +121,36 @@ namespace CrownATTime.Client.Pages
                     Detail = $"Unable to delete TimeEntry"
                 });
             }
+        }
+
+        protected override async Task OnInitializedAsync()
+        {
+            try
+            {
+                var loggedinResource = await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email);
+                resource = loggedinResource.Items.First();
+                StateHasChanged();
+                await grid0.Reload();
+            }
+            catch(Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"Unable to get Autotask User"
+                });
+            }
+        }
+
+        protected async System.Threading.Tasks.Task OpenButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+
+        }
+
+        protected async System.Threading.Tasks.Task RefreshButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await grid0.Reload();
         }
     }
 }

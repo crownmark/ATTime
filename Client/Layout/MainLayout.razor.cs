@@ -49,5 +49,10 @@ namespace CrownATTime.Client.Layout
                 Security.Logout();
             }
         }
+
+        protected async System.Threading.Tasks.Task PanelMenu0Click(Radzen.MenuItemEventArgs args)
+        {
+            //sidebarExpanded = !sidebarExpanded;
+        }
     }
 }

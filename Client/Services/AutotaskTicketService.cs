@@ -56,6 +56,14 @@
 
             var response = await httpClient.SendAsync(httpRequestMessage);
             var content = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var convert = JsonSerializer.Deserialize<TicketDtoResult>(content);
+            }
+            catch (Exception ex)
+            {
+
+            }
             return JsonSerializer.Deserialize<TicketDtoResult>(content);
         }
         public async Task<ContactDtoResult> GetContact(long contactId)
