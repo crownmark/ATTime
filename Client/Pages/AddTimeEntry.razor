@@ -1,0 +1,130 @@
+@page "/add-time-entry"
+@attribute [Authorize]
+
+<PageTitle>Add TimeEntry</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save TimeEntry</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Data="@(timeEntry)" Visible="@(timeEntry != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Attime Entry Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.AttimeEntryId)" Name="AttimeEntryId" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.TicketId)" Name="TicketId" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="TicketId" Text="TicketId is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Resource Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.ResourceId)" Name="ResourceId" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="ResourceId" Text="ResourceId is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Role Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.RoleId)" Name="RoleId" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="RoleId" Text="RoleId is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Billing Code Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.BillingCodeId)" Name="BillingCodeId" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="BillingCodeId" Text="BillingCodeId is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Contract Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.ContractId)" Name="ContractId" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Date Worked" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@(timeEntry.DateWorked)" Name="DateWorked" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Start Date Time" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@(timeEntry.StartDateTime)" Name="StartDateTime" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="End Date Time" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@(timeEntry.EndDateTime)" Name="EndDateTime" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Hours Worked" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.HoursWorked)" Name="HoursWorked" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Is Non Billable" Component="IsNonBillable" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(timeEntry.IsNonBillable)" Name="IsNonBillable" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Offset Hours" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.OffsetHours)" Name="OffsetHours" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Show On Invoice" Component="ShowOnInvoice" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(timeEntry.ShowOnInvoice)" Name="ShowOnInvoice" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Summary Notes" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(timeEntry.SummaryNotes)" Name="SummaryNotes"  />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Internal Notes" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(timeEntry.InternalNotes)" Name="InternalNotes"  />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Is Completed" Component="IsCompleted" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(timeEntry.IsCompleted)" Name="IsCompleted" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Time Stamp Status" Component="TimeStampStatus" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(timeEntry.TimeStampStatus)" Name="TimeStampStatus" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Duration Ms" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntry.DurationMs)" Name="DurationMs" />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

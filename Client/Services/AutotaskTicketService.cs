@@ -1,0 +1,162 @@
+﻿namespace CrownATTime.Client
+{
+    using global::CrownATTime.Server.Models;
+    using Microsoft.AspNetCore.Components;
+    using Microsoft.Extensions.Configuration;
+    using Radzen;
+    using Radzen.Blazor.Rendering;
+    using System;
+    using System.Diagnostics.Contracts;
+    using System.Net.Http;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+
+
+    public partial class AutotaskTicketService
+    {
+        private readonly HttpClient httpClient;
+        private readonly Uri baseUri;
+        private readonly NavigationManager navigationManager;
+        private readonly JsonSerializerOptions jsonOptions;
+
+        public AutotaskTicketService(
+            NavigationManager navigationManager,
+            HttpClient httpClient,
+            IConfiguration configuration)
+        {
+            this.httpClient = httpClient;
+            this.navigationManager = navigationManager;
+
+            // This matches the server controller route: api/autotask/...
+            this.baseUri = new Uri($"{navigationManager.BaseUri}api/autotask/");
+
+            jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true
+            };
+        }
+
+        /// <summary>
+        /// Partial hook so you can add headers / logging if needed.
+        /// </summary>
+        partial void OnGetTicket(HttpRequestMessage requestMessage);
+
+        /// <summary>
+        /// Get a single Autotask Ticket by ID via your server API.
+        /// GET api/autotask/tickets/{ticketId}
+        /// </summary>
+        public async Task<TicketDtoResult> GetTicket(long ticketId)
+        {
+            var uri = new Uri(baseUri, $"tickets/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<TicketDtoResult>(content);
+        }
+        public async Task<ContactDtoResult> GetContact(long contactId)
+        {
+            var uri = new Uri(baseUri, $"contacts/{contactId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<ContactDtoResult>(content);
+        }
+
+        public async Task<CompanyDtoResult> GetCompany(long companyId)
+        {
+            var uri = new Uri(baseUri, $"companies/{companyId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<CompanyDtoResult>(content);
+
+        }
+
+        public async Task<ContractDtoResult> GetContract(long ticketId)
+        {
+            var uri = new Uri(baseUri, $"contracts/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<ContractDtoResult>(content);
+        }
+
+        /// <summary>
+        /// (Optional) If you later add a server endpoint like:
+        /// GET api/autotask/tickets/bycompany/{companyId}
+        /// you can add a matching client method here.
+        /// </summary>
+        partial void OnGetTicketsForCompany(HttpRequestMessage requestMessage);
+
+        public async Task<System.Collections.Generic.List<TicketDto>> GetTicketsForCompany(long companyId)
+        {
+            var uri = new Uri(baseUri, $"tickets/bycompany/{companyId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicketsForCompany(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<System.Collections.Generic.List<TicketDto>>(response);
+        }
+
+        public async Task<TicketEntityFieldsDto.EntityInformationFieldsResponse> GetTicketFields()
+        {
+            var uri = new Uri(baseUri, $"tickets/fields");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<TicketEntityFieldsDto.EntityInformationFieldsResponse>(response);
+        }
+
+        public async Task<AutotaskItemsResponse<ContractDto>> GetTicketContracts(long companyId)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "companyID", value = companyId },
+                    new { op = "eq", field = "status", value = 1 }
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"contracts/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            //var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ContractDto>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<ContractDto>>(response);
+        }
+
+
+    }
+}
