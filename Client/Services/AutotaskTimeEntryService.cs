@@ -90,7 +90,7 @@
         /// <summary>
         /// POST api/autotask/timeentries
         /// </summary>
-        public async Task<CrownATTime.Server.Models.TimeEntryDto> CreateTimeEntry(
+        public async Task<CrownATTime.Server.Models.TimeEntryDtoCreatedResult> CreateTimeEntry(
             CrownATTime.Server.Models.TimeEntryCreateDto timeEntry)
         {
             var uri = new Uri(baseUri, $"timeentries");
@@ -103,9 +103,10 @@
             OnCreateTimeEntry(httpRequestMessage);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
+            var result = await response.Content.ReadAsStringAsync();
 
             return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<CrownATTime.Server.Models.TimeEntryDto>(response);
+                .ReadAsync<CrownATTime.Server.Models.TimeEntryDtoCreatedResult>(response);
         }
 
         #endregion
@@ -117,7 +118,7 @@
         /// <summary>
         /// PATCH api/autotask/timeentries/{timeEntryId}
         /// </summary>
-        public async Task<CrownATTime.Server.Models.TimeEntryDto> UpdateTimeEntry(
+        public async Task<CrownATTime.Server.Models.TimeEntryCreateDto> UpdateTimeEntry(
             long timeEntryId,
             CrownATTime.Server.Models.TimeEntryUpdateDto timeEntry)
         {
@@ -133,7 +134,7 @@
             var response = await httpClient.SendAsync(httpRequestMessage);
 
             return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<CrownATTime.Server.Models.TimeEntryDto>(response);
+                .ReadAsync<CrownATTime.Server.Models.TimeEntryCreateDto>(response);
         }
 
         #endregion
@@ -169,6 +170,63 @@
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<TimeEntryEntityFieldsDto.EntityInformationFieldsResponse>(response);
         }
+        public async Task<ContractExclusionBillingCodeResult?> GetContractExclusionsBillingCode(int contractID, int billingCodeID)
+        {
+            var filters = new List<object>
+            {
+                new { op = "eq", field = "contractID", value = contractID },
+                new { op = "eq", field = "billingCodeID", value = billingCodeID },
+            };
+
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var encodedSearch = Uri.EscapeDataString(JsonSerializer.Serialize(searchObj));
+            var uri = new Uri(baseUri, $"contractexclusionbillingcodes/query?search={encodedSearch}");
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            using var response = await httpClient.SendAsync(request);
+
+            // Throw only on true HTTP failure
+            if (!response.IsSuccessStatusCode)
+            {
+                // Optional: log content for debugging before throwing
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Autotask API call failed ({(int)response.StatusCode}): {errorContent}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            // EMPTY OR NOTHING FOUND → Autotask returns: { "items": [] }
+            if (string.IsNullOrWhiteSpace(content) || content.Trim() == "{}")
+            {
+                return null;
+            }
+
+            // Try safe parse
+            ContractExclusionBillingCodeResult? result = null;
+            try
+            {
+                result = JsonSerializer.Deserialize<ContractExclusionBillingCodeResult>(content);
+            }
+            catch
+            {
+                // If conversion fails, return null instead of throwing
+                return null;
+            }
+
+            // If Autotask returned an empty items array
+            if (result == null)
+            {
+                return null;
+            }
+
+            return result;
+        }
 
         public async Task<AutotaskItemsResponse<BillingCodeDto>> GetBillingCodes()
         {
@@ -176,7 +234,7 @@
                 {
                     new { op = "eq", field = "isActive", value = true },
                     new { op = "eq", field = "useType", value = 1 },
-                    new { op = "eq", field = "billingCodeType", value = 0 },
+                    //new { op = "eq", field = "billingCodeType", value = 0 },
 
                 };
             var searchObj = new

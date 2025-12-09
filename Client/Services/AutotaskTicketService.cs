@@ -8,6 +8,7 @@
     using System;
     using System.Diagnostics.Contracts;
     using System.Net.Http;
+    using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
 
@@ -65,6 +66,22 @@
 
             }
             return JsonSerializer.Deserialize<TicketDtoResult>(content);
+        }
+
+        public async Task<CrownATTime.Server.Models.TicketUpdateDto> UpdateTicket(CrownATTime.Server.Models.TicketUpdateDto ticket)
+        {
+            var uri = new Uri(baseUri, $"tickets");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+            var json = JsonSerializer.Serialize(ticket, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.TicketUpdateDto>(response);
         }
         public async Task<ContactDtoResult> GetContact(long contactId)
         {

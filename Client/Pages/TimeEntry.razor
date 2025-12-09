@@ -11,21 +11,26 @@
         </RadzenProgressBarCircular>
     </RadzenStack>
 </RadzenRow>
-<RadzenRow Visible="@(!pageLoading)">
-    <RadzenColumn SizeXL="9" SizeLG="8">
+<RadzenRow Visible="@(!pageLoading && timeEntryRecord.IsCompleted)" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
+    <RadzenStack Style="width: 100%" JustifyContent="Radzen.JustifyContent.Center" AlignItems="Radzen.AlignItems.Center" Visible="@timeEntryRecord.IsCompleted">
+        <RadzenText Text="Time Entry has been completed.  You may close this window." TextStyle="Radzen.Blazor.TextStyle.H2" />
+    </RadzenStack>
+</RadzenRow>
+<RadzenRow Visible="@(!pageLoading && !timeEntryRecord.IsCompleted)">
+    <RadzenColumn SizeXL="10" SizeLG="8">
        <RadzenStack>
-            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap">
                 <RadzenText Text="@($"{ticket?.item?.ticketNumber} - {ticket?.item?.title}")" TextStyle="Radzen.Blazor.TextStyle.H4" />
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="border: 2px solid var(--rz-primary-lighter); padding-top: 4px; padding: 4px" AlignItems="Radzen.AlignItems.Center">
-                    <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px solid #874efe" />
+                    <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; background-color: #000000" />
                     
                     <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)"></RadzenButton>
 <RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)"></RadzenButton>
-<RadzenButton Icon="stop" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@StopButtonClick"></RadzenButton>
+<RadzenButton Icon="stop" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@StopButtonClick" Visible="false"></RadzenButton>
 <RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick"></RadzenButton>
                 </RadzenStack>
             </RadzenStack>
-<RadzenStack Orientation="Radzen.Orientation.Horizontal">
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap">
 <strong>Ticket: </strong>
                 <RadzenLink Text="@timeEntryRecord.TicketNumber" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank"></RadzenLink>
                 
@@ -73,18 +78,34 @@
                                            
             </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="border-bottom: 0px solid var(--rz-base)" Wrap="Radzen.FlexWrap.Wrap">
                 
                     <strong>Account: </strong><RadzenLink Text="@company?.item?.companyName" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank"></RadzenLink>
                     <strong>Contact: </strong><RadzenLink Text="@($"{contact?.item?.firstName} {contact?.item?.lastName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket.item.contactID}")" Target="_blank"></RadzenLink>                                          
-                    <strong>Phone: </strong><RadzenButton Size="Radzen.ButtonSize.Small" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.phone))" Click="@CallContactPhoneButtonClick"></RadzenButton>@contact?.item?.phone
+                    <strong>Phone: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.phone))" Click="@CallContactPhoneButtonClick" Style="width: 24px; height: 24px" Variant="Radzen.Variant.Outlined"></RadzenButton>@contact?.item?.phone
                     <strong>Ext: </strong>@contact?.item?.extension
-                    <strong>Mobile: </strong><RadzenButton Size="Radzen.ButtonSize.Small" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.mobilePhone))" Click="@CallContactMobileButtonClick"></RadzenButton>@contact?.item?.mobilePhone
+                    <strong>Mobile: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.mobilePhone))" Click="@CallContactMobileButtonClick" Variant="Radzen.Variant.Outlined"></RadzenButton>@contact?.item?.mobilePhone
 
                 </RadzenStack>
             </RadzenStack>
             <RadzenStack>
-                <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntryRecord" Visible="@(timeEntryRecord != null)" Submit="@TemplateForm0Submit">
+                <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntryRecord" Visible="@(timeEntryRecord != null)" Submit="@TemplateForm0Submit" Style="border: 2px solid var(--rz-base); padding: 5px">
+                    <RadzenRow style="margin-bottom: 1rem" Visible="@(timeEntryRecord != null)" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="Contract" Component="ContractId" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                            <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.ContractId" Data="contracts" ValueProperty="Id" TextProperty="ContractName" Name="ContractId" Style="width: 100%" Change="@(ContractIdChange)"></RadzenDropDown>
+                            <RadzenNumericRangeValidator Component="ContractId" Text="Contract is required" Min="1"></RadzenNumericRangeValidator>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="Ticket Status" Component="Status" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                            <RadzenDropDown @bind-Value="@ticket.item.status" Style="width: 100%" TValue="int" Name="status" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketStatuses" Change="@statusChange" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"></RadzenDropDown>
+                            <RadzenNumericRangeValidator Component="status" Text="Ticket Status is required" Min="1"></RadzenNumericRangeValidator>
+                        </RadzenColumn>
+                    </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Role" Component="RoleId" style="width: 100%" />
@@ -97,32 +118,23 @@
                             <RadzenLabel Text="Billing Code" Component="BillingCodeId" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                            <RadzenDropDown TValue="int" @bind-Value="timeEntryRecord.BillingCodeId" Data="billingCodes" ValueProperty="id" TextProperty="name" Name="BillingCodeId" Style="width: 100%" Change="@BillingCodeIdChange"></RadzenDropDown>
+                            <RadzenDropDown TValue="int" @bind-Value="timeEntryRecord.BillingCodeId" Data="billingCodes" ValueProperty="id" TextProperty="name" Name="BillingCodeId" Style="width: 100%" Change="@(() => BillingCodeIdChange(timeEntryRecord.BillingCodeId))" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"></RadzenDropDown>
                           <RadzenNumericRangeValidator Component="BillingCodeId" Text="Billing Code is required" Min="1"></RadzenNumericRangeValidator>
                         </RadzenColumn>
                     </RadzenRow>
                     
-                    <RadzenRow style="margin-bottom: 1rem" Visible="@(timeEntryRecord != null)" AlignItems="Radzen.AlignItems.Center">
-                        <RadzenColumn SizeMD="3" SizeLG="2">
-                            <RadzenLabel Text="Contract" Component="ContractId" style="width: 100%" />
-                        </RadzenColumn>
-                        <RadzenColumn SizeMD="9" SizeLG="10">
-                            <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.ContractId" Data="contracts" ValueProperty="Id" TextProperty="ContractName" Name="ContractId" Style="width: 100%" Change="@ContractIdChange"></RadzenDropDown>
-                            <RadzenNumericRangeValidator Component="ContractId" Text="Contract is required" Min="1"></RadzenNumericRangeValidator>
-                        </RadzenColumn>
-                    </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Start Date Time" Component="StartDateTime" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                          <RadzenDatePicker style="display: block; width: 100%" @bind-Value="timeEntryRecord.StartDateTime" Name="StartDateTime" ShowTime="true" Kind="System.DateTimeKind.Local" HourFormat="12" Change="@StartDateTimeChange" />
+                          <RadzenDatePicker style="display: block; width: 100%" @bind-Value="timeEntryRecord.StartDateTime" Name="StartDateTime" ShowTime="true" Kind="System.DateTimeKind.Local" HourFormat="12" Change="@StartDateTimeChange" ReadOnly="true" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="End Date Time" Component="EndDateTime" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                          <RadzenDatePicker style="display: block; width: 100%" @bind-Value="timeEntryRecord.EndDateTime" Name="EndDateTime" ShowTime="true" Kind="System.DateTimeKind.Local" HourFormat="12" Change="@EndDateTimeChange" />
+                          <RadzenDatePicker style="display: block; width: 100%" @bind-Value="timeEntryRecord.EndDateTime" Name="EndDateTime" ShowTime="true" Kind="System.DateTimeKind.Local" HourFormat="12" Change="@EndDateTimeChange" ReadOnly="true" />
                         </RadzenColumn>
                     </RadzenRow>
                     
@@ -131,13 +143,14 @@
                             <RadzenLabel Text="Hours Worked" Component="HoursWorked" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" />
+                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" ReadOnly="true" />
+                          <RadzenNumericRangeValidator Text="Hours must be greater than 0.02" Min="0.03" Max="24" Component="HoursWorked"></RadzenNumericRangeValidator>
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Offset Hours" Component="OffsetHours" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Min="0" Format="0.00" />
+                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Format="0.00" />
                         </RadzenColumn>
                     </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
@@ -159,62 +172,23 @@
                     <RadzenRow style="margin-bottom: 1rem">
                         <RadzenColumn SizeMD="6">
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                                <RadzenLabel Text="Summary Notes" Component="SummaryNotes" style="width: 100%" />
+                                <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
+                                </RadzenLabel>
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick"></RadzenButton>
                             </RadzenRow>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                                <RadzenHtmlEditor @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="height: 300px; width: 100%" Change="@SummaryNotesChange">
-                                    <RadzenHtmlEditorUndo></RadzenHtmlEditorUndo>
-                                    <RadzenHtmlEditorRedo></RadzenHtmlEditorRedo>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorBold></RadzenHtmlEditorBold>
-                                    <RadzenHtmlEditorItalic></RadzenHtmlEditorItalic>
-                                    <RadzenHtmlEditorUnderline></RadzenHtmlEditorUnderline>
-                                    <RadzenHtmlEditorStrikeThrough></RadzenHtmlEditorStrikeThrough>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorAlignLeft></RadzenHtmlEditorAlignLeft>
-                                    <RadzenHtmlEditorAlignCenter></RadzenHtmlEditorAlignCenter>
-                                    <RadzenHtmlEditorAlignRight></RadzenHtmlEditorAlignRight>
-                                    <RadzenHtmlEditorJustify></RadzenHtmlEditorJustify>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorIndent></RadzenHtmlEditorIndent>
-                                    <RadzenHtmlEditorOutdent></RadzenHtmlEditorOutdent>
-                                    <RadzenHtmlEditorUnorderedList></RadzenHtmlEditorUnorderedList>
-                                    <RadzenHtmlEditorOrderedList></RadzenHtmlEditorOrderedList>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorRemoveFormat></RadzenHtmlEditorRemoveFormat>
-                                    <RadzenHtmlEditorLink></RadzenHtmlEditorLink>
-                                    <RadzenHtmlEditorUnlink></RadzenHtmlEditorUnlink>
-                                </RadzenHtmlEditor>
+                                <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
+                            <RadzenRequiredValidator Component="SummaryNotes"></RadzenRequiredValidator>
+
                             </RadzenRow>
                         </RadzenColumn>
                         <RadzenColumn SizeMD="6">
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                                    <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="width: 100%; color: var(--rz-danger)" />
+                                    <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="color: var(--rz-danger)" />
+                                    <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick"></RadzenButton>
                             </RadzenRow>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                                    <RadzenHtmlEditor Name="InternalNotes" @bind-Value="timeEntryRecord.InternalNotes" Style="height: 300px; width: 100%" Change="@InternalNotesChange">
-                                    <RadzenHtmlEditorUndo></RadzenHtmlEditorUndo>
-                                    <RadzenHtmlEditorRedo></RadzenHtmlEditorRedo>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorBold></RadzenHtmlEditorBold>
-                                    <RadzenHtmlEditorItalic></RadzenHtmlEditorItalic>
-                                    <RadzenHtmlEditorUnderline></RadzenHtmlEditorUnderline>
-                                    <RadzenHtmlEditorStrikeThrough></RadzenHtmlEditorStrikeThrough>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorAlignLeft></RadzenHtmlEditorAlignLeft>
-                                    <RadzenHtmlEditorAlignCenter></RadzenHtmlEditorAlignCenter>
-                                    <RadzenHtmlEditorAlignRight></RadzenHtmlEditorAlignRight>
-                                    <RadzenHtmlEditorJustify></RadzenHtmlEditorJustify>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorIndent></RadzenHtmlEditorIndent>
-                                    <RadzenHtmlEditorOutdent></RadzenHtmlEditorOutdent>
-                                    <RadzenHtmlEditorUnorderedList></RadzenHtmlEditorUnorderedList>
-                                    <RadzenHtmlEditorOrderedList></RadzenHtmlEditorOrderedList>
-                                    <RadzenHtmlEditorSeparator></RadzenHtmlEditorSeparator>
-                                    <RadzenHtmlEditorRemoveFormat></RadzenHtmlEditorRemoveFormat>
-                                    <RadzenHtmlEditorLink></RadzenHtmlEditorLink>
-                                    <RadzenHtmlEditorUnlink></RadzenHtmlEditorUnlink>
-                                    </RadzenHtmlEditor>
+                                <RadzenTextArea @bind-Value="@timeEntryRecord.InternalNotes" Name="InternalNotes" Style="width: 100%" Rows="10" Change="InternalNotesChange"></RadzenTextArea>
                             </RadzenRow>
                         </RadzenColumn>
 

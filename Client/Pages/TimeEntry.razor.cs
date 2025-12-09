@@ -61,6 +61,7 @@ namespace CrownATTime.Client.Pages
         protected List<ContractDto> contracts { get; set; } = new List<ContractDto>();
 
         protected List<TicketEntityFieldsDto.EntityField> ticketEntityFields { get; set; }
+        protected List<TicketEntityFieldsDto.EntityPicklistValue> ticketStatuses { get; set; } = new List<TicketEntityFieldsDto.EntityPicklistValue>();
         protected string PriorityName { get; set; }
         protected string StatusName { get; set; }
         protected string ContractName { get; set; }
@@ -91,15 +92,7 @@ namespace CrownATTime.Client.Pages
                 var contractsResult = await AutotaskTicketService.GetTicketContracts(ticket.item.companyID);
                 contracts = contractsResult.Items;
                 contract = await AutotaskTicketService.GetContract(ticket.item.contractID?? 0);
-                contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
-                company = await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
-                var statuses = ticketEntityFields.Where(x => x.Name == "status").FirstOrDefault().PicklistValues;
-                var status = statuses.Where(x => x.Value == ticket.item.status.ToString()).FirstOrDefault();
-                StatusName = status.Label;
-                var priorities = ticketEntityFields.Where(x => x.Name == "priority").FirstOrDefault().PicklistValues;
-                var priority = priorities.Where(x => x.Value == ticket.item.priority.ToString()).FirstOrDefault();
-                PriorityName = priority.Label;
-                var ticketLookupFields = await AutotaskTicketService.GetTicketFields();
+                await UpdateTicketValues();
                 
                 
                 if (ticket == null)
@@ -109,7 +102,7 @@ namespace CrownATTime.Client.Pages
                 }
                 else
                 {
-                    rocketshipUrl = $"https://r.giantrocketship.net/autotask-insight?isdarktheme=True&psaversion=2025.5.4.114022&resourceid={resource.id}&insightkey=DWWG6LLDX2O43RLX6R4CW554NN&vendorid=417&vendorsuppliedid=3d0ee874b9cf11f0bd9b0afe532016f9&entityid={ticket.item.id}&signature=4jO7Fi0PbtnaZtJpdF/xhD5Q92M=";
+                    rocketshipUrl = $"https://r.giantrocketship.net/autotask-insight?isdarktheme=True&psaversion=2025.5.4.114022&resourceid={resource.id}&vendorid=417&vendorsuppliedid=3d0ee874b9cf11f0bd9b0afe532016f9&entityid={ticket.item.id}&signature=4jO7Fi0PbtnaZtJpdF/xhD5Q92M=";
 
 
                     var timeOpenTimeEntries = await ATTimeService.GetTimeEntries(filter: $@"TicketId eq {TicketId} and ResourceID eq {resource.id} and IsCompleted eq false", orderby: null, top: 1);
@@ -121,6 +114,7 @@ namespace CrownATTime.Client.Pages
                     }
                     else
                     {
+                        
                         //Create a time entry record
                         var newTimeEntry = new Server.Models.ATTime.TimeEntry()
                         {
@@ -131,6 +125,7 @@ namespace CrownATTime.Client.Pages
                             RoleId = Convert.ToInt32(ticket.item.assignedResourceRoleID),
                             ResourceId = resource.id,
                             StartDateTime = DateTimeOffset.Now,
+                            EndDateTime = DateTimeOffset.Now,
                             DateWorked = DateTimeOffset.Now,
                             TimeStampStatus = true,
                             DurationMs = 0,
@@ -138,6 +133,34 @@ namespace CrownATTime.Client.Pages
 
 
                         };
+                        var selectedBillingCode = billingCodes.Where(x => x.id == ticket.item.billingCodeID).FirstOrDefault();
+                        var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(newTimeEntry.ContractId), selectedBillingCode.id);
+
+                        if (selectedBillingCode != null)
+                        {
+                            if (selectedBillingCode.billingCodeType == 2)
+                            {
+                                newTimeEntry.IsNonBillable = true;
+                                newTimeEntry.ShowOnInvoice = false;
+
+                            }
+                            else
+                            {
+                                if (contractExclusion != null)
+                                {
+                                    newTimeEntry.IsNonBillable = true;
+                                    newTimeEntry.ShowOnInvoice = false;
+                                }
+                                else
+                                {
+                                    newTimeEntry.IsNonBillable = false;
+                                    newTimeEntry.ShowOnInvoice = true;
+                                    NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
+
+                                }
+
+                            }
+                        }
                         timeEntryRecord = await ATTimeService.CreateTimeEntry(newTimeEntry);
                     }
                     pageLoading = false;
@@ -163,14 +186,68 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+        protected async System.Threading.Tasks.Task UpdateTicketValues()
+        {
+            try
+            {
+                contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
+                company = await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
+                var statuses = ticketEntityFields.Where(x => x.Name == "status").FirstOrDefault().PicklistValues;
+                var allowedIds = new HashSet<int> { 1, 5, 7, 8, 10, 12, 23, 29, 27, 32, 33, 34, 46, 47 }; // example status IDs
+
+                var filtered = statuses
+                    .Where(s => s.ValueInt.HasValue && allowedIds.Contains(s.ValueInt.Value)).OrderBy(x => x.Label)
+                    .ToList();
+
+                ticketStatuses = filtered;
+                var status = statuses.Where(x => x.Value == ticket.item.status.ToString()).FirstOrDefault();
+                StatusName = status.Label;
+                var priorities = ticketEntityFields.Where(x => x.Name == "priority").FirstOrDefault().PicklistValues;
+                var priority = priorities.Where(x => x.Value == ticket.item.priority.ToString()).FirstOrDefault();
+                PriorityName = priority.Label;
+                var ticketLookupFields = await AutotaskTicketService.GetTicketFields();
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Error Updating Ticket Related Information.  Error: {ex.Message}" });
+
+            }
+        }
 
         protected async System.Threading.Tasks.Task TemplateForm0Submit(CrownATTime.Server.Models.ATTime.TimeEntry args)
         {
             try
             {
-                await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
-                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                var newATTimeEntry = new TimeEntryCreateDto()
+                {
+                    DateWorked = timeEntryRecord.DateWorked.Value,
+                    BillingCodeId = timeEntryRecord.BillingCodeId,
+                    StartDateTime = timeEntryRecord.StartDateTime,
+                    EndDateTime = timeEntryRecord.EndDateTime,
+                    HoursWorked = timeEntryRecord.HoursWorked.Value,
+                    InternalNotes = timeEntryRecord.InternalNotes,
+                    IsNonBillable = timeEntryRecord.IsNonBillable,
+                    ResourceId = timeEntryRecord.ResourceId,
+                    RoleId = timeEntryRecord.RoleId,
+                    SummaryNotes = timeEntryRecord.SummaryNotes,
+                    TicketId = timeEntryRecord.TicketId,
+                    ContractId = timeEntryRecord.ContractId,
+                    OffsetHours = timeEntryRecord.OffsetHours,
+                    
 
+                };
+                var saveATTime = await AutotaskTimeEntryService.CreateTimeEntry(newATTimeEntry);
+                timeEntryRecord.IsCompleted = true;
+                timeEntryRecord.TimeStampStatus = false;
+                timeEntryRecord.AttimeEntryId = saveATTime.itemId;
+                await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
+
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await JSRuntime.InvokeVoidAsync(
+                    "eval",
+                    "window.open('', '_self'); window.close();"
+                );
             }
             catch (Exception ex)
             {
@@ -184,7 +261,9 @@ namespace CrownATTime.Client.Pages
             try
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
+                ticket = await AutotaskTicketService.GetTicket(timeEntryRecord.TicketId);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -200,6 +279,7 @@ namespace CrownATTime.Client.Pages
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -217,12 +297,41 @@ namespace CrownATTime.Client.Pages
         {
         }
 
-        protected async System.Threading.Tasks.Task BillingCodeIdChange(System.Object args)
+        protected async System.Threading.Tasks.Task BillingCodeIdChange(int args)
         {
             try
             {
+                var selectedBillingCode = billingCodes.Where(x => x.id == args).FirstOrDefault();
+                var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId), selectedBillingCode.id);
+                if (selectedBillingCode != null)
+                {
+                    if(selectedBillingCode.billingCodeType == 2)
+                    {
+                        timeEntryRecord.IsNonBillable = true;
+                        timeEntryRecord.ShowOnInvoice = false;
+
+                    }
+                    else
+                    {
+                        if(contractExclusion != null)
+                        {
+                            timeEntryRecord.IsNonBillable = true;
+                            timeEntryRecord.ShowOnInvoice = false;
+                        }
+                        else
+                        {
+                            timeEntryRecord.IsNonBillable = false;
+                            timeEntryRecord.ShowOnInvoice = true;
+                            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
+
+                        }
+
+
+                    }
+                }
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -239,6 +348,7 @@ namespace CrownATTime.Client.Pages
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -256,6 +366,7 @@ namespace CrownATTime.Client.Pages
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -271,6 +382,7 @@ namespace CrownATTime.Client.Pages
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -286,6 +398,7 @@ namespace CrownATTime.Client.Pages
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -301,6 +414,7 @@ namespace CrownATTime.Client.Pages
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -316,6 +430,7 @@ namespace CrownATTime.Client.Pages
             {
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -334,11 +449,12 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.HoursWorked =
                     Math.Max(
                         Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
-                        - (timeEntryRecord.OffsetHours ?? 0),
+                        + (timeEntryRecord.OffsetHours ?? 0),
                         0
                     );
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -352,14 +468,19 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                timeEntryRecord.HoursWorked =
-                    Math.Max(
-                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
-                        - (timeEntryRecord.OffsetHours ?? 0),
-                        0
-                    );
+                timeEntryRecord.HoursWorked = CalculateHoursWorked(
+                    timeEntryRecord.DurationMs.Value,
+                    timeEntryRecord.OffsetHours.Value
+                );
+                //timeEntryRecord.HoursWorked =
+                //    Math.Max(
+                //        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                //        + (timeEntryRecord.OffsetHours ?? 0),
+                //        0
+                //    );
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                await UpdateTicketValues();
 
             }
             catch (Exception ex)
@@ -367,6 +488,72 @@ namespace CrownATTime.Client.Pages
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}" });
 
             }
+        }
+        public static decimal CalculateHoursWorked(long durationMs, decimal offsetHours)
+        {
+            if (durationMs <= 0)
+                throw new ArgumentException("DurationMs must be greater than zero.", nameof(durationMs));
+
+            // Convert duration to hours
+            var durationHours = Math.Round(
+                (decimal)durationMs / 1000m / 60m / 60m,
+                2
+            );
+
+            // Actual hours worked = duration + offset
+            var hoursWorked = durationHours + offsetHours;
+
+            // Business rules:
+            // Must be > 0
+            if (hoursWorked <= 0)
+                throw new InvalidOperationException(
+                    $"HoursWorked must be greater than zero. Duration={durationHours}, Offset={offsetHours}, Result={hoursWorked}."
+                );
+
+            // Must not exceed Autotask's limit
+            if (hoursWorked > 24m)
+                throw new InvalidOperationException(
+                    $"HoursWorked cannot exceed 24 hours. Duration={durationHours}, Offset={offsetHours}, Result={hoursWorked}."
+                );
+
+            return Math.Round(hoursWorked, 2);
+        }
+
+
+        /// <summary>
+        /// Returns the allowed range for OffsetHours for a given DurationMs.
+        /// </summary>
+        public static (decimal MinOffset, decimal MaxOffset) GetAllowedOffsetRange(long durationMs)
+        {
+            if (durationMs <= 0)
+                throw new ArgumentException("DurationMs must be greater than zero.", nameof(durationMs));
+
+            var durationHours = Math.Round(
+                (decimal)durationMs / 1000m / 60m / 60m,
+                2
+            );
+
+            // HoursWorked = durationHours + offset
+            // Constraints:
+            //   durationHours + offset > 0   => offset > -durationHours
+            //   durationHours + offset <= 24 => offset <= 24 - durationHours
+
+            var minOffset = -durationHours + 0.01m; // smallest offset that still yields > 0
+            var maxOffset = 24m - durationHours;    // largest offset that yields <= 24
+
+            return (minOffset, maxOffset);
+        }
+
+        public static DateTimeOffset CalculateStartFromDuration(DateTimeOffset endDateTime, long durationMs)
+        {
+            if (durationMs <= 0)
+                throw new ArgumentException("DurationMs must be greater than zero.", nameof(durationMs));
+
+            var duration = TimeSpan.FromMilliseconds(durationMs);
+
+            // This gives you a start time such that:
+            // endDateTime - startDateTime == duration
+            return endDateTime - duration;
         }
 
         protected async System.Threading.Tasks.Task PlayButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
@@ -381,6 +568,14 @@ namespace CrownATTime.Client.Pages
                 _stopwatchTimer?.Start();
 
                 timeEntryRecord.TimeStampStatus = true;
+                timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
+                timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                timeEntryRecord.DateWorked = DateTimeOffset.Now;
+
+                //if (!timeEntryRecord.StartDateTime.HasValue)
+                //{
+                //    timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
+                //}
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
 
@@ -407,7 +602,10 @@ namespace CrownATTime.Client.Pages
                         0
                     );
                 timeEntryRecord.TimeStampStatus = false;
+                timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                timeEntryRecord.DateWorked = DateTimeOffset.Now;
+
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
 
@@ -427,6 +625,9 @@ namespace CrownATTime.Client.Pages
 
                 timeEntryRecord.TimeStampStatus = false;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
+                timeEntryRecord.DateWorked = DateTimeOffset.Now;
+
                 timeEntryRecord.HoursWorked =
                     Math.Max(
                         Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
@@ -451,6 +652,10 @@ namespace CrownATTime.Client.Pages
                 _isRunning = false;
                 timeEntryRecord.DurationMs = 0;
                 timeEntryRecord.HoursWorked = 0;
+                timeEntryRecord.StartDateTime = DateTimeOffset.Now;
+                timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                timeEntryRecord.DateWorked = DateTimeOffset.Now;
+
                 StateHasChanged();
 
                 timeEntryRecord.TimeStampStatus = false;
@@ -489,5 +694,55 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+
+        protected async System.Threading.Tasks.Task statusChange(System.Object args)
+        {
+            try
+            {
+                var ticketUpdate = new TicketUpdateDto()
+                {
+                    Id = ticket.item.id,
+                    Status = ticket.item.status,
+                };
+                await AutotaskTicketService.UpdateTicket(ticketUpdate);
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Ticket Status Saved" });
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Update Ticket Status.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task InsertTimeSummaryNotesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " -";
+
+            // If SummaryNotes is empty, set directly
+            if (string.IsNullOrWhiteSpace(timeEntryRecord.SummaryNotes))
+            {
+                timeEntryRecord.SummaryNotes = timestamp;
+                return;
+            }
+
+            // Otherwise append as a new line
+            timeEntryRecord.SummaryNotes += Environment.NewLine + timestamp;
+        }
+
+        protected async System.Threading.Tasks.Task InsertTimeInternalNotesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " -";
+
+            // If SummaryNotes is empty, set directly
+            if (string.IsNullOrWhiteSpace(timeEntryRecord.InternalNotes))
+            {
+                timeEntryRecord.InternalNotes = timestamp;
+                return;
+            }
+
+            // Otherwise append as a new line
+            timeEntryRecord.InternalNotes += Environment.NewLine + timestamp;
+        }
     }
 }

@@ -55,13 +55,15 @@
         public long? TicketId { get; set; }
         public long? TaskId { get; set; }
         public int ResourceId { get; set; }
+        public int? ContractId { get; set; }
         public int RoleId { get; set; }
         public int BillingCodeId { get; set; }
         public decimal HoursWorked { get; set; }
-        public decimal? HoursToBill { get; set; }
-        public DateTime DateWorked { get; set; }
-        public DateTime? StartDateTime { get; set; }
-        public DateTime? EndDateTime { get; set; }
+        public decimal? OffsetHours { get; set; }
+        //public decimal? HoursToBill { get; set; }
+        public DateTimeOffset DateWorked { get; set; }
+        public DateTimeOffset? StartDateTime { get; set; }
+        public DateTimeOffset? EndDateTime { get; set; }
         public string? SummaryNotes { get; set; }
         public string? InternalNotes { get; set; }
         public bool IsNonBillable { get; set; }

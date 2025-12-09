@@ -76,6 +76,30 @@
 
         }
 
+        [HttpGet("contractexclusionbillingcodes/query")]
+        public async Task<IActionResult> GetContractExclusionBillingCode([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/ContractExclusionBillingCodes/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching contacts: {ex.Message}");
+            }
+
+        }
+
         [HttpGet("contacts/query")]
         public async Task<IActionResult> GetContacts([FromQuery] string search)
         {
@@ -273,8 +297,8 @@
             return StatusCode((int)response.StatusCode, content);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateTicket([FromBody] TicketDto ticket)
+        [HttpPatch("tickets")]
+        public async Task<IActionResult> UpdateTicket([FromBody] TicketUpdateDto ticket)
         {
             try
             {
@@ -290,7 +314,7 @@
                 });
 
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _http.PutAsync("v1.0/Tickets", content);
+                var response = await _http.PatchAsync("v1.0/Tickets", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)

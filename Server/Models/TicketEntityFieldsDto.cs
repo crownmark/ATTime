@@ -60,6 +60,18 @@ namespace CrownATTime.Server.Models
 
             [JsonPropertyName("isDefault")]
             public bool? IsDefault { get; set; }
+
+            [JsonIgnore]
+            public int? ValueInt
+            {
+                get
+                {
+                    if (int.TryParse(Value, out var v))
+                        return v;
+
+                    return null; // or default(int?)
+                }
+            }
         }
     }
 }
