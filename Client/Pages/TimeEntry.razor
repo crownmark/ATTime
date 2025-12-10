@@ -116,6 +116,7 @@
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Billing Code" Component="BillingCodeId" style="width: 100%" />
+                            <RadzenBadge Text="Billable" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Danger" Visible="@(!timeEntryRecord.IsNonBillable)"></RadzenBadge>
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
                             <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.BillingCodeId" Data="billingCodes" ValueProperty="id" TextProperty="name" Name="BillingCodeId" Style="width: 100%" Change="@(() => BillingCodeIdChange(timeEntryRecord.BillingCodeId.Value))" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"></RadzenDropDown>

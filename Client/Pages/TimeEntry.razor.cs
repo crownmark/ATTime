@@ -132,10 +132,10 @@ namespace CrownATTime.Client.Pages
 
                         };
                         var selectedBillingCode = billingCodes.Where(x => x.id == ticket.item.billingCodeID).FirstOrDefault();
-                        var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(newTimeEntry.ContractId), selectedBillingCode.id);
 
                         if (selectedBillingCode != null)
                         {
+                            
                             if (selectedBillingCode.billingCodeType == 2)
                             {
                                 newTimeEntry.IsNonBillable = true;
@@ -144,18 +144,31 @@ namespace CrownATTime.Client.Pages
                             }
                             else
                             {
-                                if (contractExclusion != null)
+                                if (ticket.item.contractID.HasValue)
                                 {
-                                    newTimeEntry.IsNonBillable = true;
-                                    newTimeEntry.ShowOnInvoice = false;
+                                    var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(newTimeEntry.ContractId), selectedBillingCode.id);
+
+                                    if (contractExclusion != null)
+                                    {
+                                        newTimeEntry.IsNonBillable = true;
+                                        newTimeEntry.ShowOnInvoice = false;
+                                    }
+                                    else
+                                    {
+                                        newTimeEntry.IsNonBillable = false;
+                                        newTimeEntry.ShowOnInvoice = true;
+                                        NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
+
+                                    }
                                 }
                                 else
                                 {
                                     newTimeEntry.IsNonBillable = false;
                                     newTimeEntry.ShowOnInvoice = true;
-                                    NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
+                                    NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"No Contract Set", Detail = $"This work type is considered billable and no contract has been set on the ticket.", Duration = 10000 });
 
                                 }
+
 
                             }
                         }
@@ -302,11 +315,12 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var selectedBillingCode = billingCodes.Where(x => x.id == args).FirstOrDefault();
-                var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId), selectedBillingCode.id);
+                var selectedBillingCode = billingCodes.Where(x => x.id == timeEntryRecord.BillingCodeId.Value).FirstOrDefault();
+
                 if (selectedBillingCode != null)
                 {
-                    if(selectedBillingCode.billingCodeType == 2)
+
+                    if (selectedBillingCode.billingCodeType == 2)
                     {
                         timeEntryRecord.IsNonBillable = true;
                         timeEntryRecord.ShowOnInvoice = false;
@@ -314,16 +328,28 @@ namespace CrownATTime.Client.Pages
                     }
                     else
                     {
-                        if(contractExclusion != null)
+                        if (timeEntryRecord.ContractId.HasValue)
                         {
-                            timeEntryRecord.IsNonBillable = true;
-                            timeEntryRecord.ShowOnInvoice = false;
+                            var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId.Value), selectedBillingCode.id);
+
+                            if (contractExclusion != null)
+                            {
+                                timeEntryRecord.IsNonBillable = true;
+                                timeEntryRecord.ShowOnInvoice = false;
+                            }
+                            else
+                            {
+                                timeEntryRecord.IsNonBillable = false;
+                                timeEntryRecord.ShowOnInvoice = true;
+                                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
+
+                            }
                         }
                         else
                         {
                             timeEntryRecord.IsNonBillable = false;
                             timeEntryRecord.ShowOnInvoice = true;
-                            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
+                            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"No Contract Set", Detail = $"This work type is considered billable and no contract has been set on the ticket.", Duration = 10000 });
 
                         }
 
@@ -429,6 +455,47 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                var selectedBillingCode = billingCodes.Where(x => x.id == timeEntryRecord.BillingCodeId.Value).FirstOrDefault();
+
+                if (selectedBillingCode != null)
+                {
+
+                    if (selectedBillingCode.billingCodeType == 2)
+                    {
+                        timeEntryRecord.IsNonBillable = true;
+                        timeEntryRecord.ShowOnInvoice = false;
+
+                    }
+                    else
+                    {
+                        if (timeEntryRecord.ContractId.HasValue)
+                        {
+                            var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId.Value), selectedBillingCode.id);
+
+                            if (contractExclusion != null)
+                            {
+                                timeEntryRecord.IsNonBillable = true;
+                                timeEntryRecord.ShowOnInvoice = false;
+                            }
+                            else
+                            {
+                                timeEntryRecord.IsNonBillable = false;
+                                timeEntryRecord.ShowOnInvoice = true;
+                                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
+
+                            }
+                        }
+                        else
+                        {
+                            timeEntryRecord.IsNonBillable = false;
+                            timeEntryRecord.ShowOnInvoice = true;
+                            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"No Contract Set", Detail = $"This work type is considered billable and no contract has been set on the ticket.", Duration = 10000 });
+
+                        }
+
+
+                    }
+                }
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
                 await UpdateTicketValues();
