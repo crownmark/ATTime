@@ -42,7 +42,7 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntry> timeEntries;
 
         protected RadzenDataGrid<CrownATTime.Server.Models.ATTime.TimeEntry> grid0;
-        protected bool MyTimeEntriesFilter { get; set; }
+        protected bool MyTimeEntriesFilter { get; set; } = true;
 
         protected ResourceDtoResult resource {  get; set; }
 

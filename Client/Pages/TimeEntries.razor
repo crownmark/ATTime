@@ -36,19 +36,19 @@
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TicketTitle" Title="Title" Width="300px">
                                     <Template>
                                         <RadzenStack>
-                                            <RadzenLabel Text="@context.TicketTitle" Style="word-wrap: break-word;" class />
+                                            <RadzenLabel Text="@context.TicketTitle" Style="text-wrap: auto;" />
                                         </RadzenStack>
                                     </Template>
                                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="DateWorked" Title="Date Worked">
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="DateWorked" Title="Date Worked" FormatString="{0:g}">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="HoursWorked" Title="Hours Worked">
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="HoursWorked" Title="Hrs Worked" Width="150px">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="SummaryNotes" Title="Summary Notes">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="InternalNotes" Title="Internal Notes">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="Radzen.FrozenColumnPosition.Right">
                     <Template Context="timeEntry">
 
                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"

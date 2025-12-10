@@ -19,4 +19,9 @@
     <PackageReference Include="Microsoft.AspNetCore.HeaderPropagation" Version="10.*-*" />
     <PackageReference Include="Microsoft.Identity.Web" Version="2.15.3" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\images\Crown.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
