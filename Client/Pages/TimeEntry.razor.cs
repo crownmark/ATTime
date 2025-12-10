@@ -129,8 +129,7 @@ namespace CrownATTime.Client.Pages
                             DateWorked = DateTimeOffset.Now,
                             TimeStampStatus = true,
                             DurationMs = 0,
-
-
+                            TicketTitle = ticket.item.title,
 
                         };
                         var selectedBillingCode = billingCodes.Where(x => x.id == ticket.item.billingCodeID).FirstOrDefault();
@@ -190,6 +189,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
                 var statuses = ticketEntityFields.Where(x => x.Name == "status").FirstOrDefault().PicklistValues;
@@ -222,14 +222,14 @@ namespace CrownATTime.Client.Pages
                 var newATTimeEntry = new TimeEntryCreateDto()
                 {
                     DateWorked = timeEntryRecord.DateWorked.Value,
-                    BillingCodeId = timeEntryRecord.BillingCodeId,
+                    BillingCodeId = timeEntryRecord.BillingCodeId.Value,
                     StartDateTime = timeEntryRecord.StartDateTime,
                     EndDateTime = timeEntryRecord.EndDateTime,
                     HoursWorked = timeEntryRecord.HoursWorked.Value,
                     InternalNotes = timeEntryRecord.InternalNotes,
                     IsNonBillable = timeEntryRecord.IsNonBillable,
                     ResourceId = timeEntryRecord.ResourceId,
-                    RoleId = timeEntryRecord.RoleId,
+                    RoleId = timeEntryRecord.RoleId.Value,
                     SummaryNotes = timeEntryRecord.SummaryNotes,
                     TicketId = timeEntryRecord.TicketId,
                     ContractId = timeEntryRecord.ContractId,

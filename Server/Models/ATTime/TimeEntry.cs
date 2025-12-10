@@ -29,12 +29,10 @@ namespace CrownATTime.Server.Models.ATTime
         public int ResourceId { get; set; }
 
         [Column("RoleID")]
-        [Required]
-        public int RoleId { get; set; }
+        public int? RoleId { get; set; }
 
         [Column("BillingCodeID")]
-        [Required]
-        public int BillingCodeId { get; set; }
+        public int? BillingCodeId { get; set; }
 
         [Column("ContractID")]
         public int? ContractId { get; set; }
@@ -62,6 +60,9 @@ namespace CrownATTime.Server.Models.ATTime
         public bool TimeStampStatus { get; set; }
 
         public long? DurationMs { get; set; }
-        
+
+        [Column("TicketTItle")]
+        [MaxLength(255)]
+        public string TicketTitle { get; set; }
     }
 }

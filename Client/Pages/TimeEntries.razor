@@ -23,10 +23,23 @@
                                         </RadzenStack>
                                     </Template>
                                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TimeStampStatus" Title="Timer Status">
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TimeStampStatus" Title="Timer" Width="125px">
+                    <Template>
+                        <RadzenStack AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
+                            <RadzenBadge Text="Running" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Success" Style="width: 70px" IsPill="true" Visible="@context.TimeStampStatus"></RadzenBadge>
+<RadzenBadge Text="Stopped" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Danger" Style="width: 70px" IsPill="true" Visible="@(!context.TimeStampStatus)"></RadzenBadge>
+                        </RadzenStack>
+                    </Template>
                                                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TicketNumber" Title="Ticket Number">
                 </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TicketTitle" Title="Title" Width="300px">
+                                    <Template>
+                                        <RadzenStack>
+                                            <RadzenLabel Text="@context.TicketTitle" Style="word-wrap: break-word;" class />
+                                        </RadzenStack>
+                                    </Template>
+                                </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="DateWorked" Title="Date Worked">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="HoursWorked" Title="Hours Worked">
@@ -45,8 +58,10 @@
                 </RadzenDataGridColumn>
             </Columns>
             <HeaderTemplate>
-                <RadzenStack>
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
                     <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 40px" Click="@RefreshButtonClick"></RadzenButton>
+                    <RadzenLabel Text="My Time Entries:" />
+                    <RadzenSwitch @bind-Value="@MyTimeEntriesFilter" Name="MyTimeEntriesFilter" Change="@MyTimeEntriesFilterChange"></RadzenSwitch>
                 </RadzenStack>
             </HeaderTemplate>
 

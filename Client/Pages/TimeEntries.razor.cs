@@ -42,6 +42,7 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntry> timeEntries;
 
         protected RadzenDataGrid<CrownATTime.Server.Models.ATTime.TimeEntry> grid0;
+        protected bool MyTimeEntriesFilter { get; set; }
 
         protected ResourceDtoResult resource {  get; set; }
 
@@ -49,6 +50,7 @@ namespace CrownATTime.Client.Pages
         protected bool gridLoading;
 
         protected string search = "";
+        protected string defaultFilter = "";
 
         [Inject]
         protected SecurityService Security { get; set; }
@@ -70,7 +72,16 @@ namespace CrownATTime.Client.Pages
                 gridLoading = true;
                 if(resource != null)
                 {
-                    string defaultFilter = $"IsCompleted eq false and ResourceId eq {resource.id}";
+                    if (MyTimeEntriesFilter)
+                    {
+                        defaultFilter = $"IsCompleted eq false and ResourceId eq {resource.id}";
+
+                    }
+                    else
+                    {
+                        defaultFilter = $"IsCompleted eq false";
+
+                    }
 
                     var result = await ATTimeService.GetTimeEntries(filter: $@"{defaultFilter} and (contains(TicketNumber,""{search}"") or contains(SummaryNotes,""{search}"") or contains(InternalNotes,""{search}"")) and {(string.IsNullOrEmpty(args.Filter) ? "true" : args.Filter)}", orderby: $"{args.OrderBy}", top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null);
                     timeEntries = result.Value.AsODataEnumerable();
@@ -149,6 +160,11 @@ namespace CrownATTime.Client.Pages
         }
 
         protected async System.Threading.Tasks.Task RefreshButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await grid0.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task MyTimeEntriesFilterChange(System.Boolean args)
         {
             await grid0.Reload();
         }
