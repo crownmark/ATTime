@@ -92,7 +92,6 @@ namespace CrownATTime.Client.Pages
                 var contractsResult = await AutotaskTicketService.GetTicketContracts(ticket.item.companyID);
                 contracts = contractsResult.Items;
                 contract = await AutotaskTicketService.GetContract(ticket.item.contractID?? 0);
-                await UpdateTicketValues();
                 
                 
                 if (ticket == null)
@@ -162,6 +161,8 @@ namespace CrownATTime.Client.Pages
                         }
                         timeEntryRecord = await ATTimeService.CreateTimeEntry(newTimeEntry);
                     }
+                    await UpdateTicketValues();
+
                     pageLoading = false;
 
                     // Create the timer that will update ElapsedMS
