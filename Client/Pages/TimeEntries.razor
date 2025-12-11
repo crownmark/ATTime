@@ -14,7 +14,7 @@
     <RadzenRow>
       <RadzenColumn SizeMD=12>
         <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-            Data="@(timeEntries)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.TimeEntry" RowSelect="@EditRow" IsLoading="@gridLoading">
+            Data="@(timeEntries)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.TimeEntry" RowSelect="@EditRow" IsLoading="@gridLoading" Responsive="true">
             <Columns>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TicketId" Frozen="true" Width="150px">
                                     <Template>
@@ -25,7 +25,7 @@
                                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TimeStampStatus" Title="Timer" Width="125px">
                     <Template>
-                        <RadzenStack AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
+                        <RadzenStack JustifyContent="Radzen.JustifyContent.Center">
                             <RadzenBadge Text="Running" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Success" Style="width: 70px" IsPill="true" Visible="@context.TimeStampStatus"></RadzenBadge>
 <RadzenBadge Text="Stopped" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Danger" Style="width: 70px" IsPill="true" Visible="@(!context.TimeStampStatus)"></RadzenBadge>
                         </RadzenStack>
