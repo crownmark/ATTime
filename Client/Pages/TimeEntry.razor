@@ -144,14 +144,14 @@
                             <RadzenLabel Text="Hours Worked" Component="HoursWorked" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" ReadOnly="true" />
+                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" ReadOnly="true" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
                           <RadzenNumericRangeValidator Text="Hours must be greater than 0.02" Min="0.03" Max="24" Component="HoursWorked"></RadzenNumericRangeValidator>
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Offset Hours" Component="OffsetHours" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Format="0.00" />
+                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Format="0.00" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
                         </RadzenColumn>
                     </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
