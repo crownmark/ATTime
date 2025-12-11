@@ -1,0 +1,26 @@
+@page "/close-ticket-dialog"
+
+@attribute [Authorize]
+
+<PageTitle>CloseTicketDialog</PageTitle>
+<RadzenRow>
+<RadzenColumn Size="12">
+    <RadzenTemplateForm TItem="Server.Models.CloseTicket" Data="@closeTicketRecord" Submit="@TemplateForm0Submit">
+        <RadzenStack>
+            <RadzenRow>
+                <RadzenColumn Size="12">
+                    <RadzenLabel Component="TextBox1" style="width: 100%" Text="Resolution"></RadzenLabel>
+                    <RadzenButton Text="Insert TIme Entry Summery Notes" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="update" Click="@Button0Click"></RadzenButton>
+                </RadzenColumn>
+                <RadzenColumn Size="12">
+                    <RadzenTextArea Style="width: 100%" Rows="10" @bind-Value="@closeTicketRecord.Resolution" Name="Resolution"></RadzenTextArea>
+                    <RadzenRequiredValidator Component="Resolution"></RadzenRequiredValidator>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Close Ticket" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenTemplateForm>
+    </RadzenColumn>
+</RadzenRow>

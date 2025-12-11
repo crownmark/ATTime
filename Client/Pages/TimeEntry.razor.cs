@@ -68,6 +68,7 @@ namespace CrownATTime.Client.Pages
 
         private System.Timers.Timer? _stopwatchTimer;
         private bool _isRunning;
+        private bool saveAndCloseTicket = false;
         private DateTime _lastTickUtc;
         private string ElapsedFormatted => TimeSpan.FromMilliseconds((timeEntryRecord.DurationMs ?? 0)).ToString(@"hh\:mm\:ss");
 
@@ -207,7 +208,7 @@ namespace CrownATTime.Client.Pages
                 contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
                 var statuses = ticketEntityFields.Where(x => x.Name == "status").FirstOrDefault().PicklistValues;
-                var allowedIds = new HashSet<int> { 1, 5, 7, 8, 10, 12, 23, 29, 27, 32, 33, 34, 46, 47 }; // example status IDs
+                var allowedIds = new HashSet<int> { 1, 7, 8, 10, 12, 23, 29, 27, 32, 33, 34, 46, 47 }; // example status IDs
 
                 var filtered = statuses
                     .Where(s => s.ValueInt.HasValue && allowedIds.Contains(s.ValueInt.Value)).OrderBy(x => x.Label)
@@ -258,10 +259,24 @@ namespace CrownATTime.Client.Pages
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
 
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
-                await JSRuntime.InvokeVoidAsync(
-                    "eval",
-                    "window.open('', '_self'); window.close();"
-                );
+                if (saveAndCloseTicket)
+                {
+
+                    await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
+                    await JSRuntime.InvokeVoidAsync(
+                            "eval",
+                            "window.open('', '_self'); window.close();"
+                        );
+
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync(
+                                            "eval",
+                                            "window.open('', '_self'); window.close();"
+                                        );
+                }
+                    
             }
             catch (Exception ex)
             {
@@ -785,7 +800,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task InsertTimeSummaryNotesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " -";
+            var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " - ";
 
             // If SummaryNotes is empty, set directly
             if (string.IsNullOrWhiteSpace(timeEntryRecord.SummaryNotes))
@@ -800,7 +815,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task InsertTimeInternalNotesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " -";
+            var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " - ";
 
             // If SummaryNotes is empty, set directly
             if (string.IsNullOrWhiteSpace(timeEntryRecord.InternalNotes))
@@ -811,6 +826,11 @@ namespace CrownATTime.Client.Pages
 
             // Otherwise append as a new line
             timeEntryRecord.InternalNotes += Environment.NewLine + timestamp;
+        }
+
+        protected async System.Threading.Tasks.Task SaveAndCloseTicketButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            saveAndCloseTicket = true;
         }
     }
 }
