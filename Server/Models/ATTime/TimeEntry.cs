@@ -64,5 +64,20 @@ namespace CrownATTime.Server.Models.ATTime
         [Column("TicketTItle")]
         [MaxLength(255)]
         public string TicketTitle { get; set; }
+
+        [MaxLength(255)]
+        public string AccountName { get; set; }
+
+        [MaxLength(255)]
+        public string ContactName { get; set; }
+
+        [MaxLength(255)]
+        public string ResourceName { get; set; }
+
+        [MaxLength(255)]
+        public string PriorityName { get; set; }
+
+        [MaxLength(255)]
+        public string StatusName { get; set; }
     }
 }

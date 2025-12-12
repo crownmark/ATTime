@@ -72,6 +72,23 @@ namespace CrownATTime.Client.Pages
         private DateTime _lastTickUtc;
         private string ElapsedFormatted => TimeSpan.FromMilliseconds((timeEntryRecord.DurationMs ?? 0)).ToString(@"hh\:mm\:ss");
 
+        protected int accordionSelectedIndex { get; set; }
+        private bool _openedAccordionOnce;
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (!_openedAccordionOnce && !pageLoading)
+            {
+                await Task.Delay(3000);
+                _openedAccordionOnce = true;
+                accordionSelectedIndex = -1;
+                await InvokeAsync(StateHasChanged);
+                accordionSelectedIndex = 0;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+
+
         protected override async Task OnInitializedAsync()
         {
             try
@@ -79,22 +96,22 @@ namespace CrownATTime.Client.Pages
                 pageLoading = true;
                 
 
-                var resourceResult = await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email);
+                var resourceResult = await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email); //cache in db
                 resource = resourceResult.Items.FirstOrDefault();
-                var billingCodeItems = await AutotaskTimeEntryService.GetBillingCodes();
+                var billingCodeItems = await AutotaskTimeEntryService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Items;
-                var roles = await AutotaskTimeEntryService.GetRoles();
+                var roles = await AutotaskTimeEntryService.GetRoles(); //cache in db
                 var serviceDeskRoles = await AutotaskTimeEntryService.GetServiceDeskRoles(resource.id);
-                mappedRoles = AutotaskTimeEntryService.MapToServiceDeskRoles(roles.Items, serviceDeskRoles.Items, true);
-                var fields = await AutotaskTicketService.GetTicketFields();
+                mappedRoles = AutotaskTimeEntryService.MapToServiceDeskRoles(roles.Items, serviceDeskRoles.Items, true); //get from db
+                var fields = await AutotaskTicketService.GetTicketFields(); //cache in db
                 ticketEntityFields = fields.Fields;
                 
                 ticket = await AutotaskTicketService.GetTicket(Convert.ToInt32(TicketId));
-                var contractsResult = await AutotaskTicketService.GetTicketContracts(ticket.item.companyID);
+                var contractsResult = await AutotaskTicketService.GetTicketContracts(ticket.item.companyID); //cache in db
                 contracts = contractsResult.Items;
-                contract = await AutotaskTicketService.GetContract(ticket.item.contractID?? 0);
-                
-                
+                contract = await AutotaskTicketService.GetContract(ticket.item.contractID?? 0); //get from db
+
+
                 if (ticket == null)
                 {
                     NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to find Ticket" });
@@ -130,6 +147,7 @@ namespace CrownATTime.Client.Pages
                             TimeStampStatus = true,
                             DurationMs = 0,
                             TicketTitle = ticket.item.title,
+                            
 
                         };
                         var selectedBillingCode = billingCodes.Where(x => x.id == ticket.item.billingCodeID).FirstOrDefault();
@@ -147,7 +165,7 @@ namespace CrownATTime.Client.Pages
                             {
                                 if (ticket.item.contractID.HasValue)
                                 {
-                                    var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(newTimeEntry.ContractId), selectedBillingCode.id);
+                                    var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(newTimeEntry.ContractId), selectedBillingCode.id);//cache in db
 
                                     if (contractExclusion != null)
                                     {
@@ -175,7 +193,8 @@ namespace CrownATTime.Client.Pages
                         }
                         timeEntryRecord = await ATTimeService.CreateTimeEntry(newTimeEntry);
                     }
-                    await UpdateTicketValues();
+                    UpdateTicketValues();
+                    accordionSelectedIndex = 0;
 
                     pageLoading = false;
 
@@ -189,17 +208,21 @@ namespace CrownATTime.Client.Pages
                         _lastTickUtc = DateTime.UtcNow;
                         _stopwatchTimer?.Start();
                     }
-
+                    
                     StateHasChanged();
+
                 }
             }
             catch (Exception ex)
             {
+
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Ticket.  Error: {ex.Message}" });
                 pageLoading = false;
 
             }
         }
+
+        
         protected async System.Threading.Tasks.Task UpdateTicketValues()
         {
             try
@@ -221,6 +244,11 @@ namespace CrownATTime.Client.Pages
                 var priority = priorities.Where(x => x.Value == ticket.item.priority.ToString()).FirstOrDefault();
                 PriorityName = priority.Label;
                 var ticketLookupFields = await AutotaskTicketService.GetTicketFields();
+                timeEntryRecord.AccountName = company.item.companyName;
+                timeEntryRecord.ContactName = $"{contact.item.firstName} {contact.item.lastName}";
+                timeEntryRecord.PriorityName = PriorityName;
+                timeEntryRecord.StatusName = StatusName;
+                timeEntryRecord.ResourceName = $"{resource.firstName} {resource.lastName}";
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -685,6 +713,8 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                accordionSelectedIndex = 0;
+                StateHasChanged();
                 _isRunning = false;
                 // Timer can keep running; we just ignore ticks when not running.
                 // (Or call _stopwatchTimer?.Stop(); if you prefer.)

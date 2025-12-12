@@ -31,6 +31,7 @@
                         </RadzenStack>
                     </Template>
                                                 </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="ResourceName" Title="Resource" FilterOperator="Radzen.FilterOperator.Contains"></RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TicketNumber" Title="Ticket Number">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="TicketTitle" Title="Title" Width="300px">
@@ -40,6 +41,10 @@
                                         </RadzenStack>
                                     </Template>
                                 </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="PriorityName" Title="Priority" FilterOperator="Radzen.FilterOperator.Contains"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="StatusName" Title="Status" FilterOperator="Radzen.FilterOperator.Contains"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="AccountName" Title="Account" FilterOperator="Radzen.FilterOperator.Contains"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="ContactName" Title="Contact" FilterOperator="Radzen.FilterOperator.Contains"></RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="DateWorked" Title="Date Worked" FormatString="{0:g}">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Property="HoursWorked" Title="Hrs Worked" Width="150px">

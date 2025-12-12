@@ -207,7 +207,16 @@
        </RadzenStack>
     </RadzenColumn>
     <RadzenColumn SizeXL="2" SizeLG="3">
-        <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
+        <RadzenAccordion Style="width: 100%" Multiple="true" @bind-SelectedIndex="@accordionSelectedIndex">
+            <Items>
+                <RadzenAccordionItem Text="Rocketship" Icon="rocket_launch" >
+                    <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
+                </RadzenAccordionItem>
+                <RadzenAccordionItem Text="Insights"  Icon="visibility" ></RadzenAccordionItem>
+            </Items>
+
+        </RadzenAccordion>
+        
     </RadzenColumn>
 </RadzenRow>
 
@@ -220,7 +229,7 @@
       bottom: 0;
       right: 0;
       width: 100%;
-      height: 91vh;
+      height: 73vh;
       border: none;
     }
 </style>

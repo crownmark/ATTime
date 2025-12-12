@@ -83,7 +83,7 @@ namespace CrownATTime.Client.Pages
 
                     }
 
-                    var result = await ATTimeService.GetTimeEntries(filter: $@"{defaultFilter} and (contains(TicketNumber,""{search}"") or contains(SummaryNotes,""{search}"") or contains(InternalNotes,""{search}"")) and {(string.IsNullOrEmpty(args.Filter) ? "true" : args.Filter)}", orderby: $"{args.OrderBy}", top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null);
+                    var result = await ATTimeService.GetTimeEntries(filter: $@"{defaultFilter} and (contains(ResourceName,""{search}"") or contains(ContactName,""{search}"") or contains(TicketTitle,""{search}"") or contains(AccountName,""{search}"") or contains(PriorityName,""{search}"") or contains(StatusName,""{search}"") or contains(TicketNumber,""{search}"") or contains(SummaryNotes,""{search}"") or contains(InternalNotes,""{search}"")) and {(string.IsNullOrEmpty(args.Filter) ? "true" : args.Filter)}", orderby: $"{args.OrderBy}", top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null);
                     timeEntries = result.Value.AsODataEnumerable();
                     count = result.Count;
                 }
