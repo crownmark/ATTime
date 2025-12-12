@@ -75,7 +75,7 @@
             public int? serviceLevelAgreementID { get; set; }
             //public object serviceLevelAgreementPausedNextEventHours { get; set; }
             //public object serviceThermometerTemperature { get; set; }
-            public int source { get; set; }
+            public int? source { get; set; }
             public int status { get; set; }
             public int? subIssueType { get; set; }
             public int ticketCategory { get; set; }
