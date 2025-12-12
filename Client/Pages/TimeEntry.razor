@@ -17,7 +17,7 @@
     </RadzenStack>
 </RadzenRow>
 <RadzenRow Visible="@(!pageLoading && !timeEntryRecord.IsCompleted)">
-    <RadzenColumn SizeXL="10" SizeLG="8">
+    <RadzenColumn SizeXL="10" SizeLG="9">
        <RadzenStack>
             <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap">
                 <RadzenText Text="@($"{ticket?.item?.ticketNumber} - {ticket?.item?.title}")" TextStyle="Radzen.Blazor.TextStyle.H4" />
@@ -206,7 +206,7 @@
             </RadzenStack>
        </RadzenStack>
     </RadzenColumn>
-    <RadzenColumn SizeXL="2" SizeLG="4">
+    <RadzenColumn SizeXL="2" SizeLG="3">
         <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
     </RadzenColumn>
 </RadzenRow>
