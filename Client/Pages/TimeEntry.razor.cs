@@ -97,6 +97,7 @@ namespace CrownATTime.Client.Pages
                 
 
                 var resourceResult = await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email); //cache in db
+                //var resourceResult = await AutotaskTimeEntryService.GetLoggedInResource("casey@ce-technology.com"); //cache in db
                 resource = resourceResult.Items.FirstOrDefault();
                 var billingCodeItems = await AutotaskTimeEntryService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Items;
