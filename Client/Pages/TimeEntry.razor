@@ -151,7 +151,7 @@
                             <RadzenLabel Text="Offset Hours" Component="OffsetHours" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Format="0.00" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Format="0.00" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" Disabled="@(timeEntryRecord.TimeStampStatus)" />
                         </RadzenColumn>
                     </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">

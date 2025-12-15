@@ -694,7 +694,7 @@ namespace CrownATTime.Client.Pages
                 _isRunning = true;
                 _lastTickUtc = DateTime.UtcNow;
                 _stopwatchTimer?.Start();
-
+                timeEntryRecord.OffsetHours = 0;
                 timeEntryRecord.TimeStampStatus = true;
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
