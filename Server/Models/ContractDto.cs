@@ -26,7 +26,7 @@ namespace CrownATTime.Server.Models
         public string? ContactName { get; set; }
 
         [JsonPropertyName("contractCategory")]
-        public int ContractCategory { get; set; }
+        public int? ContractCategory { get; set; }
 
         [JsonPropertyName("contractExclusionSetID")]
         public long? ContractExclusionSetID { get; set; }

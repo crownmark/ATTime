@@ -31,7 +31,13 @@ builder.Services.AddDbContext<CrownATTime.Server.Data.ATTimeContext>(options =>
 builder.Services.AddControllers().AddOData(opt =>
 {
     var oDataBuilderATTime = new ODataConventionModelBuilder();
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.BillingCodeCache>("BillingCodeCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ContractCache>("ContractCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ResourceCache>("ResourceCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.RoleCache>("RoleCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache>("TicketEntityPicklistValueCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeEntry>("TimeEntries");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>("ServiceDeskRoleCaches");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
@@ -44,8 +50,6 @@ builder.Services.AddScoped<CrownATTime.Client.SecurityService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTicketService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTimeEntryService>();
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
-
-
 var app = builder.Build();
 var forwardingOptions = new ForwardedHeadersOptions()
 {
@@ -76,4 +80,3 @@ app.UseAuthorization();
 app.UseAntiforgery();
 app.MapRazorComponents<App>().AddInteractiveWebAssemblyRenderMode().AddAdditionalAssemblies(typeof(CrownATTime.Client._Imports).Assembly);
 app.Run();
-

@@ -1,6 +1,7 @@
 ﻿namespace CrownATTime.Client
 {
     using CrownATTime.Server.Models;
+    using CrownATTime.Server.Models.ATTime;
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.Configuration;
     using Radzen;
@@ -255,6 +256,36 @@
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<BillingCodeDto>>(response);
         }
+        public async Task SyncBillingCodes()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "isActive", value = true },
+                    new { op = "eq", field = "useType", value = 1 },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"billingcodes/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Contracts.  {content}");
+            }
+        }
         public async Task<AutotaskItemsResponse<ResourceDtoResult>> GetLoggedInResource(string email)
         {
             var filters = new List<object>
@@ -281,6 +312,35 @@
             var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ResourceDtoResult>>(content);
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<ResourceDtoResult>>(response);
+        }
+        public async Task SyncResources()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "isActive", value = true }
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"resources/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Resources.  {content}");
+            }
         }
         public async Task<AutotaskItemsResponse<RoleDto>> GetRoles()
         {
@@ -309,13 +369,75 @@
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<RoleDto>>(response);
         }
+
+        public async Task SyncRoles()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "isActive", value = true },
+
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"roles/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Roles.  {content}");
+            }
+        }
+
+        public async Task SyncServiceDeskRoles()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "isActive", value = true },
+                    //new { op = "eq", field = "resourceID", value = resourceId },
+
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"servicedeskroles/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Service Desk Roles.  {content}");
+            }
+        }
         public async Task<AutotaskItemsResponse<SericeDeskRoleDto>> GetServiceDeskRoles(int resourceId)
         {
             var filters = new List<object>
                 {
                     new { op = "eq", field = "isActive", value = true },
                     new { op = "eq", field = "resourceID", value = resourceId },
-                    //new { op = "eq", field = "billingCodeType", value = 0 },
 
                 };
             var searchObj = new
@@ -337,24 +459,24 @@
                 .ReadAsync<AutotaskItemsResponse<SericeDeskRoleDto>>(response);
         }
 
-        public static List<RoleDto> MapToServiceDeskRoles(IEnumerable<RoleDto> allRoles, IEnumerable<SericeDeskRoleDto> serviceDeskRoles, bool onlyActive = true)
+        public static List<RoleCache> MapToServiceDeskRoles(IEnumerable<RoleCache> allRoles, IEnumerable<ServiceDeskRoleCache> serviceDeskRoles, bool onlyActive = true)
         {
             //If RoleId is a plain int
             var sdRoleIds = serviceDeskRoles
-                .Select(s => s.roleID)   // just use the int
+                .Select(s => s.RoleId)   // just use the int
                 .Distinct()
                 .ToHashSet();
 
             var roles = allRoles
-                .Where(r => sdRoleIds.Contains(r.id));
+                .Where(r => sdRoleIds.Contains(r.Id));
 
             if (onlyActive)
             {
-                roles = roles.Where(r => r.isActive);
+                roles = roles.Where(r => r.IsActive);
             }
 
             return roles
-                .OrderBy(r => r.name)
+                .OrderBy(r => r.Name)
                 .ToList();
         }
 

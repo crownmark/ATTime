@@ -1,0 +1,66 @@
+@page "/autotask-settings"
+
+@attribute [Authorize]
+
+<PageTitle>AutotaskSettings</PageTitle>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenText Text="Autotask Settings" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+    </RadzenColumn>
+</RadzenRow>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenStack>
+            <RadzenHeading Text="Credentials" Size="H2" Style="border-bottom: 2px solid #e0e0e9"></RadzenHeading>
+            <RadzenButton Text="Configure Autotask Credentials" Icon="lock" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@CredentialsButtonClick"></RadzenButton>
+        </RadzenStack>
+    </RadzenColumn>
+    <RadzenColumn Size="12">
+        <RadzenRow>
+            <RadzenColumn Size="12">
+<RadzenHeading Text="Cache" Size="H2" Style="border-bottom: 2px solid #e0e0e9"></RadzenHeading>
+
+                
+            </RadzenColumn>
+        </RadzenRow>
+<RadzenRow>
+            <RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Billing Codes" />
+                    <RadzenButton Text="Re-Sync Billing Codes" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@BillingCodesButtonClick" BusyText="Syncing Billing Codes" IsBusy="@syncingBillingCodes"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Contracts" />
+                    <RadzenButton Text="Re-Sync Contracts" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@ContractsButtonClick" IsBusy="@syncingContacts" BusyText="Syncing Contracts"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+<RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Resources" />
+                    <RadzenButton Text="Re-Sync Resources" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@ResourcesButtonClick" IsBusy="@syncingResources" BusyText="Syncing Resources"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+<RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Roles" />
+                    <RadzenButton Text="Re-Sync Roles" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@RolesButtonClick" BusyText="Syncing Roles" IsBusy="@syncingRoles"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Service Desk Roles" />
+                    <RadzenButton Text="Re-Sync Service Desk Roles" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@ServiceDeskRolesButtonClick" BusyText="Syncing Serivice Desk Roles" IsBusy="@syncingServiceDeskRoles"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+<RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Ticket Picklists" />
+                    <RadzenButton Text="Re-Sync Ticket Picklists" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@TicketPicklistsButtonClick" IsBusy="@syncingTicketFields" BusyText="Syncing Ticket Picklists"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+        
+    </RadzenColumn>
+</RadzenRow>

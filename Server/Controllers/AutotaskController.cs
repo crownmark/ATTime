@@ -1,10 +1,12 @@
 ﻿namespace CrownATTime.Server.Controllers
 {
     using CrownATTime.Server.Models;
+    using CrownATTime.Server.Models.ATTime;
     using CrownATTime.Server.Services;
     using Microsoft.AspNetCore.Http.Json;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.IdentityModel.Logging;
     using System.Collections.Generic;
     using System.Text;
     using System.Text.Json;
@@ -51,6 +53,64 @@
             }
 
         }
+        [HttpGet("billingcodes/sync")]
+        public async Task<IActionResult> SyncBilingCodes([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/BillingCodes/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<BillingCodeDto>>(content);
+                var existingItems = context.BillingCodeCaches.ToList();
+                var itemsToUpdate = new List<BillingCodeCache>();
+                var itemsToCreate = new List<BillingCodeCache>();
+                foreach (var item in converted.Items)
+                {
+                    var existingItem = existingItems.FirstOrDefault(x => x.Id == item.id);
+                    if (existingItem != null)
+                    {
+                        existingItem.Id = item.id;
+                        existingItem.Department = item.department;
+                        existingItem.IsActive = item.isActive;
+                        existingItem.AfterHoursWorkType = item.afterHoursWorkType;
+                        existingItem.Name = item.name;
+                        existingItem.UseType = item.useType;
+                        existingItem.BillingCodeType = item.billingCodeType;
+
+                    }
+                    else
+                    {
+                        itemsToCreate.Add(new BillingCodeCache()
+                        {
+                            Id = item.id,
+                            Department = item.department,
+                            IsActive = item.isActive,
+                            AfterHoursWorkType = item.afterHoursWorkType,
+                            Name = item.name,
+                            UseType = item.useType,
+                            BillingCodeType = item.billingCodeType,
+
+                        });
+
+                    }
+                }
+                await context.AddRangeAsync(itemsToCreate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Billing Codes: {ex.Message}");
+            }
+
+        }
 
         [HttpGet("contracts/query")]
         public async Task<IActionResult> GetContracts([FromQuery] string search)
@@ -68,6 +128,61 @@
                 var content = await response.Content.ReadAsStringAsync();
 
                 return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching contacts: {ex.Message}");
+            }
+
+        }
+        [HttpGet("contracts/sync")]
+        public async Task<IActionResult> SyncContracts([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/Contracts/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ContractDto>>(content);
+                var existingItems = context.ContractCaches.ToList();
+                var itemsToUpdate = new List<ContractCache>();
+                var itemsToCreate = new List<ContractCache>();
+                foreach (var item in converted.Items)
+                {
+                    var existingItem = existingItems.FirstOrDefault(x => x.Id == item.Id);
+                    if (existingItem != null)
+                    {
+                        existingItem.Id = item.Id;
+                        existingItem.Status = item.Status;
+                        existingItem.IsDefaultContract = item.IsDefaultContract;
+                        existingItem.ContractName = item.ContractName;
+                        existingItem.BillingPreference = item.BillingPreference;
+                        existingItem.CompanyId = Convert.ToInt32(item.CompanyID);
+                        
+                    }
+                    else
+                    {
+                        itemsToCreate.Add(new ContractCache() 
+                        { 
+                            Id = item.Id,
+                            BillingPreference = item.BillingPreference,
+                            Status = item.Status,
+                            ContractName = item.ContractName,
+                            CompanyId = Convert.ToInt32(item.CompanyID),
+                            IsDefaultContract = item.IsDefaultContract,
+                        });
+
+                    }
+                }
+                await context.AddRangeAsync( itemsToCreate );
+                await context.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -216,6 +331,68 @@
 
         }
 
+        [HttpGet("resources/sync")]
+        public async Task<IActionResult> SyncResources([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/Resources/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ResourceDtoResult>>(content);
+                var existingItems = context.ResourceCaches.ToList();
+                var itemsToUpdate = new List<ResourceCache>();
+                var itemsToCreate = new List<ResourceCache>();
+                foreach (var item in converted.Items)
+                {
+                    var existingItem = existingItems.FirstOrDefault(x => x.Id == item.id);
+                    if (existingItem != null)
+                    {
+                        existingItem.Id = item.id;
+                        existingItem.OfficeExtension = item.officeExtension;
+                        existingItem.IsActive = item.isActive;
+                        existingItem.OfficePhone = item.officePhone;
+                        existingItem.Email = item.email;
+                        existingItem.FirstName = item.firstName;
+                        existingItem.LastName = item.lastName;
+                        existingItem.ResourceType = item.resourceType;
+                        existingItem.UserName = item.userName;
+                    }
+                    else
+                    {
+                        itemsToCreate.Add(new ResourceCache()
+                        {
+                            Id = item.id,
+                            OfficePhone = item.officePhone,
+                            OfficeExtension = item.officeExtension,
+                            IsActive = item.isActive,
+                            Email = item.email,
+                            FirstName = item.firstName, 
+                            LastName = item.lastName,
+                            ResourceType = item.resourceType,
+                            UserName = item.userName,
+
+                        });
+
+                    }
+                }
+                await context.AddRangeAsync(itemsToCreate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Roles: {ex.Message}");
+            }
+
+        }
+
         [HttpGet("roles/query")]
         public async Task<IActionResult> GetRoles([FromQuery] string search)
         {
@@ -236,6 +413,58 @@
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error fetching contacts: {ex.Message}");
+            }
+
+        }
+
+        [HttpGet("roles/sync")]
+        public async Task<IActionResult> SyncRoles([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/Roles/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<RoleDto>>(content);
+                var existingItems = context.RoleCaches.ToList();
+                var itemsToUpdate = new List<RoleCache>();
+                var itemsToCreate = new List<RoleCache>();
+                foreach (var item in converted.Items)
+                {
+                    var existingItem = existingItems.FirstOrDefault(x => x.Id == item.id);
+                    if (existingItem != null)
+                    {
+                        existingItem.Id = item.id;
+                        existingItem.Name = item.name;
+                        existingItem.IsActive = item.isActive;
+                        existingItem.RoleType = item.roleType;
+                    }
+                    else
+                    {
+                        itemsToCreate.Add(new RoleCache()
+                        {
+                            Id = item.id,
+                            Name = item.name,
+                            IsActive = item.isActive,
+                            RoleType = item.roleType,
+
+                        });
+
+                    }
+                }
+                await context.AddRangeAsync(itemsToCreate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Roles: {ex.Message}");
             }
 
         }
@@ -264,12 +493,119 @@
 
         }
 
+        [HttpGet("servicedeskroles/sync")]
+        public async Task<IActionResult> SyncServiceDeskRoles([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/ResourceServiceDeskRoles/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<SericeDeskRoleDto>>(content);
+                var existingItems = context.ServiceDeskRoleCaches.ToList();
+                var itemsToUpdate = new List<ServiceDeskRoleCache>();
+                var itemsToCreate = new List<ServiceDeskRoleCache>();
+                foreach (var item in converted.Items)
+                {
+                    var existingItem = existingItems.FirstOrDefault(x => x.Id == item.id);
+                    if (existingItem != null)
+                    {
+                        existingItem.Id = item.id;
+                        existingItem.IsActive = item.isActive;
+                        existingItem.IsDefault = item.isDefault;
+                        existingItem.ResourceId = item.resourceID;
+                        existingItem.RoleId = item.roleID;
+                    }
+                    else
+                    {
+                        itemsToCreate.Add(new ServiceDeskRoleCache()
+                        {
+                            Id = item.id,
+                            IsActive = item.isActive,
+                            IsDefault = item.isDefault,
+                            ResourceId = item.resourceID,
+                            RoleId = item.roleID,
+
+                        });
+
+                    }
+                }
+                await context.AddRangeAsync(itemsToCreate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Service Desk Roles: {ex.Message}");
+            }
+
+        }
+
         [HttpGet("tickets/fields")]
         public async Task<IActionResult> GetTicketFields()
         {
             var resp = await _http.GetAsync("v1.0/Tickets/entityInformation/fields");
             var json = await resp.Content.ReadAsStringAsync();
             return Content(json, "application/json");
+        }
+
+        [HttpGet("tickets/fields/sync")]
+        public async Task<IActionResult> SyncTicketPicklists()
+        {
+            try
+            {
+                
+                var response = await _http.GetAsync($"v1.0/Tickets/entityInformation/fields");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<TicketEntityFieldsDto.EntityInformationFieldsResponse>(content);
+                var existingItems = context.TicketEntityPicklistValueCaches.ToList();
+                var itemsToUpdate = new List<TicketEntityPicklistValueCache>();
+                var itemsToCreate = new List<TicketEntityPicklistValueCache>();
+                foreach(var field in converted.Fields)
+                {
+                    if (field.PicklistValues != null)
+                    {
+                        foreach (var item in field.PicklistValues)
+                        {
+                            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label);
+                            if (existingItem != null)
+                            {
+                                existingItem.PicklistName = field.Name;
+                                existingItem.Label = item.Label;
+                                existingItem.Value = item.Value;
+                                existingItem.ValueInt = item.ValueInt.HasValue ? Convert.ToInt32(item.ValueInt) : null;
+
+                            }
+                            else
+                            {
+                                itemsToCreate.Add(new TicketEntityPicklistValueCache()
+                                {
+                                    PicklistName = field.Name,
+                                    Label = item.Label,
+                                    Value = item.Value,
+                                    ValueInt = item.ValueInt,
+                                });
+
+                            }
+                        }
+                    }
+                }
+                
+                await context.AddRangeAsync(itemsToCreate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching contacts: {ex.Message}");
+            }
+
         }
 
         [HttpGet("userdefinefields")]

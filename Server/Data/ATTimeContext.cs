@@ -52,7 +52,19 @@ namespace CrownATTime.Server.Data
             this.OnModelBuilding(builder);
         }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.BillingCodeCache> BillingCodeCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.ContractCache> ContractCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.ResourceCache> ResourceCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.RoleCache> RoleCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> TicketEntityPicklistValueCaches { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntry> TimeEntries { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> ServiceDeskRoleCaches { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

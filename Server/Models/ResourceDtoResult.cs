@@ -29,7 +29,7 @@
             public string numberFormat { get; set; }
             public string officeExtension { get; set; }
             public string officePhone { get; set; }
-            public string payrollIdentifier { get; set; }
+            //public string payrollIdentifier { get; set; }
             //public int payrollType { get; set; }
             public string resourceType { get; set; }
             //public int? suffix { get; set; }
@@ -38,7 +38,7 @@
             public string title { get; set; }
             public string travelAvailabilityPct { get; set; }
             public string userName { get; set; }
-            public int userType { get; set; }
+            //public int userType { get; set; }
 
     }
 }

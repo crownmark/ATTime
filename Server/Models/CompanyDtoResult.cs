@@ -26,7 +26,7 @@
             //public string billToState { get; set; }
             //public string billToZipCode { get; set; }
             public string city { get; set; }
-            public int classification { get; set; }
+            public int? classification { get; set; }
             public int companyCategoryID { get; set; }
             public string companyName { get; set; }
             public string companyNumber { get; set; }

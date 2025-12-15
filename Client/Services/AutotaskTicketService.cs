@@ -123,6 +123,38 @@
             return JsonSerializer.Deserialize<ContractDtoResult>(content);
         }
 
+        public async Task SyncContracts()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "status", value = 1 }
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"contracts/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            //var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ContractDto>>(content);
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Contracts.  {content}");
+            }
+        }
+        
+
         /// <summary>
         /// (Optional) If you later add a server endpoint like:
         /// GET api/autotask/tickets/bycompany/{companyId}
@@ -154,6 +186,24 @@
 
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<TicketEntityFieldsDto.EntityInformationFieldsResponse>(response);
+        }
+        public async Task SyncTicketFields()
+        {
+            
+            var uri = new Uri(baseUri, $"tickets/fields/sync");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Ticket Picklists.  {content}");
+            }
         }
 
         public async Task<AutotaskItemsResponse<ContractDto>> GetTicketContracts(long companyId)
