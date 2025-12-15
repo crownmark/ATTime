@@ -97,7 +97,7 @@ namespace CrownATTime.Client.Pages
 
 
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");// await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email); //cache in db
-                //var resourceResult = await AutotaskTimeEntryService.GetLoggedInResource("casey@ce-technology.com"); //cache in db
+                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'jordan@ce-technology.com'");// await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email); //cache in db
                 resource = resourceResult.Value.FirstOrDefault();
                 var billingCodeItems = await ATTimeService.GetBillingCodeCaches();// await AutotaskTimeEntryService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Value.ToList();
@@ -254,6 +254,15 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.PriorityName = PriorityName;
                 timeEntryRecord.StatusName = StatusName;
                 timeEntryRecord.ResourceName = $"{resource.FirstName} {resource.LastName}";
+                timeEntryRecord.HoursWorked =
+                   Math.Max(
+                       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                       - (timeEntryRecord.OffsetHours ?? 0),
+                       0
+                   );
+                timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
+                timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                timeEntryRecord.DateWorked = DateTimeOffset.Now;
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
 
@@ -270,60 +279,70 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var newATTimeEntry = new TimeEntryCreateDto()
+                if(timeEntryRecord.TimeStampStatus == true)
                 {
-                    DateWorked = timeEntryRecord.DateWorked.Value,
-                    BillingCodeId = timeEntryRecord.BillingCodeId.Value,
-                    StartDateTime = timeEntryRecord.StartDateTime,
-                    EndDateTime = timeEntryRecord.EndDateTime,
-                    HoursWorked = timeEntryRecord.HoursWorked.Value,
-                    InternalNotes = timeEntryRecord.InternalNotes,
-                    IsNonBillable = timeEntryRecord.IsNonBillable,
-                    ResourceId = timeEntryRecord.ResourceId,
-                    RoleId = timeEntryRecord.RoleId.Value,
-                    SummaryNotes = timeEntryRecord.SummaryNotes,
-                    TicketId = timeEntryRecord.TicketId,
-                    ContractId = timeEntryRecord.ContractId,
-                    OffsetHours = timeEntryRecord.OffsetHours,
-                    
-
-                };
-                var saveATTime = await AutotaskTimeEntryService.CreateTimeEntry(newATTimeEntry);
-                timeEntryRecord.IsCompleted = true;
-                timeEntryRecord.TimeStampStatus = false;
-                timeEntryRecord.AttimeEntryId = saveATTime.itemId;
-                await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
-                ticket = await AutotaskTicketService.GetTicket(timeEntryRecord.TicketId);
-
-
-                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
-                if (saveAndCloseTicket)
-                {
-                    if(await DialogService.Confirm("Are you sure you want to close this ticket?", "Close Ticket Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
-                    {
-                        await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
-                        await JSRuntime.InvokeVoidAsync(
-                            "eval",
-                            "window.open('', '_self'); window.close();"
-                        );
-                    }
-                    else
-                    {
-                        await JSRuntime.InvokeVoidAsync(
-                            "eval",
-                            "window.open('', '_self'); window.close();"
-                        );
-                    }
-                    
+                    //timer is still running
+                    NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"The Timer is still running.  Please pause the timer before saving so it can calculate the hours worked." });
 
                 }
                 else
                 {
-                    await JSRuntime.InvokeVoidAsync(
-                                            "eval",
-                                            "window.open('', '_self'); window.close();"
-                                        );
+                    var newATTimeEntry = new TimeEntryCreateDto()
+                    {
+                        DateWorked = timeEntryRecord.DateWorked.Value,
+                        BillingCodeId = timeEntryRecord.BillingCodeId.Value,
+                        StartDateTime = timeEntryRecord.StartDateTime,
+                        EndDateTime = timeEntryRecord.EndDateTime,
+                        HoursWorked = timeEntryRecord.HoursWorked.Value,
+                        InternalNotes = timeEntryRecord.InternalNotes,
+                        IsNonBillable = timeEntryRecord.IsNonBillable,
+                        ResourceId = timeEntryRecord.ResourceId,
+                        RoleId = timeEntryRecord.RoleId.Value,
+                        SummaryNotes = timeEntryRecord.SummaryNotes,
+                        TicketId = timeEntryRecord.TicketId,
+                        ContractId = timeEntryRecord.ContractId,
+                        OffsetHours = timeEntryRecord.OffsetHours,
+
+
+                    };
+                    var saveATTime = await AutotaskTimeEntryService.CreateTimeEntry(newATTimeEntry);
+                    timeEntryRecord.IsCompleted = true;
+                    timeEntryRecord.TimeStampStatus = false;
+                    timeEntryRecord.AttimeEntryId = saveATTime.itemId;
+                    await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
+                    ticket = await AutotaskTicketService.GetTicket(timeEntryRecord.TicketId);
+
+
+                    NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
+                    if (saveAndCloseTicket)
+                    {
+                        if (await DialogService.Confirm("Are you sure you want to close this ticket?", "Close Ticket Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
+                        {
+                            await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
+                            await JSRuntime.InvokeVoidAsync(
+                                "eval",
+                                "window.open('', '_self'); window.close();"
+                            );
+                        }
+                        else
+                        {
+                            await JSRuntime.InvokeVoidAsync(
+                                "eval",
+                                "window.open('', '_self'); window.close();"
+                            );
+                        }
+
+
+                    }
+                    else
+                    {
+                        await JSRuntime.InvokeVoidAsync(
+                                                "eval",
+                                                "window.open('', '_self'); window.close();"
+                                            );
+                    }
                 }
+                    
                     
             }
             catch (Exception ex)
