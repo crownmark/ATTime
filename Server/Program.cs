@@ -50,6 +50,11 @@ builder.Services.AddScoped<CrownATTime.Client.SecurityService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTicketService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTimeEntryService>();
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
+builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+{
+    builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin() //.SetIsOriginAllowed((host) => true)
+    .WithOrigins(new[] { "https://timeguard.crown.software", "https://localhost:5001" }).AllowCredentials();
+}));
 var app = builder.Build();
 var forwardingOptions = new ForwardedHeadersOptions()
 {
