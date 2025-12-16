@@ -144,7 +144,7 @@
                             <RadzenLabel Text="Hours Worked" Component="HoursWorked" style="width: 100%" />
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
-                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" ReadOnly="true" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" ReadOnly="true" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" ShowUpDown="false" />
                           <RadzenNumericRangeValidator Text="Hours must be greater than 0.02" Min="0.03" Max="24" Component="HoursWorked"></RadzenNumericRangeValidator>
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3" SizeLG="2">
@@ -198,8 +198,8 @@
                         
                     </RadzenRow>
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
-                            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Variant.Flat" />
-<RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Variant.Flat" Click="@SaveAndCloseTicketButtonClick" />
+                            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default"/>
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" />
                     </RadzenStack>
                 </RadzenTemplateForm>
             

@@ -74,6 +74,7 @@ namespace CrownATTime.Client.Pages
 
         protected int accordionSelectedIndex { get; set; }
         private bool _openedAccordionOnce;
+        protected bool isSaving {  get; set; }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -257,7 +258,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.HoursWorked =
                    Math.Max(
                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
-                       - (timeEntryRecord.OffsetHours ?? 0),
+                       + (timeEntryRecord.OffsetHours ?? 0),
                        0
                    );
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
@@ -279,6 +280,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                isSaving = true;
                 if(timeEntryRecord.TimeStampStatus == true)
                 {
                     //timer is still running
@@ -342,13 +344,13 @@ namespace CrownATTime.Client.Pages
                                             );
                     }
                 }
-                    
+                isSaving = false;    
                     
             }
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}" });
-
+                isSaving = false;
             }
         }
 
@@ -694,7 +696,7 @@ namespace CrownATTime.Client.Pages
                 _isRunning = true;
                 _lastTickUtc = DateTime.UtcNow;
                 _stopwatchTimer?.Start();
-                timeEntryRecord.OffsetHours = 0;
+                //timeEntryRecord.OffsetHours = 0;
                 timeEntryRecord.TimeStampStatus = true;
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
@@ -719,17 +721,16 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                accordionSelectedIndex = 0;
                 StateHasChanged();
                 _isRunning = false;
                 // Timer can keep running; we just ignore ticks when not running.
                 // (Or call _stopwatchTimer?.Stop(); if you prefer.)
-                timeEntryRecord.HoursWorked =
-                    Math.Max(
-                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
-                        - (timeEntryRecord.OffsetHours ?? 0),
-                        0
-                    );
+                //timeEntryRecord.HoursWorked =
+                //    Math.Max(
+                //        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                //        - (timeEntryRecord.OffsetHours ?? 0),
+                //        0
+                //    );
                 timeEntryRecord.TimeStampStatus = false;
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
