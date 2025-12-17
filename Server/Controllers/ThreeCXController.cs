@@ -112,8 +112,8 @@
             }
         }
 
-        [HttpGet("callcontrol/extension")]
-        public async Task<IActionResult> GetCallStatus([FromBody] MakeCallModel call)
+        [HttpGet("callcontrol/{extension}")]
+        public async Task<IActionResult> GetCallStatus(string extension)
         {
             try
             {
@@ -121,7 +121,7 @@
 
                 using var request = new HttpRequestMessage(
                     HttpMethod.Get,
-                    $"/callcontrol/{call.Extension}");
+                    $"/callcontrol/{extension}");
 
                 request.Headers.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);

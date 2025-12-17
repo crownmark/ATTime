@@ -390,7 +390,9 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await ThreeCxClientService.MakeCall(contact.item.phone, resource.OfficePhone);
+                var calls = await ThreeCxClientService.MakeCall(contact.item.phone, resource.OfficePhone);
+                MonitorCallStatus(calls, contact.item.phone);
+
             }
             catch (Exception ex)
             {
@@ -404,49 +406,8 @@ namespace CrownATTime.Client.Pages
             try
             {
                 var calls = await ThreeCxClientService.MakeCall(contact.item.mobilePhone, resource.OfficeExtension);
-
-                var normalizedNumber = ThreeCxClientService.NormalizeUsPhone(contact.item.mobilePhone);
-
-                var call = calls.CallRecords
-                    .FirstOrDefault(x => x.result.party_caller_id == normalizedNumber);
-
-                if (call == null)
-                {
-                    // Call not found — handle gracefully
-                    return;
-                }
-
-                var callId = call.result.callid;
-
-                // Safety limits
-                var pollDelayMs = 5000;
-                var maxWaitMs = 5 * 60 * 1000; // 5 minutes
-                var elapsedMs = 0;
-
-                while (true)
-                {
-                    var callStatus = await ThreeCxClientService.GetCallStatus(resource.OfficeExtension);
-
-                    var hasParticipants =
-                        callStatus?.CallRecords?
-                            .Any(r => r.participants?.Any(p => p.callid == callId) == true)
-                        ?? false;
-
-                    if (!hasParticipants)
-                    {
-                        // Call has ended
-                        break;
-                    }
-
-                    if (elapsedMs >= maxWaitMs)
-                    {
-                        // Optional: log timeout
-                        break;
-                    }
-
-                    await Task.Delay(pollDelayMs);
-                    elapsedMs += pollDelayMs;
-                }
+                MonitorCallStatus(calls, contact.item.mobilePhone);
+                
 
 
             }
@@ -461,11 +422,101 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await ThreeCxClientService.MakeCall(OtherNumber, resource.OfficePhone);
+                var calls = await ThreeCxClientService.MakeCall(OtherNumber, resource.OfficeExtension);
+                MonitorCallStatus(calls, OtherNumber);
+
             }
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Make Call.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async Task MonitorCallStatus(ThreeCxMakeCallResult.Calls calls, string phoneNumber)
+        {
+            try
+            {
+                var normalizedNumber = ThreeCxClientService.NormalizeUsPhone(phoneNumber);
+
+
+                if (calls == null)
+                {
+                    // Call not found — handle gracefully
+                    return;
+                }
+                //var call = calls.result;
+
+                var callId = calls.result.callid;
+
+                // Start fairly responsive, then back off so hours-long calls don't hammer the API.
+                var delayMs = 5000;
+                var maxDelayMs = 30000;
+                var callStart = DateTime.Now;
+                var callEnd = DateTime.Now;
+                while (true)
+                {
+                    var status = await ThreeCxClientService.GetCallStatus(resource.OfficeExtension);
+
+                    //var stillInCall =
+                    //    status.participants.Where(p => p.callid == callId).Any() ?? true : false;
+
+                    bool stillInCall;
+                    if (status != null && status.participants.Any(x => x.callid == callId))
+                    {
+                        stillInCall = true;
+                    }
+                    else
+                    {
+                        stillInCall = false;
+                    }
+
+                    if (!stillInCall)
+                    {
+                        callEnd = DateTime.Now;
+                        TimeSpan duration = callEnd - callStart;
+                        int hours = (int)duration.TotalHours;
+                        int minutes = duration.Minutes;
+                        int seconds = duration.Seconds;
+
+                        var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " - Outbound Call Details:" +
+                            Environment.NewLine + $"Tech: {resource.FirstName} {resource.LastName} at extension {resource.OfficeExtension}" +
+                            Environment.NewLine + $"Number Dialed: {normalizedNumber}" +
+                            Environment.NewLine + $"Call Started: {callStart.ToString("M/d/yyyy h:mm tt")}" +
+                            Environment.NewLine + $"Call Ended: {callEnd.ToString("M/d/yyyy h:mm tt")}" +
+                            Environment.NewLine + $"Call Duration: {hours}h {minutes}m {seconds}s";
+
+                        // If SummaryNotes is empty, set directly
+                        if (string.IsNullOrWhiteSpace(timeEntryRecord.SummaryNotes))
+                        {
+                            timeEntryRecord.SummaryNotes = timestamp;
+                            StateHasChanged();
+
+                            await UpdateTicketValues();
+
+                            return;
+                        }
+
+                        // Otherwise append as a new line
+                        timeEntryRecord.SummaryNotes += Environment.NewLine + Environment.NewLine + timestamp;
+                        StateHasChanged();
+
+                        await UpdateTicketValues();
+
+                        //add note here in autotask api
+
+                        return; // call ended (no participants for this callId)
+
+                    }
+
+                    await Task.Delay(delayMs);
+
+                    // backoff up to 30s
+                    //delayMs = Math.Min(delayMs * 2, maxDelayMs);
+                }
+            }
+            catch (Exception ex)
+            {
 
             }
         }

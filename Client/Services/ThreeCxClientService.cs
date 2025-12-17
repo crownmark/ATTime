@@ -62,7 +62,7 @@
             // Invalid or unsupported format
             return string.Empty;
         }
-        public async Task<ThreeCxMakeCallResult> MakeCall(string phoneNumber, string extension)
+        public async Task<ThreeCxMakeCallResult.Calls> MakeCall(string phoneNumber, string extension)
         {
             var normalizedPhoneNumber = NormalizeUsPhone(phoneNumber);
             var uri = new Uri(baseUri, $"callcontrol/makecall");
@@ -80,16 +80,16 @@
             var content = await response.Content.ReadAsStringAsync();
             try
             {
-                var convert = JsonSerializer.Deserialize<ThreeCxMakeCallResult>(content);
+                var convert = JsonSerializer.Deserialize<ThreeCxMakeCallResult.Calls>(content);
             }
             catch (Exception ex)
             {
 
             }
-            return JsonSerializer.Deserialize<ThreeCxMakeCallResult>(content);
+            return JsonSerializer.Deserialize<ThreeCxMakeCallResult.Calls>(content);
         }
 
-        public async Task<ThreeCxCallStatusResult> GetCallStatus(string extension)
+        public async Task<ThreeCxCallStatusResult.Calls> GetCallStatus(string extension)
         {
             //var normalizedPhoneNumber = NormalizeUsPhone(phoneNumber);
             var uri = new Uri(baseUri, $"callcontrol/{extension}");
@@ -107,13 +107,13 @@
             var content = await response.Content.ReadAsStringAsync();
             try
             {
-                var convert = JsonSerializer.Deserialize<ThreeCxCallStatusResult>(content);
+                var convert = JsonSerializer.Deserialize<ThreeCxCallStatusResult.Calls>(content);
             }
             catch (Exception ex)
             {
 
             }
-            return JsonSerializer.Deserialize<ThreeCxCallStatusResult>(content);
+            return JsonSerializer.Deserialize<ThreeCxCallStatusResult.Calls>(content);
         }
     }
 }
