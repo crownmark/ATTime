@@ -1,0 +1,90 @@
+@page "/add-note"
+
+@attribute [Authorize]
+
+<PageTitle>New Ticket Note</PageTitle>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenRow AlignItems="Radzen.AlignItems.Center">
+            <RadzenColumn Size="2" Style="text-align: center">
+                <RadzenStack AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center" Style="height: 65px">
+                    <RadzenImage Path="images/NewNote.png"></RadzenImage>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="10">
+                <RadzenRow>
+                    <RadzenStack Gap="1">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                    <RadzenLink Text="Ticket Number" Style="font-weight: bold"></RadzenLink>
+
+                            </RadzenStack>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                    <RadzenLink Text="TicketTitle" Style="font-weight: bold"></RadzenLink>
+
+                            </RadzenStack>
+                        </RadzenStack>
+                </RadzenRow>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenColumn>
+<RadzenColumn Size="12">
+    <RadzenTemplateForm TItem="Server.Models.NewNote" Data="@newNote">
+        <RadzenStack>
+            <RadzenRow>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenLabel Component="Status" style="width: 100%" Text="Template"></RadzenLabel>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="9">
+                    <RadzenDropDown TValue="int" Style="display: block" Name="Template"></RadzenDropDown>
+                </RadzenColumn>
+            </RadzenRow>
+<RadzenRow>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenLabel Component="Status" style="width: 100%" Text="Status"></RadzenLabel>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="9">
+                    <RadzenDropDown TValue="int" Style="display: block" @bind-Value="@newNote.NoteType" Name="Status"></RadzenDropDown>
+                </RadzenColumn>
+            </RadzenRow>
+<RadzenRow>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenLabel Component="NoteType" style="width: 100%" Text="Note Type"></RadzenLabel>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="9">
+                    <RadzenDropDown TValue="int" Style="display: block" @bind-Value="@newNote.NoteType" Name="NoteType"></RadzenDropDown>
+                    <RadzenRequiredValidator Component="TextBox1" style="position: absolute"></RadzenRequiredValidator>
+                </RadzenColumn>
+            </RadzenRow>
+<RadzenRow>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenLabel Component="TextBox1" style="width: 100%" Text="Internal?"></RadzenLabel>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="9">
+                    <RadzenCheckBox TValue="bool" @bind-Value="@newNote.Internal" Name="Internal"></RadzenCheckBox>
+                </RadzenColumn>
+            </RadzenRow>
+<RadzenRow>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenLabel Component="TextBox1" style="width: 100%" Text="Title"></RadzenLabel>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="9">
+                    <RadzenTextBox style="display: block; width: 100%" Name="Title" @bind-Value="@newNote.Title" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off"></RadzenTextBox>
+                    <RadzenRequiredValidator Component="TextBox1" style="position: absolute"></RadzenRequiredValidator>
+                </RadzenColumn>
+            </RadzenRow>
+<RadzenRow>
+                <RadzenColumn Size="12" SizeMD="3">
+                    <RadzenLabel Component="Description" style="width: 100%" Text="Description"></RadzenLabel>
+                </RadzenColumn>
+                <RadzenColumn Size="12" SizeMD="9">
+                    <RadzenTextArea Style="width: 100%; display: block" Rows="8" @bind-Value="@newNote.Description" Name="Description"></RadzenTextArea>
+                    <RadzenRequiredValidator Component="TextBox1" style="position: absolute"></RadzenRequiredValidator>
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save & Close" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenTemplateForm>
+    </RadzenColumn>
+</RadzenRow>

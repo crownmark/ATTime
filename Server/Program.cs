@@ -23,6 +23,19 @@ builder.Services.AddRadzenCookieThemeService(options =>
 });
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<CrownATTime.Server.ATTimeService>();
+builder.Services.Configure<ThreeCxOptions>(opt =>
+{
+    opt.TokenUrl = "https://crownenterprises.ca.3cx.us/connect/token";
+    opt.ClientId = "n8nmark";
+
+    // IMPORTANT: don’t hardcode secrets in source control.
+    // Use environment variable or user-secrets:
+    opt.ClientSecret = builder.Configuration["pbmXE8qX3FWd7Dfh8p8f8fuf3cAXTa80"] ?? "";
+    //opt.Scope = builder.Configuration["THREE_CX_SCOPE"]; // optional
+});
+
+builder.Services.AddHttpClient<ThreeCxApiClient>();
+
 builder.Services.AddDbContext<CrownATTime.Server.Data.ATTimeContext>(options =>
 {
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
@@ -49,6 +62,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<CrownATTime.Client.SecurityService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTicketService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTimeEntryService>();
+builder.Services.AddScoped<CrownATTime.Client.ThreeCxClientService>();
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
 builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
 {

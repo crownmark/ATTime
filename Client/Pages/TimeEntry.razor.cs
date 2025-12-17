@@ -45,6 +45,9 @@ namespace CrownATTime.Client.Pages
         [Inject]
         public ATTimeService ATTimeService { get; set; }
 
+        [Inject]
+        public ThreeCxClientService ThreeCxClientService { get; set; }
+
         protected CrownATTime.Server.Models.ATTime.TimeEntry timeEntryRecord { get; set; }
         protected TicketDtoResult ticket {  get; set; }
         protected ContactDtoResult contact {  get; set; }
@@ -65,6 +68,7 @@ namespace CrownATTime.Client.Pages
         protected string PriorityName { get; set; }
         protected string StatusName { get; set; }
         protected string ContractName { get; set; }
+        protected string OtherNumber { get; set; }
 
         private System.Timers.Timer? _stopwatchTimer;
         private bool _isRunning;
@@ -251,7 +255,7 @@ namespace CrownATTime.Client.Pages
                 PriorityName = priority.Label;
                 //var ticketLookupFields = await AutotaskTicketService.GetTicketFields();
                 timeEntryRecord.AccountName = company.item.companyName;
-                timeEntryRecord.ContactName = $"{contact.item.firstName} {contact.item.lastName}";
+                timeEntryRecord.ContactName = contact.item == null ? "" : $"{contact.item.firstName} {contact.item.lastName}";
                 timeEntryRecord.PriorityName = PriorityName;
                 timeEntryRecord.StatusName = StatusName;
                 timeEntryRecord.ResourceName = $"{resource.FirstName} {resource.LastName}";
@@ -384,10 +388,86 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task CallContactPhoneButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
+            try
+            {
+                await ThreeCxClientService.MakeCall(contact.item.phone, resource.OfficePhone);
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Make Call.  Error: {ex.Message}" });
+
+            }
         }
 
         protected async System.Threading.Tasks.Task CallContactMobileButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
+            try
+            {
+                var calls = await ThreeCxClientService.MakeCall(contact.item.mobilePhone, resource.OfficeExtension);
+
+                var normalizedNumber = ThreeCxClientService.NormalizeUsPhone(contact.item.mobilePhone);
+
+                var call = calls.CallRecords
+                    .FirstOrDefault(x => x.result.party_caller_id == normalizedNumber);
+
+                if (call == null)
+                {
+                    // Call not found — handle gracefully
+                    return;
+                }
+
+                var callId = call.result.callid;
+
+                // Safety limits
+                var pollDelayMs = 5000;
+                var maxWaitMs = 5 * 60 * 1000; // 5 minutes
+                var elapsedMs = 0;
+
+                while (true)
+                {
+                    var callStatus = await ThreeCxClientService.GetCallStatus(resource.OfficeExtension);
+
+                    var hasParticipants =
+                        callStatus?.CallRecords?
+                            .Any(r => r.participants?.Any(p => p.callid == callId) == true)
+                        ?? false;
+
+                    if (!hasParticipants)
+                    {
+                        // Call has ended
+                        break;
+                    }
+
+                    if (elapsedMs >= maxWaitMs)
+                    {
+                        // Optional: log timeout
+                        break;
+                    }
+
+                    await Task.Delay(pollDelayMs);
+                    elapsedMs += pollDelayMs;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Make Call.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task CallOtherNumberButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await ThreeCxClientService.MakeCall(OtherNumber, resource.OfficePhone);
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Make Call.  Error: {ex.Message}" });
+
+            }
         }
 
         protected async System.Threading.Tasks.Task BillingCodeIdChange(int args)

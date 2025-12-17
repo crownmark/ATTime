@@ -15,6 +15,7 @@ builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(build
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTicketService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskTimeEntryService>();
+builder.Services.AddScoped<CrownATTime.Client.ThreeCxClientService>();
 builder.Services.AddHttpClient("CrownATTime.Server", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("CrownATTime.Server"));
 builder.Services.AddScoped<CrownATTime.Client.SecurityService>();

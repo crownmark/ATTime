@@ -30,7 +30,7 @@
 <RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick"></RadzenButton>
                 </RadzenStack>
             </RadzenStack>
-<RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap">
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
 <strong>Ticket: </strong>
                 <RadzenLink Text="@timeEntryRecord.TicketNumber" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank"></RadzenLink>
                 
@@ -78,15 +78,17 @@
                                            
             </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="border-bottom: 0px solid var(--rz-base)" Wrap="Radzen.FlexWrap.Wrap">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="border-bottom: 0px solid var(--rz-base)" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
                 
                     <strong>Account: </strong><RadzenLink Text="@company?.item?.companyName" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank"></RadzenLink>
                     <strong>Contact: </strong><RadzenLink Text="@($"{contact?.item?.firstName} {contact?.item?.lastName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket.item.contactID}")" Target="_blank"></RadzenLink>                                          
                     <strong>Phone: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.phone))" Click="@CallContactPhoneButtonClick" Style="width: 24px; height: 24px" Variant="Radzen.Variant.Outlined"></RadzenButton>@contact?.item?.phone
                     <strong>Ext: </strong>@contact?.item?.extension
-                    <strong>Mobile: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.mobilePhone))" Click="@CallContactMobileButtonClick" Variant="Radzen.Variant.Outlined"></RadzenButton>@contact?.item?.mobilePhone
+                    <strong>Mobile: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.mobilePhone))" Click="@CallContactMobileButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>@contact?.item?.mobilePhone
+                    <strong>Other Number: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton><RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call"></RadzenTextBox>
 
                 </RadzenStack>
+                                                                                                                                                                                                        
             </RadzenStack>
             <RadzenStack>
                 <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntryRecord" Visible="@(timeEntryRecord != null)" Submit="@TemplateForm0Submit" Style="border: 2px solid var(--rz-base); padding: 5px">
