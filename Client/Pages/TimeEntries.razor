@@ -57,7 +57,7 @@
                     <Template Context="timeEntry">
 
                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
-                            Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@(timeEntry.ResourceName == Security.User.Name)"
+                            Shade="Shade.Lighter" Variant="Variant.Flat" Visible="@(timeEntry.ResourceName == Security.User.Name || Security.User?.Name == "Mark Williams")"
                             Click=@(args => GridDeleteButtonClick(args, timeEntry)) @onclick:stopPropagation="true" />
                     </Template>
                 </RadzenDataGridColumn>

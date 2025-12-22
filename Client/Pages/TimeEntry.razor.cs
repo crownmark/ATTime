@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CrownATTime.Client.Pages
 {
@@ -293,6 +294,10 @@ namespace CrownATTime.Client.Pages
                 }
                 else
                 {
+                    if ((timeEntryRecord.EndDateTime - timeEntryRecord.EndDateTime).Value.Duration() < TimeSpan.FromMinutes(1))
+                    {
+                        timeEntryRecord.StartDateTime = timeEntryRecord.EndDateTime.Value.AddMinutes(-2);
+                    }
                     var newATTimeEntry = new TimeEntryCreateDto()
                     {
                         DateWorked = timeEntryRecord.DateWorked.Value,
