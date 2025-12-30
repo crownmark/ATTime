@@ -116,8 +116,10 @@ namespace CrownATTime.Client.Pages
                 ticket = await AutotaskTicketService.GetTicket(Convert.ToInt32(TicketId));
                 var contractsResult = await ATTimeService.GetContractCaches(filter: $"CompanyId eq {ticket.item.companyID} and Status eq 1");// await AutotaskTicketService.GetTicketContracts(ticket.item.companyID); //cache in db
                 contracts = contractsResult.Value.ToList();
-                contract = await ATTimeService.GetContractCacheById("", Convert.ToInt32(ticket.item.contractID));// await AutotaskTicketService.GetContract(ticket.item.contractID?? 0); //get from db
-
+                if(ticket.item.contractID != null)
+                {
+                    contract = await ATTimeService.GetContractCacheById("", Convert.ToInt32(ticket.item.contractID));// await AutotaskTicketService.GetContract(ticket.item.contractID?? 0); //get from db
+                }
 
                 if (ticket == null)
                 {
