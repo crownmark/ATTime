@@ -199,6 +199,17 @@
                         
                         
                     </RadzenRow>
+                    <RadzenRow Gap="">
+                 
+                        <RadzenAccordion Style="margin-bottom: 10px" Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Expanded="True" Text="Checklist Items" Style="width: 100%" Icon="playlist_add_check">
+                                    <ChecklistItems TicketId="@(Convert.ToInt32(ticket.item.id))" ResourceId="@(Convert.ToInt32(resource.Id))" />
+
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenRow>
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
                             <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default"/>
                         <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" />

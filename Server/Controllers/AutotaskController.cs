@@ -111,6 +111,61 @@
             }
 
         }
+        [HttpGet("TicketChecklistItems/query")]
+        public async Task<IActionResult> GetTicketChecklistItems([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/TicketChecklistItems/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching contacts: {ex.Message}");
+            }
+
+        }
+        [HttpPatch("TicketChecklistItems")]
+        public async Task<IActionResult> UpdateTicketChecklistItems([FromBody] TicketChecklistItemResult item)
+        {
+            try
+            {
+                if (item.id <= 0)
+                {
+                    return BadRequest("Missing or invalid ID.");
+                }
+
+                var json = JsonSerializer.Serialize(item, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PatchAsync($"v1.0/Tickets/{item.ticketID}/ChecklistItems", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error updating checklist item: {ex.Message}");
+            }
+        }
 
         [HttpGet("contracts/query")]
         public async Task<IActionResult> GetContracts([FromQuery] string search)

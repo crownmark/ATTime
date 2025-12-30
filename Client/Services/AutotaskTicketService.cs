@@ -153,7 +153,83 @@
                 throw new Exception($"Error Syncing Contracts.  {content}");
             }
         }
-        
+
+        public async Task<List<TicketChecklistItemResult>> GetOpenTicketChecklistItems(int ticketId)
+        {
+            var filters = new List<object>
+            {
+                new { op = "eq", field = "ticketID", value = ticketId },
+                new { op = "eq", field = "isCompleted", value = false },
+            };
+
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var encodedSearch = Uri.EscapeDataString(JsonSerializer.Serialize(searchObj));
+            var uri = new Uri(baseUri, $"TicketChecklistItems/query?search={encodedSearch}");
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            using var response = await httpClient.SendAsync(request);
+
+            // Throw only on true HTTP failure
+            if (!response.IsSuccessStatusCode)
+            {
+                // Optional: log content for debugging before throwing
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Autotask API call failed ({(int)response.StatusCode}): {errorContent}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            // EMPTY OR NOTHING FOUND → Autotask returns: { "items": [] }
+            if (string.IsNullOrWhiteSpace(content) || content.Trim() == "{}")
+            {
+                return new List<TicketChecklistItemResult>();
+
+            }
+
+            // Try safe parse
+            List<TicketChecklistItemResult> result = null;
+            try
+            {
+                var items = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketChecklistItemResult>>(content);
+                result = items.Items.ToList();
+            }
+            catch
+            {
+                // If conversion fails, return null instead of throwing
+                return new List<TicketChecklistItemResult>();
+            }
+
+            // If Autotask returned an empty items array
+            if (result == null)
+            {
+                return new List<TicketChecklistItemResult>();
+
+            }
+
+            return result;
+        }
+
+        public async Task<TicketChecklistItemResult> UpdateTicketChecklistItem(TicketChecklistItemResult checklistItem)
+        {
+            var uri = new Uri(baseUri, $"TicketChecklistItems");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+            var json = JsonSerializer.Serialize(checklistItem, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<TicketChecklistItemResult>(response);
+        }
 
         /// <summary>
         /// (Optional) If you later add a server endpoint like:
