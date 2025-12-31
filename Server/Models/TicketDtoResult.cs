@@ -24,7 +24,7 @@
             //public int? companyLocationID { get; set; }
             //public object completedByResourceID { get; set; }
             //public object completedDate { get; set; }
-            //public object configurationItemID { get; set; }
+            public int? configurationItemID { get; set; }
             public int? contactID { get; set; }
             public int? contractID { get; set; }
             //public object contractServiceBundleID { get; set; }

@@ -222,18 +222,31 @@
     <RadzenColumn SizeXL="2" SizeLG="3">
         <RadzenAccordion Style="width: 100%" Multiple="true" @bind-SelectedIndex="@accordionSelectedIndex">
             <Items>
+                <RadzenAccordionItem Text="Datto RMM Device"  Icon="computer" Selected="true" >
+                <RadzenStack Orientation="Radzen.Orientation.Vertical">
+                    <RadzenText Text="@configurationItem.item.referenceTitle">
+                    </RadzenText>
+
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+    <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="computer" Text="Device" Click="@DeviceButtonClick"></RadzenButton>
+    <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Web Remote" Click="@WebRemoteButtonClick"></RadzenButton>
+    <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Agent Browser" Click="@AgentBrowserButtonClick"></RadzenButton>
+    <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Splashtop" Click="@SplashtopButtonClick"></RadzenButton>
+    <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="ScreenConnect" Click="@ScreenConnectButtonClick"></RadzenButton>
+</RadzenStack>
+
+                </RadzenStack>
+                </RadzenAccordionItem>
                 <RadzenAccordionItem Text="Rocketship" Icon="rocket_launch" >
                     <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
                 </RadzenAccordionItem>
-                <RadzenAccordionItem Text="Insights"  Icon="visibility" ></RadzenAccordionItem>
             </Items>
 
         </RadzenAccordion>
         
     </RadzenColumn>
 </RadzenRow>
-
-<style>
+<style><RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="computer" Text="Device"></RadzenButton>
 
     .responsive-iframe {
       /* position: absolute; */

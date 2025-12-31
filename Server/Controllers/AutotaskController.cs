@@ -111,6 +111,23 @@
             }
 
         }
+        [HttpGet("ConfigurationItems/{id}")]
+        public async Task<IActionResult> GetConfigurationItemById(int id)
+        {
+            try
+            {
+                
+                var response = await _http.GetAsync($"v1.0/ConfigurationItems/{id}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching configuration item: {ex.Message}");
+            }
+
+        }
         [HttpGet("TicketChecklistItems/query")]
         public async Task<IActionResult> GetTicketChecklistItems([FromQuery] string search)
         {

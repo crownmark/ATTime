@@ -51,6 +51,7 @@ namespace CrownATTime.Client.Pages
 
         protected CrownATTime.Server.Models.ATTime.TimeEntry timeEntryRecord { get; set; }
         protected TicketDtoResult ticket {  get; set; }
+        protected ConfigurationItemResult configurationItem {  get; set; }
         protected ContactDtoResult contact {  get; set; }
         protected CompanyDtoResult company {  get; set; }
         protected ContractCache contract {  get; set; }
@@ -89,7 +90,7 @@ namespace CrownATTime.Client.Pages
                 _openedAccordionOnce = true;
                 accordionSelectedIndex = -1;
                 await InvokeAsync(StateHasChanged);
-                accordionSelectedIndex = 0;
+                accordionSelectedIndex = 1;
                 await InvokeAsync(StateHasChanged);
             }
         }
@@ -240,6 +241,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
+                configurationItem = await AutotaskTicketService.GetConfigurationItem(Convert.ToInt32(ticket.item.configurationItemID));
                 var picklistValues = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistValuesList = picklistValues.Value.ToList();
                 var statuses = picklistValuesList.Where(x => x.PicklistName == "status");
@@ -449,7 +451,7 @@ namespace CrownATTime.Client.Pages
 
                 if (calls == null)
                 {
-                    // Call not found — handle gracefully
+                    // Call not found ï¿½ handle gracefully
                     return;
                 }
                 //var call = calls.result;
@@ -1022,6 +1024,68 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task SaveAndCloseTicketButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             saveAndCloseTicket = true;
+        }
+
+
+        protected async System.Threading.Tasks.Task DeviceButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://zinfandel.rmm.datto.com/device/{configurationItem.item.rmmDeviceID}");
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
+        protected async System.Threading.Tasks.Task WebRemoteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://zinfandel.rmm.datto.com/web-remote/{configurationItem.item.rmmDeviceID}");
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task AgentBrowserButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://zinfandel.centrastage.net/csm/device/startConnection/{configurationItem.item.rmmDeviceID}?connectionType=connect");
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task SplashtopButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://zinfandel.centrastage.net/csm/device/startConnection/{configurationItem.item.rmmDeviceID}?connectionType=splashtopclient");
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task ScreenConnectButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{configurationItem.item.userDefinedFields.FirstOrDefault(x => x.name == "ScreenConnect Link").value}");
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

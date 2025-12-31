@@ -109,6 +109,19 @@
             return JsonSerializer.Deserialize<CompanyDtoResult>(content);
 
         }
+        public async Task<ConfigurationItemResult> GetConfigurationItem(int configurationId)
+        {
+            var uri = new Uri(baseUri, $"ConfigurationItems/{configurationId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<ConfigurationItemResult>(content);
+
+        }
 
         public async Task<ContractDtoResult> GetContract(long ticketId)
         {
