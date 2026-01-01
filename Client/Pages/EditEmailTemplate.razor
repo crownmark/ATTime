@@ -1,0 +1,72 @@
+@page "/edit-email-template"
+
+@attribute [Authorize]
+
+<PageTitle>Edit EmailTemplate</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save EmailTemplate</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.EmailTemplate" Data="@(emailTemplate)" Visible="@(emailTemplate != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(emailTemplate.Active)" Name="Active" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.Title)" Name="Title" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Title" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenStack AlignItems="Radzen.AlignItems.Start">
+            <RadzenButton Text="View Template Tokens" Icon="code" Size="Radzen.ButtonSize.Small" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@ViewTemplateTokensButtonClick"></RadzenButton>
+
+            </RadzenStack>
+            <RadzenFormField Text="Email Subject" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.EmailSubject)" Name="EmailSubject" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="EmailSubject" Text="EmailSubject is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Email Body" Variant="Variant.Outlined">
+                  <ChildContent>
+                  <RadzenHtmlEditor Name="EmailBody" @bind-Value="@emailTemplate.EmailBody" Style="min-height: 400px"></RadzenHtmlEditor>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="EmailBody" Text="EmailBody is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="From Email Address" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.FromEmailAddress)" Name="FromEmailAddress" MaxLength="255" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.TemplateAssignedTo)" Name="TemplateAssignedTo" MaxLength="50" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Share With Others" Component="ShareWithOthers" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(emailTemplate.ShareWithOthers)" Name="ShareWithOthers" />
+                </RadzenColumn>
+            </RadzenRow>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

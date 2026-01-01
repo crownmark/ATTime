@@ -38,6 +38,14 @@ namespace CrownATTime.Server.Data
               .Property(p => p.TimeStampStatus)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.ShareWithOthers)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
               .HasColumnType("datetimeoffset");
@@ -60,11 +68,13 @@ namespace CrownATTime.Server.Data
 
         public DbSet<CrownATTime.Server.Models.ATTime.RoleCache> RoleCaches { get; set; }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> ServiceDeskRoleCaches { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> TicketEntityPicklistValueCaches { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntry> TimeEntries { get; set; }
 
-        public DbSet<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> ServiceDeskRoleCaches { get; set; }
+        public DbSet<CrownATTime.Server.Models.ATTime.EmailTemplate> EmailTemplates { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

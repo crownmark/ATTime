@@ -96,6 +96,31 @@
             return JsonSerializer.Deserialize<ContactDtoResult>(content);
         }
 
+        public async Task<AutotaskItemsResponse<ContactDtoResult.Item>> GetContacts(int companyId)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "isActive", value = 1 },
+                    new { op = "eq", field = "companyID", value = companyId },
+                    //new { op = "ne", field = "emailAddress", value = "" },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"contacts/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<AutotaskItemsResponse<ContactDtoResult.Item>>(content);
+        }
+
         public async Task<CompanyDtoResult> GetCompany(long companyId)
         {
             var uri = new Uri(baseUri, $"companies/{companyId}");

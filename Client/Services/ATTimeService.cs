@@ -407,6 +407,100 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
+        public async System.Threading.Tasks.Task ExportServiceDeskRoleCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportServiceDeskRoleCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetServiceDeskRoleCaches(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>> GetServiceDeskRoleCaches(Query query)
+        {
+            return await GetServiceDeskRoleCaches(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>> GetServiceDeskRoleCaches(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetServiceDeskRoleCaches(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>>(response);
+        }
+
+        partial void OnCreateServiceDeskRoleCache(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> CreateServiceDeskRoleCache(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache serviceDeskRoleCache = default(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache))
+        {
+            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(serviceDeskRoleCache), Encoding.UTF8, "application/json");
+
+            OnCreateServiceDeskRoleCache(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>(response);
+        }
+
+        partial void OnDeleteServiceDeskRoleCache(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteServiceDeskRoleCache(int id = default(int))
+        {
+            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches({id})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteServiceDeskRoleCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetServiceDeskRoleCacheById(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> GetServiceDeskRoleCacheById(string expand = default(string), int id = default(int))
+        {
+            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches({id})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetServiceDeskRoleCacheById(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>(response);
+        }
+
+        partial void OnUpdateServiceDeskRoleCache(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateServiceDeskRoleCache(int id = default(int), CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache serviceDeskRoleCache = default(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache))
+        {
+            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches({id})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(serviceDeskRoleCache), Encoding.UTF8, "application/json");
+
+            OnUpdateServiceDeskRoleCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async System.Threading.Tasks.Task ExportTicketEntityPicklistValueCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -595,96 +689,96 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
-        public async System.Threading.Tasks.Task ExportServiceDeskRoleCachesToExcel(Query query = null, string fileName = null)
+        public async System.Threading.Tasks.Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        public async System.Threading.Tasks.Task ExportServiceDeskRoleCachesToCSV(Query query = null, string fileName = null)
+        public async System.Threading.Tasks.Task ExportEmailTemplatesToCSV(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        partial void OnGetServiceDeskRoleCaches(HttpRequestMessage requestMessage);
+        partial void OnGetEmailTemplates(HttpRequestMessage requestMessage);
 
-        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>> GetServiceDeskRoleCaches(Query query)
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(Query query)
         {
-            return await GetServiceDeskRoleCaches(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+            return await GetEmailTemplates(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
         }
 
-        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>> GetServiceDeskRoleCaches(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
         {
-            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches");
+            var uri = new Uri(baseUri, $"EmailTemplates");
             uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
 
-            OnGetServiceDeskRoleCaches(httpRequestMessage);
+            OnGetEmailTemplates(httpRequestMessage);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
 
-            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>>(response);
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>>(response);
         }
 
-        partial void OnCreateServiceDeskRoleCache(HttpRequestMessage requestMessage);
+        partial void OnCreateEmailTemplate(HttpRequestMessage requestMessage);
 
-        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> CreateServiceDeskRoleCache(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache serviceDeskRoleCache = default(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache))
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CreateEmailTemplate(CrownATTime.Server.Models.ATTime.EmailTemplate emailTemplate = default(CrownATTime.Server.Models.ATTime.EmailTemplate))
         {
-            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches");
+            var uri = new Uri(baseUri, $"EmailTemplates");
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
 
-            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(serviceDeskRoleCache), Encoding.UTF8, "application/json");
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(emailTemplate), Encoding.UTF8, "application/json");
 
-            OnCreateServiceDeskRoleCache(httpRequestMessage);
+            OnCreateEmailTemplate(httpRequestMessage);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
 
-            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>(response);
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.EmailTemplate>(response);
         }
 
-        partial void OnDeleteServiceDeskRoleCache(HttpRequestMessage requestMessage);
+        partial void OnDeleteEmailTemplate(HttpRequestMessage requestMessage);
 
-        public async Task<HttpResponseMessage> DeleteServiceDeskRoleCache(int id = default(int))
+        public async Task<HttpResponseMessage> DeleteEmailTemplate(int emailTemplateId = default(int))
         {
-            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches({id})");
+            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
 
-            OnDeleteServiceDeskRoleCache(httpRequestMessage);
+            OnDeleteEmailTemplate(httpRequestMessage);
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
-        partial void OnGetServiceDeskRoleCacheById(HttpRequestMessage requestMessage);
+        partial void OnGetEmailTemplateByEmailTemplateId(HttpRequestMessage requestMessage);
 
-        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> GetServiceDeskRoleCacheById(string expand = default(string), int id = default(int))
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> GetEmailTemplateByEmailTemplateId(string expand = default(string), int emailTemplateId = default(int))
         {
-            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches({id})");
+            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
 
             uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
 
-            OnGetServiceDeskRoleCacheById(httpRequestMessage);
+            OnGetEmailTemplateByEmailTemplateId(httpRequestMessage);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
 
-            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>(response);
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.EmailTemplate>(response);
         }
 
-        partial void OnUpdateServiceDeskRoleCache(HttpRequestMessage requestMessage);
+        partial void OnUpdateEmailTemplate(HttpRequestMessage requestMessage);
         
-        public async Task<HttpResponseMessage> UpdateServiceDeskRoleCache(int id = default(int), CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache serviceDeskRoleCache = default(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache))
+        public async Task<HttpResponseMessage> UpdateEmailTemplate(int emailTemplateId = default(int), CrownATTime.Server.Models.ATTime.EmailTemplate emailTemplate = default(CrownATTime.Server.Models.ATTime.EmailTemplate))
         {
-            var uri = new Uri(baseUri, $"ServiceDeskRoleCaches({id})");
+            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
 
 
-            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(serviceDeskRoleCache), Encoding.UTF8, "application/json");
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(emailTemplate), Encoding.UTF8, "application/json");
 
-            OnUpdateServiceDeskRoleCache(httpRequestMessage);
+            OnUpdateEmailTemplate(httpRequestMessage);
 
             return await httpClient.SendAsync(httpRequestMessage);
         }

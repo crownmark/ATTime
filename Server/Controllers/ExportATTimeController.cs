@@ -75,6 +75,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetRoleCaches(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/servicedeskrolecaches/csv")]
+        [HttpGet("/export/ATTime/servicedeskrolecaches/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportServiceDeskRoleCachesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetServiceDeskRoleCaches(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/servicedeskrolecaches/excel")]
+        [HttpGet("/export/ATTime/servicedeskrolecaches/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportServiceDeskRoleCachesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetServiceDeskRoleCaches(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/ticketentitypicklistvaluecaches/csv")]
         [HttpGet("/export/ATTime/ticketentitypicklistvaluecaches/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportTicketEntityPicklistValueCachesToCSV(string fileName = null)
@@ -103,18 +117,18 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetTimeEntries(), Request.Query, false), fileName);
         }
 
-        [HttpGet("/export/ATTime/servicedeskrolecaches/csv")]
-        [HttpGet("/export/ATTime/servicedeskrolecaches/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportServiceDeskRoleCachesToCSV(string fileName = null)
+        [HttpGet("/export/ATTime/emailtemplates/csv")]
+        [HttpGet("/export/ATTime/emailtemplates/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmailTemplatesToCSV(string fileName = null)
         {
-            return ToCSV(ApplyQuery(await service.GetServiceDeskRoleCaches(), Request.Query, false), fileName);
+            return ToCSV(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
         }
 
-        [HttpGet("/export/ATTime/servicedeskrolecaches/excel")]
-        [HttpGet("/export/ATTime/servicedeskrolecaches/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportServiceDeskRoleCachesToExcel(string fileName = null)
+        [HttpGet("/export/ATTime/emailtemplates/excel")]
+        [HttpGet("/export/ATTime/emailtemplates/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmailTemplatesToExcel(string fileName = null)
         {
-            return ToExcel(ApplyQuery(await service.GetServiceDeskRoleCaches(), Request.Query, false), fileName);
+            return ToExcel(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
         }
     }
 }

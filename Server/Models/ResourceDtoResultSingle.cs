@@ -1,8 +1,10 @@
 ﻿namespace CrownATTime.Server.Models
 {
-    public class ResourceDtoResult
+    public class ResourceDtoResultSingle
     {
-
+        public Item item { get; set; }
+        public class Item
+        {
             public int id { get; set; }
             //public string accountingReferenceID { get; set; }
             //public string dateFormat { get; set; }
@@ -39,6 +41,7 @@
             public string travelAvailabilityPct { get; set; }
             public string userName { get; set; }
             //public int userType { get; set; }
+        }
 
     }
 }

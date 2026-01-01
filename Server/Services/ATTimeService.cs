@@ -717,6 +717,168 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportServiceDeskRoleCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportServiceDeskRoleCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnServiceDeskRoleCachesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>> GetServiceDeskRoleCaches(Query query = null)
+        {
+            var items = Context.ServiceDeskRoleCaches.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnServiceDeskRoleCachesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnServiceDeskRoleCacheGet(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+        partial void OnGetServiceDeskRoleCacheById(ref IQueryable<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> GetServiceDeskRoleCacheById(int id)
+        {
+            var items = Context.ServiceDeskRoleCaches
+                              .AsNoTracking()
+                              .Where(i => i.Id == id);
+
+ 
+            OnGetServiceDeskRoleCacheById(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnServiceDeskRoleCacheGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnServiceDeskRoleCacheCreated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+        partial void OnAfterServiceDeskRoleCacheCreated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> CreateServiceDeskRoleCache(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache servicedeskrolecache)
+        {
+            OnServiceDeskRoleCacheCreated(servicedeskrolecache);
+
+            var existingItem = Context.ServiceDeskRoleCaches
+                              .Where(i => i.Id == servicedeskrolecache.Id)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.ServiceDeskRoleCaches.Add(servicedeskrolecache);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(servicedeskrolecache).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterServiceDeskRoleCacheCreated(servicedeskrolecache);
+
+            return servicedeskrolecache;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> CancelServiceDeskRoleCacheChanges(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnServiceDeskRoleCacheUpdated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+        partial void OnAfterServiceDeskRoleCacheUpdated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> UpdateServiceDeskRoleCache(int id, CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache servicedeskrolecache)
+        {
+            OnServiceDeskRoleCacheUpdated(servicedeskrolecache);
+
+            var itemToUpdate = Context.ServiceDeskRoleCaches
+                              .Where(i => i.Id == servicedeskrolecache.Id)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(servicedeskrolecache).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterServiceDeskRoleCacheUpdated(servicedeskrolecache);
+
+            return servicedeskrolecache;
+        }
+
+        partial void OnServiceDeskRoleCacheDeleted(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+        partial void OnAfterServiceDeskRoleCacheDeleted(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> DeleteServiceDeskRoleCache(int id)
+        {
+            var itemToDelete = Context.ServiceDeskRoleCaches
+                              .Where(i => i.Id == id)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnServiceDeskRoleCacheDeleted(itemToDelete);
+
+            Reset();
+
+            Context.ServiceDeskRoleCaches.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterServiceDeskRoleCacheDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportTicketEntityPicklistValueCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -1041,21 +1203,21 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
-        public async Task ExportServiceDeskRoleCachesToExcel(Query query = null, string fileName = null)
+        public async Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        public async Task ExportServiceDeskRoleCachesToCSV(Query query = null, string fileName = null)
+        public async Task ExportEmailTemplatesToCSV(Query query = null, string fileName = null)
         {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/servicedeskrolecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
         }
 
-        partial void OnServiceDeskRoleCachesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> items);
+        partial void OnEmailTemplatesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate> items);
 
-        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>> GetServiceDeskRoleCaches(Query query = null)
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(Query query = null)
         {
-            var items = Context.ServiceDeskRoleCaches.AsQueryable();
+            var items = Context.EmailTemplates.AsQueryable();
 
 
             if (query != null)
@@ -1072,40 +1234,40 @@ namespace CrownATTime.Server
                 ApplyQuery(ref items, query);
             }
 
-            OnServiceDeskRoleCachesRead(ref items);
+            OnEmailTemplatesRead(ref items);
 
             return await Task.FromResult(items);
         }
 
-        partial void OnServiceDeskRoleCacheGet(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
-        partial void OnGetServiceDeskRoleCacheById(ref IQueryable<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> items);
+        partial void OnEmailTemplateGet(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnGetEmailTemplateByEmailTemplateId(ref IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate> items);
 
 
-        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> GetServiceDeskRoleCacheById(int id)
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> GetEmailTemplateByEmailTemplateId(int emailtemplateid)
         {
-            var items = Context.ServiceDeskRoleCaches
+            var items = Context.EmailTemplates
                               .AsNoTracking()
-                              .Where(i => i.Id == id);
+                              .Where(i => i.EmailTemplateId == emailtemplateid);
 
  
-            OnGetServiceDeskRoleCacheById(ref items);
+            OnGetEmailTemplateByEmailTemplateId(ref items);
 
             var itemToReturn = items.FirstOrDefault();
 
-            OnServiceDeskRoleCacheGet(itemToReturn);
+            OnEmailTemplateGet(itemToReturn);
 
             return await Task.FromResult(itemToReturn);
         }
 
-        partial void OnServiceDeskRoleCacheCreated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
-        partial void OnAfterServiceDeskRoleCacheCreated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+        partial void OnEmailTemplateCreated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnAfterEmailTemplateCreated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
 
-        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> CreateServiceDeskRoleCache(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache servicedeskrolecache)
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CreateEmailTemplate(CrownATTime.Server.Models.ATTime.EmailTemplate emailtemplate)
         {
-            OnServiceDeskRoleCacheCreated(servicedeskrolecache);
+            OnEmailTemplateCreated(emailtemplate);
 
-            var existingItem = Context.ServiceDeskRoleCaches
-                              .Where(i => i.Id == servicedeskrolecache.Id)
+            var existingItem = Context.EmailTemplates
+                              .Where(i => i.EmailTemplateId == emailtemplate.EmailTemplateId)
                               .FirstOrDefault();
 
             if (existingItem != null)
@@ -1115,21 +1277,21 @@ namespace CrownATTime.Server
 
             try
             {
-                Context.ServiceDeskRoleCaches.Add(servicedeskrolecache);
+                Context.EmailTemplates.Add(emailtemplate);
                 Context.SaveChanges();
             }
             catch
             {
-                Context.Entry(servicedeskrolecache).State = EntityState.Detached;
+                Context.Entry(emailtemplate).State = EntityState.Detached;
                 throw;
             }
 
-            OnAfterServiceDeskRoleCacheCreated(servicedeskrolecache);
+            OnAfterEmailTemplateCreated(emailtemplate);
 
-            return servicedeskrolecache;
+            return emailtemplate;
         }
 
-        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> CancelServiceDeskRoleCacheChanges(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item)
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CancelEmailTemplateChanges(CrownATTime.Server.Models.ATTime.EmailTemplate item)
         {
             var entityToCancel = Context.Entry(item);
             if (entityToCancel.State == EntityState.Modified)
@@ -1141,15 +1303,15 @@ namespace CrownATTime.Server
             return item;
         }
 
-        partial void OnServiceDeskRoleCacheUpdated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
-        partial void OnAfterServiceDeskRoleCacheUpdated(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+        partial void OnEmailTemplateUpdated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnAfterEmailTemplateUpdated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
 
-        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> UpdateServiceDeskRoleCache(int id, CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache servicedeskrolecache)
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> UpdateEmailTemplate(int emailtemplateid, CrownATTime.Server.Models.ATTime.EmailTemplate emailtemplate)
         {
-            OnServiceDeskRoleCacheUpdated(servicedeskrolecache);
+            OnEmailTemplateUpdated(emailtemplate);
 
-            var itemToUpdate = Context.ServiceDeskRoleCaches
-                              .Where(i => i.Id == servicedeskrolecache.Id)
+            var itemToUpdate = Context.EmailTemplates
+                              .Where(i => i.EmailTemplateId == emailtemplate.EmailTemplateId)
                               .FirstOrDefault();
 
             if (itemToUpdate == null)
@@ -1159,22 +1321,22 @@ namespace CrownATTime.Server
 
             Reset();
 
-            Context.Attach(servicedeskrolecache).State = EntityState.Modified;
+            Context.Attach(emailtemplate).State = EntityState.Modified;
 
             Context.SaveChanges();
 
-            OnAfterServiceDeskRoleCacheUpdated(servicedeskrolecache);
+            OnAfterEmailTemplateUpdated(emailtemplate);
 
-            return servicedeskrolecache;
+            return emailtemplate;
         }
 
-        partial void OnServiceDeskRoleCacheDeleted(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
-        partial void OnAfterServiceDeskRoleCacheDeleted(CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache item);
+        partial void OnEmailTemplateDeleted(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnAfterEmailTemplateDeleted(CrownATTime.Server.Models.ATTime.EmailTemplate item);
 
-        public async Task<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> DeleteServiceDeskRoleCache(int id)
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> DeleteEmailTemplate(int emailtemplateid)
         {
-            var itemToDelete = Context.ServiceDeskRoleCaches
-                              .Where(i => i.Id == id)
+            var itemToDelete = Context.EmailTemplates
+                              .Where(i => i.EmailTemplateId == emailtemplateid)
                               .FirstOrDefault();
 
             if (itemToDelete == null)
@@ -1182,11 +1344,11 @@ namespace CrownATTime.Server
                throw new Exception("Item no longer available");
             }
 
-            OnServiceDeskRoleCacheDeleted(itemToDelete);
+            OnEmailTemplateDeleted(itemToDelete);
 
             Reset();
 
-            Context.ServiceDeskRoleCaches.Remove(itemToDelete);
+            Context.EmailTemplates.Remove(itemToDelete);
 
             try
             {
@@ -1198,7 +1360,7 @@ namespace CrownATTime.Server
                 throw;
             }
 
-            OnAfterServiceDeskRoleCacheDeleted(itemToDelete);
+            OnAfterEmailTemplateDeleted(itemToDelete);
 
             return itemToDelete;
         }

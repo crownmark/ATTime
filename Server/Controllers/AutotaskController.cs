@@ -378,7 +378,6 @@
             }
 
         }
-
         [HttpGet("resources/query")]
         public async Task<IActionResult> GetResources([FromQuery] string search)
         {
@@ -401,6 +400,21 @@
                 return StatusCode(500, $"Error fetching resources: {ex.Message}");
             }
 
+        }
+
+        
+        [HttpGet("resources/{id:long}")]
+        public async Task<IActionResult> GetResourceById(int id)
+        {
+            var response = await _http.GetAsync($"v1.0/Resources/{id}");
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(content, "application/json");
+            }
+
+            return StatusCode((int)response.StatusCode, content);
         }
 
         [HttpGet("resources/sync")]
@@ -433,8 +447,11 @@
                         existingItem.Email = item.email;
                         existingItem.FirstName = item.firstName;
                         existingItem.LastName = item.lastName;
+                        existingItem.FullName = item.firstName + " " + item.lastName;
                         existingItem.ResourceType = item.resourceType;
                         existingItem.UserName = item.userName;
+                        existingItem.LicenseType = item.licenseType;
+                        itemsToUpdate.Add(existingItem);
                     }
                     else
                     {
@@ -447,14 +464,17 @@
                             Email = item.email,
                             FirstName = item.firstName, 
                             LastName = item.lastName,
+                            FullName = item.firstName + "" + item.lastName,
                             ResourceType = item.resourceType,
                             UserName = item.userName,
+                            LicenseType = item.licenseType,
 
                         });
 
                     }
                 }
                 await context.AddRangeAsync(itemsToCreate);
+                context.UpdateRange(itemsToUpdate);
                 await context.SaveChangesAsync();
                 return Ok();
             }
@@ -688,7 +708,33 @@
             return Content(json, "application/json");
         }
 
+        [HttpPost("notes")]
+        public async Task<IActionResult> CreateNote([FromBody] NoteDto note)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(note, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
 
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync($"v1.0/Tickets/{note.ticketID}/Notes", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating ticket: {ex.Message}");
+            }
+        }
 
         // GET: api/autotask/tickets/123
         [HttpGet("tickets/{id:long}")]

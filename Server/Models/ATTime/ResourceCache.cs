@@ -23,6 +23,9 @@ namespace CrownATTime.Server.Models.ATTime
         [MaxLength(255)]
         public string LastName { get; set; }
 
+        [MaxLength(255)]
+        public string FullName { get; set; }
+
         public bool IsActive { get; set; }
 
         [MaxLength(50)]
@@ -36,5 +39,7 @@ namespace CrownATTime.Server.Models.ATTime
 
         [MaxLength(255)]
         public string UserName { get; set; }
+
+        public int? LicenseType { get; set; }
     }
 }

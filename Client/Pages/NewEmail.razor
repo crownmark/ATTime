@@ -1,0 +1,93 @@
+@page "/new-email"
+
+@attribute [Authorize]
+
+<PageTitle>NewEmail</PageTitle>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenTemplateForm TItem="Server.Models.EmailMessage" Submit="@TemplateForm0Submit" Data="@emailMessage">
+<RadzenStack>
+            
+            
+            <RadzenFormField Text="Template" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int" ValueProperty="EmailTemplateId" TextProperty="Title" Data="@emailTemplates" LoadData="@emailTemplatesLoadData" Count="@emailTemplatesCount" @bind-Value="@emailMessage.TemplateId" Name="TemplateId" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Change="@TemplateIdChange"/>
+              </ChildContent>
+              <Helper>
+                    <RadzenRequiredValidator Component="TemplateId" Text="Template is required" />
+                  </Helper>
+            </RadzenFormField>
+<RadzenFormField Text="From Email Address" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailMessage.From)" Name="From" MaxLength="255" />
+              </ChildContent>
+              <Helper>
+                    <RadzenRequiredValidator Component="From" Text="From is required" />
+                  </Helper>
+            </RadzenFormField>
+
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.contactID != null)">
+                    <RadzenCheckBox TValue="bool" @bind-Value="@ticketContact"></RadzenCheckBox>
+                    <RadzenText Text="Ticket Contact?" />
+
+                </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
+                    <RadzenCheckBox TValue="bool" @bind-Value="@ticketContacts"></RadzenCheckBox>
+                    <RadzenText Text="Ticket Contacts?" />
+
+                </RadzenStack>
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.assignedResourceID!= null)">
+                    <RadzenCheckBox TValue="bool" @bind-Value="@primaryResource"></RadzenCheckBox>
+                    <RadzenText Text="Primary Resource?" />
+
+                </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
+                    <RadzenCheckBox TValue="bool" @bind-Value="@primaryResources"></RadzenCheckBox>
+                    <RadzenText Text="Ticket Resources?" />
+
+                </RadzenStack>
+            </RadzenStack>
+            <RadzenFieldset Text="Additional Emails" Icon="email" AllowCollapse="true" Collapsed="true">
+                <RadzenStack>
+                    <RadzenFormField Text="Additional Contacts" Variant="Variant.Outlined">
+                          <ChildContent>
+                              <RadzenDropDown TValue="IEnumerable<string>" @bind-Value="@contactEmails" Data="@contacts" ValueProperty="emailAddress" TextProperty="fullName" AllowFiltering="true" Multiple="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" >
+                                  
+                              </RadzenDropDown>
+                      </ChildContent>
+                      
+                    </RadzenFormField>
+                    <RadzenFormField Text="Additional Team Members" Variant="Variant.Outlined" Component="CrownTeam">
+                              <ChildContent>
+                                  <RadzenDropDown TValue="IEnumerable<string>" @bind-Value="@crownTeamEmails" ValueProperty="Email" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" Multiple="true" Name="CrownTeam" AllowFiltering="true"/>
+                          </ChildContent>
+                          
+                        </RadzenFormField>
+                </RadzenStack>
+            </RadzenFieldset>
+            <RadzenFormField Text="Email Subject" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailMessage.Subject)" Name="Subject" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Subject" Text="Subject is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Email Body" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenHtmlEditor Name="Body" @bind-Value="@emailMessage.Body" Style="min-height: 400px"></RadzenHtmlEditor>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Body" Text="Body is required" />
+                  </Helper>
+            </RadzenFormField>
+            
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="send" Text="Send" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+</RadzenRow>

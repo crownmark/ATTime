@@ -110,6 +110,24 @@
                 .ReadAsync<CrownATTime.Server.Models.TimeEntryDtoCreatedResult>(response);
         }
 
+        public async Task<CrownATTime.Server.Models.NoteDtoCreatedResult> CreateNote(CrownATTime.Server.Models.NoteDto note)
+        {
+            var uri = new Uri(baseUri, $"notes");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(note, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            OnCreateTimeEntry(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var result = await response.Content.ReadAsStringAsync();
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.NoteDtoCreatedResult>(response);
+        }
+
         #endregion
 
         #region Update time entry
@@ -285,6 +303,19 @@
             {
                 throw new Exception($"Error Syncing Contracts.  {content}");
             }
+        }
+        public async Task<ResourceDtoResultSingle> GetResourceById(int resourceId)
+        {
+            
+            var uri = new Uri(baseUri, $"resources/{resourceId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<ResourceDtoResultSingle>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<ResourceDtoResultSingle>(response);
         }
         public async Task<AutotaskItemsResponse<ResourceDtoResult>> GetLoggedInResource(string email)
         {

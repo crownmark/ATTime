@@ -1087,5 +1087,10 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+
+        protected async System.Threading.Tasks.Task SendEmailButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource} } , new DialogOptions { Width = "800px", Draggable = true });
+        }
     }
 }

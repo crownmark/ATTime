@@ -1,0 +1,28 @@
+@page "/template-tokens"
+
+@attribute [Authorize]
+
+<PageTitle>TemplateTokens</PageTitle>
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenText Text="TemplateTokens" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+    </RadzenColumn>
+    <RadzenColumn Size="12">
+        <RadzenDataGrid TItem="Server.Models.TemplateTokenInfo" Data="@TemplateTokenInfos" AllowFiltering="true" FilterMode="Radzen.FilterMode.Simple" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive">
+            <Columns>
+                <RadzenDataGridColumn TItem="Server.Models.TemplateTokenInfo" Property="Source" Title="Source" Width="125px"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Server.Models.TemplateTokenInfo" Property="DisplayName" Title="Name" MinWidth="200px"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Server.Models.TemplateTokenInfo" Property="Token" Title="Token" MinWidth="300px"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Server.Models.TemplateTokenInfo" FrozenPosition="Radzen.FrozenColumnPosition.Right" Frozen="true" Width="60px" TextAlign="Radzen.TextAlign.Center">
+                    <Template>
+                        <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal">
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Icon="content_copy" Click="@((args) => CopyTokenButtonClick(args, context))" Size="Radzen.ButtonSize.Small"></RadzenButton>
+                        </RadzenStack>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+
+    </RadzenColumn>
+</RadzenRow>
+    

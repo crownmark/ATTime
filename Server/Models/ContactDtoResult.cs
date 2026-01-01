@@ -1,4 +1,6 @@
-﻿namespace CrownATTime.Server.Models
+﻿using System.Text.Json.Serialization;
+
+namespace CrownATTime.Server.Models
 {
     public class ContactDtoResult
     {
@@ -35,6 +37,18 @@
             public DateTime lastActivityDate { get; set; }
             public DateTime lastModifiedDate { get; set; }
             public string lastName { get; set; }
+            [JsonIgnore]
+            public string fullName
+            {
+                get
+                {
+                    if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName))
+                        return string.Empty;
+
+                    return $"{firstName} {lastName}".Trim();
+                }
+            }
+
             public string linkedInUrl { get; set; }
             public object middleInitial { get; set; }
             public string mobilePhone { get; set; }
