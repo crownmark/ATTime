@@ -34,7 +34,7 @@
             <RadzenStack>
                     <RadzenFormField Text="Note Template" Variant="Variant.Outlined" Visible="true" Component="NoteTemplateId">
                         <ChildContent>
-                            <RadzenDropDown TValue="int" ValueProperty="NoteTemplateId" TextProperty="NoteTitle" Data="@noteTemplates" LoadData="@noteTemplatesLoadData" Count="@noteTemplatesCount" @bind-Value="@note.NoteTemplateId" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Name="NoteTemplateId" Change="@NoteTemplateIdChange" Visible="true" />
+                            <RadzenDropDown TValue="int" ValueProperty="NoteTemplateId" TextProperty="Title" Data="@noteTemplates" LoadData="@noteTemplatesLoadData" Count="@noteTemplatesCount" @bind-Value="@note.NoteTemplateId" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Name="NoteTemplateId" Change="@NoteTemplateIdChange" Visible="true" />
                         </ChildContent>
                         <Helper>
                             <RadzenRequiredValidator Component="NoteTemplateId" Text="Note Template is required" />
