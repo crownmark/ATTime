@@ -1,4 +1,6 @@
 ﻿using Azure.Identity;
+using CrownATTime.Server.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 
@@ -6,18 +8,20 @@ namespace CrownATTime.Server.Services
 {
     public class GraphApi
     {
-        static string[] scopes = new string[] { "https://graph.microsoft.com/.default" };
-        static string baseUrl = "https://graph.microsoft.com/v1.0";
+        private readonly GraphApiOptions _opts;
+        private static readonly string[] _scopes = { "https://graph.microsoft.com/.default" };
 
-        public static GraphServiceClient CreateGraphClient()
+        public GraphApi(IOptions<GraphApiOptions> options)
         {
-            string tenantId = "b9e807ee-7ce7-421d-8be8-5a5a3a241e86";
-            string clientId = "b45aeab4-3833-4142-b409-d128b99e68f3";
-            string clientSecret = "R3s8Q~rrvBAdVgAwtcLgMYvTX1Bkht6QIN33Sdvl";
+            _opts = options.Value;
+        }
+        public GraphServiceClient CreateGraphClient()
+        {
+            
             // App-only tokens use ".default"
             var scopes = new[] { "https://graph.microsoft.com/.default" };
 
-            var credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+            var credential = new ClientSecretCredential(_opts.TenantId, _opts.ClientId, _opts.ClientSecret);
 
             return new GraphServiceClient(credential, scopes);
         }

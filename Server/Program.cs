@@ -67,6 +67,9 @@ builder.Services.AddScoped<CrownATTime.Client.ThreeCxClientService>();
 builder.Services.AddScoped<CrownATTime.Client.EmailService>();
 builder.Services.AddScoped<CrownATTime.Client.TemplateTokenDiscoveryService>();
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
+builder.Services.Configure<GraphApiOptions>(builder.Configuration.GetSection("GraphApi"));
+builder.Services.AddScoped<GraphApi>();
+
 builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
 {
     builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin() //.SetIsOriginAllowed((host) => true)

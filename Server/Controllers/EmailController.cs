@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CrownATTime.Server.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Graph.Users.Item.SendMail;
@@ -124,7 +125,8 @@ namespace CrownATTime.Server.Controllers
                     Message = message,
                     SaveToSentItems = true
                 };
-                var graphClient = Server.Services.GraphApi.CreateGraphClient();
+                var GraphApiService = (GraphApi)HttpContext.RequestServices.GetService(typeof(GraphApi));
+                var graphClient = GraphApiService.CreateGraphClient();
                 await graphClient.Users[item.From].SendMail.PostAsync(requestBody);
                 return Ok();
 

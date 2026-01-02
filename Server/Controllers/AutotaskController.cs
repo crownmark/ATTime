@@ -20,13 +20,20 @@
         private readonly HttpClient _http;
         private CrownATTime.Server.Data.ATTimeContext context;
 
-        public AutotaskController(IHttpClientFactory httpClientFactory, CrownATTime.Server.Data.ATTimeContext _context)
+        public AutotaskController(IHttpClientFactory httpClientFactory, IConfiguration configuration, CrownATTime.Server.Data.ATTimeContext _context)
         {
+            var baseUrl = configuration["Autotask:BaseUrl"];
+            var userName = configuration["Autotask:UserName"];
+            var secret = configuration["Autotask:Secret"];
+            var apiCode = configuration["Autotask:ApiIntegrationCode"];
+
             _http = httpClientFactory.CreateClient();
-            _http.BaseAddress = new Uri("https://webservices5.autotask.net/atservicesrest/v1.0");
-            _http.DefaultRequestHeaders.Add("UserName", "bmjnrji6mu6q57m@ce-technology.com");
-            _http.DefaultRequestHeaders.Add("Secret", "0Js$n3*ZY@z4#5Bp1o~XmR7#@");
-            _http.DefaultRequestHeaders.Add("ApiIntegrationCode", "GGNM7AWDIIZCZWTKY4SF4UGQEDE");
+            
+            _http.BaseAddress = new Uri(baseUrl!);
+            _http.DefaultRequestHeaders.Add("UserName", userName);
+            _http.DefaultRequestHeaders.Add("Secret", secret);
+            _http.DefaultRequestHeaders.Add("ApiIntegrationCode", apiCode);
+
             context = _context;
         }
 
