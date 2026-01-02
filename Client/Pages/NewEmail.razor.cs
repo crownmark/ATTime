@@ -1,14 +1,16 @@
+using CrownATTime.Server.Models;
+using CrownATTime.Server.Models.ATTime;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using Radzen;
+using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Radzen;
-using Radzen.Blazor;
-using CrownATTime.Server.Models;
-using CrownATTime.Server.Models.ATTime;
 
 namespace CrownATTime.Client.Pages
 {
@@ -189,15 +191,7 @@ namespace CrownATTime.Client.Pages
                 // Load picklists
                 var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
-
-                // OPTIONAL: filter to what Render() will translate
-                // (If your Render translates only Ticket.status + Ticket.priority, keep the cache small)
-                //picklistRows = picklistRows
-                //    .Where(x =>
-                //        x.PicklistName.Equals("Ticket.status", StringComparison.OrdinalIgnoreCase) ||
-                //        x.PicklistName.Equals("Ticket.priority", StringComparison.OrdinalIgnoreCase))
-                //    .ToList();
-
+                
                 var picklists = EmailService.BuildPicklistMaps(picklistRows);
 
                 var ctx = new TemplateContext
@@ -227,13 +221,16 @@ namespace CrownATTime.Client.Pages
         }
 
 
-
+        
 
         protected async System.Threading.Tasks.Task TemplateForm0Submit(Server.Models.EmailMessage args)
         {
             try
             {
                 sendingEmail = true;
+                // Convert [EmailMessage.Body} Token to plain text
+                emailMessage.Body = EmailService.ReplaceEmailBodyTokenOnSubmit(emailMessage);
+                
                 // Collect emails here (case-insensitive, deduped)
                 var emailSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
