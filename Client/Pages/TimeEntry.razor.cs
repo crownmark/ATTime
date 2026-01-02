@@ -1099,7 +1099,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task AddNoteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<AddNote>("Add Note", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company} }, new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company} }, new DialogOptions { Width = "800px", Draggable = true });
         }
     }
 }
