@@ -2,7 +2,7 @@
 
 @attribute [Authorize]
 
-<PageTitle>NewEmail</PageTitle>
+
 <RadzenRow>
     <RadzenColumn Size="12">
         <RadzenTemplateForm TItem="Server.Models.EmailMessage" Submit="@TemplateForm0Submit" Data="@emailMessage">
@@ -26,29 +26,34 @@
                   </Helper>
             </RadzenFormField>
 
-            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.contactID != null)">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Wrap="Radzen.FlexWrap.Wrap">
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.contactID != null && string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
                     <RadzenCheckBox TValue="bool" @bind-Value="@ticketContact"></RadzenCheckBox>
                     <RadzenText Text="Ticket Contact?" />
 
                 </RadzenStack>
-<RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
                     <RadzenCheckBox TValue="bool" @bind-Value="@ticketContacts"></RadzenCheckBox>
                     <RadzenText Text="Ticket Contacts?" />
 
                 </RadzenStack>
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.assignedResourceID!= null)">
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.assignedResourceID != null && string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
                     <RadzenCheckBox TValue="bool" @bind-Value="@primaryResource"></RadzenCheckBox>
                     <RadzenText Text="Primary Resource?" />
 
                 </RadzenStack>
-<RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
                     <RadzenCheckBox TValue="bool" @bind-Value="@primaryResources"></RadzenCheckBox>
                     <RadzenText Text="Ticket Resources?" />
 
                 </RadzenStack>
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(!string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
+                        <RadzenCheckBox TValue="bool" @bind-Value="@msTeamsEmail" Change="@notifyMSTeamsChannelCheckBoxChange"></RadzenCheckBox>
+                        <RadzenText Text="Notify Teams Channel?" />
+
+                    </RadzenStack>
             </RadzenStack>
-            <RadzenFieldset Text="Additional Emails" Icon="email" AllowCollapse="true" Collapsed="true">
+                <RadzenFieldset Text="Additional Emails" Icon="email" AllowCollapse="true" Collapsed="true" Visible="@(string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
                 <RadzenStack>
                     <RadzenFormField Text="Additional Contacts" Variant="Variant.Outlined">
                           <ChildContent>
@@ -63,6 +68,12 @@
                                   <RadzenDropDown TValue="IEnumerable<string>" @bind-Value="@crownTeamEmails" ValueProperty="Email" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" Multiple="true" Name="CrownTeam" AllowFiltering="true"/>
                           </ChildContent>
                           
+                        </RadzenFormField>
+                        <RadzenFormField Text="Separate Multiple Emails with Commas (email1,email2) | No Spaces" Variant="Variant.Outlined" Component="AdditionalEmail">
+                          <ChildContent>
+                              <RadzenTextBox @bind-Value="@additionalEmail" Name="additionalEmail"></RadzenTextBox>
+                                  
+                            </ChildContent>
                         </RadzenFormField>
                 </RadzenStack>
             </RadzenFieldset>
@@ -85,7 +96,7 @@
             
           </RadzenStack>
           <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
-                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="send" Text="Send" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" IsBusy="@sendingEmail" BusyText="Sending Email" Icon="send" Text="Send" Variant="Variant.Flat" />
                     <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
           </RadzenStack>
         </RadzenTemplateForm>

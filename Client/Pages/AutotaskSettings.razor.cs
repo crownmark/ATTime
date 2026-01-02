@@ -43,10 +43,12 @@ namespace CrownATTime.Client.Pages
 
         protected bool syncingContacts { get; set; }
         protected bool syncingTicketFields { get; set; }
+        protected bool syncingTicketNoteFields { get; set; }
         protected bool syncingBillingCodes { get; set; }
         protected bool syncingRoles { get; set; }
         protected bool syncingResources { get; set; }
         protected bool syncingServiceDeskRoles { get; set; }
+        protected bool syncingCompanies { get; set; }
 
         protected async System.Threading.Tasks.Task CredentialsButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
@@ -155,6 +157,41 @@ namespace CrownATTime.Client.Pages
             catch (Exception ex)
             {
                 syncingTicketFields = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task TicketNotePicklistsButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                syncingTicketNoteFields = true;
+                await AutotaskTicketService.SyncTicketNoteFields();
+                syncingTicketNoteFields = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Ticket Note Picklists Synced" });
+
+            }
+            catch (Exception ex)
+            {
+                syncingTicketNoteFields = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}" });
+
+            }
+        }
+        protected async System.Threading.Tasks.Task CompaniesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                syncingCompanies = true;
+                await AutotaskTicketService.SyncCompanies();
+                syncingCompanies = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Companies Synced" });
+
+            }
+            catch (Exception ex)
+            {
+                syncingCompanies = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}" });
 
             }

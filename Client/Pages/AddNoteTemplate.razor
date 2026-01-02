@@ -1,0 +1,80 @@
+@page "/add-note-template"
+
+@attribute [Authorize]
+
+<PageTitle>Add NoteTemplate</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save NoteTemplate</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.NoteTemplate" Data="@(noteTemplate)" Visible="@(noteTemplate != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="1">
+                    <RadzenCheckBox @bind-Value="@(noteTemplate.Active)" Name="Active" />
+
+                </RadzenColumn>
+                <RadzenColumn SizeMD="11">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(noteTemplate.Title)" Name="Title" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Title" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Note Type" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenDropDown TValue="int" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketNoteEntityPicklistNoteTypeValueCaches" LoadData="@ticketNoteEntityPicklistValueCachesNoteTypeLoadData" Count="@ticketNoteEntityPicklistValueNoteTypeCachesCount" @bind-Value="@noteTemplate.NoteType" Name="NoteType" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" />
+
+                </ChildContent>
+                <Helper>
+                    <RadzenNumericRangeValidator Text="Note Type is required" Min="1" Component="NoteType"></RadzenNumericRangeValidator>
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Publish" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenDropDown TValue="int" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketNoteEntityPicklistPublishValueCaches" LoadData="@ticketNoteEntityPicklistValueCachesPublishLoadData" Count="@ticketNoteEntityPicklistValuePublishCachesCount" Name="NotePublish" @bind-Value="@noteTemplate.NotePublish" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" />
+
+                </ChildContent>
+                <Helper>
+                    <RadzenNumericRangeValidator Text="Note Publish is required" Min="1" Component="NotePublish"></RadzenNumericRangeValidator>
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Status" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenDropDown TValue="int?" @bind-Value="@noteTemplate.TicketStatus" LoadData="@ticketEntityPicklistValueCachesLoadData" Data="@ticketEntityPicklistValueCaches" Count="@ticketEntityPicklistValueCachesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Name="TicketStatus" ValueProperty="ValueInt" TextProperty="Label" />
+
+                </ChildContent>
+                
+            </RadzenFormField>
+            <RadzenFormField Text="Note Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(noteTemplate.NoteTitle)" Name="NoteTitle" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="NoteTitle" Text="NoteTitle is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Note Description" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenHtmlEditor @bind-Value="@noteTemplate.NoteDescription" Name="NoteDescription" Style="height: 300px">
+                          <RadzenHtmlEditorBold></RadzenHtmlEditorBold>
+                          <RadzenHtmlEditorItalic></RadzenHtmlEditorItalic>
+                          <RadzenHtmlEditorUnderline></RadzenHtmlEditorUnderline>
+                          <RadzenHtmlEditorOrderedList></RadzenHtmlEditorOrderedList>
+                          <RadzenHtmlEditorUnorderedList></RadzenHtmlEditorUnorderedList>
+                      </RadzenHtmlEditor>
+                  </ChildContent>    
+                  
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

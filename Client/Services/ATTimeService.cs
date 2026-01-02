@@ -125,6 +125,100 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
+        public async System.Threading.Tasks.Task ExportCompanyCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/companycaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/companycaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportCompanyCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/companycaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/companycaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetCompanyCaches(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.CompanyCache>> GetCompanyCaches(Query query)
+        {
+            return await GetCompanyCaches(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.CompanyCache>> GetCompanyCaches(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"CompanyCaches");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetCompanyCaches(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.CompanyCache>>(response);
+        }
+
+        partial void OnCreateCompanyCache(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CompanyCache> CreateCompanyCache(CrownATTime.Server.Models.ATTime.CompanyCache companyCache = default(CrownATTime.Server.Models.ATTime.CompanyCache))
+        {
+            var uri = new Uri(baseUri, $"CompanyCaches");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(companyCache), Encoding.UTF8, "application/json");
+
+            OnCreateCompanyCache(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.CompanyCache>(response);
+        }
+
+        partial void OnDeleteCompanyCache(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteCompanyCache(int id = default(int))
+        {
+            var uri = new Uri(baseUri, $"CompanyCaches({id})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteCompanyCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetCompanyCacheById(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CompanyCache> GetCompanyCacheById(string expand = default(string), int id = default(int))
+        {
+            var uri = new Uri(baseUri, $"CompanyCaches({id})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetCompanyCacheById(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.CompanyCache>(response);
+        }
+
+        partial void OnUpdateCompanyCache(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateCompanyCache(int id = default(int), CrownATTime.Server.Models.ATTime.CompanyCache companyCache = default(CrownATTime.Server.Models.ATTime.CompanyCache))
+        {
+            var uri = new Uri(baseUri, $"CompanyCaches({id})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(companyCache), Encoding.UTF8, "application/json");
+
+            OnUpdateCompanyCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async System.Threading.Tasks.Task ExportContractCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/contractcaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/contractcaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -215,6 +309,194 @@ namespace CrownATTime.Client
             httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(contractCache), Encoding.UTF8, "application/json");
 
             OnUpdateContractCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportEmailTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetEmailTemplates(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(Query query)
+        {
+            return await GetEmailTemplates(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"EmailTemplates");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetEmailTemplates(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>>(response);
+        }
+
+        partial void OnCreateEmailTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CreateEmailTemplate(CrownATTime.Server.Models.ATTime.EmailTemplate emailTemplate = default(CrownATTime.Server.Models.ATTime.EmailTemplate))
+        {
+            var uri = new Uri(baseUri, $"EmailTemplates");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(emailTemplate), Encoding.UTF8, "application/json");
+
+            OnCreateEmailTemplate(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.EmailTemplate>(response);
+        }
+
+        partial void OnDeleteEmailTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteEmailTemplate(int emailTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteEmailTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetEmailTemplateByEmailTemplateId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> GetEmailTemplateByEmailTemplateId(string expand = default(string), int emailTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetEmailTemplateByEmailTemplateId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.EmailTemplate>(response);
+        }
+
+        partial void OnUpdateEmailTemplate(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateEmailTemplate(int emailTemplateId = default(int), CrownATTime.Server.Models.ATTime.EmailTemplate emailTemplate = default(CrownATTime.Server.Models.ATTime.EmailTemplate))
+        {
+            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(emailTemplate), Encoding.UTF8, "application/json");
+
+            OnUpdateEmailTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportNoteTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/notetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/notetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportNoteTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/notetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/notetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetNoteTemplates(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.NoteTemplate>> GetNoteTemplates(Query query)
+        {
+            return await GetNoteTemplates(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.NoteTemplate>> GetNoteTemplates(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"NoteTemplates");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetNoteTemplates(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.NoteTemplate>>(response);
+        }
+
+        partial void OnCreateNoteTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.NoteTemplate> CreateNoteTemplate(CrownATTime.Server.Models.ATTime.NoteTemplate noteTemplate = default(CrownATTime.Server.Models.ATTime.NoteTemplate))
+        {
+            var uri = new Uri(baseUri, $"NoteTemplates");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(noteTemplate), Encoding.UTF8, "application/json");
+
+            OnCreateNoteTemplate(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.NoteTemplate>(response);
+        }
+
+        partial void OnDeleteNoteTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteNoteTemplate(int noteTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"NoteTemplates({noteTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteNoteTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetNoteTemplateByNoteTemplateId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.NoteTemplate> GetNoteTemplateByNoteTemplateId(string expand = default(string), int noteTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"NoteTemplates({noteTemplateId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetNoteTemplateByNoteTemplateId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.NoteTemplate>(response);
+        }
+
+        partial void OnUpdateNoteTemplate(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateNoteTemplate(int noteTemplateId = default(int), CrownATTime.Server.Models.ATTime.NoteTemplate noteTemplate = default(CrownATTime.Server.Models.ATTime.NoteTemplate))
+        {
+            var uri = new Uri(baseUri, $"NoteTemplates({noteTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(noteTemplate), Encoding.UTF8, "application/json");
+
+            OnUpdateNoteTemplate(httpRequestMessage);
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
@@ -595,6 +877,100 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
+        public async System.Threading.Tasks.Task ExportTicketNoteEntityPicklistValueCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketnoteentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketnoteentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportTicketNoteEntityPicklistValueCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketnoteentitypicklistvaluecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketnoteentitypicklistvaluecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetTicketNoteEntityPicklistValueCaches(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>> GetTicketNoteEntityPicklistValueCaches(Query query)
+        {
+            return await GetTicketNoteEntityPicklistValueCaches(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>> GetTicketNoteEntityPicklistValueCaches(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"TicketNoteEntityPicklistValueCaches");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicketNoteEntityPicklistValueCaches(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>>(response);
+        }
+
+        partial void OnCreateTicketNoteEntityPicklistValueCache(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> CreateTicketNoteEntityPicklistValueCache(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache ticketNoteEntityPicklistValueCache = default(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache))
+        {
+            var uri = new Uri(baseUri, $"TicketNoteEntityPicklistValueCaches");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(ticketNoteEntityPicklistValueCache), Encoding.UTF8, "application/json");
+
+            OnCreateTicketNoteEntityPicklistValueCache(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>(response);
+        }
+
+        partial void OnDeleteTicketNoteEntityPicklistValueCache(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteTicketNoteEntityPicklistValueCache(int ticketNoteEntityPicklistValueId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TicketNoteEntityPicklistValueCaches({ticketNoteEntityPicklistValueId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteTicketNoteEntityPicklistValueCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetTicketNoteEntityPicklistValueCacheByTicketNoteEntityPicklistValueId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> GetTicketNoteEntityPicklistValueCacheByTicketNoteEntityPicklistValueId(string expand = default(string), int ticketNoteEntityPicklistValueId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TicketNoteEntityPicklistValueCaches({ticketNoteEntityPicklistValueId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicketNoteEntityPicklistValueCacheByTicketNoteEntityPicklistValueId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>(response);
+        }
+
+        partial void OnUpdateTicketNoteEntityPicklistValueCache(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateTicketNoteEntityPicklistValueCache(int ticketNoteEntityPicklistValueId = default(int), CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache ticketNoteEntityPicklistValueCache = default(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache))
+        {
+            var uri = new Uri(baseUri, $"TicketNoteEntityPicklistValueCaches({ticketNoteEntityPicklistValueId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(ticketNoteEntityPicklistValueCache), Encoding.UTF8, "application/json");
+
+            OnUpdateTicketNoteEntityPicklistValueCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async System.Threading.Tasks.Task ExportTimeEntriesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeentries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeentries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -685,100 +1061,6 @@ namespace CrownATTime.Client
             httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(timeEntry), Encoding.UTF8, "application/json");
 
             OnUpdateTimeEntry(httpRequestMessage);
-
-            return await httpClient.SendAsync(httpRequestMessage);
-        }
-
-        public async System.Threading.Tasks.Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async System.Threading.Tasks.Task ExportEmailTemplatesToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnGetEmailTemplates(HttpRequestMessage requestMessage);
-
-        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(Query query)
-        {
-            return await GetEmailTemplates(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
-        }
-
-        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
-        {
-            var uri = new Uri(baseUri, $"EmailTemplates");
-            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
-
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
-
-            OnGetEmailTemplates(httpRequestMessage);
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-
-            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.EmailTemplate>>(response);
-        }
-
-        partial void OnCreateEmailTemplate(HttpRequestMessage requestMessage);
-
-        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CreateEmailTemplate(CrownATTime.Server.Models.ATTime.EmailTemplate emailTemplate = default(CrownATTime.Server.Models.ATTime.EmailTemplate))
-        {
-            var uri = new Uri(baseUri, $"EmailTemplates");
-
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
-
-            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(emailTemplate), Encoding.UTF8, "application/json");
-
-            OnCreateEmailTemplate(httpRequestMessage);
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-
-            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.EmailTemplate>(response);
-        }
-
-        partial void OnDeleteEmailTemplate(HttpRequestMessage requestMessage);
-
-        public async Task<HttpResponseMessage> DeleteEmailTemplate(int emailTemplateId = default(int))
-        {
-            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
-
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
-
-            OnDeleteEmailTemplate(httpRequestMessage);
-
-            return await httpClient.SendAsync(httpRequestMessage);
-        }
-
-        partial void OnGetEmailTemplateByEmailTemplateId(HttpRequestMessage requestMessage);
-
-        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> GetEmailTemplateByEmailTemplateId(string expand = default(string), int emailTemplateId = default(int))
-        {
-            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
-
-            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
-
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
-
-            OnGetEmailTemplateByEmailTemplateId(httpRequestMessage);
-
-            var response = await httpClient.SendAsync(httpRequestMessage);
-
-            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.EmailTemplate>(response);
-        }
-
-        partial void OnUpdateEmailTemplate(HttpRequestMessage requestMessage);
-        
-        public async Task<HttpResponseMessage> UpdateEmailTemplate(int emailTemplateId = default(int), CrownATTime.Server.Models.ATTime.EmailTemplate emailTemplate = default(CrownATTime.Server.Models.ATTime.EmailTemplate))
-        {
-            var uri = new Uri(baseUri, $"EmailTemplates({emailTemplateId})");
-
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
-
-
-            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(emailTemplate), Encoding.UTF8, "application/json");
-
-            OnUpdateEmailTemplate(httpRequestMessage);
 
             return await httpClient.SendAsync(httpRequestMessage);
         }

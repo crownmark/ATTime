@@ -231,6 +231,168 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportCompanyCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/companycaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/companycaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportCompanyCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/companycaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/companycaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnCompanyCachesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.CompanyCache> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.CompanyCache>> GetCompanyCaches(Query query = null)
+        {
+            var items = Context.CompanyCaches.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCompanyCachesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnCompanyCacheGet(CrownATTime.Server.Models.ATTime.CompanyCache item);
+        partial void OnGetCompanyCacheById(ref IQueryable<CrownATTime.Server.Models.ATTime.CompanyCache> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.CompanyCache> GetCompanyCacheById(int id)
+        {
+            var items = Context.CompanyCaches
+                              .AsNoTracking()
+                              .Where(i => i.Id == id);
+
+ 
+            OnGetCompanyCacheById(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCompanyCacheGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnCompanyCacheCreated(CrownATTime.Server.Models.ATTime.CompanyCache item);
+        partial void OnAfterCompanyCacheCreated(CrownATTime.Server.Models.ATTime.CompanyCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CompanyCache> CreateCompanyCache(CrownATTime.Server.Models.ATTime.CompanyCache companycache)
+        {
+            OnCompanyCacheCreated(companycache);
+
+            var existingItem = Context.CompanyCaches
+                              .Where(i => i.Id == companycache.Id)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.CompanyCaches.Add(companycache);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(companycache).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCompanyCacheCreated(companycache);
+
+            return companycache;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.CompanyCache> CancelCompanyCacheChanges(CrownATTime.Server.Models.ATTime.CompanyCache item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnCompanyCacheUpdated(CrownATTime.Server.Models.ATTime.CompanyCache item);
+        partial void OnAfterCompanyCacheUpdated(CrownATTime.Server.Models.ATTime.CompanyCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CompanyCache> UpdateCompanyCache(int id, CrownATTime.Server.Models.ATTime.CompanyCache companycache)
+        {
+            OnCompanyCacheUpdated(companycache);
+
+            var itemToUpdate = Context.CompanyCaches
+                              .Where(i => i.Id == companycache.Id)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(companycache).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterCompanyCacheUpdated(companycache);
+
+            return companycache;
+        }
+
+        partial void OnCompanyCacheDeleted(CrownATTime.Server.Models.ATTime.CompanyCache item);
+        partial void OnAfterCompanyCacheDeleted(CrownATTime.Server.Models.ATTime.CompanyCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CompanyCache> DeleteCompanyCache(int id)
+        {
+            var itemToDelete = Context.CompanyCaches
+                              .Where(i => i.Id == id)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnCompanyCacheDeleted(itemToDelete);
+
+            Reset();
+
+            Context.CompanyCaches.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterCompanyCacheDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportContractCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/contractcaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/contractcaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -389,6 +551,330 @@ namespace CrownATTime.Server
             }
 
             OnAfterContractCacheDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportEmailTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnEmailTemplatesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(Query query = null)
+        {
+            var items = Context.EmailTemplates.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnEmailTemplatesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnEmailTemplateGet(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnGetEmailTemplateByEmailTemplateId(ref IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> GetEmailTemplateByEmailTemplateId(int emailtemplateid)
+        {
+            var items = Context.EmailTemplates
+                              .AsNoTracking()
+                              .Where(i => i.EmailTemplateId == emailtemplateid);
+
+ 
+            OnGetEmailTemplateByEmailTemplateId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnEmailTemplateGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnEmailTemplateCreated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnAfterEmailTemplateCreated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CreateEmailTemplate(CrownATTime.Server.Models.ATTime.EmailTemplate emailtemplate)
+        {
+            OnEmailTemplateCreated(emailtemplate);
+
+            var existingItem = Context.EmailTemplates
+                              .Where(i => i.EmailTemplateId == emailtemplate.EmailTemplateId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.EmailTemplates.Add(emailtemplate);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(emailtemplate).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterEmailTemplateCreated(emailtemplate);
+
+            return emailtemplate;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CancelEmailTemplateChanges(CrownATTime.Server.Models.ATTime.EmailTemplate item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnEmailTemplateUpdated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnAfterEmailTemplateUpdated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> UpdateEmailTemplate(int emailtemplateid, CrownATTime.Server.Models.ATTime.EmailTemplate emailtemplate)
+        {
+            OnEmailTemplateUpdated(emailtemplate);
+
+            var itemToUpdate = Context.EmailTemplates
+                              .Where(i => i.EmailTemplateId == emailtemplate.EmailTemplateId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(emailtemplate).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterEmailTemplateUpdated(emailtemplate);
+
+            return emailtemplate;
+        }
+
+        partial void OnEmailTemplateDeleted(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+        partial void OnAfterEmailTemplateDeleted(CrownATTime.Server.Models.ATTime.EmailTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> DeleteEmailTemplate(int emailtemplateid)
+        {
+            var itemToDelete = Context.EmailTemplates
+                              .Where(i => i.EmailTemplateId == emailtemplateid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnEmailTemplateDeleted(itemToDelete);
+
+            Reset();
+
+            Context.EmailTemplates.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterEmailTemplateDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportNoteTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/notetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/notetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportNoteTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/notetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/notetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnNoteTemplatesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.NoteTemplate> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.NoteTemplate>> GetNoteTemplates(Query query = null)
+        {
+            var items = Context.NoteTemplates.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnNoteTemplatesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnNoteTemplateGet(CrownATTime.Server.Models.ATTime.NoteTemplate item);
+        partial void OnGetNoteTemplateByNoteTemplateId(ref IQueryable<CrownATTime.Server.Models.ATTime.NoteTemplate> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.NoteTemplate> GetNoteTemplateByNoteTemplateId(int notetemplateid)
+        {
+            var items = Context.NoteTemplates
+                              .AsNoTracking()
+                              .Where(i => i.NoteTemplateId == notetemplateid);
+
+ 
+            OnGetNoteTemplateByNoteTemplateId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnNoteTemplateGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnNoteTemplateCreated(CrownATTime.Server.Models.ATTime.NoteTemplate item);
+        partial void OnAfterNoteTemplateCreated(CrownATTime.Server.Models.ATTime.NoteTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.NoteTemplate> CreateNoteTemplate(CrownATTime.Server.Models.ATTime.NoteTemplate notetemplate)
+        {
+            OnNoteTemplateCreated(notetemplate);
+
+            var existingItem = Context.NoteTemplates
+                              .Where(i => i.NoteTemplateId == notetemplate.NoteTemplateId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.NoteTemplates.Add(notetemplate);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(notetemplate).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterNoteTemplateCreated(notetemplate);
+
+            return notetemplate;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.NoteTemplate> CancelNoteTemplateChanges(CrownATTime.Server.Models.ATTime.NoteTemplate item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnNoteTemplateUpdated(CrownATTime.Server.Models.ATTime.NoteTemplate item);
+        partial void OnAfterNoteTemplateUpdated(CrownATTime.Server.Models.ATTime.NoteTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.NoteTemplate> UpdateNoteTemplate(int notetemplateid, CrownATTime.Server.Models.ATTime.NoteTemplate notetemplate)
+        {
+            OnNoteTemplateUpdated(notetemplate);
+
+            var itemToUpdate = Context.NoteTemplates
+                              .Where(i => i.NoteTemplateId == notetemplate.NoteTemplateId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(notetemplate).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterNoteTemplateUpdated(notetemplate);
+
+            return notetemplate;
+        }
+
+        partial void OnNoteTemplateDeleted(CrownATTime.Server.Models.ATTime.NoteTemplate item);
+        partial void OnAfterNoteTemplateDeleted(CrownATTime.Server.Models.ATTime.NoteTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.NoteTemplate> DeleteNoteTemplate(int notetemplateid)
+        {
+            var itemToDelete = Context.NoteTemplates
+                              .Where(i => i.NoteTemplateId == notetemplateid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnNoteTemplateDeleted(itemToDelete);
+
+            Reset();
+
+            Context.NoteTemplates.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterNoteTemplateDeleted(itemToDelete);
 
             return itemToDelete;
         }
@@ -1041,6 +1527,168 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportTicketNoteEntityPicklistValueCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketnoteentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketnoteentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportTicketNoteEntityPicklistValueCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketnoteentitypicklistvaluecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketnoteentitypicklistvaluecaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnTicketNoteEntityPicklistValueCachesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>> GetTicketNoteEntityPicklistValueCaches(Query query = null)
+        {
+            var items = Context.TicketNoteEntityPicklistValueCaches.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnTicketNoteEntityPicklistValueCachesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnTicketNoteEntityPicklistValueCacheGet(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item);
+        partial void OnGetTicketNoteEntityPicklistValueCacheByTicketNoteEntityPicklistValueId(ref IQueryable<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> GetTicketNoteEntityPicklistValueCacheByTicketNoteEntityPicklistValueId(int ticketnoteentitypicklistvalueid)
+        {
+            var items = Context.TicketNoteEntityPicklistValueCaches
+                              .AsNoTracking()
+                              .Where(i => i.TicketNoteEntityPicklistValueId == ticketnoteentitypicklistvalueid);
+
+ 
+            OnGetTicketNoteEntityPicklistValueCacheByTicketNoteEntityPicklistValueId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnTicketNoteEntityPicklistValueCacheGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnTicketNoteEntityPicklistValueCacheCreated(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item);
+        partial void OnAfterTicketNoteEntityPicklistValueCacheCreated(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> CreateTicketNoteEntityPicklistValueCache(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache ticketnoteentitypicklistvaluecache)
+        {
+            OnTicketNoteEntityPicklistValueCacheCreated(ticketnoteentitypicklistvaluecache);
+
+            var existingItem = Context.TicketNoteEntityPicklistValueCaches
+                              .Where(i => i.TicketNoteEntityPicklistValueId == ticketnoteentitypicklistvaluecache.TicketNoteEntityPicklistValueId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.TicketNoteEntityPicklistValueCaches.Add(ticketnoteentitypicklistvaluecache);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(ticketnoteentitypicklistvaluecache).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterTicketNoteEntityPicklistValueCacheCreated(ticketnoteentitypicklistvaluecache);
+
+            return ticketnoteentitypicklistvaluecache;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> CancelTicketNoteEntityPicklistValueCacheChanges(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnTicketNoteEntityPicklistValueCacheUpdated(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item);
+        partial void OnAfterTicketNoteEntityPicklistValueCacheUpdated(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> UpdateTicketNoteEntityPicklistValueCache(int ticketnoteentitypicklistvalueid, CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache ticketnoteentitypicklistvaluecache)
+        {
+            OnTicketNoteEntityPicklistValueCacheUpdated(ticketnoteentitypicklistvaluecache);
+
+            var itemToUpdate = Context.TicketNoteEntityPicklistValueCaches
+                              .Where(i => i.TicketNoteEntityPicklistValueId == ticketnoteentitypicklistvaluecache.TicketNoteEntityPicklistValueId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(ticketnoteentitypicklistvaluecache).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterTicketNoteEntityPicklistValueCacheUpdated(ticketnoteentitypicklistvaluecache);
+
+            return ticketnoteentitypicklistvaluecache;
+        }
+
+        partial void OnTicketNoteEntityPicklistValueCacheDeleted(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item);
+        partial void OnAfterTicketNoteEntityPicklistValueCacheDeleted(CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> DeleteTicketNoteEntityPicklistValueCache(int ticketnoteentitypicklistvalueid)
+        {
+            var itemToDelete = Context.TicketNoteEntityPicklistValueCaches
+                              .Where(i => i.TicketNoteEntityPicklistValueId == ticketnoteentitypicklistvalueid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnTicketNoteEntityPicklistValueCacheDeleted(itemToDelete);
+
+            Reset();
+
+            Context.TicketNoteEntityPicklistValueCaches.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterTicketNoteEntityPicklistValueCacheDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportTimeEntriesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeentries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeentries/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -1199,168 +1847,6 @@ namespace CrownATTime.Server
             }
 
             OnAfterTimeEntryDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-    
-        public async Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportEmailTemplatesToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnEmailTemplatesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate> items);
-
-        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate>> GetEmailTemplates(Query query = null)
-        {
-            var items = Context.EmailTemplates.AsQueryable();
-
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach(var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnEmailTemplatesRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnEmailTemplateGet(CrownATTime.Server.Models.ATTime.EmailTemplate item);
-        partial void OnGetEmailTemplateByEmailTemplateId(ref IQueryable<CrownATTime.Server.Models.ATTime.EmailTemplate> items);
-
-
-        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> GetEmailTemplateByEmailTemplateId(int emailtemplateid)
-        {
-            var items = Context.EmailTemplates
-                              .AsNoTracking()
-                              .Where(i => i.EmailTemplateId == emailtemplateid);
-
- 
-            OnGetEmailTemplateByEmailTemplateId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnEmailTemplateGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnEmailTemplateCreated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
-        partial void OnAfterEmailTemplateCreated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CreateEmailTemplate(CrownATTime.Server.Models.ATTime.EmailTemplate emailtemplate)
-        {
-            OnEmailTemplateCreated(emailtemplate);
-
-            var existingItem = Context.EmailTemplates
-                              .Where(i => i.EmailTemplateId == emailtemplate.EmailTemplateId)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-               throw new Exception("Item already available");
-            }            
-
-            try
-            {
-                Context.EmailTemplates.Add(emailtemplate);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(emailtemplate).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterEmailTemplateCreated(emailtemplate);
-
-            return emailtemplate;
-        }
-
-        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> CancelEmailTemplateChanges(CrownATTime.Server.Models.ATTime.EmailTemplate item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-              entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnEmailTemplateUpdated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
-        partial void OnAfterEmailTemplateUpdated(CrownATTime.Server.Models.ATTime.EmailTemplate item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> UpdateEmailTemplate(int emailtemplateid, CrownATTime.Server.Models.ATTime.EmailTemplate emailtemplate)
-        {
-            OnEmailTemplateUpdated(emailtemplate);
-
-            var itemToUpdate = Context.EmailTemplates
-                              .Where(i => i.EmailTemplateId == emailtemplate.EmailTemplateId)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            Reset();
-
-            Context.Attach(emailtemplate).State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterEmailTemplateUpdated(emailtemplate);
-
-            return emailtemplate;
-        }
-
-        partial void OnEmailTemplateDeleted(CrownATTime.Server.Models.ATTime.EmailTemplate item);
-        partial void OnAfterEmailTemplateDeleted(CrownATTime.Server.Models.ATTime.EmailTemplate item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.EmailTemplate> DeleteEmailTemplate(int emailtemplateid)
-        {
-            var itemToDelete = Context.EmailTemplates
-                              .Where(i => i.EmailTemplateId == emailtemplateid)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            OnEmailTemplateDeleted(itemToDelete);
-
-            Reset();
-
-            Context.EmailTemplates.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterEmailTemplateDeleted(itemToDelete);
 
             return itemToDelete;
         }

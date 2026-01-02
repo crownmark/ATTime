@@ -45,6 +45,17 @@ namespace CrownATTime.Client.Pages
         [Inject]
         protected SecurityService Security { get; set; }
 
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> ticketNoteEntityPicklistNoteTypeValueCaches;
+
+        protected int ticketNoteEntityPicklistValueNoteTypeCachesCount;
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> ticketNoteEntityPicklistPublishValueCaches;
+
+        protected int ticketNoteEntityPicklistValuePublishCachesCount;
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> ticketEntityPicklistValueCaches;
+
+        protected int ticketEntityPicklistValueCachesCount;
         protected async Task FormSubmit()
         {
             try
@@ -67,6 +78,55 @@ namespace CrownATTime.Client.Pages
         {
             await DialogService.OpenAsync<TemplateTokens>("Template Tokens", null, new DialogOptions { Width = "915px", Draggable = true });
             
+        }
+
+        protected async Task ticketNoteEntityPicklistValueCachesNoteTypeLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"PicklistName eq 'noteType'";
+                var result = await ATTimeService.GetTicketNoteEntityPicklistValueCaches(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Label, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Label asc");
+
+                ticketNoteEntityPicklistNoteTypeValueCaches = result.Value.AsODataEnumerable();
+                ticketNoteEntityPicklistValueNoteTypeCachesCount = result.Count;
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load Note Type Picklist. {ex.Message}" });
+            }
+        }
+
+        protected async Task ticketNoteEntityPicklistValueCachesPublishLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"PicklistName eq 'publish'";
+                var result = await ATTimeService.GetTicketNoteEntityPicklistValueCaches(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Label, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Label asc");
+
+                ticketNoteEntityPicklistPublishValueCaches = result.Value.AsODataEnumerable();
+                ticketNoteEntityPicklistValuePublishCachesCount = result.Count;
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load Publish Picklist. {ex.Message}" });
+            }
+        }
+
+
+        protected async Task ticketEntityPicklistValueCachesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"PicklistName eq 'status'";
+                var result = await ATTimeService.GetTicketEntityPicklistValueCaches(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Label, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Label asc");
+
+                ticketEntityPicklistValueCaches = result.Value.AsODataEnumerable();
+                ticketEntityPicklistValueCachesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+            }
         }
     }
 }

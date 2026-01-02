@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CrownATTime.Client.Pages
 {
-    public partial class AddEmailTemplate
+    public partial class EditNoteTemplate
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -33,15 +33,8 @@ namespace CrownATTime.Client.Pages
         [Inject]
         public ATTimeService ATTimeService { get; set; }
 
-        protected override async Task OnInitializedAsync()
-        {
-            emailTemplate = new CrownATTime.Server.Models.ATTime.EmailTemplate();
-        }
-        protected bool errorVisible;
-        protected CrownATTime.Server.Models.ATTime.EmailTemplate emailTemplate;
-
-        [Inject]
-        protected SecurityService Security { get; set; }
+        [Parameter]
+        public int NoteTemplateId { get; set; }
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> ticketNoteEntityPicklistNoteTypeValueCaches;
 
@@ -50,16 +43,27 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> ticketNoteEntityPicklistPublishValueCaches;
 
         protected int ticketNoteEntityPicklistValuePublishCachesCount;
+
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> ticketEntityPicklistValueCaches;
 
         protected int ticketEntityPicklistValueCachesCount;
+
+        protected override async Task OnInitializedAsync()
+        {
+            noteTemplate = await ATTimeService.GetNoteTemplateByNoteTemplateId(noteTemplateId:NoteTemplateId);
+        }
+        protected bool errorVisible;
+        protected CrownATTime.Server.Models.ATTime.NoteTemplate noteTemplate;
+
+        [Inject]
+        protected SecurityService Security { get; set; }
 
         protected async Task FormSubmit()
         {
             try
             {
-                await ATTimeService.CreateEmailTemplate(emailTemplate);
-                DialogService.Close(emailTemplate);
+                await ATTimeService.UpdateNoteTemplate(noteTemplateId:NoteTemplateId, noteTemplate);
+                DialogService.Close(noteTemplate);
             }
             catch (Exception ex)
             {
@@ -71,14 +75,6 @@ namespace CrownATTime.Client.Pages
         {
             DialogService.Close(null);
         }
-
-        protected async System.Threading.Tasks.Task ViewTemplateTokensButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
-        {
-            await DialogService.OpenAsync<TemplateTokens>("Template Tokens", null, new DialogOptions { Width = "915px", Draggable = true });
-            
-        }
-
-
         protected async Task ticketNoteEntityPicklistValueCachesNoteTypeLoadData(LoadDataArgs args)
         {
             try
@@ -107,7 +103,7 @@ namespace CrownATTime.Client.Pages
             }
             catch (Exception ex)
             {
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load Publish Picklist. {ex.Message}"});
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load Publish Picklist. {ex.Message}" });
             }
         }
         protected async Task ticketEntityPicklistValueCachesLoadData(LoadDataArgs args)

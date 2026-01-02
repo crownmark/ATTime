@@ -58,7 +58,7 @@ namespace CrownATTime.Client.Pages
 
                 await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", selectedToken.Token);
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Token Copied to Clipboard" });
-
+                DialogService.Close();
 
             }
             catch (Exception ex)

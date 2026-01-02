@@ -22,6 +22,22 @@ namespace CrownATTime.Server.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.SendAsTech)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.ShareWithOthers)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.NoteTemplate>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.IsNonBillable)
               .HasDefaultValueSql(@"((0))");
@@ -36,14 +52,6 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.TimeStampStatus)
-              .HasDefaultValueSql(@"((0))");
-
-            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
-              .Property(p => p.Active)
-              .HasDefaultValueSql(@"((1))");
-
-            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
-              .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
@@ -62,7 +70,13 @@ namespace CrownATTime.Server.Data
 
         public DbSet<CrownATTime.Server.Models.ATTime.BillingCodeCache> BillingCodeCaches { get; set; }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.CompanyCache> CompanyCaches { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.ContractCache> ContractCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.EmailTemplate> EmailTemplates { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.NoteTemplate> NoteTemplates { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.ResourceCache> ResourceCaches { get; set; }
 
@@ -72,9 +86,9 @@ namespace CrownATTime.Server.Data
 
         public DbSet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> TicketEntityPicklistValueCaches { get; set; }
 
-        public DbSet<CrownATTime.Server.Models.ATTime.TimeEntry> TimeEntries { get; set; }
+        public DbSet<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> TicketNoteEntityPicklistValueCaches { get; set; }
 
-        public DbSet<CrownATTime.Server.Models.ATTime.EmailTemplate> EmailTemplates { get; set; }
+        public DbSet<CrownATTime.Server.Models.ATTime.TimeEntry> TimeEntries { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

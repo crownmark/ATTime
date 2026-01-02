@@ -42,13 +42,16 @@ builder.Services.AddControllers().AddOData(opt =>
 {
     var oDataBuilderATTime = new ODataConventionModelBuilder();
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.BillingCodeCache>("BillingCodeCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.CompanyCache>("CompanyCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ContractCache>("ContractCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.EmailTemplate>("EmailTemplates");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.NoteTemplate>("NoteTemplates");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ResourceCache>("ResourceCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.RoleCache>("RoleCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>("ServiceDeskRoleCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache>("TicketEntityPicklistValueCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>("TicketNoteEntityPicklistValueCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeEntry>("TimeEntries");
-    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.EmailTemplate>("EmailTemplates");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));

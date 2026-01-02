@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,15 +61,17 @@ namespace CrownATTime.Client.Pages
         protected int resourceCachesCount;
 
         protected IEnumerable<ContactDtoResult.Item> contacts;
-
-
         protected IEnumerable<string> crownTeamEmails {  get; set; } = new List<string>();
         protected IEnumerable<string> contactEmails {  get; set; } = new List<string>();
 
         protected bool ticketContact {  get; set; }
+        protected bool msTeamsEmail { get; set; }
+
         protected bool ticketContacts {  get; set; }
         protected bool primaryResource {  get; set; }
         protected bool primaryResources {  get; set; }
+        protected bool sendingEmail {  get; set; }
+        protected string additionalEmail {  get; set; }
 
 
         [Parameter] 
@@ -80,6 +82,11 @@ namespace CrownATTime.Client.Pages
 
         [Parameter]
         public ResourceCache Resource { get; set; }
+
+        [Parameter]
+        public CompanyCache Company { get; set; }
+
+        protected EmailTemplate selectedTemplate { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -172,6 +179,13 @@ namespace CrownATTime.Client.Pages
                 if (template == null)
                     return;
 
+                selectedTemplate = template;
+                if (!string.IsNullOrEmpty(selectedTemplate.TeamsChannelEmail))
+                {
+                    additionalEmail = selectedTemplate.TeamsChannelEmail;
+                    msTeamsEmail = true;
+                }
+
                 // Load picklists
                 var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
@@ -190,12 +204,13 @@ namespace CrownATTime.Client.Pages
                 {
                     Contact = Contact?.item,
                     Ticket = Ticket?.item,   
-                    Resource = Resource,     
+                    Resource = Resource,    
+                    Company = Company,
                     Picklists = picklists
                 };
 
                 // Apply template + render tokens
-                emailMessage.From = template.FromEmailAddress;
+                emailMessage.From = template.SendAsTech ? Security.User.Email : "support@ce-technology.com";// template.FromEmailAddress;
 
                 emailMessage.Subject = EmailService.Render(template.EmailSubject ?? string.Empty, ctx);
                 emailMessage.Body = EmailService.Render(template.EmailBody ?? string.Empty, ctx);
@@ -218,6 +233,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                sendingEmail = true;
                 // Collect emails here (case-insensitive, deduped)
                 var emailSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -234,6 +250,7 @@ namespace CrownATTime.Client.Pages
 
                 AddCsv(customerEmailsCsv);
                 AddCsv(crownEmailsCsv);
+                AddCsv(additionalEmail);
 
                 if (ticketContact)
                 {
@@ -257,10 +274,12 @@ namespace CrownATTime.Client.Pages
                         emailSet.Add(email.Trim());
                 }
 
+
                 var allRecipients = string.Join(",",emailSet.Select(e => e.Trim()));
                 emailMessage.To = allRecipients;
                 if (string.IsNullOrEmpty(emailMessage.To))
                 {
+                    sendingEmail = false;
                     NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "No email addresses set" });
                 }
                 else
@@ -272,7 +291,7 @@ namespace CrownATTime.Client.Pages
                     {
                         lastActivityDate = DateTime.Now,
                         createDateTime = DateTime.Now,
-                        creatorResourceID = Resource.Id,
+                        impersonatorCreatorResourceID = Resource.Id,
                         description = $"{EmailService.BuildEmailNoteDescription(emailMessage.From,emailMessage.To, emailMessage.CC, emailMessage.Subject, emailMessage.Body)}",
                         //impersonatorCreatorResourceID = Resource.Id,
                         noteType = 204,
@@ -281,6 +300,20 @@ namespace CrownATTime.Client.Pages
                         title = "Email To Customer Communication",
                     };
                     await AutotaskTimeEntryService.CreateNote(newNote);
+
+                    //Update Ticket Status
+                    if (selectedTemplate != null && selectedTemplate.TicketStatus.HasValue)
+                    {
+                        //update ticket status
+                        var ticket = new TicketUpdateDto()
+                        {
+                            Id = Ticket.item.id,
+                            Status = selectedTemplate.TicketStatus.Value,                            
+                        };
+                        await AutotaskTicketService.UpdateTicket(ticket);
+                    }
+                    sendingEmail = false;
+
                     //Close Dialog
                     DialogService.Close();
                 }
@@ -288,13 +321,18 @@ namespace CrownATTime.Client.Pages
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error sending email.  {ex.Message}" });
-
+                sendingEmail = false;
             }
         }
 
         protected async System.Threading.Tasks.Task CancelButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             DialogService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task notifyMSTeamsChannelCheckBoxChange(bool args)
+        {
+            additionalEmail = string.IsNullOrWhiteSpace(additionalEmail) ? selectedTemplate.TeamsChannelEmail : $"{selectedTemplate.TeamsChannelEmail},{additionalEmail}";
         }
     }
 }

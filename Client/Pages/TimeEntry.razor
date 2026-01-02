@@ -3,7 +3,7 @@
 
 @attribute [Authorize]
 
-<PageTitle>Time Entry @ticket?.item?.ticketNumber | @company?.item?.companyName | @ticket?.item?.title</PageTitle>
+<PageTitle>Time Entry @ticket?.item?.ticketNumber | @company?.CompanyName | @ticket?.item?.title</PageTitle>
 <RadzenRow Visible="@(pageLoading)" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
     <RadzenStack>
         <RadzenProgressBarCircular Mode="Radzen.ProgressBarMode.Indeterminate" ShowValue="false" Visible="@(pageLoading)" Size="Radzen.ProgressBarCircularSize.Large">
@@ -89,7 +89,7 @@
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="border-bottom: 0px solid var(--rz-base)" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                    <strong>Account: </strong><RadzenLink Text="@company?.item?.companyName" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank"></RadzenLink>
+                    <strong>Account: </strong><RadzenLink Text="@company?.CompanyName" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank"></RadzenLink>
 
                     </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
@@ -251,6 +251,7 @@
                     <RadzenFieldset Text="Email & Notes" AllowCollapse="true" Icon="email">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="email" Text="Send Email" Click="@SendEmailButtonClick"></RadzenButton>
+<RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="note" Text="Add Note" Click="@AddNoteButtonClick" Visible="true"></RadzenButton>
                         </RadzenStack>
 
                     </RadzenFieldset>

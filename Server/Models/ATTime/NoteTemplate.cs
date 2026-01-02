@@ -7,36 +7,18 @@ using System.Text.Json.Serialization;
 
 namespace CrownATTime.Server.Models.ATTime
 {
-    [Table("EmailTemplates", Schema = "dbo")]
-    public partial class EmailTemplate
+    [Table("NoteTemplates", Schema = "dbo")]
+    public partial class NoteTemplate
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int EmailTemplateId { get; set; }
+        public int NoteTemplateId { get; set; }
 
         public bool Active { get; set; }
 
         [Required]
         [MaxLength(255)]
         public string Title { get; set; }
-
-        [Required]
-        [MaxLength(255)]
-        public string EmailSubject { get; set; }
-
-        [Required]
-        [MaxLength(4000)]
-        public string EmailBody { get; set; }
-
-        [MaxLength(255)]
-        public string FromEmailAddress { get; set; }
-
-        public bool SendAsTech { get; set; }
-
-        [MaxLength(50)]
-        public string TemplateAssignedTo { get; set; }
-
-        public bool ShareWithOthers { get; set; }
 
         [Required]
         public int NoteType { get; set; }
@@ -50,7 +32,7 @@ namespace CrownATTime.Server.Models.ATTime
 
         public int? TicketStatus { get; set; }
 
-        [MaxLength(255)]
-        public string TeamsChannelEmail { get; set; }
+        [MaxLength(4000)]
+        public string NoteDescription { get; set; }
     }
 }

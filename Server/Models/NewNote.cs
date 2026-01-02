@@ -7,8 +7,10 @@ namespace CrownATTime.Server.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public int NoteType { get; set; }
-        public bool Internal { get; set; } // 1 All Autotask Users, 2 Internal Project Team 4 internal and comanaged
+        public int NotePublish { get; set; }
+        public int? TicketStatus { get; set; }
         public int TicketId {  get; set; }
-        public int CreatedBy { get; set; }
+        public int NoteTemplateId { get; set; }
+        public int? EmailTemplateId {  get; set; }
     }
 }

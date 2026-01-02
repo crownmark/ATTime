@@ -9,11 +9,23 @@
         <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.EmailTemplate" Data="@(emailTemplate)" Visible="@(emailTemplate != null)" Submit="@FormSubmit">
           <RadzenStack>
             <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="3">
-                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="9">
+                <RadzenColumn SizeMD="1">
                     <RadzenCheckBox @bind-Value="@(emailTemplate.Active)" Name="Active" />
+
+                </RadzenColumn>
+                <RadzenColumn SizeMD="11">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="1" SizeLG="1">
+                    <RadzenCheckBox @bind-Value="@(emailTemplate.ShareWithOthers)" Name="ShareWithOthers" />
+
+                </RadzenColumn>
+                <RadzenColumn SizeMD="11" SizeLG="11">
+                    <RadzenLabel Text="Share With Others" Component="ShareWithOthers" style="width: 100%" />
+
                 </RadzenColumn>
             </RadzenRow>
             <RadzenFormField Text="Title" Variant="Variant.Outlined">
@@ -44,9 +56,24 @@
                     <RadzenRequiredValidator Component="EmailBody" Text="EmailBody is required" />
                   </Helper>
             </RadzenFormField>
-            <RadzenFormField Text="From Email Address" Variant="Variant.Outlined">
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="1" SizeLG="1">
+                    <RadzenCheckBox @bind-Value="@(emailTemplate.SendAsTech)" Name="SendAsTech" />
+
+                </RadzenColumn>
+                <RadzenColumn SizeMD="11" SizeLG="11">
+                    <RadzenLabel Text="Send As Tech? (Default is From Support)" Component="SendAsTech" style="width: 100%" />
+
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="From Email Address" Variant="Variant.Outlined" Visible="false">
                   <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.FromEmailAddress)" Name="FromEmailAddress" MaxLength="255" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Notify MS Teams Channel Email" Variant="Variant.Outlined" Visible="true">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@emailTemplate.TeamsChannelEmail" Name="TeamsChannelEmail" MaxLength="255" />
               </ChildContent>
             </RadzenFormField>
             <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
@@ -54,14 +81,40 @@
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.TemplateAssignedTo)" Name="TemplateAssignedTo" MaxLength="50" />
               </ChildContent>
             </RadzenFormField>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="3">
-                    <RadzenLabel Text="Share With Others" Component="ShareWithOthers" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="9">
-                    <RadzenCheckBox @bind-Value="@(emailTemplate.ShareWithOthers)" Name="ShareWithOthers" />
-                </RadzenColumn>
-            </RadzenRow>
+            
+            <RadzenFormField Text="Note Title" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.NoteTitle)" Name="NoteTitle" MaxLength="50" />
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="NoteTitle" Text="Note Title is required" />
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Note Type" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenDropDown TValue="int" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketNoteEntityPicklistNoteTypeValueCaches" LoadData="@ticketNoteEntityPicklistValueCachesNoteTypeLoadData" Count="@ticketNoteEntityPicklistValueNoteTypeCachesCount" @bind-Value="@emailTemplate.NoteType" Name="NoteType" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" />
+
+                </ChildContent>
+                <Helper>
+                    <RadzenNumericRangeValidator Text="Note Type is required" Min="1" Component="NoteType"></RadzenNumericRangeValidator>
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Publish" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenDropDown TValue="int" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketNoteEntityPicklistPublishValueCaches" LoadData="@ticketNoteEntityPicklistValueCachesPublishLoadData" Count="@ticketNoteEntityPicklistValuePublishCachesCount" Name="NotePublish" @bind-Value="@emailTemplate.NotePublish" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" />
+
+                </ChildContent>
+                <Helper>
+                    <RadzenNumericRangeValidator Text="Note Publish is required" Min="1" Component="NotePublish"></RadzenNumericRangeValidator>
+                </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Status" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenDropDown TValue="int?" @bind-Value="@emailTemplate.TicketStatus" LoadData="@ticketEntityPicklistValueCachesLoadData" Data="@ticketEntityPicklistValueCaches" Count="@ticketEntityPicklistValueCachesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Name="TicketStatus" ValueProperty="ValueInt" TextProperty="Label" />
+
+                </ChildContent>
+                
+            </RadzenFormField>
           </RadzenStack>
           <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                     <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />

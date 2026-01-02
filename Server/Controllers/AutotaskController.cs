@@ -378,6 +378,74 @@
             }
 
         }
+        [HttpGet("companies/sync")]
+        public async Task<IActionResult> SyncCompanies([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                // Start URL (relative to your HttpClient BaseAddress)
+                var nextUrl = $"v1.0/Companies/query?search={encodedSearch}";
+
+                var existingItems = context.CompanyCaches.ToList();
+                var itemsToUpdate = new List<CompanyCache>();
+                var itemsToCreate = new List<CompanyCache>();
+                while (!string.IsNullOrWhiteSpace(nextUrl))
+                {
+                    var response = await _http.GetAsync(nextUrl);
+                    var content = await response.Content.ReadAsStringAsync();
+                    var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<CompanyDto>>(content);
+                    
+                    foreach (var item in converted.Items)
+                    {
+                        var existingItem = existingItems.FirstOrDefault(x => x.Id == item.id);
+                        if (existingItem != null)
+                        {
+                            existingItem.CompanyCategoryId = item.companyCategoryID;
+                            existingItem.CompanyName = item.companyName;
+                            existingItem.Classification = item.classification;
+                            existingItem.IsActive = item.isActive;
+                            existingItem.Phone = item.phone;
+                            itemsToUpdate.Add(existingItem);
+                        }
+                        else
+                        {
+                            itemsToCreate.Add(new CompanyCache()
+                            {
+                                Id = item.id,
+                                IsActive = item.isActive,
+                                Classification = item.classification,
+                                CompanyCategoryId = item.companyCategoryID,
+                                CompanyName = item.companyName,
+                                Phone = item.phone,
+
+                            });
+
+                        }
+                    }
+                    // Follow the server-provided next page URL
+                    nextUrl = converted?.PageDetails?.NextPageUrl;
+
+
+                }
+
+                await context.AddRangeAsync(itemsToCreate);
+                context.UpdateRange(itemsToUpdate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Companies: {ex.Message}");
+            }
+
+        }
         [HttpGet("resources/query")]
         public async Task<IActionResult> GetResources([FromQuery] string search)
         {
@@ -695,10 +763,11 @@
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error fetching contacts: {ex.Message}");
+                return StatusCode(500, $"Error fetching ticket picklists: {ex.Message}");
             }
 
         }
+
 
         [HttpGet("userdefinefields")]
         public async Task<IActionResult> GetTicketUserDefineFields()
@@ -706,6 +775,59 @@
             var resp = await _http.GetAsync("v1.0/Tickets/entityInformation/userDefinedFields");
             var json = await resp.Content.ReadAsStringAsync();
             return Content(json, "application/json");
+        }
+
+        [HttpGet("ticketNotes/fields/sync")]
+        public async Task<IActionResult> SyncTicketNotesPicklists()
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/TicketNotes/entityInformation/fields");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<TicketEntityFieldsDto.EntityInformationFieldsResponse>(content);
+                var existingItems = context.TicketNoteEntityPicklistValueCaches.ToList();
+                var itemsToUpdate = new List<TicketNoteEntityPicklistValueCache>();
+                var itemsToCreate = new List<TicketNoteEntityPicklistValueCache>();
+                foreach (var field in converted.Fields)
+                {
+                    if (field.PicklistValues != null)
+                    {
+                        foreach (var item in field.PicklistValues)
+                        {
+                            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label);
+                            if (existingItem != null)
+                            {
+                                existingItem.PicklistName = field.Name;
+                                existingItem.Label = item.Label;
+                                existingItem.Value = item.Value;
+                                existingItem.ValueInt = item.ValueInt.HasValue ? Convert.ToInt32(item.ValueInt) : null;
+
+                            }
+                            else
+                            {
+                                itemsToCreate.Add(new TicketNoteEntityPicklistValueCache()
+                                {
+                                    PicklistName = field.Name,
+                                    Label = item.Label,
+                                    Value = item.Value,
+                                    ValueInt = item.ValueInt,
+                                });
+
+                            }
+                        }
+                    }
+                }
+
+                await context.AddRangeAsync(itemsToCreate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching ticket note picklists: {ex.Message}");
+            }
+
         }
 
         [HttpPost("notes")]
@@ -719,8 +841,14 @@
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
 
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _http.PostAsync($"v1.0/Tickets/{note.ticketID}/Notes", content);
+                var request = new HttpRequestMessage(HttpMethod.Post,$"v1.0/Tickets/{note.ticketID}/Notes");
+
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                // 🔑 Autotask impersonation header
+                request.Headers.TryAddWithoutValidation("ImpersonationResourceId", note.impersonatorCreatorResourceID.ToString());
+
+                var response = await _http.SendAsync(request);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -798,6 +926,7 @@
 
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
                 var response = await _http.PostAsync("v1.0/Tickets", content);
+
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -832,9 +961,17 @@
                     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
+                var request = new HttpRequestMessage(HttpMethod.Post, $"v1.0/TimeEntries/");
 
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _http.PostAsync("v1.0/TimeEntries", content);
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                // 🔑 Autotask impersonation header
+                request.Headers.TryAddWithoutValidation("ImpersonationResourceId", timeEntry.ResourceId.ToString());
+
+                var response = await _http.SendAsync(request);
+
+                //var content = new StringContent(json, Encoding.UTF8, "application/json");
+                //var response = await _http.PostAsync("v1.0/TimeEntries", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)

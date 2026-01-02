@@ -5,6 +5,7 @@ namespace CrownATTime.Server.Models
     public sealed class TemplateContext
     {
         public ContactDtoResult.Item? Contact { get; init; }
+        public CompanyCache? Company { get; init; }
         public TicketDtoResult.Item? Ticket { get; init; }
         public ResourceCache? Resource { get; init; }
 

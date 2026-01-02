@@ -2,7 +2,7 @@
 
 @attribute [Authorize]
 
-<PageTitle>AutotaskSettings</PageTitle>
+<PageTitle>Autotask Settings</PageTitle>
 <RadzenRow>
     <RadzenColumn Size="12">
         <RadzenText Text="Autotask Settings" TextStyle="TextStyle.H3" TagName="TagName.H1" />
@@ -42,7 +42,7 @@
                     <RadzenButton Text="Re-Sync Resources" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@ResourcesButtonClick" IsBusy="@syncingResources" BusyText="Syncing Resources"></RadzenButton>
                 </RadzenStack>
             </RadzenColumn>
-<RadzenColumn SizeLG="6">
+            <RadzenColumn SizeLG="6">
                 <RadzenStack>
                     <RadzenLabel Text="Roles" />
                     <RadzenButton Text="Re-Sync Roles" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@RolesButtonClick" BusyText="Syncing Roles" IsBusy="@syncingRoles"></RadzenButton>
@@ -54,10 +54,22 @@
                     <RadzenButton Text="Re-Sync Service Desk Roles" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@ServiceDeskRolesButtonClick" BusyText="Syncing Serivice Desk Roles" IsBusy="@syncingServiceDeskRoles"></RadzenButton>
                 </RadzenStack>
             </RadzenColumn>
-<RadzenColumn SizeLG="6">
+            <RadzenColumn SizeLG="6">
                 <RadzenStack>
                     <RadzenLabel Text="Ticket Picklists" />
                     <RadzenButton Text="Re-Sync Ticket Picklists" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@TicketPicklistsButtonClick" IsBusy="@syncingTicketFields" BusyText="Syncing Ticket Picklists"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Ticket Note Picklists" />
+                    <RadzenButton Text="Re-Sync Ticket Note Picklists" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@TicketNotePicklistsButtonClick" IsBusy="@syncingTicketNoteFields" BusyText="Syncing Ticket Note Picklists"></RadzenButton>
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn SizeLG="6">
+                <RadzenStack>
+                    <RadzenLabel Text="Companies" />
+                    <RadzenButton Text="Re-Sync Companies" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@CompaniesButtonClick" IsBusy="@syncingCompanies" BusyText="Syncing Companies"></RadzenButton>
                 </RadzenStack>
             </RadzenColumn>
         </RadzenRow>

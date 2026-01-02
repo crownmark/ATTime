@@ -134,6 +134,36 @@
             return JsonSerializer.Deserialize<CompanyDtoResult>(content);
 
         }
+        public async Task SyncCompanies()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "isActive", value = true },
+                    new { op = "noteq", field = "id", value = 0},
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"companies/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Companies.  {content}");
+            }
+        }
         public async Task<ConfigurationItemResult> GetConfigurationItem(int configurationId)
         {
             var uri = new Uri(baseUri, $"ConfigurationItems/{configurationId}");
@@ -317,6 +347,25 @@
             else
             {
                 throw new Exception($"Error Syncing Ticket Picklists.  {content}");
+            }
+        }
+
+        public async Task SyncTicketNoteFields()
+        {
+
+            var uri = new Uri(baseUri, $"ticketNotes/fields/sync");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Ticket Notes Picklists.  {content}");
             }
         }
 

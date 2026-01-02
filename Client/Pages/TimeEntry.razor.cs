@@ -53,7 +53,7 @@ namespace CrownATTime.Client.Pages
         protected TicketDtoResult ticket {  get; set; }
         protected ConfigurationItemResult configurationItem {  get; set; }
         protected ContactDtoResult contact {  get; set; }
-        protected CompanyDtoResult company {  get; set; }
+        protected CompanyCache company {  get; set; }
         protected ContractCache contract {  get; set; }
         protected ResourceCache resource {  get; set; }
         protected bool pageLoading { get; set; }
@@ -238,9 +238,10 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                ticket = await AutotaskTicketService.GetTicket(ticket.item.id);
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
-                company = await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
+                company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);// await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
                 configurationItem = await AutotaskTicketService.GetConfigurationItem(Convert.ToInt32(ticket.item.configurationItemID));
                 var picklistValues = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistValuesList = picklistValues.Value.ToList();
@@ -259,7 +260,7 @@ namespace CrownATTime.Client.Pages
                 var priority = priorities.Where(x => x.Value == ticket.item.priority.ToString()).FirstOrDefault();
                 PriorityName = priority.Label;
                 //var ticketLookupFields = await AutotaskTicketService.GetTicketFields();
-                timeEntryRecord.AccountName = company.item.companyName;
+                timeEntryRecord.AccountName = company.CompanyName;
                 timeEntryRecord.ContactName = contact.item == null ? "" : $"{contact.item.firstName} {contact.item.lastName}";
                 timeEntryRecord.PriorityName = PriorityName;
                 timeEntryRecord.StatusName = StatusName;
@@ -1090,7 +1091,15 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task SendEmailButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource} } , new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company } } , new DialogOptions { Width = "800px", Draggable = true });
+            await UpdateTicketValues();
+            StateHasChanged();
+
+        }
+
+        protected async System.Threading.Tasks.Task AddNoteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await DialogService.OpenAsync<AddNote>("Add Note", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company} }, new DialogOptions { Width = "800px", Draggable = true });
         }
     }
 }

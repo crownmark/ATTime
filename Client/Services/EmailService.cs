@@ -260,6 +260,7 @@ namespace CrownATTime.Client
                 "Contact" => ctx.Contact,
                 "Ticket" => ctx.Ticket,
                 "Resource" => ctx.Resource,
+                "Company" => ctx.Company,
                 _ => null
             };
 

@@ -35,7 +35,7 @@
             //public int creatorType { get; set; }
             //public object currentServiceThermometerRating { get; set; }
             public string description { get; set; }
-            //public DateTime? dueDateTime { get; set; }
+            public DateTime? dueDateTime { get; set; }
             //public object estimatedHours { get; set; }
             //public string externalID { get; set; }
             //public int? firstResponseAssignedResourceID { get; set; }

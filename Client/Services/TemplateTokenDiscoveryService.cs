@@ -1,4 +1,5 @@
 ﻿using CrownATTime.Server.Models;
+using CrownATTime.Server.Models.ATTime;
 using System.Reflection;
 
 namespace CrownATTime.Client
@@ -10,6 +11,7 @@ namespace CrownATTime.Client
             var tokens = new List<TemplateTokenInfo>();
 
             AddTokens<ContactDtoResult.Item>("Contact", tokens);
+            AddTokens<CompanyCache>("Company", tokens);
             AddTokens<TicketDtoResult.Item>("Ticket", tokens);
             AddTokens<ResourceDtoResult>("Resource", tokens);
 

@@ -33,6 +33,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetBillingCodeCaches(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/companycaches/csv")]
+        [HttpGet("/export/ATTime/companycaches/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportCompanyCachesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetCompanyCaches(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/companycaches/excel")]
+        [HttpGet("/export/ATTime/companycaches/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportCompanyCachesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetCompanyCaches(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/contractcaches/csv")]
         [HttpGet("/export/ATTime/contractcaches/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportContractCachesToCSV(string fileName = null)
@@ -45,6 +59,34 @@ namespace CrownATTime.Server.Controllers
         public async Task<FileStreamResult> ExportContractCachesToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetContractCaches(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/emailtemplates/csv")]
+        [HttpGet("/export/ATTime/emailtemplates/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmailTemplatesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/emailtemplates/excel")]
+        [HttpGet("/export/ATTime/emailtemplates/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportEmailTemplatesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/notetemplates/csv")]
+        [HttpGet("/export/ATTime/notetemplates/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportNoteTemplatesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetNoteTemplates(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/notetemplates/excel")]
+        [HttpGet("/export/ATTime/notetemplates/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportNoteTemplatesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetNoteTemplates(), Request.Query, false), fileName);
         }
 
         [HttpGet("/export/ATTime/resourcecaches/csv")]
@@ -103,6 +145,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetTicketEntityPicklistValueCaches(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/ticketnoteentitypicklistvaluecaches/csv")]
+        [HttpGet("/export/ATTime/ticketnoteentitypicklistvaluecaches/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTicketNoteEntityPicklistValueCachesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetTicketNoteEntityPicklistValueCaches(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/ticketnoteentitypicklistvaluecaches/excel")]
+        [HttpGet("/export/ATTime/ticketnoteentitypicklistvaluecaches/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTicketNoteEntityPicklistValueCachesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetTicketNoteEntityPicklistValueCaches(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/timeentries/csv")]
         [HttpGet("/export/ATTime/timeentries/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportTimeEntriesToCSV(string fileName = null)
@@ -115,20 +171,6 @@ namespace CrownATTime.Server.Controllers
         public async Task<FileStreamResult> ExportTimeEntriesToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetTimeEntries(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/emailtemplates/csv")]
-        [HttpGet("/export/ATTime/emailtemplates/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportEmailTemplatesToCSV(string fileName = null)
-        {
-            return ToCSV(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/emailtemplates/excel")]
-        [HttpGet("/export/ATTime/emailtemplates/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportEmailTemplatesToExcel(string fileName = null)
-        {
-            return ToExcel(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
         }
     }
 }
