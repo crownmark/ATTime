@@ -5,8 +5,8 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 -->
 <Project>
   <PropertyGroup>
-    <_PublishTargetUrl>C:\Source Control Projects\Github\ATTime\Server\bin\Release\net10.0\publish\</_PublishTargetUrl>
-    <History>True|2025-12-30T20:09:20.7336452Z||;True|2025-12-19T11:04:09.1721794-08:00||;True|2025-12-19T10:58:40.5071277-08:00||;True|2025-12-19T10:42:36.0919659-08:00||;True|2025-12-12T16:35:59.3628384-08:00||;</History>
+    <_PublishTargetUrl>C:\Source Control\ATTime\Server\bin\Release\net10.0\publish\</_PublishTargetUrl>
+    <History>True|2026-01-02T04:34:54.5993287Z||;True|2026-01-01T20:28:53.6952769-08:00||;True|2025-12-30T12:09:20.7336452-08:00||;True|2025-12-19T11:04:09.1721794-08:00||;True|2025-12-19T10:58:40.5071277-08:00||;True|2025-12-19T10:42:36.0919659-08:00||;True|2025-12-12T16:35:59.3628384-08:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>
