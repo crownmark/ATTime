@@ -19,6 +19,18 @@
 <RadzenRow Visible="@(!pageLoading && !timeEntryRecord.IsCompleted)">
     <RadzenColumn SizeXL="10" SizeLG="9" SizeMD="9">
        <RadzenStack>
+       <RadzenRow AlignItems="Radzen.AlignItems.Center">
+            <RadzenColumn SizeLG="6" SizeXL="8" SizeXX="8">
+                    <RadzenAlert Variant="Radzen.Variant.Outlined" AlertStyle="Radzen.AlertStyle.Warning" Text="@accountAlertTimeEntry" Title="Account Alert" Visible="@(!string.IsNullOrEmpty(accountAlertTimeEntry))" AllowClose="false"></RadzenAlert>
+            </RadzenColumn>
+            <RadzenColumn SizeLG="6" SizeXL="4" SizeXX="4">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" AlignItems="Radzen.AlignItems.Center">
+                    <RadzenText Text="Time Entry Template:" TextStyle="Radzen.Blazor.TextStyle.H4" />
+                    <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange"/>
+                </RadzenStack>
+            </RadzenColumn>
+       </RadzenRow>
+           
             <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap">
                 <RadzenText Text="@($"{ticket?.item?.ticketNumber} - {ticket?.item?.title}")" TextStyle="Radzen.Blazor.TextStyle.H4" />
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="border: 2px solid var(--rz-primary-lighter); padding-top: 4px; padding: 4px" AlignItems="Radzen.AlignItems.Center">
@@ -30,6 +42,7 @@
 <RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick"></RadzenButton>
                 </RadzenStack>
             </RadzenStack>
+            
 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
         <strong>Ticket: </strong>
@@ -236,8 +249,13 @@
                         </RadzenAccordion>
                     </RadzenRow>
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                        <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                            <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
+                            <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
+                        </RadzenStack>
                             <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default"/>
                         <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" />
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" />
                     </RadzenStack>
                 </RadzenTemplateForm>
             
@@ -264,6 +282,15 @@
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="ScreenConnect" Click="@ScreenConnectButtonClick"></RadzenButton>
                         </RadzenStack>
 
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="false">
+                        <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenText Text="Address" Style="font-weight: bold" />
+
+                            <RadzenText Text="@($"{company?.Address1}, {(!string.IsNullOrEmpty(company?.Address2) ? company?.Address2 + ", " : "")}{company?.City}, {company?.State} {company?.PostalCode}")" Visible="@(company != null)" />
+                        </RadzenStack>
+
+                    
                     </RadzenFieldset>
                 
                 </RadzenAccordionItem>

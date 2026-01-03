@@ -1850,5 +1850,170 @@ namespace CrownATTime.Server
 
             return itemToDelete;
         }
+    
+        public async Task ExportTimeEntryTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeentrytemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeentrytemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportTimeEntryTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeentrytemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeentrytemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnTimeEntryTemplatesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>> GetTimeEntryTemplates(Query query = null)
+        {
+            var items = Context.TimeEntryTemplates.AsQueryable();
+
+            items = items.Include(i => i.BillingCodeCache);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnTimeEntryTemplatesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnTimeEntryTemplateGet(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item);
+        partial void OnGetTimeEntryTemplateByTimeEntryTemplateId(ref IQueryable<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> GetTimeEntryTemplateByTimeEntryTemplateId(int timeentrytemplateid)
+        {
+            var items = Context.TimeEntryTemplates
+                              .AsNoTracking()
+                              .Where(i => i.TimeEntryTemplateId == timeentrytemplateid);
+
+            items = items.Include(i => i.BillingCodeCache);
+ 
+            OnGetTimeEntryTemplateByTimeEntryTemplateId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnTimeEntryTemplateGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnTimeEntryTemplateCreated(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item);
+        partial void OnAfterTimeEntryTemplateCreated(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> CreateTimeEntryTemplate(CrownATTime.Server.Models.ATTime.TimeEntryTemplate timeentrytemplate)
+        {
+            OnTimeEntryTemplateCreated(timeentrytemplate);
+
+            var existingItem = Context.TimeEntryTemplates
+                              .Where(i => i.TimeEntryTemplateId == timeentrytemplate.TimeEntryTemplateId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.TimeEntryTemplates.Add(timeentrytemplate);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(timeentrytemplate).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterTimeEntryTemplateCreated(timeentrytemplate);
+
+            return timeentrytemplate;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> CancelTimeEntryTemplateChanges(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnTimeEntryTemplateUpdated(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item);
+        partial void OnAfterTimeEntryTemplateUpdated(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> UpdateTimeEntryTemplate(int timeentrytemplateid, CrownATTime.Server.Models.ATTime.TimeEntryTemplate timeentrytemplate)
+        {
+            OnTimeEntryTemplateUpdated(timeentrytemplate);
+
+            var itemToUpdate = Context.TimeEntryTemplates
+                              .Where(i => i.TimeEntryTemplateId == timeentrytemplate.TimeEntryTemplateId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            timeentrytemplate.BillingCodeCache = null;
+
+            Context.Attach(timeentrytemplate).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterTimeEntryTemplateUpdated(timeentrytemplate);
+
+            return timeentrytemplate;
+        }
+
+        partial void OnTimeEntryTemplateDeleted(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item);
+        partial void OnAfterTimeEntryTemplateDeleted(CrownATTime.Server.Models.ATTime.TimeEntryTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> DeleteTimeEntryTemplate(int timeentrytemplateid)
+        {
+            var itemToDelete = Context.TimeEntryTemplates
+                              .Where(i => i.TimeEntryTemplateId == timeentrytemplateid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnTimeEntryTemplateDeleted(itemToDelete);
+
+            Reset();
+
+            Context.TimeEntryTemplates.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterTimeEntryTemplateDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
         }
 }

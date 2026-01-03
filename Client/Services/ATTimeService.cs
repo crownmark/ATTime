@@ -1064,5 +1064,99 @@ namespace CrownATTime.Client
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
+
+        public async System.Threading.Tasks.Task ExportTimeEntryTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeentrytemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeentrytemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportTimeEntryTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeentrytemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeentrytemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetTimeEntryTemplates(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>> GetTimeEntryTemplates(Query query)
+        {
+            return await GetTimeEntryTemplates(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>> GetTimeEntryTemplates(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"TimeEntryTemplates");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTimeEntryTemplates(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>>(response);
+        }
+
+        partial void OnCreateTimeEntryTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> CreateTimeEntryTemplate(CrownATTime.Server.Models.ATTime.TimeEntryTemplate timeEntryTemplate = default(CrownATTime.Server.Models.ATTime.TimeEntryTemplate))
+        {
+            var uri = new Uri(baseUri, $"TimeEntryTemplates");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(timeEntryTemplate), Encoding.UTF8, "application/json");
+
+            OnCreateTimeEntryTemplate(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>(response);
+        }
+
+        partial void OnDeleteTimeEntryTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteTimeEntryTemplate(int timeEntryTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TimeEntryTemplates({timeEntryTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteTimeEntryTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetTimeEntryTemplateByTimeEntryTemplateId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> GetTimeEntryTemplateByTimeEntryTemplateId(string expand = default(string), int timeEntryTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TimeEntryTemplates({timeEntryTemplateId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTimeEntryTemplateByTimeEntryTemplateId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>(response);
+        }
+
+        partial void OnUpdateTimeEntryTemplate(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateTimeEntryTemplate(int timeEntryTemplateId = default(int), CrownATTime.Server.Models.ATTime.TimeEntryTemplate timeEntryTemplate = default(CrownATTime.Server.Models.ATTime.TimeEntryTemplate))
+        {
+            var uri = new Uri(baseUri, $"TimeEntryTemplates({timeEntryTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(timeEntryTemplate), Encoding.UTF8, "application/json");
+
+            OnUpdateTimeEntryTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
     }
 }

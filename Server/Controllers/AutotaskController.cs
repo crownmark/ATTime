@@ -37,6 +37,24 @@
             context = _context;
         }
 
+        [HttpGet("AccountAlerts/{id}")]
+        public async Task<IActionResult> GetAccountAlertsByCompanyId(int id)
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/Companies/{id}/Alerts");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Account Alerts item: {ex.Message}");
+            }
+
+        }
+
         [HttpGet("billingcodes/query")]
         public async Task<IActionResult> GetBillingCodes([FromQuery] string search)
         {
@@ -419,6 +437,11 @@
                             existingItem.Classification = item.classification;
                             existingItem.IsActive = item.isActive;
                             existingItem.Phone = item.phone;
+                            existingItem.Address1 = item.address1;
+                            existingItem.Address2 = item.address2;
+                            existingItem.City = item.city;
+                            existingItem.State = item.state;
+                            existingItem.PostalCode = item.postalCode;
                             itemsToUpdate.Add(existingItem);
                         }
                         else
@@ -431,6 +454,11 @@
                                 CompanyCategoryId = item.companyCategoryID,
                                 CompanyName = item.companyName,
                                 Phone = item.phone,
+                                Address1 = item.address1,
+                                Address2 = item.address2,
+                                City = item.city,
+                                State = item.state,
+                                PostalCode = item.postalCode,
 
                             });
 

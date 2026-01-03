@@ -38,6 +38,27 @@
             };
         }
 
+        public async Task<AutotaskItemsResponse<AccountAlertsDtoResult>> GetAccountAlertsByCompanyId(int id)
+        {
+            var uri = new Uri(baseUri, $"AccountAlerts/{id}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var convert = JsonSerializer.Deserialize<AutotaskItemsResponse<AccountAlertsDtoResult>>(content);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return JsonSerializer.Deserialize<AutotaskItemsResponse<AccountAlertsDtoResult>>(content);
+        }
+
         /// <summary>
         /// Partial hook so you can add headers / logging if needed.
         /// </summary>

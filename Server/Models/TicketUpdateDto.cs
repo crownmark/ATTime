@@ -9,5 +9,8 @@ namespace CrownATTime.Server.Models
 
         [JsonPropertyName("status")]
         public int Status { get; set; }
+
+        [JsonPropertyName("resolution")]
+        public string Resolution { get; set; }
     }
 }
