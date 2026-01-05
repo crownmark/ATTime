@@ -812,6 +812,58 @@
             return Content(json, "application/json");
         }
 
+        [HttpGet("userdefinefields/sync")]
+        public async Task<IActionResult> SyncTicketUserDefineFields()
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/Tickets/entityInformation/userDefinedFields");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<TicketUserDefinedFieldsDtoResult>(content);
+                var existingItems = context.TicketNoteEntityPicklistValueCaches.ToList();
+                var itemsToUpdate = new List<TicketUserDefinedFieldsDtoResult>();
+                var itemsToCreate = new List<TicketUserDefinedFieldsDtoResult>();
+                //foreach (var field in converted.Fields)
+                //{
+                //    if (field.PicklistValues != null)
+                //    {
+                //        foreach (var item in field.PicklistValues)
+                //        {
+                //            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label);
+                //            if (existingItem != null)
+                //            {
+                //                existingItem.PicklistName = field.Name;
+                //                existingItem.Label = item.Label;
+                //                existingItem.Value = item.Value;
+                //                existingItem.ValueInt = item.ValueInt.HasValue ? Convert.ToInt32(item.ValueInt) : null;
+
+                //            }
+                //            else
+                //            {
+                //                itemsToCreate.Add(new TicketNoteEntityPicklistValueCache()
+                //                {
+                //                    PicklistName = field.Name,
+                //                    Label = item.Label,
+                //                    Value = item.Value,
+                //                    ValueInt = item.ValueInt,
+                //                });
+
+                //            }
+                //        }
+                //    }
+                //}
+
+                //await context.AddRangeAsync(itemsToCreate);
+                //await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching ticket note picklists: {ex.Message}");
+            }
+        }
+
         [HttpGet("ticketNotes/fields/sync")]
         public async Task<IActionResult> SyncTicketNotesPicklists()
         {

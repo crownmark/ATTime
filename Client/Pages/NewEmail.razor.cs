@@ -11,6 +11,8 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using static CrownATTime.Server.Models.MicrosoftEmailAttachments;
 
 namespace CrownATTime.Client.Pages
 {
@@ -73,6 +75,7 @@ namespace CrownATTime.Client.Pages
         protected bool primaryResource {  get; set; }
         protected bool primaryResources {  get; set; }
         protected bool sendingEmail {  get; set; }
+        protected bool quoteTemplate {  get; set; }
         protected string additionalEmail {  get; set; }
 
 
@@ -96,6 +99,11 @@ namespace CrownATTime.Client.Pages
             {
                 var results = await AutotaskTicketService.GetContacts(Ticket.item.companyID);
                 contacts = results.Items;
+                if(Ticket.item.userDefinedFields.Any(x => x.name == "Quoter Quote Link"))
+                {
+                    var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quoter Quote Link");
+                    emailMessage.QuoteLink = quoteUdf.value;
+                }
 
             }
             catch (Exception ex)
@@ -182,6 +190,14 @@ namespace CrownATTime.Client.Pages
                     return;
 
                 selectedTemplate = template;
+                if (selectedTemplate.Title.Contains("Quote"))
+                {
+                    quoteTemplate = true;
+                }
+                else
+                {
+                    quoteTemplate = false;
+                }
                 if (!string.IsNullOrEmpty(selectedTemplate.TeamsChannelEmail))
                 {
                     additionalEmail = selectedTemplate.TeamsChannelEmail;
@@ -228,8 +244,14 @@ namespace CrownATTime.Client.Pages
             try
             {
                 sendingEmail = true;
+
+                // Update QuoteLink Token to Ticket UDF Value
+                emailMessage.Body = EmailService.ReplaceQuoteLinkToken(emailMessage.Body, emailMessage);
+
                 // Convert [EmailMessage.Body} Token to plain text
                 emailMessage.Body = EmailService.ReplaceEmailBodyTokenOnSubmit(emailMessage);
+
+                
                 
                 // Collect emails here (case-insensitive, deduped)
                 var emailSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -330,6 +352,36 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task notifyMSTeamsChannelCheckBoxChange(bool args)
         {
             additionalEmail = string.IsNullOrWhiteSpace(additionalEmail) ? selectedTemplate.TeamsChannelEmail : $"{selectedTemplate.TeamsChannelEmail},{additionalEmail}";
+        }
+
+        protected async System.Threading.Tasks.Task QuoteLinkChange(System.String args)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(args))
+                {
+                    Ticket = await AutotaskTicketService.GetTicket(Ticket.item.id);
+                    var listUdf = new List<TicketUpdateDto.Userdefinedfield>();
+                    var updateUdf = new TicketUpdateDto.Userdefinedfield()
+                    {
+                        name = "Quoter Quote Link",
+                        value = args.ToString()
+                    };
+                    listUdf.Add(updateUdf);
+                    var updateTicket = new TicketUpdateDto();
+                    updateTicket.Status = Ticket.item.status;
+                    updateTicket.Id = Ticket.item.id;
+                    updateTicket.userDefinedFields = listUdf.ToArray();
+                    await AutotaskTicketService.UpdateTicket(updateTicket);
+                        
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error updating Ticket Quoter Quote Link.  {ex.Message}" });
+
+            }
         }
     }
 }

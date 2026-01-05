@@ -370,7 +370,24 @@
                 throw new Exception($"Error Syncing Ticket Picklists.  {content}");
             }
         }
+        public async Task SyncTicketUdfFields()
+        {
 
+            var uri = new Uri(baseUri, $"userdefinefields/sync");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Ticket Picklists.  {content}");
+            }
+        }
         public async Task SyncTicketNoteFields()
         {
 

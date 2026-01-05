@@ -12,5 +12,16 @@ namespace CrownATTime.Server.Models
 
         [JsonPropertyName("resolution")]
         public string Resolution { get; set; }
+
+        public Userdefinedfield[] userDefinedFields { get; set; }
+
+        public class Userdefinedfield
+        {
+            public string name { get; set; }
+            public string value { get; set; }
+        }
+
     }
+
+    
 }

@@ -281,13 +281,25 @@ namespace CrownATTime.Client
             return prop?.GetValue(obj);
         }
 
+        public static string ReplaceQuoteLinkToken(string body, EmailMessage email)
+        {
+            if (string.IsNullOrEmpty(body)) return body ?? string.Empty;
+
+            var quoteLink = email?.QuoteLink ?? string.Empty;
+
+            // HTML-encode so special chars don't break the email HTML
+            var safeQuoteLink = WebUtility.HtmlEncode(quoteLink);
+
+            return body.Replace("{QuoteLink}", safeQuoteLink, StringComparison.OrdinalIgnoreCase);
+        }
+
         public static string ReplaceEmailBodyTokenOnSubmit(EmailMessage newEmail)
         {
             if (newEmail?.Body is null) return "";
 
             const string token = "{EmailMessage.Body}";
             if (!newEmail.Body.Contains(token, StringComparison.Ordinal))
-                return "";
+                return newEmail.Body;
 
             // Convert the *current* HTML body to plain text
             // NOTE: this includes everything. If you only want a section, we can scope it later.
