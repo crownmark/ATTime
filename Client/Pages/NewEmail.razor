@@ -32,9 +32,9 @@
                     <RadzenLabel Text="Ticket Contact?" Component="TicketContact" />
 
                 </RadzenStack>
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="true">
                     <RadzenCheckBox TValue="bool" @bind-Value="@ticketContacts" Name="TicketContacts"></RadzenCheckBox>
-                    <RadzenLabel Text="Ticket Contacts?" Component="TicketContacts" />
+                    <RadzenLabel Text="All Ticket Contacts?" Component="TicketContacts" />
 
                 </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.assignedResourceID != null && string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
@@ -42,9 +42,9 @@
                     <RadzenLabel Text="Primary Resource?" Component="PrimaryResource" />
 
                 </RadzenStack>
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
-                    <RadzenCheckBox TValue="bool" @bind-Value="@primaryResources" Name="PrimaryResources"></RadzenCheckBox>
-                    <RadzenLabel Text="Ticket Resources?" Component="PrimaryResources" />
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="true">
+                        <RadzenCheckBox TValue="bool" @bind-Value="@secondaryResources" Name="SecondaryResources"></RadzenCheckBox>
+                    <RadzenLabel Text="All Ticket Resources?" Component="SecondaryResources" />
 
                 </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(!string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">

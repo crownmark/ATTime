@@ -41,6 +41,22 @@ namespace CrownATTime.Server.Data
               .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketContact)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketAdditionalContacts)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketPrimaryResource)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketSecondaryResources)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.NoteTemplate>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");

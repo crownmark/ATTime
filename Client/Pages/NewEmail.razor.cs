@@ -73,7 +73,7 @@ namespace CrownATTime.Client.Pages
 
         protected bool ticketContacts {  get; set; }
         protected bool primaryResource {  get; set; }
-        protected bool primaryResources {  get; set; }
+        protected bool secondaryResources {  get; set; }
         protected bool sendingEmail {  get; set; }
         protected bool quoteTemplate {  get; set; }
         protected string additionalEmail {  get; set; }
@@ -204,6 +204,23 @@ namespace CrownATTime.Client.Pages
                     msTeamsEmail = true;
                 }
 
+                if (selectedTemplate.NotifyTicketContact)
+                {
+                    ticketContact = true;
+                }
+                if (selectedTemplate.NotifyTicketAdditionalContacts)
+                {
+                    ticketContacts = true;
+                }
+                if (selectedTemplate.NotifyTicketPrimaryResource)
+                {
+                    primaryResource = true;
+                }
+                if (selectedTemplate.NotifyTicketSecondaryResources)
+                {
+                    secondaryResources = true;
+                }
+
                 // Load picklists
                 var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
@@ -291,6 +308,34 @@ namespace CrownATTime.Client.Pages
 
                     if (!string.IsNullOrWhiteSpace(email))
                         emailSet.Add(email.Trim());
+                }
+
+                if (ticketContacts)
+                {
+                    var ticketAdditionalContacts = await AutotaskTicketService.GetAdditionalContacts(Ticket.item.id);
+                    if(ticketAdditionalContacts != null)
+                    {
+                        foreach (var contact in ticketAdditionalContacts.Items)
+                        {
+                            var ticketContact = await AutotaskTicketService.GetContact(contact.contactID);
+                            AddCsv(ticketContact.item.emailAddress);
+                        }
+                    }
+                    
+                }
+
+                if (secondaryResources)
+                {
+                    var ticketSecondaryResources = await AutotaskTicketService.GetSecondaryResources(Ticket.item.id);
+                    if (ticketSecondaryResources != null)
+                    {
+                        foreach (var secondaryResource in ticketSecondaryResources.Items)
+                        {
+                            var ticketSecondaryResource = await AutotaskTimeEntryService.GetResourceById(secondaryResource.resourceID);
+                            AddCsv(ticketSecondaryResource.item.email);
+                        }
+                    }
+
                 }
 
 

@@ -351,6 +351,20 @@
             return StatusCode((int)response.StatusCode, content);
         }
 
+        [HttpGet("tickets/contacts/{id:long}")]
+        public async Task<IActionResult> GetTicketAdditionalContactsByTicketId(int id)
+        {
+            var response = await _http.GetAsync($"v1.0/Tickets/{id}/AdditionalContacts");
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(content, "application/json");
+            }
+
+            return StatusCode((int)response.StatusCode, content);
+        }
+
         // GET: api/autotask/tickets/123
         [HttpGet("contracts/{id:long}")]
         public async Task<IActionResult> GetContractById(int id)
@@ -505,7 +519,20 @@
 
         }
 
-        
+        [HttpGet("tickets/resources/{id:long}")]
+        public async Task<IActionResult> GetTicketSecondaryResourcesByTicketId(int id)
+        {
+            var response = await _http.GetAsync($"v1.0/Tickets/{id}/SecondaryResources");
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(content, "application/json");
+            }
+
+            return StatusCode((int)response.StatusCode, content);
+        }
+
         [HttpGet("resources/{id:long}")]
         public async Task<IActionResult> GetResourceById(int id)
         {

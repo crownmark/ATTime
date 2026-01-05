@@ -142,6 +142,32 @@
             return JsonSerializer.Deserialize<AutotaskItemsResponse<ContactDtoResult.Item>>(content);
         }
 
+        public async Task<AutotaskItemsResponse<TicketAdditionalContactsDtoResult>> GetAdditionalContacts(int ticketId)
+        {
+            var uri = new Uri(baseUri, $"tickets/contacts/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<AutotaskItemsResponse<TicketAdditionalContactsDtoResult>>(content);
+        }
+
+        public async Task<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>> GetSecondaryResources(int ticketId)
+        {
+            var uri = new Uri(baseUri, $"tickets/resources/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(content);
+        }
+
         public async Task<CompanyDtoResult> GetCompany(long companyId)
         {
             var uri = new Uri(baseUri, $"companies/{companyId}");
