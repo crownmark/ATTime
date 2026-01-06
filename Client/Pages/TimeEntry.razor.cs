@@ -552,7 +552,7 @@ namespace CrownATTime.Client.Pages
                         {
                             var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId.Value), selectedBillingCode.Id);
 
-                            if (contractExclusion != null)
+                            if (contractExclusion != null && contractExclusion.Items.Any())
                             {
                                 timeEntryRecord.IsNonBillable = true;
                                 timeEntryRecord.ShowOnInvoice = false;

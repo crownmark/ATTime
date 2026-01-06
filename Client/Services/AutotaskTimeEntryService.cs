@@ -189,7 +189,7 @@
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<TimeEntryEntityFieldsDto.EntityInformationFieldsResponse>(response);
         }
-        public async Task<ContractExclusionBillingCodeResult?> GetContractExclusionsBillingCode(int contractID, int billingCodeID)
+        public async Task<AutotaskItemsResponse<ContractExclusionBillingCodeResult>?> GetContractExclusionsBillingCode(int contractID, int billingCodeID)
         {
             var filters = new List<object>
             {
@@ -227,10 +227,11 @@
             }
 
             // Try safe parse
-            ContractExclusionBillingCodeResult? result = null;
+            AutotaskItemsResponse<ContractExclusionBillingCodeResult>? result = null;
             try
             {
-                result = JsonSerializer.Deserialize<ContractExclusionBillingCodeResult>(content);
+                return JsonSerializer.Deserialize<AutotaskItemsResponse<ContractExclusionBillingCodeResult>>(content);
+                
             }
             catch
             {
