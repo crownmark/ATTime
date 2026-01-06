@@ -281,6 +281,48 @@ namespace CrownATTime.Client
             return prop?.GetValue(obj);
         }
 
+        public static string ReplaceQuoteLinkToken(string body, EmailMessage email)
+        {
+            if (string.IsNullOrEmpty(body)) return body ?? string.Empty;
+
+            var quoteLink = email?.QuoteLink ?? string.Empty;
+
+            // HTML-encode so special chars don't break the email HTML
+            var safeQuoteLink = WebUtility.HtmlEncode(quoteLink);
+
+            return body.Replace("{QuoteLink}", safeQuoteLink, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static string ReplaceEmailBodyTokenOnSubmit(EmailMessage newEmail)
+        {
+            if (newEmail?.Body is null) return "";
+
+            const string token = "{EmailMessage.Body}";
+            if (!newEmail.Body.Contains(token, StringComparison.Ordinal))
+                return newEmail.Body;
+
+            // Convert the *current* HTML body to plain text
+            // NOTE: this includes everything. If you only want a section, we can scope it later.
+            var bodyPlainText = ConvertHtmlToText(newEmail.Body);
+
+            // Prepare two versions:
+            // - for href/querystring: URL-encoded
+            // - for normal HTML content: HTML-encoded (so it renders as text, not markup)
+            var urlEncoded = WebUtility.UrlEncode(bodyPlainText).Replace("+", "%20");
+            var htmlEncoded = WebUtility.HtmlEncode(bodyPlainText);
+
+            // Replace token differently depending on context.
+            // A) Token appears inside an href attribute -> URL-encode
+            // This targets href=" ... {EmailMessage.Body} ... " (also works if quotes are ')
+            newEmail.Body = Regex.Replace(
+                newEmail.Body,
+                @"(?is)(href\s*=\s*[""'][^""']*)\{EmailMessage\.Body\}([^""']*[""'])",
+                m => m.Groups[1].Value + urlEncoded + m.Groups[2].Value);
+
+            // B) Any remaining occurrences (not in href) -> insert as visible plain text
+            return newEmail.Body = newEmail.Body.Replace(token, htmlEncoded, StringComparison.Ordinal);
+        }
+
         public static string ConvertHtmlToText(string html)
         {
             if (string.IsNullOrWhiteSpace(html))

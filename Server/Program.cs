@@ -52,6 +52,7 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache>("TicketEntityPicklistValueCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>("TicketNoteEntityPicklistValueCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeEntry>("TimeEntries");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>("TimeEntryTemplates");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
@@ -69,7 +70,6 @@ builder.Services.AddScoped<CrownATTime.Client.TemplateTokenDiscoveryService>();
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
 builder.Services.Configure<GraphApiOptions>(builder.Configuration.GetSection("GraphApi"));
 builder.Services.AddScoped<GraphApi>();
-
 builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
 {
     builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin() //.SetIsOriginAllowed((host) => true)

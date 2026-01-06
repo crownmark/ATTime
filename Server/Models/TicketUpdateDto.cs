@@ -9,5 +9,19 @@ namespace CrownATTime.Server.Models
 
         [JsonPropertyName("status")]
         public int Status { get; set; }
+
+        [JsonPropertyName("resolution")]
+        public string Resolution { get; set; }
+
+        public Userdefinedfield[] userDefinedFields { get; set; }
+
+        public class Userdefinedfield
+        {
+            public string name { get; set; }
+            public string value { get; set; }
+        }
+
     }
+
+    
 }

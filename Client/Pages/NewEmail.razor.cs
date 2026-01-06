@@ -1,14 +1,18 @@
+using CrownATTime.Server.Models;
+using CrownATTime.Server.Models.ATTime;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using Radzen;
+using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Radzen;
-using Radzen.Blazor;
-using CrownATTime.Server.Models;
-using CrownATTime.Server.Models.ATTime;
+using System.Xml.Linq;
+using static CrownATTime.Server.Models.MicrosoftEmailAttachments;
 
 namespace CrownATTime.Client.Pages
 {
@@ -69,8 +73,9 @@ namespace CrownATTime.Client.Pages
 
         protected bool ticketContacts {  get; set; }
         protected bool primaryResource {  get; set; }
-        protected bool primaryResources {  get; set; }
+        protected bool secondaryResources {  get; set; }
         protected bool sendingEmail {  get; set; }
+        protected bool quoteTemplate {  get; set; }
         protected string additionalEmail {  get; set; }
 
 
@@ -94,6 +99,11 @@ namespace CrownATTime.Client.Pages
             {
                 var results = await AutotaskTicketService.GetContacts(Ticket.item.companyID);
                 contacts = results.Items;
+                if(Ticket.item.userDefinedFields.Any(x => x.name == "Quoter Quote Link"))
+                {
+                    var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quoter Quote Link");
+                    emailMessage.QuoteLink = quoteUdf.value;
+                }
 
             }
             catch (Exception ex)
@@ -180,24 +190,41 @@ namespace CrownATTime.Client.Pages
                     return;
 
                 selectedTemplate = template;
+                if (selectedTemplate.Title.Contains("Quote"))
+                {
+                    quoteTemplate = true;
+                }
+                else
+                {
+                    quoteTemplate = false;
+                }
                 if (!string.IsNullOrEmpty(selectedTemplate.TeamsChannelEmail))
                 {
                     additionalEmail = selectedTemplate.TeamsChannelEmail;
                     msTeamsEmail = true;
                 }
 
+                if (selectedTemplate.NotifyTicketContact)
+                {
+                    ticketContact = true;
+                }
+                if (selectedTemplate.NotifyTicketAdditionalContacts)
+                {
+                    ticketContacts = true;
+                }
+                if (selectedTemplate.NotifyTicketPrimaryResource)
+                {
+                    primaryResource = true;
+                }
+                if (selectedTemplate.NotifyTicketSecondaryResources)
+                {
+                    secondaryResources = true;
+                }
+
                 // Load picklists
                 var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
-
-                // OPTIONAL: filter to what Render() will translate
-                // (If your Render translates only Ticket.status + Ticket.priority, keep the cache small)
-                //picklistRows = picklistRows
-                //    .Where(x =>
-                //        x.PicklistName.Equals("Ticket.status", StringComparison.OrdinalIgnoreCase) ||
-                //        x.PicklistName.Equals("Ticket.priority", StringComparison.OrdinalIgnoreCase))
-                //    .ToList();
-
+                
                 var picklists = EmailService.BuildPicklistMaps(picklistRows);
 
                 var ctx = new TemplateContext
@@ -227,13 +254,22 @@ namespace CrownATTime.Client.Pages
         }
 
 
-
+        
 
         protected async System.Threading.Tasks.Task TemplateForm0Submit(Server.Models.EmailMessage args)
         {
             try
             {
                 sendingEmail = true;
+
+                // Update QuoteLink Token to Ticket UDF Value
+                emailMessage.Body = EmailService.ReplaceQuoteLinkToken(emailMessage.Body, emailMessage);
+
+                // Convert [EmailMessage.Body} Token to plain text
+                emailMessage.Body = EmailService.ReplaceEmailBodyTokenOnSubmit(emailMessage);
+
+                
+                
                 // Collect emails here (case-insensitive, deduped)
                 var emailSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -272,6 +308,34 @@ namespace CrownATTime.Client.Pages
 
                     if (!string.IsNullOrWhiteSpace(email))
                         emailSet.Add(email.Trim());
+                }
+
+                if (ticketContacts)
+                {
+                    var ticketAdditionalContacts = await AutotaskTicketService.GetAdditionalContacts(Ticket.item.id);
+                    if(ticketAdditionalContacts != null)
+                    {
+                        foreach (var contact in ticketAdditionalContacts.Items)
+                        {
+                            var ticketContact = await AutotaskTicketService.GetContact(contact.contactID);
+                            AddCsv(ticketContact.item.emailAddress);
+                        }
+                    }
+                    
+                }
+
+                if (secondaryResources)
+                {
+                    var ticketSecondaryResources = await AutotaskTicketService.GetSecondaryResources(Ticket.item.id);
+                    if (ticketSecondaryResources != null)
+                    {
+                        foreach (var secondaryResource in ticketSecondaryResources.Items)
+                        {
+                            var ticketSecondaryResource = await AutotaskTimeEntryService.GetResourceById(secondaryResource.resourceID);
+                            AddCsv(ticketSecondaryResource.item.email);
+                        }
+                    }
+
                 }
 
 
@@ -333,6 +397,36 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task notifyMSTeamsChannelCheckBoxChange(bool args)
         {
             additionalEmail = string.IsNullOrWhiteSpace(additionalEmail) ? selectedTemplate.TeamsChannelEmail : $"{selectedTemplate.TeamsChannelEmail},{additionalEmail}";
+        }
+
+        protected async System.Threading.Tasks.Task QuoteLinkChange(System.String args)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(args))
+                {
+                    Ticket = await AutotaskTicketService.GetTicket(Ticket.item.id);
+                    var listUdf = new List<TicketUpdateDto.Userdefinedfield>();
+                    var updateUdf = new TicketUpdateDto.Userdefinedfield()
+                    {
+                        name = "Quoter Quote Link",
+                        value = args.ToString()
+                    };
+                    listUdf.Add(updateUdf);
+                    var updateTicket = new TicketUpdateDto();
+                    updateTicket.Status = Ticket.item.status;
+                    updateTicket.Id = Ticket.item.id;
+                    updateTicket.userDefinedFields = listUdf.ToArray();
+                    await AutotaskTicketService.UpdateTicket(updateTicket);
+                        
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error updating Ticket Quoter Quote Link.  {ex.Message}" });
+
+            }
         }
     }
 }

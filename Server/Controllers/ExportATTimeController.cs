@@ -172,5 +172,19 @@ namespace CrownATTime.Server.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetTimeEntries(), Request.Query, false), fileName);
         }
+
+        [HttpGet("/export/ATTime/timeentrytemplates/csv")]
+        [HttpGet("/export/ATTime/timeentrytemplates/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTimeEntryTemplatesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetTimeEntryTemplates(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/timeentrytemplates/excel")]
+        [HttpGet("/export/ATTime/timeentrytemplates/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTimeEntryTemplatesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetTimeEntryTemplates(), Request.Query, false), fileName);
+        }
     }
 }

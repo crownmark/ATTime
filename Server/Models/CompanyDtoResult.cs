@@ -10,7 +10,7 @@
             public int id { get; set; }
             public string additionalAddressInformation { get; set; }
             public string address1 { get; set; }
-            public object address2 { get; set; }
+            public string address2 { get; set; }
             public string alternatePhone1 { get; set; }
             public string alternatePhone2 { get; set; }
             //public object apiVendorID { get; set; }

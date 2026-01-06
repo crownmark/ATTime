@@ -22,6 +22,13 @@ namespace CrownATTime.Server.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>()
+              .HasOne(i => i.BillingCodeCache)
+              .WithMany(i => i.TimeEntryTemplates)
+              .HasForeignKey(i => i.BillingCodeId)
+              .HasPrincipalKey(i => i.Id)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
@@ -32,6 +39,22 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
               .Property(p => p.ShareWithOthers)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketContact)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketAdditionalContacts)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketPrimaryResource)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
+              .Property(p => p.NotifyTicketSecondaryResources)
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.NoteTemplate>()
@@ -52,6 +75,14 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.TimeStampStatus)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>()
+              .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
@@ -89,6 +120,8 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache> TicketNoteEntityPicklistValueCaches { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntry> TimeEntries { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> TimeEntryTemplates { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

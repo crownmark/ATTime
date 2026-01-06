@@ -52,5 +52,13 @@ namespace CrownATTime.Server.Models.ATTime
 
         [MaxLength(255)]
         public string TeamsChannelEmail { get; set; }
+
+        public bool NotifyTicketContact { get; set; }
+
+        public bool NotifyTicketAdditionalContacts { get; set; }
+
+        public bool NotifyTicketPrimaryResource { get; set; }
+
+        public bool NotifyTicketSecondaryResources { get; set; }
     }
 }

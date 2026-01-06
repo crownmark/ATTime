@@ -81,7 +81,14 @@ namespace CrownATTime.Client.Pages
         protected int accordionSelectedIndex { get; set; }
         private bool _openedAccordionOnce;
         protected bool isSaving {  get; set; }
+        protected bool appendToResolution {  get; set; }
 
+        protected string accountAlertTimeEntry {  get; set; }
+        protected string accountAlertTicket {  get; set; }
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> timeEntryTemplates;
+
+        protected int timeEntryTemplatesCount;
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (!_openedAccordionOnce && !pageLoading)
@@ -242,6 +249,11 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);// await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
+                var accountAlerts = await AutotaskTicketService.GetAccountAlertsByCompanyId(company.Id);
+                if (accountAlerts != null && accountAlerts.Items.Where(x => x.alertTypeID == 3).Any())
+                {
+                    accountAlertTimeEntry = accountAlerts.Items.FirstOrDefault(x => x.alertTypeID == 3).alertText;
+                }
                 configurationItem = await AutotaskTicketService.GetConfigurationItem(Convert.ToInt32(ticket.item.configurationItemID));
                 var picklistValues = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistValuesList = picklistValues.Value.ToList();
@@ -276,7 +288,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
-
+                
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -327,6 +339,16 @@ namespace CrownATTime.Client.Pages
                     timeEntryRecord.AttimeEntryId = saveATTime.itemId;
                     await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                     ticket = await AutotaskTicketService.GetTicket(timeEntryRecord.TicketId);
+                    if (appendToResolution)
+                    {
+                        ticket.item.resolution = appendToResolution ? $"{ticket.item.resolution}{Environment.NewLine}{timeEntryRecord.SummaryNotes}" : ticket.item.resolution;
+                        await AutotaskTicketService.UpdateTicket(new TicketUpdateDto()
+                        {
+                            Id = ticket.item.id,
+                            Status = ticket.item.status,
+                            Resolution = ticket.item.resolution,
+                        });
+                    }
 
 
                     NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
@@ -1099,7 +1121,75 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task AddNoteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<AddNote>("Add Note", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company} }, new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company} }, new DialogOptions { Width = "800px", Draggable = true });
+        }
+
+
+        protected async Task timeEntryTemplatesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"Active eq true and (ShareWithOthers eq true or TemplateAssignedTo eq '{Security.User.Email}')";
+                var result = await ATTimeService.GetTimeEntryTemplates(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Title, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Title asc");
+
+                timeEntryTemplates = result.Value.AsODataEnumerable();
+                timeEntryTemplatesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+            }
+        }
+
+        protected async System.Threading.Tasks.Task TimeEntryTemplateChange(System.Object args)
+        {
+            try
+            {
+                if (Convert.ToInt32(args) != 0) 
+                {
+                    var template = await ATTimeService.GetTimeEntryTemplateByTimeEntryTemplateId("", Convert.ToInt32(args));
+                    if (template != null)
+                    {
+                        timeEntryRecord.SummaryNotes = template.SummaryNotes;
+                        timeEntryRecord.InternalNotes = template.InternalNotes;
+                        timeEntryRecord.BillingCodeId = template.BillingCodeId;
+                        ticket.item.status = template.TicketStatus.HasValue ? template.TicketStatus.Value : ticket.item.status;
+                        appendToResolution = template.AppendToResolution;
+                        await AutotaskTicketService.UpdateTicket(new TicketUpdateDto()
+                        {
+                            Id = ticket.item.id,
+                            Status = ticket.item.status,
+                        });
+                        UpdateTicketValues();
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to apply template" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task DeleteTimeEntryButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                if(await DialogService.Confirm("Are you sure you want to delete this Time Entry?", "Delete Time Entry", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = true }, null) == true)
+                {
+                    await ATTimeService.DeleteTimeEntry(timeEntryRecord.TimeEntryId);
+                    await JSRuntime.InvokeVoidAsync(
+                                "eval",
+                                "window.open('', '_self'); window.close();"
+                            );
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to delete time entry" });
+
+            }
         }
     }
 }

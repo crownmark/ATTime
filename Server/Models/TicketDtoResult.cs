@@ -63,7 +63,7 @@
             //public object projectID { get; set; }
             //public string purchaseOrderNumber { get; set; }
             public int? queueID { get; set; }
-            //public string resolution { get; set; }
+            public string resolution { get; set; }
             //public DateTime? resolutionPlanDateTime { get; set; }
             //public DateTime? resolutionPlanDueDateTime { get; set; }
             //public DateTime? resolvedDateTime { get; set; }

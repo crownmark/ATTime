@@ -1,12 +1,12 @@
-@page "/note-templates"
+@page "/time-entry-templates"
 
 @attribute [Authorize]
 
-<PageTitle>Note Templates</PageTitle>
+<PageTitle>Time Entry Templates</PageTitle>
 <RadzenStack>
     <RadzenRow AlignItems="AlignItems.Center">
         <RadzenColumn Size="12" SizeMD="6">
-            <RadzenText Text="Note Templates" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+            <RadzenText Text="Time Entry Templates" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
         </RadzenColumn>
         <RadzenColumn Size="12" SizeMD="6">
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
@@ -18,22 +18,18 @@
     <RadzenRow>
       <RadzenColumn SizeMD=12>
         <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowPaging="true" AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@(new int[]{5, 10, 20, 30})
-            Data="@(noteTemplates)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.NoteTemplate" RowSelect="@EditRow">
+            Data="@(timeEntryTemplates)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.TimeEntryTemplate" RowSelect="@EditRow">
             <Columns>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.NoteTemplate" Property="Active" Title="Active">
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntryTemplate" Property="Active" Title="Active" Width="90px">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.NoteTemplate" Property="Title" Title="Title">
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntryTemplate" Property="Title" Title="Title">
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.NoteTemplate" Property="NoteTitle" Title="Note Title">
-                                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.NoteTemplate" Property="TicketStatus" Title="Ticket Status">
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.NoteTemplate" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Frozen="true">
-                    <Template Context="noteTemplate">
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntryTemplate" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="Radzen.FrozenColumnPosition.Right">
+                    <Template Context="timeEntryTemplate">
 
                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
                             Shade="Shade.Lighter" Variant="Variant.Flat"
-                            Click=@(args => GridDeleteButtonClick(args, noteTemplate)) @onclick:stopPropagation="true" />
+                            Click=@(args => GridDeleteButtonClick(args, timeEntryTemplate)) @onclick:stopPropagation="true" />
                     </Template>
                 </RadzenDataGridColumn>
             </Columns>

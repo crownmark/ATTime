@@ -29,5 +29,7 @@ namespace CrownATTime.Server.Models.ATTime
 
         [Required]
         public int UseType { get; set; }
+
+        public ICollection<TimeEntryTemplate> TimeEntryTemplates { get; set; }
     }
 }

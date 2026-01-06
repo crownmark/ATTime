@@ -28,28 +28,28 @@
 
             <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Wrap="Radzen.FlexWrap.Wrap">
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.contactID != null && string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
-                    <RadzenCheckBox TValue="bool" @bind-Value="@ticketContact"></RadzenCheckBox>
-                    <RadzenText Text="Ticket Contact?" />
+                    <RadzenCheckBox TValue="bool" @bind-Value="@ticketContact" Name="TicketContact"></RadzenCheckBox>
+                    <RadzenLabel Text="Ticket Contact?" Component="TicketContact" />
 
                 </RadzenStack>
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
-                    <RadzenCheckBox TValue="bool" @bind-Value="@ticketContacts"></RadzenCheckBox>
-                    <RadzenText Text="Ticket Contacts?" />
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="true">
+                    <RadzenCheckBox TValue="bool" @bind-Value="@ticketContacts" Name="TicketContacts"></RadzenCheckBox>
+                    <RadzenLabel Text="All Ticket Contacts?" Component="TicketContacts" />
 
                 </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(Ticket.item.assignedResourceID != null && string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
-                    <RadzenCheckBox TValue="bool" @bind-Value="@primaryResource"></RadzenCheckBox>
-                    <RadzenText Text="Primary Resource?" />
+                    <RadzenCheckBox TValue="bool" @bind-Value="@primaryResource" Name="PrimaryResource"></RadzenCheckBox>
+                    <RadzenLabel Text="Primary Resource?" Component="PrimaryResource" />
 
                 </RadzenStack>
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="false">
-                    <RadzenCheckBox TValue="bool" @bind-Value="@primaryResources"></RadzenCheckBox>
-                    <RadzenText Text="Ticket Resources?" />
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="true">
+                        <RadzenCheckBox TValue="bool" @bind-Value="@secondaryResources" Name="SecondaryResources"></RadzenCheckBox>
+                    <RadzenLabel Text="All Ticket Resources?" Component="SecondaryResources" />
 
                 </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(!string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
-                        <RadzenCheckBox TValue="bool" @bind-Value="@msTeamsEmail" Change="@notifyMSTeamsChannelCheckBoxChange"></RadzenCheckBox>
-                        <RadzenText Text="Notify Teams Channel?" />
+                        <RadzenCheckBox TValue="bool" @bind-Value="@msTeamsEmail" Change="@notifyMSTeamsChannelCheckBoxChange" Name="MsTeamsEmail"></RadzenCheckBox>
+                        <RadzenLabel Text="Notify Teams Channel?" Component="MsTeamsEmail" />
 
                     </RadzenStack>
             </RadzenStack>
@@ -77,7 +77,15 @@
                         </RadzenFormField>
                 </RadzenStack>
             </RadzenFieldset>
-            <RadzenFormField Text="Email Subject" Variant="Variant.Outlined">
+            <RadzenFormField Text="Quote Link" Variant="Variant.Outlined" Visible="@quoteTemplate">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@emailMessage.QuoteLink" Name="QuoteLink" MaxLength="255" Change="@QuoteLinkChange" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="QuoteLink" Text="Quote Link is required" />
+                  </Helper>
+            </RadzenFormField>
+<RadzenFormField Text="Email Subject" Variant="Variant.Outlined">
                   <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailMessage.Subject)" Name="Subject" MaxLength="255" />
                   </ChildContent>    

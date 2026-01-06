@@ -1,0 +1,78 @@
+@page "/edit-time-entry-template"
+
+@attribute [Authorize]
+
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save TimeEntryTemplate</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TimeEntryTemplate" Data="@(timeEntryTemplate)" Visible="@(timeEntryTemplate != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(timeEntryTemplate.Active)" Name="Active" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(timeEntryTemplate.Title)" Name="Title" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Title" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Status" Variant="Variant.Outlined" Component="TicketStatus">
+                  <ChildContent>
+                      <RadzenDropDown @bind-Value="@(timeEntryTemplate.TicketStatus)" TValue="int?" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketEntityPicklistValueCaches" LoadData="@ticketEntityPicklistValueCachesLoadData" Count="@ticketEntityPicklistValueCachesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Name="TicketStatus" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Billing Code (Work Type)" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(billingCodeCachesForBillingCodeId)" TextProperty="Name" ValueProperty="Id" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(timeEntryTemplate.BillingCodeId)" Name="BillingCodeId"
+                         Count=@billingCodeCachesForBillingCodeIdCount LoadData=@billingCodeCachesForBillingCodeIdLoadData AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Summary Notes" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenTextArea Rows="10" @bind-Value="@timeEntryTemplate.SummaryNotes" Name="SummaryNotes"></RadzenTextArea>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Internal Notes" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenTextArea @bind-Value="@timeEntryTemplate.InternalNotes" Name="InternalNotes" Rows="8"></RadzenTextArea>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" Name="Title" MaxLength="255" @bind-Value="@timeEntryTemplate.TemplateAssignedTo" />
+                  </ChildContent>    
+                  <Helper>
+                  </Helper>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Share With Others" Component="ShareWithOthers" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@timeEntryTemplate.ShareWithOthers" Name="ShareWithOthers" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Append To Resolution" Component="AppendToResolution" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(timeEntryTemplate.AppendToResolution)" Name="AppendToResolution" />
+                </RadzenColumn>
+            </RadzenRow>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

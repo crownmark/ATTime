@@ -38,6 +38,27 @@
             };
         }
 
+        public async Task<AutotaskItemsResponse<AccountAlertsDtoResult>> GetAccountAlertsByCompanyId(int id)
+        {
+            var uri = new Uri(baseUri, $"AccountAlerts/{id}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            try
+            {
+                var convert = JsonSerializer.Deserialize<AutotaskItemsResponse<AccountAlertsDtoResult>>(content);
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return JsonSerializer.Deserialize<AutotaskItemsResponse<AccountAlertsDtoResult>>(content);
+        }
+
         /// <summary>
         /// Partial hook so you can add headers / logging if needed.
         /// </summary>
@@ -119,6 +140,32 @@
             var response = await httpClient.SendAsync(httpRequestMessage);
             var content = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<AutotaskItemsResponse<ContactDtoResult.Item>>(content);
+        }
+
+        public async Task<AutotaskItemsResponse<TicketAdditionalContactsDtoResult>> GetAdditionalContacts(int ticketId)
+        {
+            var uri = new Uri(baseUri, $"tickets/contacts/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<AutotaskItemsResponse<TicketAdditionalContactsDtoResult>>(content);
+        }
+
+        public async Task<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>> GetSecondaryResources(int ticketId)
+        {
+            var uri = new Uri(baseUri, $"tickets/resources/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(content);
         }
 
         public async Task<CompanyDtoResult> GetCompany(long companyId)
@@ -349,7 +396,24 @@
                 throw new Exception($"Error Syncing Ticket Picklists.  {content}");
             }
         }
+        public async Task SyncTicketUdfFields()
+        {
 
+            var uri = new Uri(baseUri, $"userdefinefields/sync");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Ticket Picklists.  {content}");
+            }
+        }
         public async Task SyncTicketNoteFields()
         {
 

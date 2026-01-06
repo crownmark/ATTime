@@ -13,6 +13,8 @@ namespace CrownATTime.Server.Models
         public string To { get; set; }
         public string CC { get; set; }
         public string BCC { get; set; }
+
+        public string QuoteLink { get; set; }
         public List<IFormFileModel> Attachments { get; set; }
         public List<EmailAddress> ReplyToList { get; set; }
 

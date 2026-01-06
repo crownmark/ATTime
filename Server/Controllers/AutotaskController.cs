@@ -37,6 +37,24 @@
             context = _context;
         }
 
+        [HttpGet("AccountAlerts/{id}")]
+        public async Task<IActionResult> GetAccountAlertsByCompanyId(int id)
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/Companies/{id}/Alerts");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Account Alerts item: {ex.Message}");
+            }
+
+        }
+
         [HttpGet("billingcodes/query")]
         public async Task<IActionResult> GetBillingCodes([FromQuery] string search)
         {
@@ -333,6 +351,20 @@
             return StatusCode((int)response.StatusCode, content);
         }
 
+        [HttpGet("tickets/contacts/{id:long}")]
+        public async Task<IActionResult> GetTicketAdditionalContactsByTicketId(int id)
+        {
+            var response = await _http.GetAsync($"v1.0/Tickets/{id}/AdditionalContacts");
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(content, "application/json");
+            }
+
+            return StatusCode((int)response.StatusCode, content);
+        }
+
         // GET: api/autotask/tickets/123
         [HttpGet("contracts/{id:long}")]
         public async Task<IActionResult> GetContractById(int id)
@@ -419,6 +451,11 @@
                             existingItem.Classification = item.classification;
                             existingItem.IsActive = item.isActive;
                             existingItem.Phone = item.phone;
+                            existingItem.Address1 = item.address1;
+                            existingItem.Address2 = item.address2;
+                            existingItem.City = item.city;
+                            existingItem.State = item.state;
+                            existingItem.PostalCode = item.postalCode;
                             itemsToUpdate.Add(existingItem);
                         }
                         else
@@ -431,6 +468,11 @@
                                 CompanyCategoryId = item.companyCategoryID,
                                 CompanyName = item.companyName,
                                 Phone = item.phone,
+                                Address1 = item.address1,
+                                Address2 = item.address2,
+                                City = item.city,
+                                State = item.state,
+                                PostalCode = item.postalCode,
 
                             });
 
@@ -477,7 +519,20 @@
 
         }
 
-        
+        [HttpGet("tickets/resources/{id:long}")]
+        public async Task<IActionResult> GetTicketSecondaryResourcesByTicketId(int id)
+        {
+            var response = await _http.GetAsync($"v1.0/Tickets/{id}/SecondaryResources");
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(content, "application/json");
+            }
+
+            return StatusCode((int)response.StatusCode, content);
+        }
+
         [HttpGet("resources/{id:long}")]
         public async Task<IActionResult> GetResourceById(int id)
         {
@@ -782,6 +837,58 @@
             var resp = await _http.GetAsync("v1.0/Tickets/entityInformation/userDefinedFields");
             var json = await resp.Content.ReadAsStringAsync();
             return Content(json, "application/json");
+        }
+
+        [HttpGet("userdefinefields/sync")]
+        public async Task<IActionResult> SyncTicketUserDefineFields()
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/Tickets/entityInformation/userDefinedFields");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<TicketUserDefinedFieldsDtoResult>(content);
+                var existingItems = context.TicketNoteEntityPicklistValueCaches.ToList();
+                var itemsToUpdate = new List<TicketUserDefinedFieldsDtoResult>();
+                var itemsToCreate = new List<TicketUserDefinedFieldsDtoResult>();
+                //foreach (var field in converted.Fields)
+                //{
+                //    if (field.PicklistValues != null)
+                //    {
+                //        foreach (var item in field.PicklistValues)
+                //        {
+                //            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label);
+                //            if (existingItem != null)
+                //            {
+                //                existingItem.PicklistName = field.Name;
+                //                existingItem.Label = item.Label;
+                //                existingItem.Value = item.Value;
+                //                existingItem.ValueInt = item.ValueInt.HasValue ? Convert.ToInt32(item.ValueInt) : null;
+
+                //            }
+                //            else
+                //            {
+                //                itemsToCreate.Add(new TicketNoteEntityPicklistValueCache()
+                //                {
+                //                    PicklistName = field.Name,
+                //                    Label = item.Label,
+                //                    Value = item.Value,
+                //                    ValueInt = item.ValueInt,
+                //                });
+
+                //            }
+                //        }
+                //    }
+                //}
+
+                //await context.AddRangeAsync(itemsToCreate);
+                //await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching ticket note picklists: {ex.Message}");
+            }
         }
 
         [HttpGet("ticketNotes/fields/sync")]
