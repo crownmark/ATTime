@@ -1116,7 +1116,7 @@ namespace CrownATTime.Client.Pages
             await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company } } , new DialogOptions { Width = "800px", Draggable = true });
             await UpdateTicketValues();
             StateHasChanged();
-
+            
         }
 
         protected async System.Threading.Tasks.Task AddNoteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)

@@ -1,13 +1,14 @@
-﻿using CrownATTime.Server.Models;
+﻿using CrownATTime.Client.Pages;
+using CrownATTime.Server.Models;
 using CrownATTime.Server.Models.ATTime;
+using HtmlAgilityPack;
 using Microsoft.AspNetCore.Components;
+using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using HtmlAgilityPack;
-using System.Net;
 
 namespace CrownATTime.Client
 {
@@ -279,6 +280,55 @@ namespace CrownATTime.Client
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase);
 
             return prop?.GetValue(obj);
+        }
+
+        public static string ReplaceChecklistItemsToken(string html,IEnumerable<TicketChecklistItemResult>? checklistItems)
+        {
+            if (string.IsNullOrEmpty(html))
+                return html ?? string.Empty;
+
+            const string token = "{{ChecklistItems.ChecklistItems}}";
+            if (!html.Contains(token, StringComparison.Ordinal))
+                return html;
+
+            var listHtml = BuildChecklistItemsHtml(checklistItems);
+
+            return html.Replace(token, listHtml, StringComparison.Ordinal);
+        }
+
+        private static string BuildChecklistItemsHtml(IEnumerable<TicketChecklistItemResult>? items)
+        {
+            if (items == null)
+                return "<p><em>No items.</em></p>";
+
+            var sb = new StringBuilder();
+            sb.AppendLine("<ul>");
+
+            var any = false;
+            foreach (var item in items)
+            {
+                any = true;
+
+                var name = WebUtility.HtmlEncode(item?.itemName ?? "");
+                var status = WebUtility.HtmlEncode(item.isCompleted ? "Completed" : "Incomplete");
+
+                // Example output: "Install printer drivers — Completed"
+                sb.Append("<li>")
+                  .Append(name);
+
+                if (!string.IsNullOrWhiteSpace(status))
+                {
+                    sb.Append(" — <strong>")
+                      .Append(status)
+                      .Append("</strong>");
+                }
+
+                sb.AppendLine("</li>");
+            }
+
+            sb.AppendLine("</ul>");
+
+            return any ? sb.ToString() : "<p><em>No items.</em></p>";
         }
 
         public static string ReplaceQuoteLinkToken(string body, EmailMessage email)

@@ -330,6 +330,128 @@
             return result;
         }
 
+        public async Task<List<TicketChecklistItemResult>> GetAllTicketChecklistItems(int ticketId)
+        {
+            var filters = new List<object>
+            {
+                new { op = "eq", field = "ticketID", value = ticketId },
+            };
+
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var encodedSearch = Uri.EscapeDataString(JsonSerializer.Serialize(searchObj));
+            var uri = new Uri(baseUri, $"TicketChecklistItems/query?search={encodedSearch}");
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            using var response = await httpClient.SendAsync(request);
+
+            // Throw only on true HTTP failure
+            if (!response.IsSuccessStatusCode)
+            {
+                // Optional: log content for debugging before throwing
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Autotask API call failed ({(int)response.StatusCode}): {errorContent}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            // EMPTY OR NOTHING FOUND → Autotask returns: { "items": [] }
+            if (string.IsNullOrWhiteSpace(content) || content.Trim() == "{}")
+            {
+                return new List<TicketChecklistItemResult>();
+
+            }
+
+            // Try safe parse
+            List<TicketChecklistItemResult> result = null;
+            try
+            {
+                var items = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketChecklistItemResult>>(content);
+                result = items.Items.ToList();
+            }
+            catch
+            {
+                // If conversion fails, return null instead of throwing
+                return new List<TicketChecklistItemResult>();
+            }
+
+            // If Autotask returned an empty items array
+            if (result == null)
+            {
+                return new List<TicketChecklistItemResult>();
+
+            }
+
+            return result;
+        }
+
+        public async Task<List<TicketChecklistItemResult>> GetAllTicketChecklistItemsCompletedToday(int ticketId)
+        {
+            var filters = new List<object>
+            {
+                new { op = "eq", field = "ticketID", value = ticketId },
+                new { op = "gt", field = "completedDateTime", value = DateTime.Today },
+
+            };
+
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var encodedSearch = Uri.EscapeDataString(JsonSerializer.Serialize(searchObj));
+            var uri = new Uri(baseUri, $"TicketChecklistItems/query?search={encodedSearch}");
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            using var response = await httpClient.SendAsync(request);
+
+            // Throw only on true HTTP failure
+            if (!response.IsSuccessStatusCode)
+            {
+                // Optional: log content for debugging before throwing
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Autotask API call failed ({(int)response.StatusCode}): {errorContent}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            // EMPTY OR NOTHING FOUND → Autotask returns: { "items": [] }
+            if (string.IsNullOrWhiteSpace(content) || content.Trim() == "{}")
+            {
+                return new List<TicketChecklistItemResult>();
+
+            }
+
+            // Try safe parse
+            List<TicketChecklistItemResult> result = null;
+            try
+            {
+                var items = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketChecklistItemResult>>(content);
+                result = items.Items.ToList();
+            }
+            catch
+            {
+                // If conversion fails, return null instead of throwing
+                return new List<TicketChecklistItemResult>();
+            }
+
+            // If Autotask returned an empty items array
+            if (result == null)
+            {
+                return new List<TicketChecklistItemResult>();
+
+            }
+
+            return result;
+        }
+
         public async Task<TicketChecklistItemResult> UpdateTicketChecklistItem(TicketChecklistItemResult checklistItem)
         {
             var uri = new Uri(baseUri, $"TicketChecklistItems");

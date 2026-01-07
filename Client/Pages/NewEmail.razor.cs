@@ -91,6 +91,9 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public CompanyCache Company { get; set; }
 
+        [Parameter]
+        public List<TicketChecklistItemResult> ChecklistItems { get; set; } = new List<TicketChecklistItemResult>();
+
         protected EmailTemplate selectedTemplate { get; set; }
 
         protected override async Task OnInitializedAsync()
@@ -103,6 +106,11 @@ namespace CrownATTime.Client.Pages
                 {
                     var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quoter Quote Link");
                     emailMessage.QuoteLink = quoteUdf.value;
+                }
+                var checklistResults = await AutotaskTicketService.GetAllTicketChecklistItemsCompletedToday(Ticket.item.id);
+                if (checklistResults.Any())
+                {
+                    ChecklistItems = checklistResults;
                 }
 
             }
@@ -239,8 +247,13 @@ namespace CrownATTime.Client.Pages
                 // Apply template + render tokens
                 emailMessage.From = template.SendAsTech ? Security.User.Email : "support@ce-technology.com";// template.FromEmailAddress;
 
+                // Update Checlist Items Token with checklist items
+                emailMessage.Body = EmailService.ReplaceChecklistItemsToken(template.EmailBody ?? string.Empty, ChecklistItems);
+
                 emailMessage.Subject = EmailService.Render(template.EmailSubject ?? string.Empty, ctx);
-                emailMessage.Body = EmailService.Render(template.EmailBody ?? string.Empty, ctx);
+                emailMessage.Body = EmailService.Render(emailMessage.Body ?? string.Empty, ctx);
+
+                
             }
             catch (Exception)
             {

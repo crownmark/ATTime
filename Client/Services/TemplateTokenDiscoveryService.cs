@@ -14,6 +14,7 @@ namespace CrownATTime.Client
             AddTokens<CompanyCache>("Company", tokens);
             AddTokens<TicketDtoResult.Item>("Ticket", tokens);
             AddTokens<ResourceDtoResult>("Resource", tokens);
+            AddTokens<ChecklistItemsToken>("ChecklistItems", tokens);
 
             // Optional built-ins
             tokens.Add(new TemplateTokenInfo
