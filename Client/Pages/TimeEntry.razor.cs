@@ -576,15 +576,17 @@ namespace CrownATTime.Client.Pages
 
                             if (contractExclusion != null && contractExclusion.Items.Any())
                             {
-                                timeEntryRecord.IsNonBillable = true;
-                                timeEntryRecord.ShowOnInvoice = false;
-                            }
-                            else
-                            {
+                                
+
                                 timeEntryRecord.IsNonBillable = false;
                                 timeEntryRecord.ShowOnInvoice = true;
                                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Warning, Summary = $"Billable Notice", Detail = $"This work type is considered billable and not covered under the contract.", Duration = 10000 });
 
+                            }
+                            else
+                            {
+                                timeEntryRecord.IsNonBillable = true;
+                                timeEntryRecord.ShowOnInvoice = false;
                             }
                         }
                         else
