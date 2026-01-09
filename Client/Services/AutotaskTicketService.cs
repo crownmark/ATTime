@@ -168,6 +168,20 @@
             return JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(content);
         }
 
+        public async Task<CompanyLocationDto> GetCompanyLocationByLocationId(int locationId)
+        {
+            var uri = new Uri(baseUri, $"companylocations/{locationId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTicket(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<CompanyLocationDto>(content);
+
+        }
+
         public async Task<CompanyDtoResult> GetCompany(long companyId)
         {
             var uri = new Uri(baseUri, $"companies/{companyId}");

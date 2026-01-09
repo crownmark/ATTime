@@ -17,17 +17,11 @@
     </RadzenStack>
 </RadzenRow>
 <RadzenRow Visible="@(!pageLoading && !timeEntryRecord.IsCompleted)">
-    <RadzenColumn SizeXL="10" SizeLG="9" SizeMD="9">
+    <RadzenColumn SizeXL="9" SizeLG="9" SizeMD="9" SizeSM="8">
        <RadzenStack>
        <RadzenRow AlignItems="Radzen.AlignItems.Center">
             <RadzenColumn SizeLG="6" SizeXL="8" SizeXX="8">
                     <RadzenAlert Variant="Radzen.Variant.Outlined" AlertStyle="Radzen.AlertStyle.Warning" Text="@accountAlertTimeEntry" Title="Account Alert" Visible="@(!string.IsNullOrEmpty(accountAlertTimeEntry))" AllowClose="false"></RadzenAlert>
-            </RadzenColumn>
-            <RadzenColumn SizeLG="6" SizeXL="4" SizeXX="4">
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" AlignItems="Radzen.AlignItems.Center">
-                    <RadzenText Text="Time Entry Template:" TextStyle="Radzen.Blazor.TextStyle.H4" />
-                    <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange"/>
-                </RadzenStack>
             </RadzenColumn>
        </RadzenRow>
            
@@ -46,7 +40,7 @@
 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
         <strong>Ticket: </strong>
-                <RadzenLink Text="@timeEntryRecord.TicketNumber" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank"></RadzenLink>
+                <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal"></RadzenLink>
                 
     </RadzenStack>
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
@@ -94,13 +88,17 @@
                                                </RadzenStack>
                                            </RadzenBadge>
     </RadzenStack>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" AlignItems="Radzen.AlignItems.Center">
+        <RadzenText Text="Time Entry Template:" TextStyle="Radzen.Blazor.TextStyle.H4" />
+        <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange"/>
+    </RadzenStack>
 
                 
                 
                                            
             </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="border-bottom: 0px solid var(--rz-base)" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="border-bottom: 0px solid var(--rz-base)" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center" Visible="false">
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
                     <strong>Account: </strong><RadzenLink Text="@company?.CompanyName" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank"></RadzenLink>
 
@@ -122,7 +120,8 @@
 
                     </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                        <strong>Other Number: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton><RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call"></RadzenTextBox>
+                        <strong>Other Number: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                                       <RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call" Change="@OtherNumberChange"></RadzenTextBox>
 
                     </RadzenStack>
                 </RadzenStack>
@@ -262,18 +261,16 @@
             </RadzenStack>
        </RadzenStack>
     </RadzenColumn>
-    <RadzenColumn SizeXL="2" SizeLG="3" SizeMD="3">
-        <RadzenAccordion Style="width: 100%" Multiple="true" @bind-SelectedIndex="@accordionSelectedIndex">
-            <Items>
-                <RadzenAccordionItem Text="Insights"  Icon="visibility" Selected="true" >
-                    <RadzenFieldset Text="Email & Notes" AllowCollapse="true" Icon="email">
+    <RadzenColumn SizeXL="3" SizeLG="3" SizeMD="3" SizeSM="4">
+    <RadzenStack>
+        <RadzenFieldset Text="Email & Notes" AllowCollapse="true" Icon="email">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="email" Text="Send Email" Click="@SendEmailButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="note" Text="Add Note" Click="@AddNoteButtonClick" Visible="true"></RadzenButton>
                         </RadzenStack>
 
                     </RadzenFieldset>
-                    <RadzenFieldset Text="@($"Datto RMM Device {configurationItem?.item?.referenceTitle}")" AllowCollapse="true" Icon="computer">
+                    <RadzenFieldset Text="@($"RMM Device {configurationItem?.item?.referenceTitle}")" AllowCollapse="true" Icon="computer" Visible="@ticket.item.configurationItemID.HasValue">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="computer" Text="Device" Click="@DeviceButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Web Remote" Click="@WebRemoteButtonClick"></RadzenButton>
@@ -283,23 +280,88 @@
                         </RadzenStack>
 
                     </RadzenFieldset>
-                    <RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="false">
+                    <RadzenFieldset Text="Contact Details" AllowCollapse="true" Icon="person" Collapsed="false" Visible="@ticket.item.contactID.HasValue">
+                    <RadzenStack Gap="10">
+
                         <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
-                            <RadzenText Text="Address" Style="font-weight: bold" />
+                                <RadzenLink Text="@($"  {contact?.item.fullName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket?.item?.contactID}")" Target="_blank" Style="font-weight: bold" Icon="captive_portal"></RadzenLink>
+
+                        </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenText Text="Phone Numbers:" Style="font-weight: bold; color: var(--rz-info-light)" />
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallContactPhoneButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenText Text="@($"{contact?.item.phone} Ext: {contact?.item.extension}")" Visible="@(company != null)" />
+
+                            </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="phonelink_ring" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallContactPhoneButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenText Text="@($"{contact?.item.mobilePhone}")" Visible="@(company != null)" />
+
+                            </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+    <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+    <RadzenFormField Component="OtherNumber" Text="Other Number">
+        <RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call" Change="@OtherNumberChange" Style="width: 155px"></RadzenTextBox>
+    </RadzenFormField>
+
+</RadzenStack>
+                        </RadzenStack>
+
+                    </RadzenStack>
+                    </RadzenFieldset>
+<RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="false">
+                    <RadzenStack Gap="10">
+
+                        <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                                <RadzenLink Text="@($"  {company?.CompanyName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal"></RadzenLink>
+
+                        </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="1" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenText Text="Phone Numbers:" Style="font-weight: bold; color: var(--rz-info-light)" />
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallCompanyPhoneButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenText Text="@($"{company?.Phone}")" Visible="@(company != null)" />
+
+                            </RadzenStack>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenFormField Component="OtherNumber" Text="Other Number">
+                                    <RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call" Change="@OtherNumberChange" Style="width: 155px"></RadzenTextBox>
+                                </RadzenFormField>
+                            
+                            </RadzenStack>
+                        </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="1" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenText Text="Company Address:" Style="font-weight: bold; color: var(--rz-info-light)" />
 
                             <RadzenText Text="@($"{company?.Address1}, {(!string.IsNullOrEmpty(company?.Address2) ? company?.Address2 + ", " : "")}{company?.City}, {company?.State} {company?.PostalCode}")" Visible="@(company != null)" />
                         </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="1" Wrap="Radzen.FlexWrap.Wrap" Visible="@(companyLocation != null)">
+                            <RadzenText Text="Ticket Location:" Style="font-weight: bold; color: var(--rz-info-light)" />
+<RadzenText Text="@companyLocation?.item?.name" Style="font-weight: bold" />
 
-                    
+                            <RadzenText Text="@($"{companyLocation?.item?.address1}, {(!string.IsNullOrEmpty(companyLocation?.item?.address2) ? companyLocation?.item?.address2 + ", " : "")}{companyLocation?.item?.city}, {companyLocation?.item?.state} {companyLocation?.item?.postalCode}")" Visible="@(company != null)" />
+                        </RadzenStack>
+
+                    </RadzenStack>
                     </RadzenFieldset>
+                    <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch">
+                    <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
+
+                    </RadzenFieldset>
+    </RadzenStack>
+        @* <RadzenAccordion Style="width: 100%" Multiple="true" @bind-SelectedIndex="@accordionSelectedIndex">
+            <Items>
+                <RadzenAccordionItem Text="Insights"  Icon="visibility" Selected="true" >
+                    
                 
                 </RadzenAccordionItem>
                 <RadzenAccordionItem Text="Rocketship" Icon="rocket_launch" >
-                    <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
                 </RadzenAccordionItem>
             </Items>
 
-        </RadzenAccordion>
+        </RadzenAccordion> *@
         
     </RadzenColumn>
 </RadzenRow>

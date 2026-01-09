@@ -379,7 +379,20 @@
 
             return StatusCode((int)response.StatusCode, content);
         }
-        // GET: api/autotask/tickets/123
+
+        [HttpGet("companylocations/{id:long}")]
+        public async Task<IActionResult> GetCompanyLocationById(int id)
+        {
+            var response = await _http.GetAsync($"v1.0/CompanyLocations/{id}");
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return Content(content, "application/json");
+            }
+
+            return StatusCode((int)response.StatusCode, content);
+        }
         [HttpGet("companies/{id:long}")]
         public async Task<IActionResult> GetCompanyById(int id)
         {

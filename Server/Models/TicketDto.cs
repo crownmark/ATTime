@@ -32,6 +32,10 @@
 
         [JsonPropertyName("createDate")]
         public DateTime CreateDate { get; set; }
+
+        [JsonPropertyName("companyLocationID")]
+        public long? CompanyLocationID { get; set; }
+        
     }
 
 }

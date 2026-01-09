@@ -13,7 +13,7 @@
             public int configurationItemCategoryID { get; set; }
             public int companyID { get; set; }
             public int? companyLocationID { get; set; }
-            public int configurationItemType { get; set; }
+            public int? configurationItemType { get; set; }
             public int? contactID { get; set; }
             //public object contractID { get; set; }
             //public object contractServiceBundleID { get; set; }

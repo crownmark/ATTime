@@ -21,7 +21,7 @@
             //public string changeInfoField4 { get; set; }
             //public string changeInfoField5 { get; set; }
             public int companyID { get; set; }
-            //public int? companyLocationID { get; set; }
+            public int? companyLocationID { get; set; }
             //public object completedByResourceID { get; set; }
             //public object completedDate { get; set; }
             public int? configurationItemID { get; set; }

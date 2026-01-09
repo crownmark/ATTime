@@ -88,5 +88,10 @@ namespace CrownATTime.Client.Pages
         {
             await grid0.Reload();
         }
+
+        protected async System.Threading.Tasks.Task AddChecklistItemButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+
+        }
     }
 }

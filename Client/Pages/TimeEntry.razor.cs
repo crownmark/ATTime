@@ -54,6 +54,7 @@ namespace CrownATTime.Client.Pages
         protected ConfigurationItemResult configurationItem {  get; set; }
         protected ContactDtoResult contact {  get; set; }
         protected CompanyCache company {  get; set; }
+        protected CompanyLocationDto companyLocation {  get; set; }
         protected ContractCache contract {  get; set; }
         protected ResourceCache resource {  get; set; }
         protected bool pageLoading { get; set; }
@@ -287,8 +288,11 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
-                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
-                
+                //NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved", Style = $"position: fixed; top: 20px;  left: 50%; transform: translateX(-50%);"  });
+                if (ticket.item.companyLocationID.HasValue)
+                {
+                    companyLocation = await AutotaskTicketService.GetCompanyLocationByLocationId(Convert.ToInt32(ticket.item.companyLocationID.Value));
+                }
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -422,7 +426,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var calls = await ThreeCxClientService.MakeCall(contact.item.phone, resource.OfficePhone);
+                var calls = await ThreeCxClientService.MakeCall(contact.item.phone, resource.OfficeExtension);
                 MonitorCallStatus(calls, contact.item.phone);
 
             }
@@ -456,6 +460,38 @@ namespace CrownATTime.Client.Pages
             {
                 var calls = await ThreeCxClientService.MakeCall(OtherNumber, resource.OfficeExtension);
                 MonitorCallStatus(calls, OtherNumber);
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Make Call.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task OtherNumberChange(System.String args)
+        {
+            try
+            {
+                var calls = await ThreeCxClientService.MakeCall(OtherNumber, resource.OfficeExtension);
+                MonitorCallStatus(calls, OtherNumber);
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Make Call.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task CallCompanyPhoneButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                var calls = await ThreeCxClientService.MakeCall(company.Phone, resource.OfficeExtension);
+                MonitorCallStatus(calls, contact.item.mobilePhone);
+
+
 
             }
             catch (Exception ex)
@@ -1193,5 +1229,7 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+
+        
     }
 }

@@ -5,14 +5,14 @@
 
 <RadzenRow>
     <RadzenColumn>
-        <RadzenDataGrid @ref="grid0" TItem="Server.Models.TicketChecklistItemResult" Data="@TicketChecklistItemResult" LoadData="@DataGrid0LoadData" IsLoading="@gridLoading" Density="Radzen.Density.Compact" Style="max-height: 300px">
+        <RadzenDataGrid @ref="grid0" TItem="Server.Models.TicketChecklistItemResult" Data="@TicketChecklistItemResult" LoadData="@DataGrid0LoadData" IsLoading="@gridLoading" Density="Radzen.Density.Compact" Style="max-height: 300px" Responsive="true">
             <Columns>
                 <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="isCompleted" Title="Completed?" Width="100px" Frozen="true" TextAlign="Radzen.TextAlign.Center">
                     <Template>
                         <RadzenButton IsBusy="@(context.isBusy)" ButtonStyle="Radzen.ButtonStyle.Primary" Icon="check" Click="@((args) => CompleteChecklistItemButtonClick(args, context))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small"></RadzenButton>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="itemName" Title="Item" MinWidth="300px">
+                <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="itemName" Title="Item" MinWidth="300px" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap">
                     <Template>
                         <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal">
                             <RadzenIcon Icon="priority_high" IconStyle="Radzen.IconStyle.Danger"></RadzenIcon>
@@ -24,7 +24,8 @@
             </Columns>
             <HeaderTemplate>
                 <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Right">
-                    <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Click="@GridRefreshButtonClick" Size="Radzen.ButtonSize.ExtraSmall"></RadzenButton>
+                    <RadzenButton Icon="add" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@AddChecklistItemButtonClick"></RadzenButton>
+<RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Click="@GridRefreshButtonClick" Size="Radzen.ButtonSize.ExtraSmall"></RadzenButton>
                 </RadzenStack>
             </HeaderTemplate>
         </RadzenDataGrid>

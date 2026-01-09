@@ -1,0 +1,40 @@
+@page "/add-checklist-item"
+
+@attribute [Authorize]
+
+
+    
+
+<RadzenTemplateForm TItem="Server.Models.ChecklistItemDto" Data="@newChecklistItem" Submit="@TemplateForm0Submit">
+    <RadzenStack>
+        <RadzenRow>
+            <RadzenColumn Size="12" SizeMD="3">
+                <RadzenLabel Component="@newChecklistItem.itemName" style="width: 100%" Text="Name"></RadzenLabel>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="9">
+                <RadzenTextBox style="display: block; width: 100%" Name="itemName" @bind-Value="@newChecklistItem.itemName"></RadzenTextBox>
+                <RadzenRequiredValidator Component="itemName" style="position: absolute"></RadzenRequiredValidator>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Important?" Component="isImportant" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(newChecklistItem.isImportant)" Name="isImportant" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow>
+            <RadzenColumn Size="12" SizeMD="3">
+                <RadzenLabel Component="position" style="width: 100%" Text="Position"></RadzenLabel>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="9">
+                <RadzenNumeric TValue="int?" Name="position" @bind-Value="@(newChecklistItem.position)" Style="width: 100%" Min="0" Step="1"></RadzenNumeric>
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+        </RadzenStack>
+    </RadzenStack>
+
+</RadzenTemplateForm>
