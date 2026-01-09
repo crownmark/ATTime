@@ -315,10 +315,10 @@ namespace CrownATTime.Client.Pages
                 }
                 else
                 {
-                    if ((timeEntryRecord.EndDateTime - timeEntryRecord.EndDateTime).Value.Duration() < TimeSpan.FromMinutes(1))
-                    {
-                        timeEntryRecord.StartDateTime = timeEntryRecord.EndDateTime.Value.AddMinutes(-2);
-                    }
+                    //if ((timeEntryRecord.EndDateTime - timeEntryRecord.StartDateTime).Value.Duration() < TimeSpan.FromMinutes(1))
+                    //{
+                    //    timeEntryRecord.StartDateTime = timeEntryRecord.EndDateTime.Value.AddMinutes(-2);
+                    //}
                     var newATTimeEntry = new TimeEntryCreateDto()
                     {
                         DateWorked = timeEntryRecord.DateWorked.Value,
