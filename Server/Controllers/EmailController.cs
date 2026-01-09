@@ -45,40 +45,49 @@ namespace CrownATTime.Server.Controllers
                     }
                 }
                 var replyToList = new List<Recipient>();
-                if (!string.IsNullOrEmpty(item.From))
-                {
-                    if(item.From != "support@ce-technology.com")
-                    {
-                        replyToList.Add(new Recipient()
-                        {
-                            EmailAddress = new EmailAddress
-                            {
-                                Address = item.From,
-                            }
-                        });
-                    }
-                    else
-                    {
+                //if (!string.IsNullOrEmpty(item.From))
+                //{
+                //    if(item.From != "support@ce-technology.com")
+                //    {
+                //        replyToList.Add(new Recipient()
+                //        {
+                //            EmailAddress = new EmailAddress
+                //            {
+                //                Address = item.From,
+                //            }
+                //        });
+                //    }
+                //    else
+                //    {
                         
-                    }
-                    replyToList.Add(new Recipient()
-                    {
-                        EmailAddress = new EmailAddress
-                        {
-                            Address = "support@ce-technology.com",
-                        }
-                    });
-                }
-                else
+                //    }
+                //    replyToList.Add(new Recipient()
+                //    {
+                //        EmailAddress = new EmailAddress
+                //        {
+                //            Address = "support@ce-technology.com",
+                //        }
+                //    });
+                //}
+                //else
+                //{
+                //    replyToList.Add(new Recipient()
+                //    {
+                //        EmailAddress = new EmailAddress
+                //        {
+                //            Address = "support@ce-technology.com",
+                //        }
+                //    });
+                //}
+
+                // Allways reply to support only
+                replyToList.Add(new Recipient()
                 {
-                    replyToList.Add(new Recipient()
+                    EmailAddress = new EmailAddress
                     {
-                        EmailAddress = new EmailAddress
-                        {
-                            Address = "support@ce-technology.com",
-                        }
-                    });
-                }
+                        Address = "support@ce-technology.com",
+                    }
+                });
 
                 var emailAddresses = item.To.Split(',');
                 var emailToList = new List<Recipient>();
