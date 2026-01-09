@@ -26,7 +26,7 @@
             //public int? locationID { get; set; }
             public string middleName { get; set; }
             public string mobilePhone { get; set; }
-            public string numberFormat { get; set; }
+            //public string numberFormat { get; set; }
             public string officeExtension { get; set; }
             public string officePhone { get; set; }
             //public string payrollIdentifier { get; set; }

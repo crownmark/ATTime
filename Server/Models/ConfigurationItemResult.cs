@@ -9,8 +9,8 @@
         public class Item
         {
             public int id { get; set; }
-            public int apiVendorID { get; set; }
-            public int configurationItemCategoryID { get; set; }
+            public int? apiVendorID { get; set; }
+            public int? configurationItemCategoryID { get; set; }
             public int companyID { get; set; }
             public int? companyLocationID { get; set; }
             public int? configurationItemType { get; set; }
@@ -19,7 +19,7 @@
             //public object contractServiceBundleID { get; set; }
             //public object contractServiceID { get; set; }
             public DateTime createDate { get; set; }
-            public int createdByPersonID { get; set; }
+            public int? createdByPersonID { get; set; }
             //public object dailyCost { get; set; }
             //public object dattoAvailableKilobytes { get; set; }
             //public object dattoDeviceMemoryMegabytes { get; set; }
@@ -51,10 +51,10 @@
             //public object impersonatorCreatorResourceID { get; set; }
             public DateTime installDate { get; set; }
             //public object installedByContactID { get; set; }
-            public int installedByID { get; set; }
+            public int? installedByID { get; set; }
             public bool isActive { get; set; }
-            public int lastActivityPersonID { get; set; }
-            public int lastActivityPersonType { get; set; }
+            public int? lastActivityPersonID { get; set; }
+            public int? lastActivityPersonType { get; set; }
             public DateTime lastModifiedTime { get; set; }
             public string location { get; set; }
             //public object monthlyCost { get; set; }
@@ -65,39 +65,39 @@
             public int productID { get; set; }
             public string referenceNumber { get; set; }
             public string referenceTitle { get; set; }
-            public int rmmDeviceAuditAntivirusStatusID { get; set; }
-            public int rmmDeviceAuditArchitectureID { get; set; }
+            public int? rmmDeviceAuditAntivirusStatusID { get; set; }
+            public int? rmmDeviceAuditArchitectureID { get; set; }
             //public object rmmDeviceAuditBackupStatusID { get; set; }
             public string rmmDeviceAuditDescription { get; set; }
-            public int rmmDeviceAuditDeviceTypeID { get; set; }
-            public int rmmDeviceAuditDisplayAdaptorID { get; set; }
-            public int rmmDeviceAuditDomainID { get; set; }
+            public int? rmmDeviceAuditDeviceTypeID { get; set; }
+            public int? rmmDeviceAuditDisplayAdaptorID { get; set; }
+            public int? rmmDeviceAuditDomainID { get; set; }
             public string rmmDeviceAuditExternalIPAddress { get; set; }
             public string rmmDeviceAuditHostname { get; set; }
             public string rmmDeviceAuditIPAddress { get; set; }
             public string rmmDeviceAuditLastUser { get; set; }
             public string rmmDeviceAuditMacAddress { get; set; }
-            public int rmmDeviceAuditManufacturerID { get; set; }
+            public int? rmmDeviceAuditManufacturerID { get; set; }
             //public object rmmDeviceAuditFirmwareID { get; set; }
-            public long rmmDeviceAuditMemoryBytes { get; set; }
-            public int rmmDeviceAuditMissingPatchCount { get; set; }
+            public long? rmmDeviceAuditMemoryBytes { get; set; }
+            public int? rmmDeviceAuditMissingPatchCount { get; set; }
             //public object rmmDeviceAuditMobileNetworkOperatorID { get; set; }
             public string rmmDeviceAuditMobileNumber { get; set; }
-            public int rmmDeviceAuditModelID { get; set; }
-            public int rmmDeviceAuditMotherboardID { get; set; }
+            public int? rmmDeviceAuditModelID { get; set; }
+            public int? rmmDeviceAuditMotherboardID { get; set; }
             public string rmmDeviceAuditOperatingSystem { get; set; }
-            public int rmmDeviceAuditPatchStatusID { get; set; }
-            public int rmmDeviceAuditProcessorID { get; set; }
-            public int rmmDeviceAuditServicePackID { get; set; }
+            public int? rmmDeviceAuditPatchStatusID { get; set; }
+            public int? rmmDeviceAuditProcessorID { get; set; }
+            public int? rmmDeviceAuditServicePackID { get; set; }
             public string rmmDeviceAuditSNMPContact { get; set; }
             public string rmmDeviceAuditSNMPLocation { get; set; }
             public string rmmDeviceAuditSNMPName { get; set; }
-            public int rmmDeviceAuditSoftwareStatusID { get; set; }
-            public long rmmDeviceAuditStorageBytes { get; set; }
-            public int rmmDeviceID { get; set; }
+            public int? rmmDeviceAuditSoftwareStatusID { get; set; }
+            public long? rmmDeviceAuditStorageBytes { get; set; }
+            public int? rmmDeviceID { get; set; }
             public string rmmDeviceUID { get; set; }
             public string rmmVsaxDeviceID { get; set; }
-            public int rmmOpenAlertCount { get; set; }
+            public int? rmmOpenAlertCount { get; set; }
             public string serialNumber { get; set; }
             //public object serviceBundleID { get; set; }
             //public object serviceID { get; set; }
@@ -117,8 +117,8 @@
             //public object sslSignatureAlgorithm { get; set; }
             //public object vendorID { get; set; }
             public DateTime? warrantyExpirationDate { get; set; }
-            public bool rmmIsInMaintenanceMode { get; set; }
-            public bool rmmIsMobileDeviceManagementEnrolled { get; set; }
+            public bool? rmmIsInMaintenanceMode { get; set; }
+            public bool? rmmIsMobileDeviceManagementEnrolled { get; set; }
             public string rmmDeviceUrl { get; set; }
             public Userdefinedfield[] userDefinedFields { get; set; }
         }

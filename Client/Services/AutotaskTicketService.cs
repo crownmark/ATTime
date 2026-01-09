@@ -1,5 +1,6 @@
 ﻿namespace CrownATTime.Client
 {
+    using CrownATTime.Client.Pages;
     using global::CrownATTime.Server.Models;
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.Configuration;
@@ -283,6 +284,21 @@
             }
         }
 
+        public async Task<ChecklistItemDtoResult> GetTicketChecklistItem(int TicketId, int Id)
+        {
+            var uri = new Uri(baseUri, $"TicketChecklistItem/{TicketId}/{Id}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<ChecklistItemDtoResult>(response);
+
+
+        }
         public async Task<List<TicketChecklistItemResult>> GetOpenTicketChecklistItems(int ticketId)
         {
             var filters = new List<object>
@@ -480,6 +496,22 @@
 
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<TicketChecklistItemResult>(response);
+        }
+
+        public async Task<AutotaskItemCreatedResult> DeleteChecklistItem(TicketChecklistItemResult checklistItem)
+        {
+            var uri = new Uri(baseUri, $"TicketChecklistItems");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            var json = JsonSerializer.Serialize(checklistItem, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemCreatedResult>(response);
         }
 
         /// <summary>

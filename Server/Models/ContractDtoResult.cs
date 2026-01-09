@@ -30,7 +30,7 @@
             //public object internalCurrencyOverageBillingRate { get; set; }
             //public float internalCurrencySetupFee { get; set; }
             //public bool isCompliant { get; set; }
-            public bool isDefaultContract { get; set; }
+            public bool? isDefaultContract { get; set; }
             //public DateTime lastModifiedDateTime { get; set; }
             //public object opportunityID { get; set; }
             //public int organizationalLevelAssociationID { get; set; }

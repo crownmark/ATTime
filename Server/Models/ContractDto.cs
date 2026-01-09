@@ -38,7 +38,7 @@ namespace CrownATTime.Server.Models
         public string? ContractNumber { get; set; }
 
         [JsonPropertyName("contractPeriodType")]
-        public int ContractPeriodType { get; set; }
+        public int? ContractPeriodType { get; set; }
 
         [JsonPropertyName("contractType")]
         public int ContractType { get; set; }
@@ -47,7 +47,7 @@ namespace CrownATTime.Server.Models
         public string? Description { get; set; }
 
         [JsonPropertyName("endDate")]
-        public DateTimeOffset? EndDate { get; set; }
+        public DateTimeOffset EndDate { get; set; }
 
         [JsonPropertyName("estimatedCost")]
         public decimal? EstimatedCost { get; set; }
@@ -68,10 +68,10 @@ namespace CrownATTime.Server.Models
         public decimal? InternalCurrencySetupFee { get; set; }
 
         [JsonPropertyName("isCompliant")]
-        public bool IsCompliant { get; set; }
+        public bool? IsCompliant { get; set; }
 
         [JsonPropertyName("isDefaultContract")]
-        public bool IsDefaultContract { get; set; }
+        public bool? IsDefaultContract { get; set; }
 
         [JsonPropertyName("lastModifiedDateTime")]
         public DateTimeOffset LastModifiedDateTime { get; set; }

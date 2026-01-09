@@ -110,6 +110,24 @@
                 .ReadAsync<CrownATTime.Server.Models.TimeEntryDtoCreatedResult>(response);
         }
 
+        public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult> CreateChecklistItem(CrownATTime.Server.Models.ChecklistItemDto checklistItem)
+        {
+            var uri = new Uri(baseUri, $"TicketChecklistItems");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(checklistItem, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            OnCreateTimeEntry(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var result = await response.Content.ReadAsStringAsync();
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.AutotaskItemCreatedResult>(response);
+        }
+
         public async Task<CrownATTime.Server.Models.NoteDtoCreatedResult> CreateNote(CrownATTime.Server.Models.NoteDto note)
         {
             var uri = new Uri(baseUri, $"notes");

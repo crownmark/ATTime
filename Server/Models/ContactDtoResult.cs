@@ -20,12 +20,12 @@ namespace CrownATTime.Server.Models
             //public object bulkEmailOptOutTime { get; set; }
             public string city { get; set; }
             public int companyID { get; set; }
-            public object companyLocationID { get; set; }
+            public int? companyLocationID { get; set; }
             //public int countryID { get; set; }
             //public DateTime createDate { get; set; }
             public string emailAddress { get; set; }
-            public object emailAddress2 { get; set; }
-            public object emailAddress3 { get; set; }
+            public string emailAddress2 { get; set; }
+            public string emailAddress3 { get; set; }
             public string extension { get; set; }
             public string externalID { get; set; }
             public string facebookUrl { get; set; }
@@ -33,9 +33,9 @@ namespace CrownATTime.Server.Models
             public string firstName { get; set; }
             //public object impersonatorCreatorResourceID { get; set; }
             public int isActive { get; set; }
-            public bool isOptedOutFromBulkEmail { get; set; }
-            public DateTime lastActivityDate { get; set; }
-            public DateTime lastModifiedDate { get; set; }
+            public bool? isOptedOutFromBulkEmail { get; set; }
+            public DateTime? lastActivityDate { get; set; }
+            public DateTime? lastModifiedDate { get; set; }
             public string lastName { get; set; }
             [JsonIgnore]
             public string fullName
@@ -50,15 +50,15 @@ namespace CrownATTime.Server.Models
             }
 
             public string linkedInUrl { get; set; }
-            public object middleInitial { get; set; }
+            public string middleInitial { get; set; }
             public string mobilePhone { get; set; }
             //public object namePrefix { get; set; }
             //public object nameSuffix { get; set; }
             public string note { get; set; }
-            public bool receivesEmailNotifications { get; set; }
+            public bool? receivesEmailNotifications { get; set; }
             public string phone { get; set; }
-            public bool primaryContact { get; set; }
-            public bool billingContact { get; set; }
+            public bool? primaryContact { get; set; }
+            public bool? billingContact { get; set; }
             public string roomNumber { get; set; }
             //public bool solicitationOptOut { get; set; }
             //public object solicitationOptOutTime { get; set; }

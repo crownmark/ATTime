@@ -2,6 +2,7 @@
 {
     public class ChecklistItemDto
     {
+        public int id { get; set; }
 
         public bool isCompleted { get; set; }
         public bool isImportant { get; set; }

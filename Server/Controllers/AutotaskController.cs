@@ -153,6 +153,24 @@
             }
 
         }
+
+        [HttpGet("TicketChecklistItem/{ticketId}/{id}")]
+        public async Task<IActionResult> GetTicketChecklistItem(int ticketId, int id)
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/Tickets/{ticketId}/ChecklistItems/{id}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching configuration item: {ex.Message}");
+            }
+
+        }
         [HttpGet("TicketChecklistItems/query")]
         public async Task<IActionResult> GetTicketChecklistItems([FromQuery] string search)
         {
@@ -209,6 +227,67 @@
             }
         }
 
+        [HttpPost("TicketChecklistItems")]
+        public async Task<IActionResult> CreateChecklistItem([FromBody] ChecklistItemDto checklistItem)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(checklistItem, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var request = new HttpRequestMessage(HttpMethod.Post, $"v1.0/Tickets/{checklistItem.ticketID}/ChecklistItems");
+
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                // 🔑 Autotask impersonation header
+                //request.Headers.TryAddWithoutValidation("ImpersonationResourceId", note.impersonatorCreatorResourceID.ToString());
+
+                var response = await _http.SendAsync(request);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating checklist item: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("TicketChecklistItems")]
+        public async Task<IActionResult> DeleteTicketChecklistItem([FromBody] TicketChecklistItemResult item)
+        {
+            try
+            {
+                if (item.id <= 0)
+                {
+                    return BadRequest("Missing or invalid ID.");
+                }
+
+                
+                var response = await _http.DeleteAsync($"v1.0/Tickets/{item.ticketID}/ChecklistItems/{item.id}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error deleting checklist item: {ex.Message}");
+            }
+        }
+
         [HttpGet("contracts/query")]
         public async Task<IActionResult> GetContracts([FromQuery] string search)
         {
@@ -257,7 +336,7 @@
                     {
                         existingItem.Id = item.Id;
                         existingItem.Status = item.Status;
-                        existingItem.IsDefaultContract = item.IsDefaultContract;
+                        existingItem.IsDefaultContract = item.IsDefaultContract.Value;
                         existingItem.ContractName = item.ContractName;
                         existingItem.BillingPreference = item.BillingPreference;
                         existingItem.CompanyId = Convert.ToInt32(item.CompanyID);
@@ -272,7 +351,7 @@
                             Status = item.Status,
                             ContractName = item.ContractName,
                             CompanyId = Convert.ToInt32(item.CompanyID),
-                            IsDefaultContract = item.IsDefaultContract,
+                            IsDefaultContract = item.IsDefaultContract.Value,
                         });
 
                     }
@@ -678,7 +757,7 @@
                         existingItem.Id = item.id;
                         existingItem.Name = item.name;
                         existingItem.IsActive = item.isActive;
-                        existingItem.RoleType = item.roleType;
+                        existingItem.RoleType = item.roleType.Value;
                     }
                     else
                     {
@@ -687,7 +766,7 @@
                             Id = item.id,
                             Name = item.name,
                             IsActive = item.isActive,
-                            RoleType = item.roleType,
+                            RoleType = item.roleType.Value,
 
                         });
 

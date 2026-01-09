@@ -16,13 +16,13 @@
             public string alternatePhone2 { get; set; }
             public string city { get; set; }
             public int companyID { get; set; }
-            public int countryID { get; set; }
+            public int? countryID { get; set; }
             public string description { get; set; }
             public string fax { get; set; }
             public bool isActive { get; set; }
             public bool isPrimary { get; set; }
             //public object isTaxExempt { get; set; }
-            public bool overrideCompanyTaxSettings { get; set; }
+            public bool? overrideCompanyTaxSettings { get; set; }
             public string name { get; set; }
             public string phone { get; set; }
             public string postalCode { get; set; }

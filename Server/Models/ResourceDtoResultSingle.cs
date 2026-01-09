@@ -24,7 +24,7 @@
             //public decimal internalCost { get; set; }
             public bool isActive { get; set; }
             public string lastName { get; set; }
-            public int? licenseType { get; set; }
+            public int licenseType { get; set; }
             //public int? locationID { get; set; }
             public string middleName { get; set; }
             public string mobilePhone { get; set; }

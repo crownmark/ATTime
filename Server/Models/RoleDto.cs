@@ -7,10 +7,10 @@
         public decimal hourlyFactor { get; set; }
         public decimal hourlyRate { get; set; }
         public bool isActive { get; set; }
-        public bool isExcludedFromNewContracts { get; set; }
-        public bool isSystemRole { get; set; }
+        public bool? isExcludedFromNewContracts { get; set; }
+        public bool? isSystemRole { get; set; }
         public string name { get; set; }
         public int? quoteItemDefaultTaxCategoryId { get; set; }
-        public int roleType { get; set; }
+        public int? roleType { get; set; }
     }
 }
