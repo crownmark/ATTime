@@ -278,12 +278,15 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.PriorityName = PriorityName;
                 timeEntryRecord.StatusName = StatusName;
                 timeEntryRecord.ResourceName = $"{resource.FirstName} {resource.LastName}";
+                //timeEntryRecord.HoursWorked =
+                //   Math.Max(
+                //       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                //       + (timeEntryRecord.OffsetHours ?? 0),
+                //       0
+                //   );
                 timeEntryRecord.HoursWorked =
                    Math.Max(
-                       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
-                       + (timeEntryRecord.OffsetHours ?? 0),
-                       0
-                   );
+                       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2), 0);
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
@@ -293,6 +296,7 @@ namespace CrownATTime.Client.Pages
                 {
                     companyLocation = await AutotaskTicketService.GetCompanyLocationByLocationId(Convert.ToInt32(ticket.item.companyLocationID.Value));
                 }
+                
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -333,7 +337,7 @@ namespace CrownATTime.Client.Pages
                         SummaryNotes = timeEntryRecord.SummaryNotes,
                         TicketId = timeEntryRecord.TicketId,
                         ContractId = timeEntryRecord.ContractId,
-                        OffsetHours = timeEntryRecord.OffsetHours,
+                        //OffsetHours = timeEntryRecord.OffsetHours,
 
 
                     };
@@ -801,16 +805,23 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                timeEntryRecord.HoursWorked = CalculateHoursWorked(
+                timeEntryRecord.DurationMs = CalculateOffsetDurationMs(
                     timeEntryRecord.DurationMs.Value,
                     timeEntryRecord.OffsetHours.Value
                 );
+                //timeEntryRecord.HoursWorked = CalculateHoursWorked(
+                //    timeEntryRecord.DurationMs.Value,
+                //    timeEntryRecord.OffsetHours.Value
+                //);
                 //timeEntryRecord.HoursWorked =
                 //    Math.Max(
                 //        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
                 //        + (timeEntryRecord.OffsetHours ?? 0),
                 //        0
                 //    );
+                //await Task.Delay(1);
+                timeEntryRecord.OffsetHours = 0;
+
                 await UpdateTicketValues();
 
             }
@@ -820,6 +831,7 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+
         public static decimal CalculateHoursWorked(long durationMs, decimal offsetHours)
         {
             if (durationMs <= 0)
@@ -850,6 +862,18 @@ namespace CrownATTime.Client.Pages
             return Math.Round(hoursWorked, 2);
         }
 
+        public static long CalculateOffsetDurationMs(long durationMs, decimal offsetHours)
+        {
+            // Convert offset hours → milliseconds
+            var offsetMs = (long)Math.Round(offsetHours * 60m * 60m * 1000m, MidpointRounding.AwayFromZero);
+
+            var result = durationMs + offsetMs;
+
+            // Never allow negative durations
+            return Math.Max(0, result);
+        }
+
+
 
         /// <summary>
         /// Returns the allowed range for OffsetHours for a given DurationMs.
@@ -878,7 +902,8 @@ namespace CrownATTime.Client.Pages
         public static DateTimeOffset CalculateStartFromDuration(DateTimeOffset endDateTime, long durationMs)
         {
             if (durationMs <= 0)
-                throw new ArgumentException("DurationMs must be greater than zero.", nameof(durationMs));
+                return endDateTime;
+            // throw new ArgumentException("DurationMs must be greater than zero.", nameof(durationMs));
 
             var duration = TimeSpan.FromMilliseconds(durationMs);
 
@@ -902,6 +927,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
+                timeEntryRecord.OffsetHours = 0;
 
                 //if (!timeEntryRecord.StartDateTime.HasValue)
                 //{
@@ -936,6 +962,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
+                timeEntryRecord.OffsetHours = 0;
                 await UpdateTicketValues();
 
 
@@ -958,12 +985,15 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
 
+                //timeEntryRecord.HoursWorked =
+                //    Math.Max(
+                //        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
+                //        - (timeEntryRecord.OffsetHours ?? 0),
+                //        0
+                //    );
                 timeEntryRecord.HoursWorked =
                     Math.Max(
-                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
-                        - (timeEntryRecord.OffsetHours ?? 0),
-                        0
-                    );
+                        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2), 0);
                 await UpdateTicketValues();
 
             }
@@ -981,6 +1011,7 @@ namespace CrownATTime.Client.Pages
                 _isRunning = false;
                 timeEntryRecord.DurationMs = 0;
                 timeEntryRecord.HoursWorked = 0;
+                timeEntryRecord.OffsetHours = 0;
                 timeEntryRecord.StartDateTime = DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
