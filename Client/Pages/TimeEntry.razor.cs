@@ -801,14 +801,96 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+        //decimal OffsetHours { get; set; }   // 🔴 Single source of truth
+
+        //int Hours
+        //{
+        //    get => (int)Math.Floor(OffsetHours);
+        //}
+
+        //int Minutes
+        //{
+        //    get => (int)Math.Round((OffsetHours - Hours) * 60);
+        //}
+
+        //void OnHoursChanged(int value)
+        //{
+        //    OffsetHours = value + (Minutes / 60m);
+        //}
+
+        //void OnMinutesChanged(int value)
+        //{
+        //    OffsetHours = Hours + (value / 60m);            
+        //}
+
+        protected async System.Threading.Tasks.Task TimerOffsetButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            timeEntryRecord.DurationMs = CalculateOffsetDurationMs(
+                    timeEntryRecord.DurationMs.Value,
+                    OffsetHours
+                );
+            OffsetHours = 0;
+            await UpdateTicketValues();
+        }
+
+        decimal OffsetHours { get; set; } = 0m; // single source of truth
+
+        int TotalMinutes => (int)Math.Round(OffsetHours * 60m);
+
+        // Signed hours in [-24..24]
+        int Hours => ClampInt((int)Math.Truncate(TotalMinutes / 60m), -24, 24);
+
+        // Signed minutes in [-59..59]
+        int Minutes
+        {
+            get
+            {
+                var h = (int)Math.Truncate(TotalMinutes / 60m);
+                var m = TotalMinutes - (h * 60);
+                return ClampInt(m, -59, 59);
+            }
+        }
+
+        void OnHoursChanged(int newHours)
+        {
+            newHours = ClampInt(newHours, -24, 24);
+            SetFromParts(newHours, Minutes);
+        }
+
+        void OnMinutesChanged(int newMinutes)
+        {
+            newMinutes = ClampInt(newMinutes, -59, 59);
+            SetFromParts(Hours, newMinutes);
+        }
+
+        void SetFromParts(int hours, int minutes)
+        {
+            // Combine
+            var total = (hours * 60) + minutes;
+
+            // Clamp overall to [-24:00, +24:00]
+            total = ClampInt(total, -24 * 60, 24 * 60);
+
+            // Normalize so minutes always ends up in [-59..59] with matching hour
+            var normHours = (int)Math.Truncate(total / 60m);
+            var normMins = total - (normHours * 60);
+
+            // Final safety clamp
+            normHours = ClampInt(normHours, -24, 24);
+            normMins = ClampInt(normMins, -59, 59);
+
+            OffsetHours = ((normHours * 60) + normMins) / 60m;
+        }
+
+        static int ClampInt(int value, int min, int max)
+            => value < min ? min : (value > max ? max : value);
+
+
         protected async System.Threading.Tasks.Task OffsetHoursChange(decimal? args)
         {
             try
             {
-                timeEntryRecord.DurationMs = CalculateOffsetDurationMs(
-                    timeEntryRecord.DurationMs.Value,
-                    timeEntryRecord.OffsetHours.Value
-                );
+                
                 //timeEntryRecord.HoursWorked = CalculateHoursWorked(
                 //    timeEntryRecord.DurationMs.Value,
                 //    timeEntryRecord.OffsetHours.Value
@@ -1262,5 +1344,151 @@ namespace CrownATTime.Client.Pages
         }
 
         
+
+        
+
+        protected async System.Threading.Tasks.Task PlayButton0MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Start/Resume Timer", new TooltipOptions() { Duration = null });
+        }
+
+        protected async System.Threading.Tasks.Task PlayButton0MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task PauseButton1MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Pause Timer", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task PauseButton1MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task ClearButton2MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Clear Timer", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task ClearButton2MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task UpdateTimerButton6MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Update Timer", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task UpdateTimerButton6MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task DeleteTimeEntryButton8MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Delete Time Entry", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task DeleteTimeEntryButton8MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+
+
+        protected async System.Threading.Tasks.Task SummaryNoteButton4MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Insert Time Stamp in Summary Notes", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task SummaryNoteButton4MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task InternalNotesButton5MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Insert Time Stamp in Internal Notes", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task InternalNotesButton5MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task CompleteTimeEntryButton6MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Complete Time Entry", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task CompleteTimeEntryButton6MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task CloseTicketButton7MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Complete Time Entry & Close Ticket", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task CloseTicketButton7MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task ContactLink1MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Open Contact in Autotask", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task ContactLink1MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task CompanyLink2MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Open Company in Autotask", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task CompanyLink2MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task TicketLink0MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Open Ticket in Autotask", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task TicketLink0MouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
     }
 }

@@ -30,17 +30,16 @@
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="border: 2px solid var(--rz-primary-lighter); padding-top: 4px; padding: 4px" AlignItems="Radzen.AlignItems.Center">
                     <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; background-color: #000000" />
                     
-                    <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)"></RadzenButton>
-<RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)"></RadzenButton>
-<RadzenButton Icon="stop" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@StopButtonClick" Visible="false"></RadzenButton>
-<RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick"></RadzenButton>
+                    <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)" MouseEnter="@PlayButton0MouseEnter" MouseLeave="@PlayButton0MouseLeave"></RadzenButton>
+<RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)" MouseEnter="@PauseButton1MouseEnter" MouseLeave="@PauseButton1MouseLeave"></RadzenButton>
+<RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick" MouseEnter="@ClearButton2MouseEnter" MouseLeave="@ClearButton2MouseLeave"></RadzenButton>
                 </RadzenStack>
             </RadzenStack>
             
 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
         <strong>Ticket: </strong>
-                <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal"></RadzenLink>
+                <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal" MouseEnter="@TicketLink0MouseEnter" MouseLeave="@TicketLink0MouseLeave"></RadzenLink>
                 
     </RadzenStack>
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
@@ -96,36 +95,6 @@
                 
                 
                                            
-            </RadzenStack>
-<RadzenStack Orientation="Radzen.Orientation.Vertical">
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="border-bottom: 0px solid var(--rz-base)" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center" Visible="false">
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                    <strong>Account: </strong><RadzenLink Text="@company?.CompanyName" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank"></RadzenLink>
-
-                    </RadzenStack>
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                    <strong>Contact: </strong><RadzenLink Text="@($"{contact?.item?.firstName} {contact?.item?.lastName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket.item.contactID}")" Target="_blank"></RadzenLink>                                          
-
-                    </RadzenStack>
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                    <strong>Phone: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.phone))" Click="@CallContactPhoneButtonClick" Style="width: 24px; height: 24px" Variant="Radzen.Variant.Outlined"></RadzenButton>@contact?.item?.phone
-
-                    </RadzenStack>
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                    <strong>Ext: </strong>@contact?.item?.extension
-
-                    </RadzenStack>
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                    <strong>Mobile: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(contact?.item?.mobilePhone))" Click="@CallContactMobileButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>@contact?.item?.mobilePhone
-
-                    </RadzenStack>
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                        <strong>Other Number: </strong><RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
-                                                       <RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call" Change="@OtherNumberChange"></RadzenTextBox>
-
-                    </RadzenStack>
-                </RadzenStack>
-                                                                                                                                                                                                        
             </RadzenStack>
             <RadzenStack>
                 <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntryRecord" Visible="@(timeEntryRecord != null)" Submit="@TemplateForm0Submit" Style="border: 2px solid var(--rz-base); padding: 5px">
@@ -186,11 +155,21 @@
                           <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" ReadOnly="true" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" ShowUpDown="false" />
                           <RadzenNumericRangeValidator Text="Hours must be greater than 0.02" Min="0.03" Max="24" Component="HoursWorked"></RadzenNumericRangeValidator>
                         </RadzenColumn>
-                        <RadzenColumn SizeMD="3" SizeLG="2" SizeSM="3">
-                            <RadzenLabel Text="Offset Hours" Component="OffsetHours" style="width: 100%" />
+                        <RadzenColumn SizeMD="3" SizeLG="2" SizeSM="3" Style="text-align: left">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Start">
+                                <RadzenLabel Text="Timer Offset" Component="OffsetHours" style="width: 100%" />
+                            </RadzenStack>
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4" SizeSM="9">
-                            <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.OffsetHours" Name="OffsetHours" Step=".25" Change="@OffsetHoursChange" Format="0.00" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" Disabled="@(timeEntryRecord.TimeStampStatus)" />
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenFormField Text="Hours" Style="width: 100px">
+                                    <RadzenNumeric style="display: block" TValue="int" Name="Hours" Value="@Hours" Step="1" Change="@OnHoursChanged" Format="0" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" Disabled="@(timeEntryRecord.TimeStampStatus)" Min="-24" Max="24" ShowUpDown="true" />
+                                </RadzenFormField>
+                                <RadzenFormField Text="Minutes" Style="width: 100px">
+                                    <RadzenNumeric style="display: block" TValue="int" Name="Minutes" Value="@Minutes" Step="1" Change="@OnMinutesChanged" Format="0" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" Disabled="@(timeEntryRecord.TimeStampStatus)" Min="-59" Max="59" />
+                                </RadzenFormField>
+                                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Disabled="@(timeEntryRecord.TimeStampStatus)" Click="@TimerOffsetButtonClick" Text="Save" Style="width: 80px" Icon="timer" MouseEnter="@UpdateTimerButton6MouseEnter" MouseLeave="@UpdateTimerButton6MouseLeave"></RadzenButton>
+                            </RadzenStack>
                         </RadzenColumn>
                     </RadzenRow>
                     <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
@@ -214,7 +193,7 @@
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                 <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
                                 </RadzenLabel>
-                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick"></RadzenButton>
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
                             </RadzenRow>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                 <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
@@ -225,7 +204,7 @@
                         <RadzenColumn SizeMD="6">
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                     <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="color: var(--rz-danger)" />
-                                    <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick"></RadzenButton>
+                                    <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick" MouseEnter="@InternalNotesButton5MouseEnter" MouseLeave="@InternalNotesButton5MouseLeave"></RadzenButton>
                             </RadzenRow>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                 <RadzenTextArea @bind-Value="@timeEntryRecord.InternalNotes" Name="InternalNotes" Style="width: 100%" Rows="10" Change="InternalNotesChange"></RadzenTextArea>
@@ -252,9 +231,9 @@
                             <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
                             <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
                         </RadzenStack>
-                            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default"/>
-                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" />
-                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" />
+                            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default" MouseEnter="@CompleteTimeEntryButton6MouseEnter" MouseLeave="@CompleteTimeEntryButton6MouseLeave"/>
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" MouseEnter="@CloseTicketButton7MouseEnter" MouseLeave="@CloseTicketButton7MouseLeave" />
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" MouseEnter="@DeleteTimeEntryButton8MouseEnter" MouseLeave="@DeleteTimeEntryButton8MouseLeave" />
                     </RadzenStack>
                 </RadzenTemplateForm>
             
@@ -284,7 +263,7 @@
                     <RadzenStack Gap="10">
 
                         <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
-                                <RadzenLink Text="@($"  {contact?.item.fullName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket?.item?.contactID}")" Target="_blank" Style="font-weight: bold" Icon="captive_portal"></RadzenLink>
+                                <RadzenLink Text="@($"  {contact?.item.fullName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket?.item?.contactID}")" Target="_blank" Style="font-weight: bold" Icon="captive_portal" MouseEnter="@ContactLink1MouseEnter" MouseLeave="@ContactLink1MouseLeave"></RadzenLink>
 
                         </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
@@ -314,7 +293,7 @@
                     <RadzenStack Gap="10">
 
                         <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
-                                <RadzenLink Text="@($"  {company?.CompanyName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal"></RadzenLink>
+                                <RadzenLink Text="@($"  {company?.CompanyName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" MouseEnter="@CompanyLink2MouseEnter" MouseLeave="@CompanyLink2MouseLeave"></RadzenLink>
 
                         </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="1" Wrap="Radzen.FlexWrap.Wrap">
