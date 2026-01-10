@@ -124,6 +124,8 @@
                 {
                     new { op = "eq", field = "isActive", value = 1 },
                     new { op = "eq", field = "companyID", value = companyId },
+                    new { op = "notin", field = "emailAddress", value = new[] {"AAAAA@AAAAA.AAAAA" } },
+                    //AAAAA@AAAAA.AAAAA
                     //new { op = "ne", field = "emailAddress", value = "" },
                 };
             var searchObj = new

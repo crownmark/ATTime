@@ -101,7 +101,11 @@ namespace CrownATTime.Client.Pages
             try
             {
                 var results = await AutotaskTicketService.GetContacts(Ticket.item.companyID);
-                contacts = results.Items;
+                contacts = results.Items
+                    .Where(c => !string.IsNullOrWhiteSpace(c.emailAddress))
+                    .GroupBy(c => c.emailAddress.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First())
+                    .ToList();
                 if(Ticket.item.userDefinedFields.Any(x => x.name == "Quoter Quote Link"))
                 {
                     var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quoter Quote Link");
@@ -252,7 +256,7 @@ namespace CrownATTime.Client.Pages
 
                 emailMessage.Subject = EmailService.Render(template.EmailSubject ?? string.Empty, ctx);
                 emailMessage.Body = EmailService.Render(emailMessage.Body ?? string.Empty, ctx);
-
+                StateHasChanged();
                 
             }
             catch (Exception)
