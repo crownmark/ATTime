@@ -305,7 +305,7 @@ namespace CrownATTime.Client.Pages
                 AddCsv(crownEmailsCsv);
                 AddCsv(additionalEmail);
 
-                if (ticketContact)
+                if (ticketContact && Ticket.item.contactID != null)
                 {
                     var ticketContactDto = await AutotaskTicketService.GetContact(Convert.ToInt32(Ticket.item.contactID));
 
@@ -316,7 +316,7 @@ namespace CrownATTime.Client.Pages
                         emailSet.Add(email.Trim());
                 }
 
-                if (primaryResource)
+                if (primaryResource && Ticket.item.assignedResourceID != null)
                 {
                     var primaryResourceDto = await AutotaskTimeEntryService.GetResourceById(Convert.ToInt32(Ticket.item.assignedResourceID));
 

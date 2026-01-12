@@ -106,6 +106,29 @@
             var response = await httpClient.SendAsync(httpRequestMessage);
             var result = await response.Content.ReadAsStringAsync();
 
+            if (!response.IsSuccessStatusCode)
+            {
+                // Try to extract Autotask-style error message
+                string message = result;
+
+                try
+                {
+                    using var doc = JsonDocument.Parse(message);
+                    if (doc.RootElement.TryGetProperty("errors", out var errors) &&
+                        errors.ValueKind == JsonValueKind.Array &&
+                        errors.GetArrayLength() > 0)
+                    {
+                        message = string.Join("; ", errors.EnumerateArray().Select(e => e.GetString()));
+                    }
+                }
+                catch
+                {
+                    // fallback: raw body
+                }
+
+                throw new Exception($"Autotask time entry failed: {message}");
+            }
+
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<CrownATTime.Server.Models.TimeEntryDtoCreatedResult>(response);
         }

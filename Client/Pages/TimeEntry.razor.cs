@@ -393,7 +393,7 @@ namespace CrownATTime.Client.Pages
             }
             catch (Exception ex)
             {
-                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}" });
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to save Time Entry.  Error: {ex.Message}", Duration = 5000 });
                 isSaving = false;
             }
         }
@@ -655,7 +655,6 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved" });
                 await UpdateTicketValues();
 
             }

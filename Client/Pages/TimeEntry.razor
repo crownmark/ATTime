@@ -20,8 +20,8 @@
     <RadzenColumn SizeXL="9" SizeLG="9" SizeMD="9" SizeSM="8">
        <RadzenStack>
        <RadzenRow AlignItems="Radzen.AlignItems.Center">
-            <RadzenColumn SizeLG="6" SizeXL="8" SizeXX="8">
-                    <RadzenAlert Variant="Radzen.Variant.Outlined" AlertStyle="Radzen.AlertStyle.Warning" Text="@accountAlertTimeEntry" Title="Account Alert" Visible="@(!string.IsNullOrEmpty(accountAlertTimeEntry))" AllowClose="false"></RadzenAlert>
+            <RadzenColumn>
+                    <RadzenAlert Variant="Radzen.Variant.Outlined" AlertStyle="Radzen.AlertStyle.Warning" Text="@accountAlertTimeEntry" Visible="@(!string.IsNullOrEmpty(accountAlertTimeEntry))" AllowClose="false" Size="Radzen.AlertSize.ExtraSmall" Title="Account Alert"></RadzenAlert>
             </RadzenColumn>
        </RadzenRow>
            
