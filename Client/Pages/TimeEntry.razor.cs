@@ -56,6 +56,7 @@ namespace CrownATTime.Client.Pages
         protected CompanyLocationDto companyLocation {  get; set; }
         protected ContractCache contract {  get; set; }
         protected ResourceCache resource {  get; set; }
+        protected ResourceCache ticketResource {  get; set; }
         protected bool pageLoading { get; set; }
         [Parameter]
         public string TicketId { get; set; } 
@@ -254,7 +255,12 @@ namespace CrownATTime.Client.Pages
                 ticket = await AutotaskService.GetTicket(ticket.item.id);
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskService.GetContact(Convert.ToInt32(ticket.item.contactID));
-                company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);// await AutotaskService.GetCompany(Convert.ToInt32(ticket.item.companyID));
+                company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);
+                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Id eq {ticket.item.assignedResourceID}");
+                if (resourceResult.Value.Any())
+                {
+                    ticketResource = resourceResult.Value.FirstOrDefault();
+                }
                 var accountAlerts = await AutotaskService.GetAccountAlertsByCompanyId(company.Id);
                 if (accountAlerts != null && accountAlerts.Items.Where(x => x.alertTypeID == 3).Any())
                 {
@@ -1263,7 +1269,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task SendEmailButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company } } , new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource } } , new DialogOptions { Width = "800px", Draggable = true });
             await UpdateTicketValues();
             StateHasChanged();
             

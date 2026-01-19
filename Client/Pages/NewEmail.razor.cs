@@ -93,6 +93,9 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public List<TicketChecklistItemResult> ChecklistItems { get; set; } = new List<TicketChecklistItemResult>();
 
+        [Parameter]
+        public ResourceCache TicketResource { get; set; }
+
         protected EmailTemplate selectedTemplate { get; set; }
 
         protected override async Task OnInitializedAsync()
@@ -242,7 +245,8 @@ namespace CrownATTime.Client.Pages
                 {
                     Contact = Contact?.item,
                     Ticket = Ticket?.item,   
-                    Resource = Resource,    
+                    Resource = Resource,  
+                    TicketResource = TicketResource,
                     Company = Company,
                     Picklists = picklists
                 };

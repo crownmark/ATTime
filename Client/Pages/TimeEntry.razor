@@ -275,7 +275,7 @@
 
                             </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
-                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="phonelink_ring" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallContactPhoneButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="phonelink_ring" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallContactMobileButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
                                 <RadzenText Text="@($"{contact?.item.mobilePhone}")" Visible="@(company != null)" />
 
                             </RadzenStack>

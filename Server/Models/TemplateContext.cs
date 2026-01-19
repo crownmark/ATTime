@@ -8,6 +8,7 @@ namespace CrownATTime.Server.Models
         public CompanyCache? Company { get; init; }
         public TicketDtoResult.Item? Ticket { get; init; }
         public ResourceCache? Resource { get; init; }
+        public ResourceCache? TicketResource { get; init; }
 
         // PicklistName -> (numericValue -> displayLabel)
         public IReadOnlyDictionary<string, IReadOnlyDictionary<int, string>>? Picklists { get; init; }

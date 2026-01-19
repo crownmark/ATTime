@@ -13,8 +13,10 @@ namespace CrownATTime.Client
             AddTokens<ContactDtoResult.Item>("Contact", tokens);
             AddTokens<CompanyCache>("Company", tokens);
             AddTokens<TicketDtoResult.Item>("Ticket", tokens);
-            AddTokens<ResourceDtoResult>("Resource", tokens);
+            AddTokens<ResourceCache>("Resource", tokens);
             AddTokens<ChecklistItemsToken>("ChecklistItems", tokens);
+            AddTokens<ResourceCache>("TicketResource", tokens);
+
 
             // Optional built-ins
             tokens.Add(new TemplateTokenInfo
