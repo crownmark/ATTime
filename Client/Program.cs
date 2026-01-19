@@ -13,8 +13,7 @@ builder.Services.AddRadzenCookieThemeService(options =>
 });
 builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
-builder.Services.AddScoped<CrownATTime.Client.AutotaskTicketService>();
-builder.Services.AddScoped<CrownATTime.Client.AutotaskTimeEntryService>();
+builder.Services.AddScoped<CrownATTime.Client.AutotaskService>();
 builder.Services.AddScoped<CrownATTime.Client.ThreeCxClientService>();
 builder.Services.AddScoped<CrownATTime.Client.EmailService>();
 builder.Services.AddScoped<CrownATTime.Client.TemplateTokenDiscoveryService>();

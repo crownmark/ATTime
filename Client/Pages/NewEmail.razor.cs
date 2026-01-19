@@ -51,10 +51,9 @@ namespace CrownATTime.Client.Pages
         protected CrownATTime.Client.ATTimeService ATTimeService { get; set; }
 
         [Inject]
-        protected CrownATTime.Client.AutotaskTicketService AutotaskTicketService { get; set; }
+        protected CrownATTime.Client.AutotaskService AutotaskService { get; set; }
 
-        [Inject]
-        protected CrownATTime.Client.AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
+        
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.EmailTemplate> emailTemplates;
 
@@ -100,7 +99,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var results = await AutotaskTicketService.GetContacts(Ticket.item.companyID);
+                var results = await AutotaskService.GetContacts(Ticket.item.companyID);
                 contacts = results.Items
                     .Where(c => !string.IsNullOrWhiteSpace(c.emailAddress))
                     .GroupBy(c => c.emailAddress.Trim(), StringComparer.OrdinalIgnoreCase)
@@ -111,7 +110,7 @@ namespace CrownATTime.Client.Pages
                     var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quoter Quote Link");
                     emailMessage.QuoteLink = quoteUdf.value;
                 }
-                var checklistResults = await AutotaskTicketService.GetAllTicketChecklistItemsCompletedToday(Ticket.item.id);
+                var checklistResults = await AutotaskService.GetAllTicketChecklistItemsCompletedToday(Ticket.item.id);
                 if (checklistResults.Any())
                 {
                     ChecklistItems = checklistResults;
@@ -307,7 +306,7 @@ namespace CrownATTime.Client.Pages
 
                 if (ticketContact && Ticket.item.contactID != null)
                 {
-                    var ticketContactDto = await AutotaskTicketService.GetContact(Convert.ToInt32(Ticket.item.contactID));
+                    var ticketContactDto = await AutotaskService.GetContact(Convert.ToInt32(Ticket.item.contactID));
 
                     // Autotask contacts typically expose emailAddress
                     var email = ticketContactDto?.item.emailAddress;
@@ -318,7 +317,7 @@ namespace CrownATTime.Client.Pages
 
                 if (primaryResource && Ticket.item.assignedResourceID != null)
                 {
-                    var primaryResourceDto = await AutotaskTimeEntryService.GetResourceById(Convert.ToInt32(Ticket.item.assignedResourceID));
+                    var primaryResourceDto = await AutotaskService.GetResourceById(Convert.ToInt32(Ticket.item.assignedResourceID));
 
                     // resources often expose email
                     var email = primaryResourceDto?.item.email;
@@ -329,12 +328,12 @@ namespace CrownATTime.Client.Pages
 
                 if (ticketContacts)
                 {
-                    var ticketAdditionalContacts = await AutotaskTicketService.GetAdditionalContacts(Ticket.item.id);
+                    var ticketAdditionalContacts = await AutotaskService.GetAdditionalContacts(Ticket.item.id);
                     if(ticketAdditionalContacts != null)
                     {
                         foreach (var contact in ticketAdditionalContacts.Items)
                         {
-                            var ticketContact = await AutotaskTicketService.GetContact(contact.contactID);
+                            var ticketContact = await AutotaskService.GetContact(contact.contactID);
                             AddCsv(ticketContact.item.emailAddress);
                         }
                     }
@@ -343,12 +342,12 @@ namespace CrownATTime.Client.Pages
 
                 if (secondaryResources)
                 {
-                    var ticketSecondaryResources = await AutotaskTicketService.GetSecondaryResources(Ticket.item.id);
+                    var ticketSecondaryResources = await AutotaskService.GetSecondaryResources(Ticket.item.id);
                     if (ticketSecondaryResources != null)
                     {
                         foreach (var secondaryResource in ticketSecondaryResources.Items)
                         {
-                            var ticketSecondaryResource = await AutotaskTimeEntryService.GetResourceById(secondaryResource.resourceID);
+                            var ticketSecondaryResource = await AutotaskService.GetResourceById(secondaryResource.resourceID);
                             AddCsv(ticketSecondaryResource.item.email);
                         }
                     }
@@ -380,7 +379,7 @@ namespace CrownATTime.Client.Pages
                         ticketID = Ticket.item.id,
                         title = "Email To Customer Communication",
                     };
-                    await AutotaskTimeEntryService.CreateNote(newNote);
+                    await AutotaskService.CreateNote(newNote);
 
                     //Update Ticket Status
                     if (selectedTemplate != null && selectedTemplate.TicketStatus.HasValue)
@@ -391,7 +390,7 @@ namespace CrownATTime.Client.Pages
                             Id = Ticket.item.id,
                             Status = selectedTemplate.TicketStatus.Value,                            
                         };
-                        await AutotaskTicketService.UpdateTicket(ticket);
+                        await AutotaskService.UpdateTicket(ticket);
                     }
                     sendingEmail = false;
 
@@ -422,7 +421,7 @@ namespace CrownATTime.Client.Pages
             {
                 if (!string.IsNullOrEmpty(args))
                 {
-                    Ticket = await AutotaskTicketService.GetTicket(Ticket.item.id);
+                    Ticket = await AutotaskService.GetTicket(Ticket.item.id);
                     var listUdf = new List<TicketUpdateDto.Userdefinedfield>();
                     var updateUdf = new TicketUpdateDto.Userdefinedfield()
                     {
@@ -434,7 +433,7 @@ namespace CrownATTime.Client.Pages
                     updateTicket.Status = Ticket.item.status;
                     updateTicket.Id = Ticket.item.id;
                     updateTicket.userDefinedFields = listUdf.ToArray();
-                    await AutotaskTicketService.UpdateTicket(updateTicket);
+                    await AutotaskService.UpdateTicket(updateTicket);
                         
                 }
 

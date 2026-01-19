@@ -36,10 +36,9 @@ namespace CrownATTime.Client.Pages
         protected SecurityService Security { get; set; }
 
         [Inject]
-        protected AutotaskTicketService AutotaskTicketService { get; set; }
+        protected AutotaskService AutotaskService { get; set; }
 
-        [Inject]
-        protected AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
+        
 
         protected bool syncingContacts { get; set; }
         protected bool syncingTicketFields { get; set; }
@@ -59,7 +58,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingBillingCodes = true;
-                await AutotaskTimeEntryService.SyncBillingCodes();
+                await AutotaskService.SyncBillingCodes();
                 syncingBillingCodes = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Billing Codes Synced" });
 
@@ -77,7 +76,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingContacts = true;
-                await AutotaskTicketService.SyncContracts();
+                await AutotaskService.SyncContracts();
                 syncingContacts = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Contracts Synced" });
 
@@ -95,7 +94,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingResources = true;
-                await AutotaskTimeEntryService.SyncResources();
+                await AutotaskService.SyncResources();
                 syncingResources = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Resources Synced" });
 
@@ -113,7 +112,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingServiceDeskRoles = true;
-                await AutotaskTimeEntryService.SyncServiceDeskRoles();
+                await AutotaskService.SyncServiceDeskRoles();
                 syncingServiceDeskRoles = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Service Desk Roles Synced" });
 
@@ -131,7 +130,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingRoles = true;
-                await AutotaskTimeEntryService.SyncRoles();
+                await AutotaskService.SyncRoles();
                 syncingRoles = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Roles Synced" });
 
@@ -149,7 +148,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingTicketFields = true;
-                await AutotaskTicketService.SyncTicketFields();
+                await AutotaskService.SyncTicketFields();
                 syncingTicketFields = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Ticket Picklists Synced" });
 
@@ -167,7 +166,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingTicketNoteFields = true;
-                await AutotaskTicketService.SyncTicketNoteFields();
+                await AutotaskService.SyncTicketNoteFields();
                 syncingTicketNoteFields = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Ticket Note Picklists Synced" });
 
@@ -184,7 +183,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 syncingCompanies = true;
-                await AutotaskTicketService.SyncCompanies();
+                await AutotaskService.SyncCompanies();
                 syncingCompanies = false;
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Companies Synced" });
 

@@ -35,9 +35,7 @@ namespace CrownATTime.Client.Pages
         public ATTimeService ATTimeService { get; set; }
 
         [Inject]
-        protected AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
-        [Inject]
-        protected AutotaskTicketService AutotaskTicketService { get; set; }
+        protected AutotaskService AutotaskService { get; set; }
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntry> timeEntries;
 
@@ -138,7 +136,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var loggedinResource = await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email);
+                var loggedinResource = await AutotaskService.GetLoggedInResource(Security.User.Email);
                 resource = loggedinResource.Items.First();
                 StateHasChanged();
                 await grid0.Reload();

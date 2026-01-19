@@ -3,6 +3,7 @@
     using CrownATTime.Server.Models;
     using CrownATTime.Server.Models.ATTime;
     using CrownATTime.Server.Services;
+    using DocumentFormat.OpenXml.Office2010.Excel;
     using Microsoft.AspNetCore.Http.Json;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Hosting;
@@ -54,6 +55,65 @@
             }
 
         }
+
+        [HttpGet("ticketattachments/{ticketId}")]
+        public async Task<IActionResult> GetTicketAttachments(int ticketId)
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/Tickets/{ticketId}/Attachments");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Ticket Attachments: {ex.Message}");
+            }
+        }
+
+        [HttpGet("ticketnotes/{ticketId}")]
+        public async Task<IActionResult> GetTicketNotes(int ticketId)
+        {
+            try
+            {
+
+                var response = await _http.GetAsync($"v1.0/Tickets/{ticketId}/Notes");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching Ticket Notes: {ex.Message}");
+            }
+        }
+
+        [HttpGet("tickettimeentries/query")]
+        public async Task<IActionResult> GetTimeEntries([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/TimeEntries/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching time entries: {ex.Message}");
+            }
+
+        }
+
 
         [HttpGet("billingcodes/query")]
         public async Task<IActionResult> GetBillingCodes([FromQuery] string search)

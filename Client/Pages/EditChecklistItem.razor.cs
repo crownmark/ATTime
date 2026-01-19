@@ -38,10 +38,9 @@ namespace CrownATTime.Client.Pages
         public ATTimeService ATTimeService { get; set; }
 
         [Inject]
-        public AutotaskTicketService AutotaskTicketService { get; set; }
+        public AutotaskService AutotaskService { get; set; }
 
-        [Inject]
-        public AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
+        
 
         protected CrownATTime.Server.Models.ChecklistItemDtoResult checklistItem { get; set; }
         [Parameter]
@@ -56,7 +55,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                checklistItem = await AutotaskTicketService.GetTicketChecklistItem(TicketId, Id);
+                checklistItem = await AutotaskService.GetTicketChecklistItem(TicketId, Id);
                 //checklistItem = new Server.Models.TicketChecklistItemResult()
                 //{
                 //    id = result.item.id,
@@ -90,7 +89,7 @@ namespace CrownATTime.Client.Pages
                 //    position = checklistItem.position,
                 //    ticketID = checklistItem.ticketID,
                 //};
-                await AutotaskTicketService.UpdateTicketChecklistItem(new TicketChecklistItemResult()
+                await AutotaskService.UpdateTicketChecklistItem(new TicketChecklistItemResult()
                 {
                     id = checklistItem.item.id,
                     isImportant = checklistItem.item.isImportant,

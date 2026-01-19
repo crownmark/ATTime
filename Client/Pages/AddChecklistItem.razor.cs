@@ -37,11 +37,9 @@ namespace CrownATTime.Client.Pages
         public ATTimeService ATTimeService { get; set; }
 
         [Inject]
-        public AutotaskTicketService AutotaskTicketService { get; set; }
+        public AutotaskService AutotaskService { get; set; }
 
-        [Inject]
-        public AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
-
+        
         protected CrownATTime.Server.Models.ChecklistItemDto newChecklistItem { get; set; } = new Server.Models.ChecklistItemDto();
         [Parameter]
         public int TicketId { get; set; }
@@ -67,7 +65,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 savingRecord = true;
-                await AutotaskTimeEntryService.CreateChecklistItem(newChecklistItem);
+                await AutotaskService.CreateChecklistItem(newChecklistItem);
                 DialogService.Close();
             }
             catch (Exception ex)

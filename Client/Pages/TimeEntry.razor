@@ -40,6 +40,7 @@
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
         <strong>Ticket: </strong>
                 <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal" MouseEnter="@TicketLink0MouseEnter" MouseLeave="@TicketLink0MouseLeave"></RadzenLink>
+                <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Text="Ticket Details" Icon="visibility" Click="@ViewTicketDescriptionButtonClick" MouseEnter="@TicketDetailsButtonMouseEnter" MouseLeave="@TicketDetailsButtonMouseLeave"></RadzenButton>
                 
     </RadzenStack>
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">

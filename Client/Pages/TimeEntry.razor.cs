@@ -39,9 +39,8 @@ namespace CrownATTime.Client.Pages
         protected SecurityService Security { get; set; }
 
         [Inject]
-        protected AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
-        [Inject]
-        protected AutotaskTicketService AutotaskTicketService { get; set; }
+        protected AutotaskService AutotaskService { get; set; }
+        
 
         [Inject]
         public ATTimeService ATTimeService { get; set; }
@@ -111,23 +110,23 @@ namespace CrownATTime.Client.Pages
                 pageLoading = true;
 
 
-                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");// await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email); //cache in db
-                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'jordan@ce-technology.com'");// await AutotaskTimeEntryService.GetLoggedInResource(Security.User.Email); //cache in db
+                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
+                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'jordan@ce-technology.com'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
                 resource = resourceResult.Value.FirstOrDefault();
-                var billingCodeItems = await ATTimeService.GetBillingCodeCaches();// await AutotaskTimeEntryService.GetBillingCodes(); //cache in db
+                var billingCodeItems = await ATTimeService.GetBillingCodeCaches();// await AutotaskService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Value.ToList();
-                var roles = await ATTimeService.GetRoleCaches();// await AutotaskTimeEntryService.GetRoles(); //cache in db
-                var serviceDeskRoles = await ATTimeService.GetServiceDeskRoleCaches(filter: $"ResourceId eq {resource.Id} and IsActive eq true");// await AutotaskTimeEntryService.GetServiceDeskRoles(resource.id);
-                mappedRoles = AutotaskTimeEntryService.MapToServiceDeskRoles(roles.Value.ToList(), serviceDeskRoles.Value.ToList(), true); //get from db
-                var fields = await AutotaskTicketService.GetTicketFields(); //cache in db
+                var roles = await ATTimeService.GetRoleCaches();// await AutotaskService.GetRoles(); //cache in db
+                var serviceDeskRoles = await ATTimeService.GetServiceDeskRoleCaches(filter: $"ResourceId eq {resource.Id} and IsActive eq true");// await AutotaskService.GetServiceDeskRoles(resource.id);
+                mappedRoles = AutotaskService.MapToServiceDeskRoles(roles.Value.ToList(), serviceDeskRoles.Value.ToList(), true); //get from db
+                var fields = await AutotaskService.GetTicketFields(); //cache in db
                 //ticketEntityFields = fields.Fields;
                 
-                ticket = await AutotaskTicketService.GetTicket(Convert.ToInt32(TicketId));
-                var contractsResult = await ATTimeService.GetContractCaches(filter: $"CompanyId eq {ticket.item.companyID} and Status eq 1");// await AutotaskTicketService.GetTicketContracts(ticket.item.companyID); //cache in db
+                ticket = await AutotaskService.GetTicket(Convert.ToInt32(TicketId));
+                var contractsResult = await ATTimeService.GetContractCaches(filter: $"CompanyId eq {ticket.item.companyID} and Status eq 1");// await AutotaskService.GetTicketContracts(ticket.item.companyID); //cache in db
                 contracts = contractsResult.Value.ToList();
                 if(ticket.item.contractID != null)
                 {
-                    contract = await ATTimeService.GetContractCacheById("", Convert.ToInt32(ticket.item.contractID));// await AutotaskTicketService.GetContract(ticket.item.contractID?? 0); //get from db
+                    contract = await ATTimeService.GetContractCacheById("", Convert.ToInt32(ticket.item.contractID));// await AutotaskService.GetContract(ticket.item.contractID?? 0); //get from db
                 }
 
                 if (ticket == null)
@@ -183,7 +182,7 @@ namespace CrownATTime.Client.Pages
                             {
                                 if (ticket.item.contractID.HasValue)
                                 {
-                                    var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(newTimeEntry.ContractId), selectedBillingCode.Id);//cache in db
+                                    var contractExclusion = await AutotaskService.GetContractExclusionsBillingCode(Convert.ToInt32(newTimeEntry.ContractId), selectedBillingCode.Id);//cache in db
 
                                     if (contractExclusion != null)
                                     {
@@ -246,16 +245,22 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                ticket = await AutotaskTicketService.GetTicket(ticket.item.id);
+                timeEntryRecord.HoursWorked =
+                  Math.Max(
+                      Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2), 0);
+                timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
+                timeEntryRecord.EndDateTime = DateTimeOffset.Now;
+                timeEntryRecord.DateWorked = DateTimeOffset.Now;
+                ticket = await AutotaskService.GetTicket(ticket.item.id);
                 timeEntryRecord.TicketTitle = ticket.item.title;
-                contact = await AutotaskTicketService.GetContact(Convert.ToInt32(ticket.item.contactID));
-                company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);// await AutotaskTicketService.GetCompany(Convert.ToInt32(ticket.item.companyID));
-                var accountAlerts = await AutotaskTicketService.GetAccountAlertsByCompanyId(company.Id);
+                contact = await AutotaskService.GetContact(Convert.ToInt32(ticket.item.contactID));
+                company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);// await AutotaskService.GetCompany(Convert.ToInt32(ticket.item.companyID));
+                var accountAlerts = await AutotaskService.GetAccountAlertsByCompanyId(company.Id);
                 if (accountAlerts != null && accountAlerts.Items.Where(x => x.alertTypeID == 3).Any())
                 {
                     accountAlertTimeEntry = accountAlerts.Items.FirstOrDefault(x => x.alertTypeID == 3).alertText;
                 }
-                configurationItem = await AutotaskTicketService.GetConfigurationItem(Convert.ToInt32(ticket.item.configurationItemID));
+                configurationItem = await AutotaskService.GetConfigurationItem(Convert.ToInt32(ticket.item.configurationItemID));
                 var picklistValues = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistValuesList = picklistValues.Value.ToList();
                 var statuses = picklistValuesList.Where(x => x.PicklistName == "status");
@@ -272,7 +277,7 @@ namespace CrownATTime.Client.Pages
                 var priorities = picklistValuesList.Where(x => x.PicklistName == "priority");
                 var priority = priorities.Where(x => x.Value == ticket.item.priority.ToString()).FirstOrDefault();
                 PriorityName = priority.Label;
-                //var ticketLookupFields = await AutotaskTicketService.GetTicketFields();
+                //var ticketLookupFields = await AutotaskService.GetTicketFields();
                 timeEntryRecord.AccountName = company.CompanyName;
                 timeEntryRecord.ContactName = contact.item == null ? "" : $"{contact.item.firstName} {contact.item.lastName}";
                 timeEntryRecord.PriorityName = PriorityName;
@@ -284,17 +289,12 @@ namespace CrownATTime.Client.Pages
                 //       + (timeEntryRecord.OffsetHours ?? 0),
                 //       0
                 //   );
-                timeEntryRecord.HoursWorked =
-                   Math.Max(
-                       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2), 0);
-                timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
-                timeEntryRecord.EndDateTime = DateTimeOffset.Now;
-                timeEntryRecord.DateWorked = DateTimeOffset.Now;
+               
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 //NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved", Style = $"position: fixed; top: 20px;  left: 50%; transform: translateX(-50%);"  });
                 if (ticket.item.companyLocationID.HasValue)
                 {
-                    companyLocation = await AutotaskTicketService.GetCompanyLocationByLocationId(Convert.ToInt32(ticket.item.companyLocationID.Value));
+                    companyLocation = await AutotaskService.GetCompanyLocationByLocationId(Convert.ToInt32(ticket.item.companyLocationID.Value));
                 }
                 
                 StateHasChanged();
@@ -341,16 +341,16 @@ namespace CrownATTime.Client.Pages
 
 
                     };
-                    var saveATTime = await AutotaskTimeEntryService.CreateTimeEntry(newATTimeEntry);
+                    var saveATTime = await AutotaskService.CreateTimeEntry(newATTimeEntry);
                     timeEntryRecord.IsCompleted = true;
                     timeEntryRecord.TimeStampStatus = false;
                     timeEntryRecord.AttimeEntryId = saveATTime.itemId;
                     await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
-                    ticket = await AutotaskTicketService.GetTicket(timeEntryRecord.TicketId);
+                    ticket = await AutotaskService.GetTicket(timeEntryRecord.TicketId);
                     if (appendToResolution)
                     {
                         ticket.item.resolution = appendToResolution ? $"{ticket.item.resolution}{Environment.NewLine}{timeEntryRecord.SummaryNotes}" : ticket.item.resolution;
-                        await AutotaskTicketService.UpdateTicket(new TicketUpdateDto()
+                        await AutotaskService.UpdateTicket(new TicketUpdateDto()
                         {
                             Id = ticket.item.id,
                             Status = ticket.item.status,
@@ -612,7 +612,7 @@ namespace CrownATTime.Client.Pages
                     {
                         if (timeEntryRecord.ContractId.HasValue)
                         {
-                            var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId.Value), selectedBillingCode.Id);
+                            var contractExclusion = await AutotaskService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId.Value), selectedBillingCode.Id);
 
                             if (contractExclusion != null && contractExclusion.Items.Any())
                             {
@@ -742,7 +742,7 @@ namespace CrownATTime.Client.Pages
                     {
                         if (timeEntryRecord.ContractId.HasValue)
                         {
-                            var contractExclusion = await AutotaskTimeEntryService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId.Value), selectedBillingCode.Id);
+                            var contractExclusion = await AutotaskService.GetContractExclusionsBillingCode(Convert.ToInt32(timeEntryRecord.ContractId.Value), selectedBillingCode.Id);
 
                             if (contractExclusion != null)
                             {
@@ -1144,7 +1144,7 @@ namespace CrownATTime.Client.Pages
                     Id = ticket.item.id,
                     Status = ticket.item.status,
                 };
-                await AutotaskTicketService.UpdateTicket(ticketUpdate);
+                await AutotaskService.UpdateTicket(ticketUpdate);
                 await UpdateTicketValues();
 
 
@@ -1305,7 +1305,7 @@ namespace CrownATTime.Client.Pages
                         timeEntryRecord.BillingCodeId = template.BillingCodeId;
                         ticket.item.status = template.TicketStatus.HasValue ? template.TicketStatus.Value : ticket.item.status;
                         appendToResolution = template.AppendToResolution;
-                        await AutotaskTicketService.UpdateTicket(new TicketUpdateDto()
+                        await AutotaskService.UpdateTicket(new TicketUpdateDto()
                         {
                             Id = ticket.item.id,
                             Status = ticket.item.status,
@@ -1488,6 +1488,25 @@ namespace CrownATTime.Client.Pages
         {
             TooltipService.Close();
 
+        }
+
+        
+
+        protected async System.Threading.Tasks.Task ViewTicketDescriptionButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            DialogService.OpenSide<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "Ticket", ticket }, { "PriorityName", PriorityName }, { "StatusName", StatusName } }, new SideDialogOptions() { ShowMask = true, Resizable = true, CloseDialogOnOverlayClick = true, Width = "700px" });
+            //await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { {"Ticket", ticket}, {"PriorityName", PriorityName}, {"StatusName", StatusName} });
+        }
+
+        protected async System.Threading.Tasks.Task TicketDetailsButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Open Ticket Details in Side Panel", new TooltipOptions() { Duration = null });
+            
+        }
+
+        protected async System.Threading.Tasks.Task TicketDetailsButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
         }
     }
 }

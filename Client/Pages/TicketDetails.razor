@@ -1,0 +1,58 @@
+@page "/ticket-details"
+
+@attribute [Authorize]
+
+<PageTitle>TicketDetails</PageTitle>
+<RadzenStack>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal">   
+        <RadzenLabel Text="Title:" Style="font-weight: bold" />
+<RadzenLabel Text="@Ticket.item.title" />
+    </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal">   
+        <RadzenLabel Text="Status:" Style="font-weight: bold" />
+<RadzenBadge Text="@StatusName" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@StatusName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+    </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal">   
+        <RadzenLabel Text="Priority:" Style="font-weight: bold" />
+        <RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Danger" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Critical")" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge> 
+                                           <RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "High")" Style="background-color: darkorange; padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold; color: #000000" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+<RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Success" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Medium")" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold; color: #000000" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+<RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Low")" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+<RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Light" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Very Low")" Shade="Radzen.Shade.Lighter" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+                                           <RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Light" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Information")" Shade="Radzen.Shade.Lighter" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+    </RadzenStack>
+
+                                           
+<RadzenStack Orientation="Radzen.Orientation.Vertical">
+        <RadzenLabel Text="Description:" Style="font-weight: bold" />
+        <RadzenTextArea @bind-Value="@Ticket.item.description" Rows="10" ReadOnly="true" Style="height: 70vh"></RadzenTextArea>
+    </RadzenStack>
+</RadzenStack>

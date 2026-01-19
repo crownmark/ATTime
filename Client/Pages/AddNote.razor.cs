@@ -39,10 +39,8 @@ namespace CrownATTime.Client.Pages
         public ATTimeService ATTimeService { get; set; }
 
         [Inject]
-        public AutotaskTicketService AutotaskTicketService { get; set; }
+        public AutotaskService AutotaskService { get; set; }
 
-        [Inject]
-        public AutotaskTimeEntryService AutotaskTimeEntryService { get; set; }
 
         protected CrownATTime.Server.Models.NewNote newNote { get; set; }
 
@@ -153,7 +151,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await AutotaskTimeEntryService.CreateNote(new NoteDto()
+                await AutotaskService.CreateNote(new NoteDto()
                 {
                     lastActivityDate = DateTime.Now,
                     createDateTime = DateTime.Now,
@@ -171,7 +169,7 @@ namespace CrownATTime.Client.Pages
                         Id = note.TicketId,
                         Status = Convert.ToInt32(note.TicketStatus)
                     };
-                    await AutotaskTicketService.UpdateTicket(ticketUpdate);
+                    await AutotaskService.UpdateTicket(ticketUpdate);
                 }
                 DialogService.Close(note);
             }

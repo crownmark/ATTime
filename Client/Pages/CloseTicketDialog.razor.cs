@@ -35,7 +35,7 @@ namespace CrownATTime.Client.Pages
         protected SecurityService Security { get; set; }
 
         [Inject]
-        protected AutotaskTicketService AutotaskTicketService { get; set; }
+        protected AutotaskService AutotaskService { get; set; }
 
         [Inject]
         public ATTimeService ATTimeService { get; set; }
@@ -65,7 +65,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await AutotaskTicketService.UpdateTicket(new Server.Models.TicketUpdateDto()
+                await AutotaskService.UpdateTicket(new Server.Models.TicketUpdateDto()
                 {
                     Id = TicketId,
                     Status = 5

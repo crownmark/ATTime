@@ -35,7 +35,7 @@ namespace CrownATTime.Client.Pages
         protected SecurityService Security { get; set; }
 
         [Inject]
-        protected AutotaskTicketService AutotaskTicketService { get; set; }
+        protected AutotaskService AutotaskService { get; set; }
 
         [Parameter]
         public int TicketId { get; set; }
@@ -54,7 +54,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 gridLoading = true;
-                TicketChecklistItemResult = await AutotaskTicketService.GetOpenTicketChecklistItems(TicketId);
+                TicketChecklistItemResult = await AutotaskService.GetOpenTicketChecklistItems(TicketId);
                 TicketChecklistItemResult = TicketChecklistItemResult.OrderBy(x => x.position).ToList();
                 gridLoading = false;
 
@@ -75,7 +75,7 @@ namespace CrownATTime.Client.Pages
                 item.isCompleted = true;
                 item.completedDateTime = DateTime.Now;
                 item.completedByResourceID = ResourceId;
-                var response = await AutotaskTicketService.UpdateTicketChecklistItem(item);
+                var response = await AutotaskService.UpdateTicketChecklistItem(item);
                 await grid0.Reload();
             }
             catch (Exception ex)
@@ -103,7 +103,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 item.isBusy = true;
-                await AutotaskTicketService.DeleteChecklistItem(item);
+                await AutotaskService.DeleteChecklistItem(item);
                 await grid0.Reload();
 
             }
