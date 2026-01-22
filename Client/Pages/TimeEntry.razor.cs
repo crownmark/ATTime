@@ -90,6 +90,10 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> timeEntryTemplates;
 
         protected int timeEntryTemplatesCount;
+
+        protected List<TicketChecklistItemResult> TicketChecklistItemResult { get; set; }
+        protected RadzenDataGrid<TicketChecklistItemResult> grid0 { get; set; }
+        protected bool gridLoading { get; set; }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (!_openedAccordionOnce && !pageLoading)
@@ -1513,6 +1517,93 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task TicketDetailsButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
         {
             TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task DataGrid0LoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                gridLoading = true;
+                TicketChecklistItemResult = await AutotaskService.GetOpenTicketChecklistItems(ticket.item.id);
+                TicketChecklistItemResult = TicketChecklistItemResult.OrderBy(x => x.position).ToList();
+                gridLoading = false;
+
+            }
+            catch (Exception ex)
+            {
+                gridLoading = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Checklist Items.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task CompleteChecklistItemButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, TicketChecklistItemResult item)
+        {
+            try
+            {
+                item.isBusy = true;
+                item.isCompleted = true;
+                item.completedDateTime = DateTime.Now;
+                item.completedByResourceID = resource.Id;
+                var response = await AutotaskService.UpdateTicketChecklistItem(item);
+                var timestamp = DateTime.Now.ToString("M/d/yyyy h:mm tt") + " - ";
+
+                // If SummaryNotes is empty, set directly
+                if (string.IsNullOrWhiteSpace(timeEntryRecord.SummaryNotes))
+                {
+                    timeEntryRecord.SummaryNotes = timestamp + $"Completed: {item.itemName}";
+                }
+                else
+                {
+                    // Otherwise append as a new line
+                    timeEntryRecord.SummaryNotes += Environment.NewLine + timestamp + $"Completed: {item.itemName}";
+                }
+                await grid0.Reload();
+                UpdateTicketValues();
+
+            }
+            catch (Exception ex)
+            {
+                item.isBusy = true;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Complete Checklist Item.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task GridRefreshButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await grid0.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task AddChecklistItemButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await DialogService.OpenAsync<AddChecklistItem>("Add Checklist Item", new Dictionary<string, object>() { { "TicketId", ticket.item.id } }, new DialogOptions { Draggable = true });
+            await grid0.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task DeleteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, TicketChecklistItemResult item)
+        {
+            try
+            {
+                item.isBusy = true;
+                await AutotaskService.DeleteChecklistItem(item);
+                await grid0.Reload();
+
+            }
+            catch (Exception ex)
+            {
+                item.isBusy = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to Delete Checklist Item.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task DataGrid0RowSelect(Server.Models.TicketChecklistItemResult args)
+        {
+            await DialogService.OpenAsync<EditChecklistItem>("Edit Checklist Item", new Dictionary<string, object>() { { "TicketId", args.ticketID }, { "Id", args.id } }, new DialogOptions { Draggable = true });
+            await grid0.Reload();
+
         }
     }
 }

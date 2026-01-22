@@ -502,7 +502,7 @@
         public async Task<AutotaskItemCreatedResult> DeleteChecklistItem(TicketChecklistItemResult checklistItem)
         {
             var uri = new Uri(baseUri, $"TicketChecklistItems");
-
+            
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
 
             var json = JsonSerializer.Serialize(checklistItem, jsonOptions);

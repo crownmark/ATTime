@@ -271,12 +271,10 @@
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
 
-                var request = new HttpRequestMessage(HttpMethod.Post, $"v1.0/Tickets/{item.ticketID}/ChecklistItems");
+                var request = new HttpRequestMessage(HttpMethod.Patch, $"v1.0/Tickets/{item.ticketID}/ChecklistItems");
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                // 🔑 Autotask impersonation header
-                request.Headers.TryAddWithoutValidation("ImpersonationResourceId", item.impersonatorCreatorResourceID.ToString());
-                var response = await _http.SendAsync(request)
+                var response = await _http.SendAsync(request);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -306,9 +304,6 @@
                 var request = new HttpRequestMessage(HttpMethod.Post, $"v1.0/Tickets/{checklistItem.ticketID}/ChecklistItems");
 
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                // 🔑 Autotask impersonation header
-                request.Headers.TryAddWithoutValidation("ImpersonationResourceId", checklistItem.impersonatorCreatorResourceID.ToString());
 
                 var response = await _http.SendAsync(request);
                 var responseContent = await response.Content.ReadAsStringAsync();

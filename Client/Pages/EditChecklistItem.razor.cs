@@ -79,16 +79,6 @@ namespace CrownATTime.Client.Pages
             try
             {
                 savingRecord = true;
-                //var updatedItem = new TicketChecklistItemResult()
-                //{
-                //    id = checklistItem.id,
-                //    knowledgebaseArticleID = checklistItem.knowledgebaseArticleID,
-                //    isCompleted = checklistItem.isCompleted,
-                //    isImportant = checklistItem.isImportant,
-                //    itemName = checklistItem.itemName,
-                //    position = checklistItem.position,
-                //    ticketID = checklistItem.ticketID,
-                //};
                 await AutotaskService.UpdateTicketChecklistItem(new TicketChecklistItemResult()
                 {
                     id = checklistItem.item.id,

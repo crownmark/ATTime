@@ -221,8 +221,41 @@
                         <RadzenAccordion Style="margin-bottom: 10px" Multiple="true">
                             <Items>
                                 <RadzenAccordionItem Expanded="True" Text="Checklist Items" Style="width: 100%" Icon="playlist_add_check" Selected="true">
-                                    <ChecklistItems TicketId="@(Convert.ToInt32(ticket.item.id))" ResourceId="@(Convert.ToInt32(resource.Id))" />
-
+                                    @* <ChecklistItems TicketId="@(Convert.ToInt32(ticket.item.id))" ResourceId="@(Convert.ToInt32(resource.Id))" /> *@
+                                    <RadzenRow>
+                                        <RadzenColumn>
+                                            <RadzenDataGrid @ref="grid0" TItem="Server.Models.TicketChecklistItemResult" Data="@TicketChecklistItemResult" LoadData="@DataGrid0LoadData" IsLoading="@gridLoading" RowSelect="@DataGrid0RowSelect" Density="Radzen.Density.Compact" Style="max-height: 300px" Responsive="true" AllowFiltering="false">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="isCompleted" Title="Completed?" Width="100px" Frozen="true" TextAlign="Radzen.TextAlign.Center" Filterable="false">
+                                                        <Template Context="data">
+                                                            <RadzenButton IsBusy="@(data.isBusy)" ButtonStyle="Radzen.ButtonStyle.Primary" Icon="check" Click="@((args) => CompleteChecklistItemButtonClick(args, data))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" @onclick:stopPropagation="true"></RadzenButton>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="itemName" Title="Item" MinWidth="300px" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap">
+                                                        <Template Context="data">
+                                                            <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal">
+                                                                <RadzenIcon Icon="priority_high" IconStyle="Radzen.IconStyle.Danger" Visible="@(data.isImportant)"></RadzenIcon>
+                                                                <RadzenText Text="@data.itemName" />
+                                                            </RadzenStack>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="knowledgebaseArticleID" Title="KB" Width="100px" Visible="false"></RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="position" Title="Order" Width="60px"></RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Frozen="true" FrozenPosition="Radzen.FrozenColumnPosition.Right" Width="50px">
+                                                        <Template Context="data">
+                                                            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Variant="Radzen.Variant.Outlined" Icon="delete" Size="Radzen.ButtonSize.Small" IsBusy="@data.isBusy" Click="@((args) => DeleteButtonClick(args, data))" @onclick:stopPropagation="true"></RadzenButton>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                                <HeaderTemplate>
+                                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Right">
+                                                        <RadzenButton Icon="add" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@AddChecklistItemButtonClick"></RadzenButton>
+                                                        <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Click="@GridRefreshButtonClick" Size="Radzen.ButtonSize.ExtraSmall"></RadzenButton>
+                                                    </RadzenStack>
+                                                </HeaderTemplate>
+                                            </RadzenDataGrid>
+                                        </RadzenColumn>
+                                    </RadzenRow>
                                 </RadzenAccordionItem>
                             </Items>
                         </RadzenAccordion>
