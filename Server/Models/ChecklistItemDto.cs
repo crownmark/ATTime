@@ -10,5 +10,8 @@
         public int? knowledgebaseArticleID { get; set; }
         public int? position { get; set; }
         public int ticketID { get; set; }
+
+        public int? impersonatorCreatorResourceID { get; set; }
+        public int? impersonatorUpdaterResourceID { get; set; }
     }
 }

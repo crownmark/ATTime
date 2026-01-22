@@ -7,6 +7,7 @@
     using Microsoft.AspNetCore.Http.Json;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Graph.Models;
     using Microsoft.IdentityModel.Logging;
     using System.Collections.Generic;
     using System.Text;
@@ -270,8 +271,12 @@
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 });
 
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _http.PatchAsync($"v1.0/Tickets/{item.ticketID}/ChecklistItems", content);
+                var request = new HttpRequestMessage(HttpMethod.Post, $"v1.0/Tickets/{item.ticketID}/ChecklistItems");
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                // 🔑 Autotask impersonation header
+                request.Headers.TryAddWithoutValidation("ImpersonationResourceId", item.impersonatorCreatorResourceID.ToString());
+                var response = await _http.SendAsync(request)
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (response.IsSuccessStatusCode)
@@ -303,7 +308,7 @@
                 request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 // 🔑 Autotask impersonation header
-                //request.Headers.TryAddWithoutValidation("ImpersonationResourceId", note.impersonatorCreatorResourceID.ToString());
+                request.Headers.TryAddWithoutValidation("ImpersonationResourceId", checklistItem.impersonatorCreatorResourceID.ToString());
 
                 var response = await _http.SendAsync(request);
                 var responseContent = await response.Content.ReadAsStringAsync();
