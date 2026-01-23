@@ -14,6 +14,7 @@ namespace CrownATTime.Server.Models
         public int? knowledgebaseArticleID { get; set; }
         public int? position { get; set; }
         public int ticketID { get; set; }
+
         [JsonIgnore]
         public bool isBusy { get; set; }
 

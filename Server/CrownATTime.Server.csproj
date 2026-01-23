@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="FluentScheduler" Version="6.0.0" />
     <PackageReference Include="Microsoft.Graph" Version="5.99.0" />
     <PackageReference Include="Radzen.Blazor" Version="*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*-*" />
