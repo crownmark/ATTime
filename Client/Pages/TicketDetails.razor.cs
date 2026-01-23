@@ -33,7 +33,9 @@ namespace CrownATTime.Client.Pages
 
         [Inject]
         protected SecurityService Security { get; set; }
-        
+        [Inject]
+        protected AutotaskService AutotaskService { get; set; }
+
         [Parameter]
         public TicketDtoResult Ticket { get; set; }
         [Parameter]
@@ -41,8 +43,25 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public string StatusName { get; set; }
 
+        protected IEnumerable<TimeEntryDto> timeEntries { get; set; }  
+        protected int timeEntriesCount { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
+        }
+
+        protected async System.Threading.Tasks.Task TimeEntriesDataGridLoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                var result = await AutotaskService.GetTimeEntriesForTicket(Ticket.item.id);
+                timeEntries = result;
+                timeEntriesCount = timeEntries.Count();
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

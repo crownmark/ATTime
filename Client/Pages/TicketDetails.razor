@@ -53,6 +53,22 @@
                                            
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
         <RadzenLabel Text="Description:" Style="font-weight: bold" />
-        <RadzenTextArea @bind-Value="@Ticket.item.description" Rows="10" ReadOnly="true" Style="height: 70vh"></RadzenTextArea>
+        <RadzenTextArea @bind-Value="@Ticket.item.description" Rows="10" ReadOnly="true"></RadzenTextArea>
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Activity" Icon="history">
+                    <ChildContent>
+                        <RadzenDataGrid TItem="Server.Models.TimeEntryDto" Data="@timeEntries" Count="@timeEntriesCount" LoadData="@TimeEntriesDataGridLoadData">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Server.Models.TimeEntryDto" Property="SummaryNotes" Title="Time Entries">
+                                    
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </ChildContent>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Attachments" Icon="attachment"></RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
     </RadzenStack>
 </RadzenStack>

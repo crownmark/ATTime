@@ -8,6 +8,7 @@
     using Radzen;
     using Radzen.Blazor.Rendering;
     using System;
+    using System.ComponentModel.Design;
     using System.Diagnostics.Contracts;
     using System.Net.Http;
     using System.Text;
@@ -637,13 +638,24 @@
         /// </summary>
         public async Task<List<CrownATTime.Server.Models.TimeEntryDto>> GetTimeEntriesForTicket(long ticketId)
         {
-            var uri = new Uri(baseUri, $"timeentries/byticket/{ticketId}");
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "ticketID", value = ticketId },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"tickettimeentries/query?search={encodedSearch}");
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
 
-            OnGetTimeEntriesForTicket(httpRequestMessage);
-
             var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
 
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<List<CrownATTime.Server.Models.TimeEntryDto>>(response);
