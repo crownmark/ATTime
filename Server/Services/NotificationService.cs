@@ -34,7 +34,7 @@ namespace CrownATTime.Server.Services
             // Pick sane defaults by environment
             return _env.IsDevelopment()
                 ? "https://localhost:5001/"   // adjust to your dev URL
-                : "https://your-production-domain.com/"; // adjust to your prod URL
+                : "https://timeguard.crown.software/"; // adjust to your prod URL
         }
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -45,18 +45,16 @@ namespace CrownATTime.Server.Services
             schedule.JobStarted += Schedule_JobStarted;
             schedule.JobEnded += Schedule_JobEnded;
             schedule.Start();
-            
         }
 
         private void Schedule_JobEnded(object sender, JobEndedEventArgs e)
         {
-            SendEndOfDayOpenTimeEntriesEmail();
 
         }
 
         private void Schedule_JobStarted(object sender, JobStartedEventArgs e)
         {
-
+            SendEndOfDayOpenTimeEntriesEmail();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -138,7 +136,7 @@ namespace CrownATTime.Server.Services
                 sb.AppendLine($@"
 <tr>
   <td style=""padding:10px; border-bottom:1px solid #e5e7eb;"">
-    <a href=""{HtmlEncode($"https://timeguard.crown.software/time-entry/{te.TicketId}")}"" style=""color:#2563eb; text-decoration:none;"">Open</a>
+    <a href=""{HtmlEncode($"https://timeguard.crown.software/timeentry/{te.TicketId}")}"" style=""color:#2563eb; text-decoration:none;"">Open</a>
   </td>
   <td style=""padding:10px; border-bottom:1px solid #e5e7eb; white-space:nowrap;"">{HtmlEncode(te.TimeStampStatus ? "Running" : "Stopped")}</td>
   <td style=""padding:10px; border-bottom:1px solid #e5e7eb; white-space:nowrap;"">{HtmlEncode(te.TicketNumber)}</td>
