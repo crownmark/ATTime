@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <NoWarn>CS0168,CS1998,BL9993,CS0649,CS0436,0436</NoWarn>
     <NuGetAuditMode>direct</NuGetAuditMode>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>8eee0050-dfbd-46c9-9e72-7e076571d8bc</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentScheduler" Version="6.0.0" />

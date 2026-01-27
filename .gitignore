@@ -18,3 +18,5 @@ Server/obj/Debug/net10.0
 .vs
 Client/bin/
 Server/bin/
+**/secrets.json
+**/appsettings.Development.json
