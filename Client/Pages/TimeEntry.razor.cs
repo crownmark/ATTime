@@ -1605,5 +1605,21 @@ namespace CrownATTime.Client.Pages
             await grid0.Reload();
 
         }
+
+        protected async System.Threading.Tasks.Task AISummaryNotesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            DialogService.OpenSide<AINoteAssistant>("AI Note Assistant", new Dictionary<string, object>() { {"Note", timeEntryRecord.SummaryNotes} }, new SideDialogOptions() { ShowClose = true, ShowTitle = true, CloseDialogOnOverlayClick = true, Width = "500px"});
+        }
+
+        protected async System.Threading.Tasks.Task AISummaryNotesButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Summarize Note (Client Facing)", new TooltipOptions() { Duration = null });
+
+        }
+
+        protected async System.Threading.Tasks.Task AISummaryNotesButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
     }
 }

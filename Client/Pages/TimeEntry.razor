@@ -195,6 +195,7 @@
                                 <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
                                 </RadzenLabel>
                                 <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
+<RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="cognition_2" Variant="Radzen.Variant.Outlined" Click="@AISummaryNotesButtonClick" MouseEnter="@AISummaryNotesButtonMouseEnter" MouseLeave="@AISummaryNotesButtonMouseLeave"></RadzenButton>
                             </RadzenRow>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                 <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
