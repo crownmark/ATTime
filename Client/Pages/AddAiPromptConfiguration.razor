@@ -17,7 +17,7 @@
             </RadzenFormField>
             <RadzenFormField Text="Description" Variant="Variant.Outlined">
                   <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.Description)" Name="Description" AutoCompleteType="AutoCompleteType.Off" MaxLength="10" />
+                    <RadzenTextArea Name="Description" @bind-Value="@aiPromptConfiguration.Description" Rows="4"></RadzenTextArea>
               </ChildContent>
             </RadzenFormField>
             <RadzenFormField Text="Menu Name" Variant="Variant.Outlined">

@@ -18,7 +18,7 @@ namespace CrownATTime.Server.Models.ATTime
         [MaxLength(255)]
         public string Name { get; set; }
 
-        [MaxLength(10)]
+        [MaxLength(1000)]
         public string Description { get; set; }
 
         [Required]
