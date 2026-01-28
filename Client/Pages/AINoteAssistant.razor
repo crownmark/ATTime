@@ -3,4 +3,5 @@
 @attribute [Authorize]
 
 <PageTitle>AI Note Assistant</PageTitle>
-<RadzenAIChat @ref="basicChat" Title="AI Assistant" MessageAdded="@AIChat0MessageAdded" MessageSent="@AIChat0MessageSent" ResponseReceived="@AIChat0ResponseReceived" ChatCleared="@AIChat0ChatCleared"></RadzenAIChat>
+<RadzenAIChat @ref="basicChat" Title="AI Assistant" MessageAdded="@AIChat0MessageAdded" MessageSent="@AIChat0MessageSent" 
+    ResponseReceived="@AIChat0ResponseReceived" ChatCleared="@AIChat0ChatCleared" SystemPrompt="@Prompt.SystemPrompt"></RadzenAIChat>

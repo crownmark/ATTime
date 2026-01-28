@@ -53,7 +53,8 @@ namespace CrownATTime.Client.Pages
         [Inject]
         protected CrownATTime.Client.AutotaskService AutotaskService { get; set; }
 
-        
+        [Inject]
+        public AiScenarioRunnerService AiScenarioRunnerService { get; set; }
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.EmailTemplate> emailTemplates;
 
@@ -96,12 +97,21 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public ResourceCache TicketResource { get; set; }
 
+        [Parameter]
+        public CrownATTime.Server.Models.ATTime.TimeEntry TimeEntry { get; set; }
+
         protected EmailTemplate selectedTemplate { get; set; }
+
+        protected IEnumerable<AiPromptConfiguration> promptConfigurations { get; set; }
+
+        protected bool emailAiBusy { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
+                var aiPrompts = await ATTimeService.GetAiPromptConfigurations(filter: $"Active eq true", orderby: $"MenuName", expand: $"TimeGuardSection");
+                promptConfigurations = aiPrompts.Value.ToList();
                 var results = await AutotaskService.GetContacts(Ticket.item.companyID);
                 contacts = results.Items
                     .Where(c => !string.IsNullOrWhiteSpace(c.emailAddress))
@@ -445,6 +455,34 @@ namespace CrownATTime.Client.Pages
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error updating Ticket Quoter Quote Link.  {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task AIEmailBodySplitButtonClick(Radzen.Blazor.RadzenSplitButtonItem args)
+        {
+            try
+            {
+                if (args != null)
+                {
+                    emailAiBusy = true;
+                    var prompt = await ATTimeService.GetAiPromptConfigurationByAiPromptConfigurationId("TimeGuardSection", Convert.ToInt32(args.Value));
+
+                    var aiResponse = await AiScenarioRunnerService.RunAsync(prompt, TimeEntry.SummaryNotes);
+                    if (!string.IsNullOrEmpty(aiResponse))
+                    {
+                        emailMessage.Body = $"{emailMessage.Body}{Environment.NewLine}{aiResponse}";
+                    }
+                    emailAiBusy = false;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                emailAiBusy = false;
+
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"AI Error", Detail = $"{ex.Message}" });
 
             }
         }

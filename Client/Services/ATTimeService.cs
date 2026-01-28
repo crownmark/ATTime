@@ -31,6 +31,100 @@ namespace CrownATTime.Client
         }
 
 
+        public async System.Threading.Tasks.Task ExportAiPromptConfigurationsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/aipromptconfigurations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/aipromptconfigurations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportAiPromptConfigurationsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/aipromptconfigurations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/aipromptconfigurations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetAiPromptConfigurations(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>> GetAiPromptConfigurations(Query query)
+        {
+            return await GetAiPromptConfigurations(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>> GetAiPromptConfigurations(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"AiPromptConfigurations");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetAiPromptConfigurations(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>>(response);
+        }
+
+        partial void OnCreateAiPromptConfiguration(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> CreateAiPromptConfiguration(CrownATTime.Server.Models.ATTime.AiPromptConfiguration aiPromptConfiguration = default(CrownATTime.Server.Models.ATTime.AiPromptConfiguration))
+        {
+            var uri = new Uri(baseUri, $"AiPromptConfigurations");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(aiPromptConfiguration), Encoding.UTF8, "application/json");
+
+            OnCreateAiPromptConfiguration(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>(response);
+        }
+
+        partial void OnDeleteAiPromptConfiguration(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteAiPromptConfiguration(int aiPromptConfigurationId = default(int))
+        {
+            var uri = new Uri(baseUri, $"AiPromptConfigurations({aiPromptConfigurationId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteAiPromptConfiguration(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetAiPromptConfigurationByAiPromptConfigurationId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> GetAiPromptConfigurationByAiPromptConfigurationId(string expand = default(string), int aiPromptConfigurationId = default(int))
+        {
+            var uri = new Uri(baseUri, $"AiPromptConfigurations({aiPromptConfigurationId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetAiPromptConfigurationByAiPromptConfigurationId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>(response);
+        }
+
+        partial void OnUpdateAiPromptConfiguration(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateAiPromptConfiguration(int aiPromptConfigurationId = default(int), CrownATTime.Server.Models.ATTime.AiPromptConfiguration aiPromptConfiguration = default(CrownATTime.Server.Models.ATTime.AiPromptConfiguration))
+        {
+            var uri = new Uri(baseUri, $"AiPromptConfigurations({aiPromptConfigurationId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(aiPromptConfiguration), Encoding.UTF8, "application/json");
+
+            OnUpdateAiPromptConfiguration(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async System.Threading.Tasks.Task ExportBillingCodeCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/billingcodecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/billingcodecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -1155,6 +1249,100 @@ namespace CrownATTime.Client
             httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(timeEntryTemplate), Encoding.UTF8, "application/json");
 
             OnUpdateTimeEntryTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportTimeGuardSectionsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeguardsections/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeguardsections/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportTimeGuardSectionsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeguardsections/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeguardsections/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetTimeGuardSections(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TimeGuardSection>> GetTimeGuardSections(Query query)
+        {
+            return await GetTimeGuardSections(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TimeGuardSection>> GetTimeGuardSections(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"TimeGuardSections");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTimeGuardSections(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TimeGuardSection>>(response);
+        }
+
+        partial void OnCreateTimeGuardSection(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeGuardSection> CreateTimeGuardSection(CrownATTime.Server.Models.ATTime.TimeGuardSection timeGuardSection = default(CrownATTime.Server.Models.ATTime.TimeGuardSection))
+        {
+            var uri = new Uri(baseUri, $"TimeGuardSections");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(timeGuardSection), Encoding.UTF8, "application/json");
+
+            OnCreateTimeGuardSection(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TimeGuardSection>(response);
+        }
+
+        partial void OnDeleteTimeGuardSection(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteTimeGuardSection(int timeGuardSectionsId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TimeGuardSections({timeGuardSectionsId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteTimeGuardSection(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetTimeGuardSectionByTimeGuardSectionsId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeGuardSection> GetTimeGuardSectionByTimeGuardSectionsId(string expand = default(string), int timeGuardSectionsId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TimeGuardSections({timeGuardSectionsId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTimeGuardSectionByTimeGuardSectionsId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TimeGuardSection>(response);
+        }
+
+        partial void OnUpdateTimeGuardSection(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateTimeGuardSection(int timeGuardSectionsId = default(int), CrownATTime.Server.Models.ATTime.TimeGuardSection timeGuardSection = default(CrownATTime.Server.Models.ATTime.TimeGuardSection))
+        {
+            var uri = new Uri(baseUri, $"TimeGuardSections({timeGuardSectionsId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(timeGuardSection), Encoding.UTF8, "application/json");
+
+            OnUpdateTimeGuardSection(httpRequestMessage);
 
             return await httpClient.SendAsync(httpRequestMessage);
         }

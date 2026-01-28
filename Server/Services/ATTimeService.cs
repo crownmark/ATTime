@@ -69,6 +69,171 @@ namespace CrownATTime.Server
         }
 
 
+        public async Task ExportAiPromptConfigurationsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/aipromptconfigurations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/aipromptconfigurations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportAiPromptConfigurationsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/aipromptconfigurations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/aipromptconfigurations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnAiPromptConfigurationsRead(ref IQueryable<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>> GetAiPromptConfigurations(Query query = null)
+        {
+            var items = Context.AiPromptConfigurations.AsQueryable();
+
+            items = items.Include(i => i.TimeGuardSection);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAiPromptConfigurationsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnAiPromptConfigurationGet(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item);
+        partial void OnGetAiPromptConfigurationByAiPromptConfigurationId(ref IQueryable<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> GetAiPromptConfigurationByAiPromptConfigurationId(int aipromptconfigurationid)
+        {
+            var items = Context.AiPromptConfigurations
+                              .AsNoTracking()
+                              .Where(i => i.AiPromptConfigurationId == aipromptconfigurationid);
+
+            items = items.Include(i => i.TimeGuardSection);
+ 
+            OnGetAiPromptConfigurationByAiPromptConfigurationId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAiPromptConfigurationGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnAiPromptConfigurationCreated(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item);
+        partial void OnAfterAiPromptConfigurationCreated(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> CreateAiPromptConfiguration(CrownATTime.Server.Models.ATTime.AiPromptConfiguration aipromptconfiguration)
+        {
+            OnAiPromptConfigurationCreated(aipromptconfiguration);
+
+            var existingItem = Context.AiPromptConfigurations
+                              .Where(i => i.AiPromptConfigurationId == aipromptconfiguration.AiPromptConfigurationId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.AiPromptConfigurations.Add(aipromptconfiguration);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(aipromptconfiguration).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAiPromptConfigurationCreated(aipromptconfiguration);
+
+            return aipromptconfiguration;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> CancelAiPromptConfigurationChanges(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnAiPromptConfigurationUpdated(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item);
+        partial void OnAfterAiPromptConfigurationUpdated(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> UpdateAiPromptConfiguration(int aipromptconfigurationid, CrownATTime.Server.Models.ATTime.AiPromptConfiguration aipromptconfiguration)
+        {
+            OnAiPromptConfigurationUpdated(aipromptconfiguration);
+
+            var itemToUpdate = Context.AiPromptConfigurations
+                              .Where(i => i.AiPromptConfigurationId == aipromptconfiguration.AiPromptConfigurationId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            aipromptconfiguration.TimeGuardSection = null;
+
+            Context.Attach(aipromptconfiguration).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAiPromptConfigurationUpdated(aipromptconfiguration);
+
+            return aipromptconfiguration;
+        }
+
+        partial void OnAiPromptConfigurationDeleted(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item);
+        partial void OnAfterAiPromptConfigurationDeleted(CrownATTime.Server.Models.ATTime.AiPromptConfiguration item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> DeleteAiPromptConfiguration(int aipromptconfigurationid)
+        {
+            var itemToDelete = Context.AiPromptConfigurations
+                              .Where(i => i.AiPromptConfigurationId == aipromptconfigurationid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnAiPromptConfigurationDeleted(itemToDelete);
+
+            Reset();
+
+            Context.AiPromptConfigurations.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAiPromptConfigurationDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportBillingCodeCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/billingcodecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/billingcodecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -2012,6 +2177,168 @@ namespace CrownATTime.Server
             }
 
             OnAfterTimeEntryTemplateDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportTimeGuardSectionsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeguardsections/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeguardsections/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportTimeGuardSectionsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/timeguardsections/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/timeguardsections/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnTimeGuardSectionsRead(ref IQueryable<CrownATTime.Server.Models.ATTime.TimeGuardSection> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.TimeGuardSection>> GetTimeGuardSections(Query query = null)
+        {
+            var items = Context.TimeGuardSections.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnTimeGuardSectionsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnTimeGuardSectionGet(CrownATTime.Server.Models.ATTime.TimeGuardSection item);
+        partial void OnGetTimeGuardSectionByTimeGuardSectionsId(ref IQueryable<CrownATTime.Server.Models.ATTime.TimeGuardSection> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeGuardSection> GetTimeGuardSectionByTimeGuardSectionsId(int timeguardsectionsid)
+        {
+            var items = Context.TimeGuardSections
+                              .AsNoTracking()
+                              .Where(i => i.TimeGuardSectionsId == timeguardsectionsid);
+
+ 
+            OnGetTimeGuardSectionByTimeGuardSectionsId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnTimeGuardSectionGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnTimeGuardSectionCreated(CrownATTime.Server.Models.ATTime.TimeGuardSection item);
+        partial void OnAfterTimeGuardSectionCreated(CrownATTime.Server.Models.ATTime.TimeGuardSection item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeGuardSection> CreateTimeGuardSection(CrownATTime.Server.Models.ATTime.TimeGuardSection timeguardsection)
+        {
+            OnTimeGuardSectionCreated(timeguardsection);
+
+            var existingItem = Context.TimeGuardSections
+                              .Where(i => i.TimeGuardSectionsId == timeguardsection.TimeGuardSectionsId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.TimeGuardSections.Add(timeguardsection);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(timeguardsection).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterTimeGuardSectionCreated(timeguardsection);
+
+            return timeguardsection;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeGuardSection> CancelTimeGuardSectionChanges(CrownATTime.Server.Models.ATTime.TimeGuardSection item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnTimeGuardSectionUpdated(CrownATTime.Server.Models.ATTime.TimeGuardSection item);
+        partial void OnAfterTimeGuardSectionUpdated(CrownATTime.Server.Models.ATTime.TimeGuardSection item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeGuardSection> UpdateTimeGuardSection(int timeguardsectionsid, CrownATTime.Server.Models.ATTime.TimeGuardSection timeguardsection)
+        {
+            OnTimeGuardSectionUpdated(timeguardsection);
+
+            var itemToUpdate = Context.TimeGuardSections
+                              .Where(i => i.TimeGuardSectionsId == timeguardsection.TimeGuardSectionsId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(timeguardsection).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterTimeGuardSectionUpdated(timeguardsection);
+
+            return timeguardsection;
+        }
+
+        partial void OnTimeGuardSectionDeleted(CrownATTime.Server.Models.ATTime.TimeGuardSection item);
+        partial void OnAfterTimeGuardSectionDeleted(CrownATTime.Server.Models.ATTime.TimeGuardSection item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TimeGuardSection> DeleteTimeGuardSection(int timeguardsectionsid)
+        {
+            var itemToDelete = Context.TimeGuardSections
+                              .Where(i => i.TimeGuardSectionsId == timeguardsectionsid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnTimeGuardSectionDeleted(itemToDelete);
+
+            Reset();
+
+            Context.TimeGuardSections.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterTimeGuardSectionDeleted(itemToDelete);
 
             return itemToDelete;
         }

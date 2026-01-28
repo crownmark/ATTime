@@ -19,6 +19,20 @@ namespace CrownATTime.Server.Controllers
             this.context = context;
         }
 
+        [HttpGet("/export/ATTime/aipromptconfigurations/csv")]
+        [HttpGet("/export/ATTime/aipromptconfigurations/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAiPromptConfigurationsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAiPromptConfigurations(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/aipromptconfigurations/excel")]
+        [HttpGet("/export/ATTime/aipromptconfigurations/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAiPromptConfigurationsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAiPromptConfigurations(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/billingcodecaches/csv")]
         [HttpGet("/export/ATTime/billingcodecaches/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportBillingCodeCachesToCSV(string fileName = null)
@@ -185,6 +199,20 @@ namespace CrownATTime.Server.Controllers
         public async Task<FileStreamResult> ExportTimeEntryTemplatesToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetTimeEntryTemplates(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/timeguardsections/csv")]
+        [HttpGet("/export/ATTime/timeguardsections/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTimeGuardSectionsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetTimeGuardSections(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/timeguardsections/excel")]
+        [HttpGet("/export/ATTime/timeguardsections/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTimeGuardSectionsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetTimeGuardSections(), Request.Query, false), fileName);
         }
     }
 }

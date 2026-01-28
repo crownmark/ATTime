@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CrownATTime.Client.Pages
 {
-    public partial class AINoteAssistant
+    public partial class AIGeneralAssistant
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -37,8 +37,7 @@ namespace CrownATTime.Client.Pages
         [Inject]
         public ATTimeService ATTimeService { get; set; }
 
-        [Parameter]
-        public string Note { get; set; }
+        
         [Parameter]
         public AiPromptConfiguration Prompt { get; set; }
 
@@ -70,14 +69,14 @@ namespace CrownATTime.Client.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
-            {
-                await basicChat.SendMessage($"{Prompt.UserPrompt} Message:{Environment.NewLine}{Note}");
+            //if (firstRender)
+            //{
+            //    await basicChat.SendMessage($"{Prompt.UserPrompt} Message:{Environment.NewLine}{Note}");
                 
-            }
-            else
-            {
-            }
+            //}
+            //else
+            //{
+            //}
         }
     }
 }

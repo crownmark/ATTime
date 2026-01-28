@@ -1,0 +1,77 @@
+@page "/edit-ai-prompt-configuration"
+
+@attribute [Authorize]
+
+<PageTitle>Edit AiPromptConfiguration</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save AiPromptConfiguration</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.AiPromptConfiguration" Data="@(aiPromptConfiguration)" Visible="@(aiPromptConfiguration != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.Name)" Name="Name" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Name" Text="Name is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Description" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.Description)" Name="Description" AutoCompleteType="AutoCompleteType.Off" MaxLength="10" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Menu Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.MenuName)" Name="MenuName" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="MenuName" Text="MenuName is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Time Guard Section" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(timeGuardSectionsForTimeGuardSectionsId)" TextProperty="SectionName" ValueProperty="TimeGuardSectionsId" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.TimeGuardSectionsId)" Name="TimeGuardSectionsId"
+                         Count=@timeGuardSectionsForTimeGuardSectionsIdCount LoadData=@timeGuardSectionsForTimeGuardSectionsIdLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="System Prompt" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextArea @bind-Value="@aiPromptConfiguration.SystemPrompt" Rows="8"></RadzenTextArea>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="User Prompt" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextArea @bind-Value="@aiPromptConfiguration.UserPrompt" Name="UserPrompt" Rows="8" MaxLength="4000"></RadzenTextArea>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Shared With Everyone" Component="SharedWithEveryone" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(aiPromptConfiguration.SharedWithEveryone)" Name="SharedWithEveryone" AutoCompleteType="AutoCompleteType.Off" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Shared With Users (Comma Separated User Emails)" Variant="Variant.Outlined" Component="SharedWithUsers">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.SharedWithUsers)" Name="SharedWithUsers" AutoCompleteType="AutoCompleteType.Off" MaxLength="1000" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(aiPromptConfiguration.Active)" Name="Active" AutoCompleteType="AutoCompleteType.Off" />
+                </RadzenColumn>
+            </RadzenRow>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

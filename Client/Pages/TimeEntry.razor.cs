@@ -48,6 +48,9 @@ namespace CrownATTime.Client.Pages
         [Inject]
         public ThreeCxClientService ThreeCxClientService { get; set; }
 
+        [Inject]
+        public AiScenarioRunnerService AiScenarioRunnerService { get; set; }
+
         protected CrownATTime.Server.Models.ATTime.TimeEntry timeEntryRecord { get; set; }
         protected TicketDtoResult ticket {  get; set; }
         protected ConfigurationItemResult configurationItem {  get; set; }
@@ -94,6 +97,13 @@ namespace CrownATTime.Client.Pages
         protected List<TicketChecklistItemResult> TicketChecklistItemResult { get; set; }
         protected RadzenDataGrid<TicketChecklistItemResult> grid0 { get; set; }
         protected bool gridLoading { get; set; }
+        protected IEnumerable<AiPromptConfiguration> promptConfigurations {  get; set; }
+
+        protected AiPromptConfiguration generalAiPromptConfiguration { get; set; } = new AiPromptConfiguration();
+
+        protected bool summaryNotesAiBusy { get; set; }
+        protected bool interalNotesAiBusy { get; set; }
+        protected bool timeEntryAiBusy { get; set; }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (!_openedAccordionOnce && !pageLoading)
@@ -114,7 +124,16 @@ namespace CrownATTime.Client.Pages
             {
                 pageLoading = true;
 
+                var aiPrompts = await ATTimeService.GetAiPromptConfigurations(filter: $"Active eq true", orderby: $"MenuName", expand: $"TimeGuardSection");
+                promptConfigurations = aiPrompts.Value.ToList();
+                try
+                {
+                    generalAiPromptConfiguration = promptConfigurations.Where(x => x.Name == "General AI Chat Prompt").FirstOrDefault();
+                }
+                catch (Exception ex)
+                {
 
+                }
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
                 //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'jordan@ce-technology.com'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
                 resource = resourceResult.Value.FirstOrDefault();
@@ -503,7 +522,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 var calls = await ThreeCxClientService.MakeCall(company.Phone, resource.OfficeExtension);
-                MonitorCallStatus(calls, contact.item.mobilePhone);
+                MonitorCallStatus(calls, company.Phone);
 
 
 
@@ -1273,7 +1292,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task SendEmailButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource } } , new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord } } , new DialogOptions { Width = "800px", Draggable = true });
             await UpdateTicketValues();
             StateHasChanged();
             
@@ -1608,7 +1627,22 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task AISummaryNotesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            DialogService.OpenSide<AINoteAssistant>("AI Note Assistant", new Dictionary<string, object>() { {"Note", timeEntryRecord.SummaryNotes} }, new SideDialogOptions() { ShowClose = true, ShowTitle = true, CloseDialogOnOverlayClick = true, Width = "500px"});
+            try
+            {
+                var prompt = await ATTimeService.GetAiPromptConfigurations();
+
+                var aiResponse = await AiScenarioRunnerService.RunAsync(prompt.Value.FirstOrDefault(), timeEntryRecord.SummaryNotes);
+                if (!string.IsNullOrEmpty(aiResponse)) 
+                {
+                    timeEntryRecord.SummaryNotes = aiResponse;
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"AI Summary Error", Detail = $"{ex.Message}" });
+
+            }
+            //DialogService.OpenSide<AINoteAssistant>("AI Note Assistant", new Dictionary<string, object>() { {"Note", timeEntryRecord.SummaryNotes} }, new SideDialogOptions() { ShowClose = true, ShowTitle = true, CloseDialogOnOverlayClick = true, Width = "500px"});
         }
 
         protected async System.Threading.Tasks.Task AISummaryNotesButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
@@ -1620,6 +1654,61 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task AISummaryNotesButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
         {
             TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task AISummaryNotesSplitButtonClick(Radzen.Blazor.RadzenSplitButtonItem args)
+        {
+            try
+            {
+                if (args != null)
+                {
+                    summaryNotesAiBusy = true;
+                    var prompt = await ATTimeService.GetAiPromptConfigurationByAiPromptConfigurationId("TimeGuardSection", Convert.ToInt32(args.Value));
+
+                    var aiResponse = await AiScenarioRunnerService.RunAsync(prompt, timeEntryRecord.SummaryNotes);
+                    if (!string.IsNullOrEmpty(aiResponse))
+                    {
+                        timeEntryRecord.SummaryNotes = aiResponse;
+                    }
+                    summaryNotesAiBusy = false;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                summaryNotesAiBusy = false;
+
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"AI Error", Detail = $"{ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task AIInternalNotesSplitButtonClick(Radzen.Blazor.RadzenSplitButtonItem args)
+        {
+            try
+            {
+                if(args != null)
+                {
+                    interalNotesAiBusy = true;  
+                    var prompt = await ATTimeService.GetAiPromptConfigurationByAiPromptConfigurationId("TimeGuardSection", Convert.ToInt32(args.Value));
+
+                    var aiResponse = await AiScenarioRunnerService.RunAsync(prompt, timeEntryRecord.InternalNotes);
+                    if (!string.IsNullOrEmpty(aiResponse))
+                    {
+                        timeEntryRecord.InternalNotes = aiResponse;
+                    }
+                    interalNotesAiBusy = false;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                interalNotesAiBusy = false;
+
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"AI Error", Detail = $"{ex.Message}" });
+
+            }
         }
     }
 }

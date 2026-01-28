@@ -35,5 +35,6 @@ builder.Services.AddAIChatService(o =>
     o.ApiKey = "";
     o.ApiKeyHeader = "Authorization";
 });
+builder.Services.AddScoped<AiScenarioRunnerService>();
 var host = builder.Build();
 await host.RunAsync();

@@ -22,12 +22,27 @@ namespace CrownATTime.Server.Data
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
+              .HasOne(i => i.TimeGuardSection)
+              .WithMany(i => i.AiPromptConfigurations)
+              .HasForeignKey(i => i.TimeGuardSectionsId)
+              .HasPrincipalKey(i => i.TimeGuardSectionsId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>()
               .HasOne(i => i.BillingCodeCache)
               .WithMany(i => i.TimeEntryTemplates)
               .HasForeignKey(i => i.BillingCodeId)
               .HasPrincipalKey(i => i.Id)
               .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
+              .Property(p => p.SharedWithEveryone)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
               .Property(p => p.Active)
@@ -85,6 +100,10 @@ namespace CrownATTime.Server.Data
               .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeGuardSection>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
               .HasColumnType("datetimeoffset");
@@ -98,6 +117,8 @@ namespace CrownATTime.Server.Data
               .HasColumnType("datetimeoffset");
             this.OnModelBuilding(builder);
         }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> AiPromptConfigurations { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.BillingCodeCache> BillingCodeCaches { get; set; }
 
@@ -122,6 +143,8 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntry> TimeEntries { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> TimeEntryTemplates { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.TimeGuardSection> TimeGuardSections { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

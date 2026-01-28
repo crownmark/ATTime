@@ -195,7 +195,16 @@
                                 <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
                                 </RadzenLabel>
                                 <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
-<RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="cognition_2" Variant="Radzen.Variant.Outlined" Click="@AISummaryNotesButtonClick" MouseEnter="@AISummaryNotesButtonMouseEnter" MouseLeave="@AISummaryNotesButtonMouseLeave"></RadzenButton>
+                                <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AISummaryNotesSplitButtonClick" Text="AI Actions" IsBusy="@summaryNotesAiBusy">
+                                    @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes").Any())
+                                    {
+                                        foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes"))
+                                        {
+                                            <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        }
+                                    }
+                                    
+                                </RadzenSplitButton>
                             </RadzenRow>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                 <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
@@ -207,6 +216,16 @@
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                     <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="color: var(--rz-danger)" />
                                     <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick" MouseEnter="@InternalNotesButton5MouseEnter" MouseLeave="@InternalNotesButton5MouseLeave"></RadzenButton>
+                                    <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AIInternalNotesSplitButtonClick" Text="AI Actions" IsBusy="@interalNotesAiBusy">
+                                    @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes").Any())
+                                    {
+                                        foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes"))
+                                        {
+                                            <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        }
+                                    }
+                                    
+                                    </RadzenSplitButton>
                             </RadzenRow>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                 <RadzenTextArea @bind-Value="@timeEntryRecord.InternalNotes" Name="InternalNotes" Style="width: 100%" Rows="10" Change="InternalNotesChange"></RadzenTextArea>
@@ -291,6 +310,12 @@
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Agent Browser" Click="@AgentBrowserButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Splashtop" Click="@SplashtopButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="ScreenConnect" Click="@ScreenConnectButtonClick"></RadzenButton>
+                        </RadzenStack>
+
+                    </RadzenFieldset>
+<RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                         <AIGeneralAssistant Prompt="@generalAiPromptConfiguration" />
                         </RadzenStack>
 
                     </RadzenFieldset>
