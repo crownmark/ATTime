@@ -107,6 +107,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 app.UseHeaderPropagation();
 app.MapStaticAssets();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
