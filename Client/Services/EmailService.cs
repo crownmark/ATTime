@@ -344,17 +344,17 @@ namespace CrownATTime.Client
             return body.Replace("{QuoteLink}", safeQuoteLink, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static string ReplaceEmailBodyTokenOnSubmit(EmailMessage newEmail)
+        public static string ReplaceEmailBodyTokenOnSubmit(string emailBody)
         {
-            if (newEmail?.Body is null) return "";
+            if (emailBody is null) return "";
 
             const string token = "{EmailMessage.Body}";
-            if (!newEmail.Body.Contains(token, StringComparison.Ordinal))
-                return newEmail.Body;
+            if (!emailBody.Contains(token, StringComparison.Ordinal))
+                return emailBody;
 
             // Convert the *current* HTML body to plain text
             // NOTE: this includes everything. If you only want a section, we can scope it later.
-            var bodyPlainText = ConvertHtmlToText(newEmail.Body);
+            var bodyPlainText = ConvertHtmlToText(emailBody);
 
             // Prepare two versions:
             // - for href/querystring: URL-encoded
@@ -365,13 +365,13 @@ namespace CrownATTime.Client
             // Replace token differently depending on context.
             // A) Token appears inside an href attribute -> URL-encode
             // This targets href=" ... {EmailMessage.Body} ... " (also works if quotes are ')
-            newEmail.Body = Regex.Replace(
-                newEmail.Body,
+            emailBody = Regex.Replace(
+                emailBody,
                 @"(?is)(href\s*=\s*[""'][^""']*)\{EmailMessage\.Body\}([^""']*[""'])",
                 m => m.Groups[1].Value + urlEncoded + m.Groups[2].Value);
 
             // B) Any remaining occurrences (not in href) -> insert as visible plain text
-            return newEmail.Body = newEmail.Body.Replace(token, htmlEncoded, StringComparison.Ordinal);
+            return emailBody = emailBody.Replace(token, htmlEncoded, StringComparison.Ordinal);
         }
 
         public static string ConvertHtmlToText(string html)

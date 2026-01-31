@@ -427,6 +427,8 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+        
+
         protected async System.Threading.Tasks.Task SummaryNotesChange(System.String args)
         {
             try
@@ -1710,5 +1712,7 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+
+        
     }
 }

@@ -9,9 +9,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static CrownATTime.Server.Models.EmailMessage;
 using static CrownATTime.Server.Models.MicrosoftEmailAttachments;
 
 namespace CrownATTime.Client.Pages
@@ -47,6 +49,7 @@ namespace CrownATTime.Client.Pages
 
         protected EmailMessage emailMessage { get; set; } = new EmailMessage();
 
+
         [Inject]
         protected CrownATTime.Client.ATTimeService ATTimeService { get; set; }
 
@@ -77,6 +80,7 @@ namespace CrownATTime.Client.Pages
         protected bool sendingEmail {  get; set; }
         protected bool quoteTemplate {  get; set; }
         protected string additionalEmail {  get; set; }
+        protected RadzenDataGrid<IFormFileModel> grid0;
 
 
         [Parameter] 
@@ -105,6 +109,12 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<AiPromptConfiguration> promptConfigurations { get; set; }
 
         protected bool emailAiBusy { get; set; }
+
+        protected List<IFormFileModel> emailAttachments = new List<IFormFileModel>();
+
+        protected bool progressVisible { get; set; }
+        protected int progress {  get; set; }
+        protected bool gridLoading { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -135,6 +145,7 @@ namespace CrownATTime.Client.Pages
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load contacts" });
             }
         }
+
 
         protected async Task emailTemplatesLoadData(LoadDataArgs args)
         {
@@ -200,6 +211,33 @@ namespace CrownATTime.Client.Pages
 
         //    }
         //}
+        protected async System.Threading.Tasks.Task AIEmailBodySplitButtonClick(Radzen.Blazor.RadzenSplitButtonItem args)
+        {
+            try
+            {
+                if (args != null)
+                {
+                    emailAiBusy = true;
+                    var prompt = await ATTimeService.GetAiPromptConfigurationByAiPromptConfigurationId("TimeGuardSection", Convert.ToInt32(args.Value));
+
+                    var aiResponse = await AiScenarioRunnerService.RunAsync(prompt, TimeEntry.SummaryNotes);
+                    if (!string.IsNullOrEmpty(aiResponse))
+                    {
+                        emailMessage.Body = $"{emailMessage.Body}{Environment.NewLine}{aiResponse}";
+                    }
+                    emailAiBusy = false;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                emailAiBusy = false;
+
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"AI Error", Detail = $"{ex.Message}" });
+
+            }
+        }
 
         protected async System.Threading.Tasks.Task TemplateIdChange(System.Object args)
         {
@@ -266,9 +304,11 @@ namespace CrownATTime.Client.Pages
 
                 // Update Checlist Items Token with checklist items
                 emailMessage.Body = EmailService.ReplaceChecklistItemsToken(template.EmailBody ?? string.Empty, ChecklistItems);
+                //editorBody = EmailService.ReplaceChecklistItemsToken(template.EmailBody ?? string.Empty, ChecklistItems);
 
                 emailMessage.Subject = EmailService.Render(template.EmailSubject ?? string.Empty, ctx);
                 emailMessage.Body = EmailService.Render(emailMessage.Body ?? string.Empty, ctx);
+                //editorBody = EmailService.Render(editorBody ?? string.Empty, ctx);
                 StateHasChanged();
                 
             }
@@ -292,14 +332,19 @@ namespace CrownATTime.Client.Pages
             {
                 sendingEmail = true;
 
+                if (emailAttachments.Any())
+                {
+
+                    emailMessage.Attachments = emailAttachments;
+
+                }
+
                 // Update QuoteLink Token to Ticket UDF Value
                 emailMessage.Body = EmailService.ReplaceQuoteLinkToken(emailMessage.Body, emailMessage);
 
                 // Convert [EmailMessage.Body} Token to plain text
-                emailMessage.Body = EmailService.ReplaceEmailBodyTokenOnSubmit(emailMessage);
+                emailMessage.Body = EmailService.ReplaceEmailBodyTokenOnSubmit(emailMessage.Body);
 
-                
-                
                 // Collect emails here (case-insensitive, deduped)
                 var emailSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -459,32 +504,33 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        protected async System.Threading.Tasks.Task AIEmailBodySplitButtonClick(Radzen.Blazor.RadzenSplitButtonItem args)
+        protected async System.Threading.Tasks.Task Upload0Complete(UploadCompleteEventArgs args)
         {
-            try
-            {
-                if (args != null)
-                {
-                    emailAiBusy = true;
-                    var prompt = await ATTimeService.GetAiPromptConfigurationByAiPromptConfigurationId("TimeGuardSection", Convert.ToInt32(args.Value));
+            emailAttachments.AddRange(JsonSerializer.Deserialize<List<IFormFileModel>>(args.RawResponse));
+            progressVisible = false;
+            await grid0.Reload();
+            gridLoading = false;
 
-                    var aiResponse = await AiScenarioRunnerService.RunAsync(prompt, TimeEntry.SummaryNotes);
-                    if (!string.IsNullOrEmpty(aiResponse))
-                    {
-                        emailMessage.Body = $"{emailMessage.Body}{Environment.NewLine}{aiResponse}";
-                    }
-                    emailAiBusy = false;
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                emailAiBusy = false;
-
-                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"AI Error", Detail = $"{ex.Message}" });
-
-            }
         }
+        protected async System.Threading.Tasks.Task Upload0Error(UploadErrorEventArgs args)
+        {
+            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{args.Message}", Duration = 5000 });
+        }
+
+        protected async System.Threading.Tasks.Task Upload0Progress(UploadProgressArgs args)
+        {
+            gridLoading = true;
+
+            progressVisible = true;
+            progress = args.Progress;
+        }
+
+        protected async System.Threading.Tasks.Task DeleteAttachmentButtonClick(MouseEventArgs args, dynamic data)
+        {
+            emailAttachments.Remove(data);
+
+            await grid0.Reload();
+        }
+
     }
 }

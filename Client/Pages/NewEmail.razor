@@ -53,7 +53,7 @@
 
                     </RadzenStack>
             </RadzenStack>
-                <RadzenFieldset Text="Additional Emails" Icon="email" AllowCollapse="true" Collapsed="true" Visible="@(string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
+            <RadzenFieldset Text="Additional Emails" Icon="email" AllowCollapse="true" Collapsed="true" Visible="@(string.IsNullOrEmpty(selectedTemplate?.TeamsChannelEmail))">
                 <RadzenStack>
                     <RadzenFormField Text="Additional Contacts" Variant="Variant.Outlined">
                           <ChildContent>
@@ -105,13 +105,39 @@
             </RadzenSplitButton>
             <RadzenFormField Text="Email Body" Variant="Variant.Outlined">
                   <ChildContent>
-                      <RadzenHtmlEditor Name="Body" @bind-Value="@emailMessage.Body" Style="min-height: 400px"></RadzenHtmlEditor>
+                      <RadzenHtmlEditor Name="Body" Style="min-height: 400px" UploadUrl="upload/image" @bind-Value="@emailMessage.Body"></RadzenHtmlEditor>
                   </ChildContent>    
                   <Helper>
                     <RadzenRequiredValidator Component="Body" Text="Body is required" />
                   </Helper>
             </RadzenFormField>
             
+            <RadzenFieldset Text="Attachments" AllowCollapse="true" Icon="attachment">
+                <RadzenStack Orientation="Radzen.Orientation.Vertical">
+                    <RadzenUpload Url="upload/EmailAttachments" ChooseText="Choose Files to Attach or Drag & Drop Here" Multiple="true" Complete="@Upload0Complete" Error="@Upload0Error" Progress="@Upload0Progress" Style="width: 285px"></RadzenUpload>
+                    <RadzenProgressBar Visible="@progressVisible" Mode="Radzen.ProgressBarMode.Determinate" ShowValue="true" ProgressBarStyle="Radzen.ProgressBarStyle.Info" Style="height: 30px" Value="100">
+                        <Template>
+                            <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Uploading..." />
+                            </RadzenStack>
+                        </Template>
+                        
+                    </RadzenProgressBar>
+                    <RadzenDataGrid @ref="grid0" Data="@emailAttachments" TItem="Server.Models.EmailMessage.IFormFileModel" Density="Radzen.Density.Compact" IsLoading="@gridLoading">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.EmailMessage.IFormFileModel" Property="FileName" Title="File Name"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.EmailMessage.IFormFileModel" Frozen="true" FrozenPosition="Radzen.FrozenColumnPosition.Right" Width="80px">
+                                <Template Context="data">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Click="@((args) =>DeleteAttachmentButtonClick(args, data))">
+                                    </RadzenButton>
+                                  </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        
+                    </RadzenDataGrid>
+                
+                </RadzenStack>
+            </RadzenFieldset>
           </RadzenStack>
           <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                     <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" IsBusy="@sendingEmail" BusyText="Sending Email" Icon="send" Text="Send" Variant="Variant.Flat" />

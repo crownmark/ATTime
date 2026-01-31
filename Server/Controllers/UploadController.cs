@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Hosting;
+using static CrownATTime.Server.Models.EmailMessage;
 
 namespace CrownATTime.Server.Controllers
 {
@@ -68,20 +69,61 @@ namespace CrownATTime.Server.Controllers
             {
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
-                using (var stream = new FileStream(Path.Combine(environment.WebRootPath, fileName), FileMode.Create))
+                using (var stream = new FileStream(Path.Combine($"{environment.WebRootPath}\\EmailImages\\", fileName), FileMode.Create))
                 {
                     // Save the file
                     file.CopyTo(stream);
 
-                    // Return the URL of the file
-                    var url = Url.Content($"~/{fileName}");
+                    // Build absolute URL (works in IIS, HTTPS, reverse proxy, sub-path)
+                    var request = HttpContext.Request;
 
-                    return Ok(new { Url = url });
+                    var baseUrl =
+                        $"{request.Scheme}://{request.Host}{request.PathBase}";
+
+                    var imageUrl = $"{baseUrl}/EmailImages/{fileName}";
+
+                    return Ok(new { Url = imageUrl });
                 }
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
+            }
+        }
+
+        // Multiple files upload for email attachment
+        [HttpPost("upload/EmailAttachments")]
+        public List<IFormFileModel> EmailAttachments(IFormFile[] files)
+        {
+            var attachments = new List<IFormFileModel>();
+            try
+            {
+                // Put your code here
+
+                foreach (var file in files)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        file.CopyTo(ms);
+                        var fileBytes = ms.ToArray();
+                        var newFile = new IFormFileModel();
+                        newFile.ByteArray = fileBytes;
+                        newFile.ContentDisposition = file.ContentDisposition;
+                        newFile.ContentType = file.ContentType;
+                        newFile.FileName = file.FileName;
+                        //newFile.Headers = (Models.Headers)file.Headers;
+                        newFile.Length = file.Length;
+                        newFile.Name = file.Name;
+                        attachments.Add(newFile);
+                    }
+                }
+                return attachments;
+                //return StatusCode(200);
+            }
+            catch (Exception ex)
+            {
+                return attachments;
+                //return StatusCode(500, ex.Message);
             }
         }
     }
