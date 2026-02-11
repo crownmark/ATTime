@@ -29,6 +29,13 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.TimeGuardSectionsId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
+              .HasOne(i => i.TeamsMessageType)
+              .WithMany(i => i.TeamsMessageTemplates)
+              .HasForeignKey(i => i.TeamsMessageTypeId)
+              .HasPrincipalKey(i => i.TeamsMessageTypeId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>()
               .HasOne(i => i.BillingCodeCache)
               .WithMany(i => i.TimeEntryTemplates)
@@ -73,6 +80,14 @@ namespace CrownATTime.Server.Data
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.NoteTemplate>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
+              .Property(p => p.ShareWithOthers)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageType>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
@@ -135,6 +150,10 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.RoleCache> RoleCaches { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache> ServiceDeskRoleCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> TeamsMessageTemplates { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.TeamsMessageType> TeamsMessageTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> TicketEntityPicklistValueCaches { get; set; }
 

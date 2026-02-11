@@ -145,6 +145,34 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetServiceDeskRoleCaches(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/teamsmessagetemplates/csv")]
+        [HttpGet("/export/ATTime/teamsmessagetemplates/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTeamsMessageTemplatesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetTeamsMessageTemplates(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/teamsmessagetemplates/excel")]
+        [HttpGet("/export/ATTime/teamsmessagetemplates/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTeamsMessageTemplatesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetTeamsMessageTemplates(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/teamsmessagetypes/csv")]
+        [HttpGet("/export/ATTime/teamsmessagetypes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTeamsMessageTypesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetTeamsMessageTypes(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/teamsmessagetypes/excel")]
+        [HttpGet("/export/ATTime/teamsmessagetypes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportTeamsMessageTypesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetTeamsMessageTypes(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/ticketentitypicklistvaluecaches/csv")]
         [HttpGet("/export/ATTime/ticketentitypicklistvaluecaches/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportTicketEntityPicklistValueCachesToCSV(string fileName = null)

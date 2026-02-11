@@ -877,6 +877,194 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
+        public async System.Threading.Tasks.Task ExportTeamsMessageTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportTeamsMessageTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetTeamsMessageTemplates(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>> GetTeamsMessageTemplates(Query query)
+        {
+            return await GetTeamsMessageTemplates(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>> GetTeamsMessageTemplates(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTemplates");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTeamsMessageTemplates(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>>(response);
+        }
+
+        partial void OnCreateTeamsMessageTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> CreateTeamsMessageTemplate(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate teamsMessageTemplate = default(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTemplates");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(teamsMessageTemplate), Encoding.UTF8, "application/json");
+
+            OnCreateTeamsMessageTemplate(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>(response);
+        }
+
+        partial void OnDeleteTeamsMessageTemplate(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteTeamsMessageTemplate(int teamsMessageTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTemplates({teamsMessageTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteTeamsMessageTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetTeamsMessageTemplateByTeamsMessageTemplateId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> GetTeamsMessageTemplateByTeamsMessageTemplateId(string expand = default(string), int teamsMessageTemplateId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTemplates({teamsMessageTemplateId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTeamsMessageTemplateByTeamsMessageTemplateId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>(response);
+        }
+
+        partial void OnUpdateTeamsMessageTemplate(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateTeamsMessageTemplate(int teamsMessageTemplateId = default(int), CrownATTime.Server.Models.ATTime.TeamsMessageTemplate teamsMessageTemplate = default(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTemplates({teamsMessageTemplateId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(teamsMessageTemplate), Encoding.UTF8, "application/json");
+
+            OnUpdateTeamsMessageTemplate(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportTeamsMessageTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportTeamsMessageTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetTeamsMessageTypes(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TeamsMessageType>> GetTeamsMessageTypes(Query query)
+        {
+            return await GetTeamsMessageTypes(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TeamsMessageType>> GetTeamsMessageTypes(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTypes");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTeamsMessageTypes(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.TeamsMessageType>>(response);
+        }
+
+        partial void OnCreateTeamsMessageType(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageType> CreateTeamsMessageType(CrownATTime.Server.Models.ATTime.TeamsMessageType teamsMessageType = default(CrownATTime.Server.Models.ATTime.TeamsMessageType))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTypes");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(teamsMessageType), Encoding.UTF8, "application/json");
+
+            OnCreateTeamsMessageType(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TeamsMessageType>(response);
+        }
+
+        partial void OnDeleteTeamsMessageType(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteTeamsMessageType(int teamsMessageTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTypes({teamsMessageTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteTeamsMessageType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetTeamsMessageTypeByTeamsMessageTypeId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageType> GetTeamsMessageTypeByTeamsMessageTypeId(string expand = default(string), int teamsMessageTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTypes({teamsMessageTypeId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetTeamsMessageTypeByTeamsMessageTypeId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.TeamsMessageType>(response);
+        }
+
+        partial void OnUpdateTeamsMessageType(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateTeamsMessageType(int teamsMessageTypeId = default(int), CrownATTime.Server.Models.ATTime.TeamsMessageType teamsMessageType = default(CrownATTime.Server.Models.ATTime.TeamsMessageType))
+        {
+            var uri = new Uri(baseUri, $"TeamsMessageTypes({teamsMessageTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(teamsMessageType), Encoding.UTF8, "application/json");
+
+            OnUpdateTeamsMessageType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async System.Threading.Tasks.Task ExportTicketEntityPicklistValueCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);

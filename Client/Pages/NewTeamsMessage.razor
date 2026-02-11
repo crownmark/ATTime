@@ -1,0 +1,42 @@
+@page "/new-teams-message"
+
+@attribute [Authorize]
+
+<PageTitle>NewTeamsMessage</PageTitle>
+<RadzenRow>
+ 
+
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Style="width: 100%">
+    <RadzenTemplateForm TItem="Server.Models.TeamsMessageRequest" Data="@teamsMessage" Style="width: 100%" Submit="@TemplateForm0Submit">
+        <RadzenStack>
+                    <RadzenFormField Text="Selected Template" Component="selectedTemplate">
+                        <ChildContent>
+                        <RadzenDropDown TValue="int" ValueProperty="TeamsMessageTemplateId" TextProperty="Title" Data="@teamsMessageTemplates" LoadData="@teamsMessageTemplatesLoadData" Count="@teamsMessageTemplatesCount" @bind-Value="@selectedTemplate" Name="selectedTemplate" Change="@TemplateDropDown0Change" />
+
+                        </ChildContent>
+                        <Helper>
+                            <RadzenNumericRangeValidator Text="Template is required" Component="selectedTemplate" Min="1"></RadzenNumericRangeValidator>
+                        </Helper>
+                    </RadzenFormField>
+                <RadzenFormField Text="Mentions" Component="CrownTeam">
+                    <ChildContent>
+                        <RadzenDropDown TValue="IEnumerable<string>" @bind-Value="@crownTeamEmails" ValueProperty="Email" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" Multiple="true" Name="CrownTeam" AllowFiltering="true" ></RadzenDropDown>
+
+                    </ChildContent>
+                    
+                </RadzenFormField>
+            <RadzenFormField Text="Message" Component="Message">
+                <ChildContent>
+                        <RadzenTextArea @bind-Value="@teamsMessage.Message" Name="Message" Rows="10"></RadzenTextArea>
+                </ChildContent>
+                <Helper>
+                    <RadzenRequiredValidator Component="Message" Text="Message is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Send" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenStack>
+</RadzenRow>

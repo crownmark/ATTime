@@ -374,6 +374,53 @@ namespace CrownATTime.Client
             return emailBody = emailBody.Replace(token, htmlEncoded, StringComparison.Ordinal);
         }
 
+        public static string ReplaceTeamsMessageBodyTokenOnSubmit(string body, string adaptiveCard)
+        {
+            if (string.IsNullOrEmpty(adaptiveCard))
+                return adaptiveCard ?? string.Empty;
+
+            if (body is null)
+                body = string.Empty;
+
+            const string token = "{TeamsMessage.Body}";
+
+            if (!adaptiveCard.Contains(token, StringComparison.Ordinal))
+                return adaptiveCard;
+
+            // 🔥 THIS IS THE KEY PART
+            var safeText = MakeJsonSafe(body);
+
+            var adaptiveSafe = body
+                .Replace("\r\n", "\n")   // normalize Windows line endings
+                .Replace("\r", "\n");    // normalize any stragglers
+
+            // Only URL-encode version is needed for links
+            var urlEncoded = WebUtility.UrlEncode(body).Replace("+", "%20");
+
+            // A) If token is inside href -> URL encode
+            adaptiveCard = Regex.Replace(
+                adaptiveCard,
+                @"(?is)(href\s*=\s*[""'][^""']*)\{TeamsMessage\.Body\}([^""']*[""'])",
+                m => m.Groups[1].Value + urlEncoded + m.Groups[2].Value);
+
+            // B) All remaining tokens -> inject RAW HTML (no encoding!)
+            adaptiveCard = adaptiveCard.Replace(token, safeText, StringComparison.Ordinal);
+
+            return adaptiveCard;
+        }
+
+        public static string MakeJsonSafe(string input)
+        {
+            return input?
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"")
+                .Replace("\r\n", "\n")
+                .Replace("\r", "\n")
+                .Replace("\n", "\\n");
+        }
+
+
+
         public static string ConvertHtmlToText(string html)
         {
             if (string.IsNullOrWhiteSpace(html))

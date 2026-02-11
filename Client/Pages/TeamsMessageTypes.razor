@@ -1,0 +1,43 @@
+@page "/teams-message-types"
+
+@attribute [Authorize]
+
+<PageTitle>TeamsMessageTypes</PageTitle>
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Teams Message Types" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" aria-label="Search by all string columns" />
+    <RadzenRow>
+      <RadzenColumn SizeMD=12>
+        <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30, 50]) 
+            Data="@(teamsMessageTypes)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.TeamsMessageType" RowSelect="@EditRow">
+            <Columns>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageType" Property="TeamsMessageTypeId" Title="Teams Message Type Id">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageType" Property="Title" Title="Title">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageType" Property="Active" Title="Active">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageType" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                    <Template Context="teamsMessageType">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            Shade="Shade.Lighter" Variant="Variant.Flat"
+                            Click=@(args => GridDeleteButtonClick(args, teamsMessageType)) @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenColumn>
+  </RadzenRow>
+</RadzenStack>

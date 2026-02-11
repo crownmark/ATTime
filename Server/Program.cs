@@ -55,6 +55,8 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ResourceCache>("ResourceCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.RoleCache>("RoleCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ServiceDeskRoleCache>("ServiceDeskRoleCaches");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>("TeamsMessageTemplates");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TeamsMessageType>("TeamsMessageTypes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache>("TicketEntityPicklistValueCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TicketNoteEntityPicklistValueCache>("TicketNoteEntityPicklistValueCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeEntry>("TimeEntries");
@@ -72,6 +74,7 @@ builder.Services.AddScoped<CrownATTime.Client.SecurityService>();
 builder.Services.AddScoped<CrownATTime.Client.AutotaskService>();
 builder.Services.AddScoped<CrownATTime.Client.ThreeCxClientService>();
 builder.Services.AddScoped<CrownATTime.Client.EmailService>();
+builder.Services.AddScoped<CrownATTime.Client.TeamsChatService>();
 builder.Services.AddScoped<CrownATTime.Client.TemplateTokenDiscoveryService>();
 builder.Services.AddScoped<CrownATTime.Client.ATTimeService>();
 builder.Services.AddScoped<AiScenarioRunnerService>();

@@ -1530,6 +1530,333 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportTeamsMessageTemplatesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportTeamsMessageTemplatesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetemplates/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnTeamsMessageTemplatesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>> GetTeamsMessageTemplates(Query query = null)
+        {
+            var items = Context.TeamsMessageTemplates.AsQueryable();
+
+            items = items.Include(i => i.TeamsMessageType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnTeamsMessageTemplatesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnTeamsMessageTemplateGet(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item);
+        partial void OnGetTeamsMessageTemplateByTeamsMessageTemplateId(ref IQueryable<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> GetTeamsMessageTemplateByTeamsMessageTemplateId(int teamsmessagetemplateid)
+        {
+            var items = Context.TeamsMessageTemplates
+                              .AsNoTracking()
+                              .Where(i => i.TeamsMessageTemplateId == teamsmessagetemplateid);
+
+            items = items.Include(i => i.TeamsMessageType);
+ 
+            OnGetTeamsMessageTemplateByTeamsMessageTemplateId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnTeamsMessageTemplateGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnTeamsMessageTemplateCreated(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item);
+        partial void OnAfterTeamsMessageTemplateCreated(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> CreateTeamsMessageTemplate(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate teamsmessagetemplate)
+        {
+            OnTeamsMessageTemplateCreated(teamsmessagetemplate);
+
+            var existingItem = Context.TeamsMessageTemplates
+                              .Where(i => i.TeamsMessageTemplateId == teamsmessagetemplate.TeamsMessageTemplateId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.TeamsMessageTemplates.Add(teamsmessagetemplate);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(teamsmessagetemplate).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterTeamsMessageTemplateCreated(teamsmessagetemplate);
+
+            return teamsmessagetemplate;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> CancelTeamsMessageTemplateChanges(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnTeamsMessageTemplateUpdated(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item);
+        partial void OnAfterTeamsMessageTemplateUpdated(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> UpdateTeamsMessageTemplate(int teamsmessagetemplateid, CrownATTime.Server.Models.ATTime.TeamsMessageTemplate teamsmessagetemplate)
+        {
+            OnTeamsMessageTemplateUpdated(teamsmessagetemplate);
+
+            var itemToUpdate = Context.TeamsMessageTemplates
+                              .Where(i => i.TeamsMessageTemplateId == teamsmessagetemplate.TeamsMessageTemplateId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            teamsmessagetemplate.TeamsMessageType = null;
+
+            Context.Attach(teamsmessagetemplate).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterTeamsMessageTemplateUpdated(teamsmessagetemplate);
+
+            return teamsmessagetemplate;
+        }
+
+        partial void OnTeamsMessageTemplateDeleted(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item);
+        partial void OnAfterTeamsMessageTemplateDeleted(CrownATTime.Server.Models.ATTime.TeamsMessageTemplate item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> DeleteTeamsMessageTemplate(int teamsmessagetemplateid)
+        {
+            var itemToDelete = Context.TeamsMessageTemplates
+                              .Where(i => i.TeamsMessageTemplateId == teamsmessagetemplateid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnTeamsMessageTemplateDeleted(itemToDelete);
+
+            Reset();
+
+            Context.TeamsMessageTemplates.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterTeamsMessageTemplateDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportTeamsMessageTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportTeamsMessageTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/teamsmessagetypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/teamsmessagetypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnTeamsMessageTypesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.TeamsMessageType> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.TeamsMessageType>> GetTeamsMessageTypes(Query query = null)
+        {
+            var items = Context.TeamsMessageTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnTeamsMessageTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnTeamsMessageTypeGet(CrownATTime.Server.Models.ATTime.TeamsMessageType item);
+        partial void OnGetTeamsMessageTypeByTeamsMessageTypeId(ref IQueryable<CrownATTime.Server.Models.ATTime.TeamsMessageType> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageType> GetTeamsMessageTypeByTeamsMessageTypeId(int teamsmessagetypeid)
+        {
+            var items = Context.TeamsMessageTypes
+                              .AsNoTracking()
+                              .Where(i => i.TeamsMessageTypeId == teamsmessagetypeid);
+
+ 
+            OnGetTeamsMessageTypeByTeamsMessageTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnTeamsMessageTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnTeamsMessageTypeCreated(CrownATTime.Server.Models.ATTime.TeamsMessageType item);
+        partial void OnAfterTeamsMessageTypeCreated(CrownATTime.Server.Models.ATTime.TeamsMessageType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageType> CreateTeamsMessageType(CrownATTime.Server.Models.ATTime.TeamsMessageType teamsmessagetype)
+        {
+            OnTeamsMessageTypeCreated(teamsmessagetype);
+
+            var existingItem = Context.TeamsMessageTypes
+                              .Where(i => i.TeamsMessageTypeId == teamsmessagetype.TeamsMessageTypeId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.TeamsMessageTypes.Add(teamsmessagetype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(teamsmessagetype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterTeamsMessageTypeCreated(teamsmessagetype);
+
+            return teamsmessagetype;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageType> CancelTeamsMessageTypeChanges(CrownATTime.Server.Models.ATTime.TeamsMessageType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnTeamsMessageTypeUpdated(CrownATTime.Server.Models.ATTime.TeamsMessageType item);
+        partial void OnAfterTeamsMessageTypeUpdated(CrownATTime.Server.Models.ATTime.TeamsMessageType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageType> UpdateTeamsMessageType(int teamsmessagetypeid, CrownATTime.Server.Models.ATTime.TeamsMessageType teamsmessagetype)
+        {
+            OnTeamsMessageTypeUpdated(teamsmessagetype);
+
+            var itemToUpdate = Context.TeamsMessageTypes
+                              .Where(i => i.TeamsMessageTypeId == teamsmessagetype.TeamsMessageTypeId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(teamsmessagetype).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterTeamsMessageTypeUpdated(teamsmessagetype);
+
+            return teamsmessagetype;
+        }
+
+        partial void OnTeamsMessageTypeDeleted(CrownATTime.Server.Models.ATTime.TeamsMessageType item);
+        partial void OnAfterTeamsMessageTypeDeleted(CrownATTime.Server.Models.ATTime.TeamsMessageType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.TeamsMessageType> DeleteTeamsMessageType(int teamsmessagetypeid)
+        {
+            var itemToDelete = Context.TeamsMessageTypes
+                              .Where(i => i.TeamsMessageTypeId == teamsmessagetypeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnTeamsMessageTypeDeleted(itemToDelete);
+
+            Reset();
+
+            Context.TeamsMessageTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterTeamsMessageTypeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportTicketEntityPicklistValueCachesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/ticketentitypicklistvaluecaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);

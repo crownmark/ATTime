@@ -1,0 +1,71 @@
+@page "/add-teams-message-template"
+
+@attribute [Authorize]
+
+<PageTitle>Add TeamsMessageTemplate</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save TeamsMessageTemplate</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Data="@(teamsMessageTemplate)" Visible="@(teamsMessageTemplate != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Teams Message Type" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(teamsMessageTypesForTeamsMessageTypeId)" TextProperty="Title" ValueProperty="TeamsMessageTypeId" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(teamsMessageTemplate.TeamsMessageTypeId)" Name="TeamsMessageTypeId"
+                         Count=@teamsMessageTypesForTeamsMessageTypeIdCount LoadData=@teamsMessageTypesForTeamsMessageTypeIdLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Team Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(teamsMessageTemplate.TeamId)" Name="TeamId" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Channel Id" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(teamsMessageTemplate.ChannelId)" Name="ChannelId" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(teamsMessageTemplate.Title)" Name="Title" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Title" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenStack AlignItems="Radzen.AlignItems.Start">
+              <RadzenButton Text="View Template Tokens" Icon="code" Size="Radzen.ButtonSize.Small" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@ViewTemplateTokensButtonClick"></RadzenButton>
+            </RadzenStack>
+            <RadzenFormField Text="Message" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextArea @bind-Value="@teamsMessageTemplate.Message" Name="Message" Rows="10"></RadzenTextArea>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenStack AlignItems="Radzen.AlignItems.Start">
+              <RadzenButton Text="View Template Tokens" Icon="code" Size="Radzen.ButtonSize.Small" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@ViewTemplateTokensButtonClick"></RadzenButton>
+            </RadzenStack>
+            <RadzenFormField Text="Adaptive Card Template" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextArea @bind-Value="@teamsMessageTemplate.AdaptiveCardTemplate" Name="AdaptiveCardTemplate" Style="min-height: 300px"></RadzenTextArea>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(teamsMessageTemplate.TemplateAssignedTo)" Name="TemplateAssignedTo" AutoCompleteType="AutoCompleteType.Off" MaxLength="50" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Share With Others" Component="ShareWithOthers" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(teamsMessageTemplate.ShareWithOthers)" Name="ShareWithOthers" />
+                </RadzenColumn>
+            </RadzenRow>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

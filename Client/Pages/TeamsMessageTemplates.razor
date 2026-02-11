@@ -1,0 +1,49 @@
+@page "/teams-message-templates"
+
+@attribute [Authorize]
+
+<PageTitle>TeamsMessageTemplates</PageTitle>
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="Teams Message Templates" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" aria-label="Search by all string columns" />
+    <RadzenRow>
+      <RadzenColumn SizeMD=12>
+        <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30, 50]) 
+            Data="@(teamsMessageTemplates)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" RowSelect="@EditRow" Responsive="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="TeamsMessageType.Title" Title="Teams Message Type">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="Title" Title="Title">
+                                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="TeamId" Title="Team Id">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="ChannelId" Title="Channel Id">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="TemplateAssignedTo" Title="Template Assigned To">
+                                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="ShareWithOthers" Title="Share With Others">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                    <Template Context="teamsMessageTemplate">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            Shade="Shade.Lighter" Variant="Variant.Flat"
+                            Click=@(args => GridDeleteButtonClick(args, teamsMessageTemplate)) @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenColumn>
+  </RadzenRow>
+</RadzenStack>

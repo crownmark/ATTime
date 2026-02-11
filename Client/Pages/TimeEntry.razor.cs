@@ -1714,5 +1714,10 @@ namespace CrownATTime.Client.Pages
         }
 
         
+
+        protected async System.Threading.Tasks.Task AddTeamsMessageButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await DialogService.OpenAsync<NewTeamsMessage>("New Teams Message", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource } }, new DialogOptions { Width = "800px" });
+        }
     }
 }
