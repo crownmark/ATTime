@@ -279,11 +279,15 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);
-                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Id eq {ticket.item.assignedResourceID}");
-                if (resourceResult.Value.Any())
+                if(ticket.item.assignedResourceID != null)
                 {
-                    ticketResource = resourceResult.Value.FirstOrDefault();
+                    var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Id eq {ticket.item.assignedResourceID}");
+                    if (resourceResult.Value.Any())
+                    {
+                        ticketResource = resourceResult.Value.FirstOrDefault();
+                    }
                 }
+                
                 var accountAlerts = await AutotaskService.GetAccountAlertsByCompanyId(company.Id);
                 if (accountAlerts != null && accountAlerts.Items.Where(x => x.alertTypeID == 3).Any())
                 {
