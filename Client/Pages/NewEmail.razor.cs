@@ -433,10 +433,10 @@ namespace CrownATTime.Client.Pages
                         impersonatorCreatorResourceID = Resource.Id,
                         description = $"{EmailService.BuildEmailNoteDescription(emailMessage.From,emailMessage.To, emailMessage.CC, emailMessage.Subject, emailMessage.Body)}",
                         //impersonatorCreatorResourceID = Resource.Id,
-                        noteType = 204,
-                        publish = 1,
+                        noteType = selectedTemplate.NoteType,
+                        publish = selectedTemplate.NotePublish,
                         ticketID = Ticket.item.id,
-                        title = "Email To Customer Communication",
+                        title = selectedTemplate.NoteTitle
                     };
                     await AutotaskService.CreateNote(newNote);
 
