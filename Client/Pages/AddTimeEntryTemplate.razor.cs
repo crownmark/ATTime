@@ -51,6 +51,10 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> ticketEntityPicklistValueCaches;
 
         protected int ticketEntityPicklistValueCachesCount;
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.EmailTemplate> emailTemplates;
+
+        protected int emailTemplatesCount;
         protected async Task billingCodeCachesForBillingCodeIdLoadData(LoadDataArgs args)
         {
             try
@@ -93,6 +97,24 @@ namespace CrownATTime.Client.Pages
 
                 ticketEntityPicklistValueCaches = result.Value.AsODataEnumerable();
                 ticketEntityPicklistValueCachesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+            }
+        }
+
+
+        protected async Task emailTemplatesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"Active eq true";
+
+                var result = await ATTimeService.GetEmailTemplates(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Title, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Title asc");
+
+                emailTemplates = result.Value.AsODataEnumerable();
+                emailTemplatesCount = result.Count;
             }
             catch (Exception)
             {

@@ -1301,7 +1301,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task SendEmailButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord } } , new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", null } } , new DialogOptions { Width = "800px", Draggable = true });
             await UpdateTicketValues();
             StateHasChanged();
             
@@ -1348,7 +1348,13 @@ namespace CrownATTime.Client.Pages
                             Id = ticket.item.id,
                             Status = ticket.item.status,
                         });
+                        if(template.EmailTemplateId.HasValue)
+                        {
+                            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", template.EmailTemplateId } } , new DialogOptions { Width = "800px", Draggable = true });
+                            StateHasChanged();
+                        }
                         UpdateTicketValues();
+                        
                     }
                 }
                 

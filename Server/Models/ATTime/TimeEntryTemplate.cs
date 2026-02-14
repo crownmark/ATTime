@@ -39,5 +39,9 @@ namespace CrownATTime.Server.Models.ATTime
         public string TemplateAssignedTo { get; set; }
 
         public bool ShareWithOthers { get; set; }
+
+        public int? EmailTemplateId { get; set; }
+
+        public EmailTemplate EmailTemplate { get; set; }
     }
 }

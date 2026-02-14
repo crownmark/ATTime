@@ -43,6 +43,13 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.Id)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>()
+              .HasOne(i => i.EmailTemplate)
+              .WithMany(i => i.TimeEntryTemplates)
+              .HasForeignKey(i => i.EmailTemplateId)
+              .HasPrincipalKey(i => i.EmailTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
               .Property(p => p.SharedWithEveryone)
               .HasDefaultValueSql(@"((0))");

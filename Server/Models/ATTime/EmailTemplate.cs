@@ -60,5 +60,7 @@ namespace CrownATTime.Server.Models.ATTime
         public bool NotifyTicketPrimaryResource { get; set; }
 
         public bool NotifyTicketSecondaryResources { get; set; }
+
+        public ICollection<TimeEntryTemplate> TimeEntryTemplates { get; set; }
     }
 }

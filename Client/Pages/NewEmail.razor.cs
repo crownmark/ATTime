@@ -104,6 +104,9 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public CrownATTime.Server.Models.ATTime.TimeEntry TimeEntry { get; set; }
 
+        [Parameter]
+        public int? EmailTemplateId { get; set; }
+
         protected EmailTemplate selectedTemplate { get; set; }
 
         protected IEnumerable<AiPromptConfiguration> promptConfigurations { get; set; }
@@ -115,6 +118,7 @@ namespace CrownATTime.Client.Pages
         protected bool progressVisible { get; set; }
         protected int progress {  get; set; }
         protected bool gridLoading { get; set; }
+        
 
         protected override async Task OnInitializedAsync()
         {
@@ -137,6 +141,11 @@ namespace CrownATTime.Client.Pages
                 if (checklistResults.Any())
                 {
                     ChecklistItems = checklistResults;
+                }
+                if(EmailTemplateId.HasValue)
+                {
+                    emailMessage.TemplateId = Convert.ToInt32(EmailTemplateId);
+                    await TemplateIdChange(null);
                 }
 
             }

@@ -33,6 +33,14 @@
                           style="display: block; width: 100%" @bind-Value="@(timeEntryTemplate.BillingCodeId)" Name="BillingCodeId"
                          Count=@billingCodeCachesForBillingCodeIdCount LoadData=@billingCodeCachesForBillingCodeIdLoadData AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" />
               </ChildContent>
+              <Helper>
+                    <RadzenNumericRangeValidator Min="1" Component="BillingCodeId" Text="Billing Code is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Email Template" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDropDown TValue="int?" ValueProperty="EmailTemplateId" TextProperty="Title" Data="@emailTemplates" LoadData="@emailTemplatesLoadData" Count="@emailTemplatesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" @bind-Value="@timeEntryTemplate.EmailTemplateId" Name="EmailTemplateId" />
+              </ChildContent>
             </RadzenFormField>
             <RadzenFormField Text="Summary Notes" Variant="Variant.Outlined">
                   <ChildContent>

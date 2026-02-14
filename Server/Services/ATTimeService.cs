@@ -2360,6 +2360,7 @@ namespace CrownATTime.Server
             var items = Context.TimeEntryTemplates.AsQueryable();
 
             items = items.Include(i => i.BillingCodeCache);
+            items = items.Include(i => i.EmailTemplate);
 
             if (query != null)
             {
@@ -2391,6 +2392,7 @@ namespace CrownATTime.Server
                               .Where(i => i.TimeEntryTemplateId == timeentrytemplateid);
 
             items = items.Include(i => i.BillingCodeCache);
+            items = items.Include(i => i.EmailTemplate);
  
             OnGetTimeEntryTemplateByTimeEntryTemplateId(ref items);
 
@@ -2463,6 +2465,7 @@ namespace CrownATTime.Server
 
             Reset();
             timeentrytemplate.BillingCodeCache = null;
+            timeentrytemplate.EmailTemplate = null;
 
             Context.Attach(timeentrytemplate).State = EntityState.Modified;
 
