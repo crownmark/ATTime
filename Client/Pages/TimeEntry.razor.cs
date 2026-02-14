@@ -104,6 +104,8 @@ namespace CrownATTime.Client.Pages
         protected bool summaryNotesAiBusy { get; set; }
         protected bool interalNotesAiBusy { get; set; }
         protected bool timeEntryAiBusy { get; set; }
+        protected bool IsAiExpanded { get; set; }
+
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (!_openedAccordionOnce && !pageLoading)
@@ -884,6 +886,7 @@ namespace CrownATTime.Client.Pages
                 return ClampInt(m, -59, 59);
             }
         }
+        protected bool isAiExpanded { get; set; }
 
         void OnHoursChanged(int newHours)
         {
@@ -1722,6 +1725,26 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task AddTeamsMessageButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             await DialogService.OpenAsync<NewTeamsMessage>("New Teams Message", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource } }, new DialogOptions { Width = "800px" });
+        }
+
+        protected async System.Threading.Tasks.Task AiPopoutButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            if(IsAiExpanded)
+            {
+                TooltipService.Open(args, "Restore AI assistant", new TooltipOptions() { Duration = null });
+
+            }
+            else
+            {
+                TooltipService.Open(args, "Pop out AI assistant", new TooltipOptions() { Duration = null });
+
+            }
+
+        }
+
+        protected async System.Threading.Tasks.Task AiPopoutButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
         }
     }
 }

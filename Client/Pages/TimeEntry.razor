@@ -314,12 +314,17 @@
                         </RadzenStack>
 
                     </RadzenFieldset>
+                        <div class="@(IsAiExpanded ? "ai-expanded" : "")">
+
 <RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
-                         <AIGeneralAssistant Prompt="@generalAiPromptConfiguration" />
+                            <RadzenButton Icon="open_in_full" Click="@(() => IsAiExpanded = !IsAiExpanded)" Size="Radzen.ButtonSize.ExtraSmall" Variant="Radzen.Variant.Outlined" MouseEnter="@AiPopoutButtonMouseEnter" MouseLeave="@AiPopoutButtonMouseLeave" Text="" />
+                            <AIGeneralAssistant Prompt="@generalAiPromptConfiguration" />
                         </RadzenStack>
 
                     </RadzenFieldset>
+                        </div>
+
                     <RadzenFieldset Text="Contact Details" AllowCollapse="true" Icon="person" Collapsed="false" Visible="@ticket.item.contactID.HasValue">
                     <RadzenStack Gap="10">
 
@@ -417,4 +422,15 @@
       height: 65vh;
       border: none;
     }
+    .ai-expanded {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 77vw;
+    height: 100vh;
+    background: black;
+    z-index: 2000;
+    padding: 20px;
+    }
+
 </style>
