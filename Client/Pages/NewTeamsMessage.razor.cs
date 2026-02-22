@@ -84,12 +84,19 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public ResourceCache TicketResource { get; set; }
 
+        [Parameter]
+        public int? TeamsMessageTemplateId { get; set; }
+
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                
+                if (TeamsMessageTemplateId.HasValue)
+                {
+                    selectedTemplate = TeamsMessageTemplateId.Value;
+                    await TemplateDropDown0Change(selectedTemplate);
+                }
             }
             catch (Exception ex)
             {

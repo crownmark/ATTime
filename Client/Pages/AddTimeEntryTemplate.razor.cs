@@ -55,6 +55,10 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.EmailTemplate> emailTemplates;
 
         protected int emailTemplatesCount;
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate> teamsTemplates;
+
+        protected int teamsTemplatesCount;
         protected async Task billingCodeCachesForBillingCodeIdLoadData(LoadDataArgs args)
         {
             try
@@ -116,9 +120,26 @@ namespace CrownATTime.Client.Pages
                 emailTemplates = result.Value.AsODataEnumerable();
                 emailTemplatesCount = result.Count;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load Error: {ex.Message}" });
+            }
+        }
+
+        protected async Task teamsTemplatesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"Active eq true";
+
+                var result = await ATTimeService.GetTeamsMessageTemplates(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Title, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Title asc");
+
+                teamsTemplates = result.Value.AsODataEnumerable();
+                teamsTemplatesCount = result.Count;
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load Error: {ex.Message}" });
             }
         }
     }

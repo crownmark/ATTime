@@ -39,5 +39,9 @@ namespace CrownATTime.Server.Models.ATTime
 
         [MaxLength(4000)]
         public string AdaptiveCardTemplate { get; set; }
+
+        public bool Active { get; set; }
+
+        public ICollection<TimeEntryTemplate> TimeEntryTemplates { get; set; }
     }
 }

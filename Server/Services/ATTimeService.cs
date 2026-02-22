@@ -2361,6 +2361,7 @@ namespace CrownATTime.Server
 
             items = items.Include(i => i.BillingCodeCache);
             items = items.Include(i => i.EmailTemplate);
+            items = items.Include(i => i.TeamsMessageTemplate);
 
             if (query != null)
             {
@@ -2393,6 +2394,7 @@ namespace CrownATTime.Server
 
             items = items.Include(i => i.BillingCodeCache);
             items = items.Include(i => i.EmailTemplate);
+            items = items.Include(i => i.TeamsMessageTemplate);
  
             OnGetTimeEntryTemplateByTimeEntryTemplateId(ref items);
 
@@ -2466,6 +2468,7 @@ namespace CrownATTime.Server
             Reset();
             timeentrytemplate.BillingCodeCache = null;
             timeentrytemplate.EmailTemplate = null;
+            timeentrytemplate.TeamsMessageTemplate = null;
 
             Context.Attach(timeentrytemplate).State = EntityState.Modified;
 

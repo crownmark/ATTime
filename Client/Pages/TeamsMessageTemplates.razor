@@ -20,6 +20,8 @@
         <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30, 50]) 
             Data="@(teamsMessageTemplates)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" RowSelect="@EditRow" Responsive="true">
             <Columns>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="Active" Title="Active">
+                </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="TeamsMessageType.Title" Title="Teams Message Type">
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TeamsMessageTemplate" Property="Title" Title="Title">

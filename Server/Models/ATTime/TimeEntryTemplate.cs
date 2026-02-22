@@ -43,5 +43,11 @@ namespace CrownATTime.Server.Models.ATTime
         public int? EmailTemplateId { get; set; }
 
         public EmailTemplate EmailTemplate { get; set; }
+
+        public int? TeamsMessageTemplateId { get; set; }
+
+        public TeamsMessageTemplate TeamsMessageTemplate { get; set; }
+
+        public int? Minutes { get; set; }
     }
 }

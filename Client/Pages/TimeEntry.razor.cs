@@ -885,6 +885,7 @@ namespace CrownATTime.Client.Pages
                 var m = TotalMinutes - (h * 60);
                 return ClampInt(m, -59, 59);
             }
+            
         }
         protected bool isAiExpanded { get; set; }
 
@@ -1343,6 +1344,13 @@ namespace CrownATTime.Client.Pages
                         timeEntryRecord.BillingCodeId = template.BillingCodeId;
                         ticket.item.status = template.TicketStatus.HasValue ? template.TicketStatus.Value : ticket.item.status;
                         appendToResolution = template.AppendToResolution;
+                        if (template.Minutes.HasValue)
+                        {
+                            OnMinutesChanged(template.Minutes.Value);
+                            await TimerOffsetButtonClick(new MouseEventArgs());
+                        }
+                        StateHasChanged();
+
                         await AutotaskService.UpdateTicket(new TicketUpdateDto()
                         {
                             Id = ticket.item.id,
@@ -1351,8 +1359,13 @@ namespace CrownATTime.Client.Pages
                         if(template.EmailTemplateId.HasValue)
                         {
                             await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", template.EmailTemplateId } } , new DialogOptions { Width = "800px", Draggable = true });
-                            StateHasChanged();
                         }
+                        if (template.TeamsMessageTemplateId.HasValue)
+                        {
+                            await DialogService.OpenAsync<NewTeamsMessage>($"New Teams Message {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TeamsMessageTemplateId", template.TeamsMessageTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
+                        }
+                        StateHasChanged();
+
                         UpdateTicketValues();
                         
                     }
@@ -1730,7 +1743,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task AddTeamsMessageButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<NewTeamsMessage>("New Teams Message", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource } }, new DialogOptions { Width = "800px" });
+            await DialogService.OpenAsync<NewTeamsMessage>("New Teams Message", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TeamsMessageTemplateId", null } }, new DialogOptions { Width = "800px" });
         }
 
         protected async System.Threading.Tasks.Task AiPopoutButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)

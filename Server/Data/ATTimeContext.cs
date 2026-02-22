@@ -50,6 +50,13 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.EmailTemplateId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>()
+              .HasOne(i => i.TeamsMessageTemplate)
+              .WithMany(i => i.TimeEntryTemplates)
+              .HasForeignKey(i => i.TeamsMessageTemplateId)
+              .HasPrincipalKey(i => i.TeamsMessageTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
               .Property(p => p.SharedWithEveryone)
               .HasDefaultValueSql(@"((0))");
@@ -93,6 +100,10 @@ namespace CrownATTime.Server.Data
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
               .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageType>()
               .Property(p => p.Active)

@@ -42,6 +42,11 @@
                     <RadzenDropDown TValue="int?" ValueProperty="EmailTemplateId" TextProperty="Title" Data="@emailTemplates" LoadData="@emailTemplatesLoadData" Count="@emailTemplatesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" @bind-Value="@timeEntryTemplate.EmailTemplateId" Name="EmailTemplateId" />
               </ChildContent>
             </RadzenFormField>
+            <RadzenFormField Text="Teams Message Template" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenDropDown TValue="int?" ValueProperty="TeamsMessageTemplateId" TextProperty="Title" Data="@teamsTemplates" LoadData="@teamsTemplatesLoadData" Count="@teamsTemplatesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" @bind-Value="@timeEntryTemplate.TeamsMessageTemplateId" Name="TeamsMessageTemplateId" />
+                </ChildContent>
+            </RadzenFormField>
             <RadzenFormField Text="Summary Notes" Variant="Variant.Outlined">
                   <ChildContent>
                       <RadzenTextArea Rows="10" @bind-Value="@timeEntryTemplate.SummaryNotes" Name="SummaryNotes"></RadzenTextArea>
@@ -51,6 +56,12 @@
                   <ChildContent>
                       <RadzenTextArea @bind-Value="@timeEntryTemplate.InternalNotes" Name="InternalNotes" Rows="8"></RadzenTextArea>
               </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Minutes Worked" Variant="Variant.Outlined">
+                <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(timeEntryTemplate.Minutes)" Name="Minutes" />
+                </ChildContent>
+                
             </RadzenFormField>
             <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
                   <ChildContent>

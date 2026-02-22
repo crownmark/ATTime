@@ -113,7 +113,7 @@ namespace CrownATTime.Server.Controllers.ATTime
                 this.context.SaveChanges();
 
                 var itemToReturn = this.context.TimeEntryTemplates.Where(i => i.TimeEntryTemplateId == key);
-                Request.QueryString = Request.QueryString.Add("$expand", "BillingCodeCache,EmailTemplate");
+                Request.QueryString = Request.QueryString.Add("$expand", "BillingCodeCache,EmailTemplate,TeamsMessageTemplate");
                 this.OnAfterTimeEntryTemplateUpdated(item);
                 return new ObjectResult(SingleResult.Create(itemToReturn));
             }
@@ -148,7 +148,7 @@ namespace CrownATTime.Server.Controllers.ATTime
                 this.context.SaveChanges();
 
                 var itemToReturn = this.context.TimeEntryTemplates.Where(i => i.TimeEntryTemplateId == key);
-                Request.QueryString = Request.QueryString.Add("$expand", "BillingCodeCache,EmailTemplate");
+                Request.QueryString = Request.QueryString.Add("$expand", "BillingCodeCache,EmailTemplate,TeamsMessageTemplate");
                 this.OnAfterTimeEntryTemplateUpdated(item);
                 return new ObjectResult(SingleResult.Create(itemToReturn));
             }
@@ -184,7 +184,7 @@ namespace CrownATTime.Server.Controllers.ATTime
 
                 var itemToReturn = this.context.TimeEntryTemplates.Where(i => i.TimeEntryTemplateId == item.TimeEntryTemplateId);
 
-                Request.QueryString = Request.QueryString.Add("$expand", "BillingCodeCache,EmailTemplate");
+                Request.QueryString = Request.QueryString.Add("$expand", "BillingCodeCache,EmailTemplate,TeamsMessageTemplate");
 
                 this.OnAfterTimeEntryTemplateCreated(item);
 
