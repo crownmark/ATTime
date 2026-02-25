@@ -57,6 +57,65 @@
             }
 
         }
+        [HttpPost("ticketattachments")]
+        public async Task<IActionResult> CreateAttacmentItem([FromBody] AttachmentCreateDto attachment)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(attachment, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var request = new HttpRequestMessage(HttpMethod.Post, $"v1.0/Tickets/{attachment.ticketID}/Attachments");
+
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                // 🔑 Autotask impersonation header
+                request.Headers.TryAddWithoutValidation("ImpersonationResourceId", attachment.attachedByResourceID.ToString());
+
+                var response = await _http.SendAsync(request);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating attachment item: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("ticketattachments")]
+        public async Task<IActionResult> DeleteAttachmentItem([FromBody] AttachmentDtoResult item)
+        {
+            try
+            {
+                if (item.id <= 0)
+                {
+                    return BadRequest("Missing or invalid ID.");
+                }
+
+
+                var response = await _http.DeleteAsync($"v1.0/Tickets/{item.ticketID}/Attachments/{item.id}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error deleting attachment item: {ex.Message}");
+            }
+        }
 
         [HttpGet("ticketattachments/{ticketId}")]
         public async Task<IActionResult> GetTicketAttachments(int ticketId)

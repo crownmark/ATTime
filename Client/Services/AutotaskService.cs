@@ -637,6 +637,32 @@
                 .ReadAsync<AutotaskItemsResponse<ContractDto>>(response);
         }
 
+        public async Task<AutotaskItemsResponse<AttachmentDtoResult>> GetAttachmentsForTicket(long ticketId)
+        {
+            
+            var uri = new Uri(baseUri, $"ticketattachments/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<AttachmentDtoResult>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<AttachmentDtoResult>>(response);
+        }
+
+        public async Task<HttpResponseMessage> DeleteAttachment(AttachmentDtoResult attachment)
+        {
+            var uri = new Uri(baseUri, $"ticketattachments");
+            
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            var json = JsonSerializer.Serialize(attachment, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async Task<AutotaskItemsResponse<ServiceCall>> GetServiceCallsForTicket(long ticketId)
         {
             var filters = new List<object>
@@ -892,6 +918,24 @@
 
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<CrownATTime.Server.Models.NoteDtoCreatedResult>(response);
+        }
+
+        public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult> CreateTicketAttachment(CrownATTime.Server.Models.AttachmentCreateDto attachment)
+        {
+            var uri = new Uri(baseUri, $"ticketattachments");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(attachment, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            OnCreateTimeEntry(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var result = await response.Content.ReadAsStringAsync();
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.AutotaskItemCreatedResult>(response);
         }
 
         #endregion

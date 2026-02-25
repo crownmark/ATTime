@@ -66,51 +66,81 @@
         <RadzenTabs RenderMode="Radzen.TabRenderMode.Client" Change="@Tabs0Change">
             <Tabs>
                 <RadzenTabsItem Text="Activity" Icon="history">
+                                    <ChildContent>
+                                        <RadzenDataGrid @ref="timeEntriesGrid" TItem="Server.Models.TimeEntryDto" IsLoading="@gridLoading" Data="@timeEntries" Count="@timeEntriesCount" LoadData="@TimeEntriesDataGridLoadData" Style="max-height: 500px">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="Server.Models.TimeEntryDto" Property="SummaryNotes" Title="Activity">
+                                                    <Template>
+                                                        <RadzenStack>
+                                                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                                                                <RadzenLabel Text="Created: " Style="font-weight: bold" />
+                                                                <RadzenLabel Text="@context.StartDateTime.Value.ToLocalTime().ToString("MM/dd/yyyy h:mm tt")" />
+                                                            </RadzenStack>
+                                                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                                                                <RadzenLabel Text="Resource: " Style="font-weight: bold" />
+                                                                <RadzenLabel Text="@context.ResourceName" />
+                                                            </RadzenStack>
+                                                            <RadzenStack Orientation="Radzen.Orientation.Vertical">
+                                                                <RadzenLabel Text="Summary Notes: " Style="font-weight: bold" Visible="@(!string.IsNullOrEmpty(context.SummaryNotes))" />
+                                                                <RadzenText Text="@context.SummaryNotes" Visible="@(!string.IsNullOrEmpty(context.SummaryNotes))" style="white-space: pre-line;" />
+                                                            </RadzenStack>
+                                                            <RadzenStack Orientation="Radzen.Orientation.Vertical">
+                                                                <RadzenLabel Text="Internal Notes: " Style="font-weight: bold; color: var(--rz-danger)" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" />
+                                                                <RadzenText Text="@context.InternalNotes" style="font-weight: bold; color: var(--rz-danger); white-space: pre-line;" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" />
+                                                            </RadzenStack>
+                                                        </RadzenStack>
+                                                    </Template>
+                                                    
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                            <HeaderTemplate>
+                                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                                                    <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Click="@RefreshTimeEntriesButtonClick"></RadzenButton>
+                                                    <RadzenLabel Text="Time Entries?" />
+                                                    <RadzenCheckBox TValue="bool" @bind-Value="@filterTimeEntries" Change="@TimeEntriesSearchCheckBoxChange"></RadzenCheckBox>
+                                                    <RadzenLabel Text="Notes?" />
+                                                    <RadzenCheckBox TValue="bool" @bind-Value="@filterNotes" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
+                                                    <RadzenLabel Text="Communication?" />
+                                                    <RadzenCheckBox TValue="bool" @bind-Value="@filterCommunication" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
+                                                    <RadzenTextBox Placeholder="Search ..." style="display: block" aria-label="Search by all string columns" @bind-Value="@search" Change="@SearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+                                                    <RadzenButton Icon="search" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Text="Search" Click="@SearchTimeEntriesButtonClick" Visible="false"></RadzenButton>
+                
+                                                </RadzenStack>
+                                            </HeaderTemplate>
+                                        </RadzenDataGrid>
+                                    </ChildContent>
+                                </RadzenTabsItem>
+                <RadzenTabsItem Text="Attachments" Icon="attachment" Selected="false">
                     <ChildContent>
-                        <RadzenDataGrid @ref="timeEntriesGrid" TItem="Server.Models.TimeEntryDto" IsLoading="@gridLoading" Data="@timeEntries" Count="@timeEntriesCount" LoadData="@TimeEntriesDataGridLoadData" Style="max-height: 500px">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="Server.Models.TimeEntryDto" Property="SummaryNotes" Title="Activity">
-                                    <Template>
-                                        <RadzenStack>
-                                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
-                                                <RadzenLabel Text="Created: " Style="font-weight: bold" />
-                                                <RadzenLabel Text="@context.StartDateTime.Value.ToString()" />
-                                            </RadzenStack>
-                                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
-                                                <RadzenLabel Text="Resource: " Style="font-weight: bold" />
-                                                <RadzenLabel Text="@context.ResourceName" />
-                                            </RadzenStack>
-                                            <RadzenStack Orientation="Radzen.Orientation.Vertical">
-                                                <RadzenLabel Text="Summary Notes: " Style="font-weight: bold" Visible="@(!string.IsNullOrEmpty(context.SummaryNotes))" />
-                                                <RadzenText Text="@context.SummaryNotes" Visible="@(!string.IsNullOrEmpty(context.SummaryNotes))" style="white-space: pre-line;" />
-                                            </RadzenStack>
-                                            <RadzenStack Orientation="Radzen.Orientation.Vertical">
-                                                <RadzenLabel Text="Internal Notes: " Style="font-weight: bold; color: var(--rz-danger)" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" />
-                                                <RadzenText Text="@context.InternalNotes" style="font-weight: bold; color: var(--rz-danger); white-space: pre-line;" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" />
-                                            </RadzenStack>
-                                        </RadzenStack>
-                                    </Template>
-                                    
-                                </RadzenDataGridColumn>
-                            </Columns>
-                            <HeaderTemplate>
+                        <RadzenDataGrid @ref="@attachmentsGrid" TItem="Server.Models.AttachmentDtoResult" Data="@attachments" IsLoading="@attachmentsLoading" LoadData="@DataGrid2LoadData">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.AttachmentDtoResult" Title="Title" MinWidth="200px">
+                                <Template>
+                                    <RadzenLink Target="_blank" Text="@($"  {context.title}")" Path="@($"https://ww5.autotask.net/Mvc/Framework/attachment.mvc/openfileattachment?attachmentId={context.id}")" Icon="link"></RadzenLink>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.AttachmentDtoResult" Property="attachDate" Title="Date" Width="180px">
+                                <Template>
+                                    <RadzenLabel Text="@(context.attachDate.ToLocalTime().ToString("MM/dd/yyyy h:mm tt"))" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.AttachmentDtoResult" FrozenPosition="Radzen.FrozenColumnPosition.Right" Width="50px">
+                                <Template>
+                                    <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Variant="Radzen.Variant.Outlined" Icon="delete" Size="Radzen.ButtonSize.Small" Style="width: 28px; height: 28px" Click="@((args) => DeleteAttachmentButton2Click(args, context))"></RadzenButton>
+                                </Template>
+                            </RadzenDataGridColumn>
+                            
+                        </Columns>
+                        <HeaderTemplate>
                                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
-                                    <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Click="@RefreshTimeEntriesButtonClick"></RadzenButton>
-                                    <RadzenLabel Text="Time Entries?" />
-                                    <RadzenCheckBox TValue="bool" @bind-Value="@filterTimeEntries" Change="@TimeEntriesSearchCheckBoxChange"></RadzenCheckBox>
-                                    <RadzenLabel Text="Notes?" />
-                                    <RadzenCheckBox TValue="bool" @bind-Value="@filterNotes" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
-                                    <RadzenLabel Text="Communication?" />
-                                    <RadzenCheckBox TValue="bool" @bind-Value="@filterCommunication" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
-                                    <RadzenTextBox Placeholder="Search ..." style="display: block" aria-label="Search by all string columns" @bind-Value="@search" Change="@SearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
-                                    <RadzenButton Icon="search" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Text="Search" Click="@SearchTimeEntriesButtonClick" Visible="false"></RadzenButton>
-
+                                    <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Click="@RefreshAttachmentsButtonClick"></RadzenButton>
+                                    <RadzenUpload ChooseText="Choose or Drag & Drop Here" Url="upload/EmailAttachments" Multiple="true" Complete="@Upload0Complete" Error="@Upload0Error" Progress="@Upload0Progress"></RadzenUpload>
                                 </RadzenStack>
                             </HeaderTemplate>
-                        </RadzenDataGrid>
+                    </RadzenDataGrid>
                     </ChildContent>
+                    
                 </RadzenTabsItem>
-                <RadzenTabsItem Text="Attachments" Icon="attachment"></RadzenTabsItem>
                 <RadzenTabsItem Text="Service Calls" Icon="assignment" Selected="false">
                     <RadzenDataGrid @ref="@serviceCallsGrid" TItem="Server.Models.ServiceCall" Data="@serviceCalls" IsLoading="@serviceCallsLoading" LoadData="@DataGrid1LoadData">
                         <Columns>
@@ -120,8 +150,16 @@
                                 </Template>
                             </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="duration" Title="Duration" Width="70px"></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="startDateTime" Title="Start" Width="155px"></RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="endDateTime" Title="End" Width="155px"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="startDateTime" Title="Start" Width="155px">
+                                <Template>
+                                    <RadzenLabel Text="@(context.startDateTime.ToLocalTime().ToString("MM/dd/yyyy h:mm tt"))" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="endDateTime" Title="End" Width="155px">
+                                <Template>
+                                    <RadzenLabel Text="@(context.endDateTime.ToLocalTime().ToString("MM/dd/yyyy h:mm tt"))" />
+                                </Template>
+                            </RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="isComplete" Title="Completed" Width="100px">
                                 <Template>
                                     <RadzenBadge Text="Complete" BadgeStyle="Radzen.BadgeStyle.Success" Variant="Radzen.Variant.Outlined" IsPill="true" Visible="@(context.isComplete == 1)"></RadzenBadge>

@@ -1551,7 +1551,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task ViewTicketDescriptionButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            DialogService.OpenSide<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "Ticket", ticket }, { "PriorityName", PriorityName }, { "StatusName", StatusName }, { "PrimaryResource", ticketResource?.FullName } }, new SideDialogOptions() { Position = DialogPosition.Right, ShowMask = false, Resizable = true, CloseDialogOnOverlayClick = true, Width = "800px" });
+            DialogService.OpenSide<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "Ticket", ticket }, { "PriorityName", PriorityName }, { "StatusName", StatusName }, { "PrimaryResource", ticketResource?.FullName }, { "ResourceId", resource.Id } }, new SideDialogOptions() { Position = DialogPosition.Right, ShowMask = false, Resizable = true, CloseDialogOnOverlayClick = true, Width = "800px" });
             //DialogService.Open<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "Ticket", ticket }, { "PriorityName", PriorityName }, { "StatusName", StatusName }, { "PrimaryResource", ticketResource?.FullName } }, new DialogOptions() {Draggable = true, Resizable = true,  CloseDialogOnOverlayClick = true, Width = "800px" });
 
         }

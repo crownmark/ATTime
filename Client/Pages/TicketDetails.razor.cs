@@ -1,13 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.JSInterop;
+using CrownATTime.Server.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
-using CrownATTime.Server.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using static CrownATTime.Server.Models.EmailMessage;
 
 namespace CrownATTime.Client.Pages
 {
@@ -45,18 +48,26 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public string PrimaryResource { get; set; }
 
+        [Parameter]
+        public int ResourceId { get; set; }
+
         protected List<TimeEntryDto> timeEntries { get; set; }  = new List<TimeEntryDto>();
         protected int timeEntriesCount { get; set; }
 
-        protected bool gridLoading { get; set; }
+        protected bool gridLoading { get; set; }       
+
+        protected RadzenDataGrid<TimeEntryDto> timeEntriesGrid;
 
         protected List<ServiceCall> serviceCalls { get; set; } = new List<ServiceCall>();
         protected int serviceCallsCount { get; set; }
-
         protected bool serviceCallsLoading { get; set; }
-        protected RadzenDataGrid<ServiceCall> serviceCallsGrid;
 
-        protected RadzenDataGrid<TimeEntryDto> timeEntriesGrid;
+        protected RadzenDataGrid<ServiceCall> serviceCallsGrid;
+        protected List<AttachmentDtoResult> attachments { get; set; } = new List<AttachmentDtoResult>();
+        protected int attachmentsCount { get; set; }
+        protected bool attachmentsLoading { get; set; }
+
+        protected RadzenDataGrid<AttachmentDtoResult> attachmentsGrid;
         protected bool filterTimeEntries {  get; set; } = true;
         protected bool filterNotes { get; set; } = true;
         protected bool filterCommunication { get; set; } = true;
@@ -169,6 +180,11 @@ namespace CrownATTime.Client.Pages
             await serviceCallsGrid.Reload();
         }
 
+        protected async System.Threading.Tasks.Task RefreshAttachmentsButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await attachmentsGrid.Reload();
+        }
+
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
@@ -215,6 +231,7 @@ namespace CrownATTime.Client.Pages
         {
             if (firstRender)
             {
+                await attachmentsGrid.Reload();
                 await timeEntriesGrid.Reload();
                 await serviceCallsGrid.Reload();
             }
@@ -233,6 +250,81 @@ namespace CrownATTime.Client.Pages
             catch (Exception ex)
             {
                 serviceCallsLoading = false;
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task DataGrid2LoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                attachmentsLoading = true;
+                var results = await AutotaskService.GetAttachmentsForTicket(Ticket.item.id);
+                attachments = results.Items.OrderByDescending(x => x.attachDate).ToList();
+                attachmentsCount = serviceCalls.Count();
+                attachmentsLoading = false;
+            }
+            catch (Exception ex)
+            {
+                attachmentsLoading = false;
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task Upload0Complete(UploadCompleteEventArgs args)
+        {
+            var attachmentslist = new List<IFormFileModel>();
+            attachmentslist.AddRange(JsonSerializer.Deserialize<List<IFormFileModel>>(args.RawResponse));
+            foreach (var attachment in attachmentslist)
+            {
+                try
+                {
+                    await AutotaskService.CreateTicketAttachment(new AttachmentCreateDto()
+                    {
+                        attachDate = DateTime.Now,
+                        attachedByContactID = null,
+                        attachedByResourceID = ResourceId,
+                        id = 0,
+                        attachmentType = "FILE_ATTACHMENT",
+                        contentType = attachment.ContentType,
+                        publish = 1,
+                        ticketID = Ticket.item.id,
+                        title = attachment.FileName,
+                        fullPath = attachment.FileName,
+                        data = Convert.ToBase64String(attachment.ByteArray)
+                    });
+                }
+                catch (Exception ex)
+                {
+                    NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}, Make sure the file is less than 10MB.", Duration = 5000 });
+
+                }
+
+            }
+            await attachmentsGrid.Reload();
+            attachmentsLoading = false;
+
+        }
+        protected async System.Threading.Tasks.Task Upload0Error(UploadErrorEventArgs args)
+        {
+            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{args.Message}", Duration = 5000 });
+        }
+
+        protected async System.Threading.Tasks.Task Upload0Progress(UploadProgressArgs args)
+        {
+            attachmentsLoading = true;
+        }
+
+        protected async System.Threading.Tasks.Task DeleteAttachmentButton2Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, AttachmentDtoResult data)
+        {
+            try
+            {
+                await AutotaskService.DeleteAttachment(data);
+                await attachmentsGrid.Reload();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}", Duration = 5000 });
 
             }
         }
