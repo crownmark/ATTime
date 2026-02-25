@@ -14,20 +14,25 @@
     using System.Text;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using static CrownATTime.Server.Models.ThreeCxMakeCallResult;
+
     public partial class AutotaskService
     {
         private readonly HttpClient httpClient;
         private readonly Uri baseUri;
         private readonly NavigationManager navigationManager;
         private readonly JsonSerializerOptions jsonOptions;
+        private readonly ATTimeService _atTimeService;
 
         public AutotaskService(
             NavigationManager navigationManager,
             HttpClient httpClient,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ATTimeService atTimeService)
         {
             this.httpClient = httpClient;
             this.navigationManager = navigationManager;
+            this._atTimeService = atTimeService;
 
             // This matches the server controller route: api/autotask/...
             this.baseUri = new Uri($"{navigationManager.BaseUri}api/autotask/");
@@ -37,6 +42,7 @@
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
                 PropertyNameCaseInsensitive = true
             };
+            _atTimeService = atTimeService;
         }
 
         public async Task<AutotaskItemsResponse<AccountAlertsDtoResult>> GetAccountAlertsByCompanyId(int id)
@@ -202,7 +208,7 @@
         {
             var filters = new List<object>
                 {
-                    new { op = "eq", field = "isActive", value = true },
+                    //new { op = "eq", field = "isActive", value = true },
                     new { op = "noteq", field = "id", value = 0},
                 };
             var searchObj = new
@@ -259,8 +265,10 @@
         {
             var filters = new List<object>
                 {
-                    new { op = "eq", field = "status", value = 1 }
-                };
+                //new { op = "eq", field = "status", value = 1 }
+                new { op = "gt", field = "id", value = 0 }
+
+            };
             var searchObj = new
             {
                 filter = filters,
@@ -629,6 +637,31 @@
                 .ReadAsync<AutotaskItemsResponse<ContractDto>>(response);
         }
 
+        public async Task<AutotaskItemsResponse<ServiceCall>> GetServiceCallsForTicket(long ticketId)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "ticketID", value = ticketId },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"ticketservicecalls/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<ServiceCall>>(response);
+        }
+
         #region Get time entries for ticket
 
         partial void OnGetTimeEntriesForTicket(HttpRequestMessage requestMessage);
@@ -636,7 +669,7 @@
         /// <summary>
         /// GET api/autotask/timeentries/byticket/{ticketId}
         /// </summary>
-        public async Task<List<CrownATTime.Server.Models.TimeEntryDto>> GetTimeEntriesForTicket(long ticketId)
+        public async Task<AutotaskItemsResponse<TimeEntryDto>> GetTimeEntriesForTicket(long ticketId)
         {
             var filters = new List<object>
                 {
@@ -655,10 +688,100 @@
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
 
             var response = await httpClient.SendAsync(httpRequestMessage);
-            var content = await response.Content.ReadAsStringAsync();
 
-            return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<List<CrownATTime.Server.Models.TimeEntryDto>>(response);
+            var result = await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<TimeEntryDto>>(response);
+
+            //return await Radzen.HttpResponseMessageExtensions
+            //    .ReadAsync<AutotaskItemsResponse<TimeEntryDto>>(response);
+
+            // ----------------------------------------------------
+            // 🔥 Get distinct resource IDs from time entries
+            // ----------------------------------------------------
+            var resourceIds = result.Items
+                .Select(x => x.ResourceId)
+                .Distinct()
+                .ToList();
+
+            // ----------------------------------------------------
+            // 🔥 Pull matching resources from your cache table
+            // ----------------------------------------------------
+            var resourcesResult = await _atTimeService.GetResourceCaches();
+            var resources = resourcesResult.Value.Where(r => resourceIds.Contains(r.Id)).ToList();
+
+            var resourceLookup = resources
+                .ToDictionary(r => r.Id);
+
+            // ----------------------------------------------------
+            // 🔥 Map back onto DTO
+            // ----------------------------------------------------
+            foreach (var item in result.Items)
+            {
+                if (resourceLookup.TryGetValue(item.ResourceId, out var resource))
+                {
+                    item.ResourceName = resource.FirstName + " " + resource.LastName;
+                    item.ResourceEmail = resource.Email;
+                }
+                item.isTimeEntry = true;
+            }
+            return result;
+        }
+
+        public async Task<AutotaskItemsResponse<NoteDto>> GetNotesForTicket(long ticketId)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "ticketID", value = ticketId },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"ticketnotes/{ticketId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            var result = await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<NoteDto>>(response);
+
+            //return await Radzen.HttpResponseMessageExtensions
+            //    .ReadAsync<AutotaskItemsResponse<TimeEntryDto>>(response);
+
+            // ----------------------------------------------------
+            // 🔥 Get distinct resource IDs from time entries
+            // ----------------------------------------------------
+            var resourceIds = result.Items
+                .Select(x => x.creatorResourceID)
+                .Distinct()
+                .ToList();
+
+            // ----------------------------------------------------
+            // 🔥 Pull matching resources from your cache table
+            // ----------------------------------------------------
+            var resourcesResult = await _atTimeService.GetResourceCaches();
+            var resources = resourcesResult.Value.Where(r => resourceIds.Contains(r.Id)).ToList();
+
+            var resourceLookup = resources
+                .ToDictionary(r => r.Id);
+
+            // ----------------------------------------------------
+            // 🔥 Map back onto DTO
+            // ----------------------------------------------------
+            foreach (var item in result.Items)
+            {
+                if (resourceLookup.TryGetValue(item.creatorResourceID.Value, out var resource))
+                {
+                    item.ResourceName = resource.FirstName + " " + resource.LastName;
+                    item.ResourceEmail = resource.Email;
+                }
+            }
+            return result;
         }
 
         #endregion
@@ -922,7 +1045,7 @@
         {
             var filters = new List<object>
                 {
-                    new { op = "eq", field = "isActive", value = true },
+                    //new { op = "eq", field = "isActive", value = true },
                     new { op = "eq", field = "useType", value = 1 },
                 };
             var searchObj = new
@@ -991,9 +1114,10 @@
         public async Task SyncResources()
         {
             var filters = new List<object>
-                {
-                    new { op = "eq", field = "isActive", value = true }
-                };
+            {
+                //new { op = "eq", field = "isActive", value = true }
+                new { op = "gt", field = "id", value = 0 }
+            };
             var searchObj = new
             {
                 filter = filters,
@@ -1049,9 +1173,10 @@
         {
             var filters = new List<object>
                 {
-                    new { op = "eq", field = "isActive", value = true },
+                //new { op = "eq", field = "isActive", value = true },
+                //new { op = "eq", field = "isActive", value = true },
 
-                };
+            };
             var searchObj = new
             {
                 filter = filters,
@@ -1080,7 +1205,7 @@
         {
             var filters = new List<object>
                 {
-                    new { op = "eq", field = "isActive", value = true },
+                    //new { op = "eq", field = "isActive", value = true },
                     //new { op = "eq", field = "resourceID", value = resourceId },
 
                 };

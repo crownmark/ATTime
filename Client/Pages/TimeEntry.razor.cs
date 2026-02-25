@@ -139,9 +139,9 @@ namespace CrownATTime.Client.Pages
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
                 //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'jordan@ce-technology.com'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
                 resource = resourceResult.Value.FirstOrDefault();
-                var billingCodeItems = await ATTimeService.GetBillingCodeCaches();// await AutotaskService.GetBillingCodes(); //cache in db
+                var billingCodeItems = await ATTimeService.GetBillingCodeCaches(filter: $"IsActive eq true");// await AutotaskService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Value.ToList();
-                var roles = await ATTimeService.GetRoleCaches();// await AutotaskService.GetRoles(); //cache in db
+                var roles = await ATTimeService.GetRoleCaches(filter: $"IsActive eq true");// await AutotaskService.GetRoles(); //cache in db
                 var serviceDeskRoles = await ATTimeService.GetServiceDeskRoleCaches(filter: $"ResourceId eq {resource.Id} and IsActive eq true");// await AutotaskService.GetServiceDeskRoles(resource.id);
                 mappedRoles = AutotaskService.MapToServiceDeskRoles(roles.Value.ToList(), serviceDeskRoles.Value.ToList(), true); //get from db
                 var fields = await AutotaskService.GetTicketFields(); //cache in db
@@ -1551,8 +1551,9 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task ViewTicketDescriptionButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            DialogService.OpenSide<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "Ticket", ticket }, { "PriorityName", PriorityName }, { "StatusName", StatusName } }, new SideDialogOptions() { ShowMask = true, Resizable = true, CloseDialogOnOverlayClick = true, Width = "700px" });
-            //await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { {"Ticket", ticket}, {"PriorityName", PriorityName}, {"StatusName", StatusName} });
+            DialogService.OpenSide<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "Ticket", ticket }, { "PriorityName", PriorityName }, { "StatusName", StatusName }, { "PrimaryResource", ticketResource?.FullName } }, new SideDialogOptions() { Position = DialogPosition.Right, ShowMask = false, Resizable = true, CloseDialogOnOverlayClick = true, Width = "800px" });
+            //DialogService.Open<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "Ticket", ticket }, { "PriorityName", PriorityName }, { "StatusName", StatusName }, { "PrimaryResource", ticketResource?.FullName } }, new DialogOptions() {Draggable = true, Resizable = true,  CloseDialogOnOverlayClick = true, Width = "800px" });
+
         }
 
         protected async System.Threading.Tasks.Task TicketDetailsButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)

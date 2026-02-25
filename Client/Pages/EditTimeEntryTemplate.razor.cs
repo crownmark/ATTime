@@ -65,7 +65,9 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var result = await ATTimeService.GetBillingCodeCaches(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Name asc");
+                var defaultFilter = $"IsActive eq true";
+
+                var result = await ATTimeService.GetBillingCodeCaches(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Name asc");
                 billingCodeCachesForBillingCodeId = result.Value.AsODataEnumerable();
                 billingCodeCachesForBillingCodeIdCount = result.Count;
 

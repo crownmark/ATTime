@@ -15,5 +15,9 @@
         public int publish { get; set; }
         public int ticketID { get; set; }
         public string title { get; set; }
+
+        // NEW
+        public string? ResourceName { get; set; }
+        public string? ResourceEmail { get; set; }
     }
 }

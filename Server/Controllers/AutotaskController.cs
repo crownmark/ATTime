@@ -10,6 +10,7 @@
     using Microsoft.Graph.Models;
     using Microsoft.IdentityModel.Logging;
     using System.Collections.Generic;
+    using System.Net.Http;
     using System.Text;
     using System.Text.Json;
     using System.Text.Json.Serialization;
@@ -72,6 +73,74 @@
             {
                 return StatusCode(500, $"Error fetching Ticket Attachments: {ex.Message}");
             }
+        }
+
+        [HttpGet("servicecalls/query")]
+        public async Task<IActionResult> GetServiceCalls([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/ServiceCalls/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching time entries: {ex.Message}");
+            }
+
+        }
+
+        [HttpGet("ticketservicecalls/query")]
+        public async Task<IActionResult> GetTicketServiceCalls([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/ServiceCallTickets/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var ticketServiceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicket>>(content);
+                var serviceCallIds = ticketServiceCalls.Items.Select(x => x.serviceCallID).ToArray();
+
+                //Get service calls
+                var filters = new List<object>
+                {
+                    new { op = "in", field = "id", value = serviceCallIds },
+                };
+                var searchObj = new
+                {
+                    filter = filters,
+                    MaxRecords = 500
+                };
+
+                var serviceCallcurrentSearch = JsonSerializer.Serialize(searchObj);
+                var serviceCallencodedSearch = Uri.EscapeDataString(serviceCallcurrentSearch);
+                var serviceCallresponse = await _http.GetAsync($"v1.0/ServiceCalls/query?search={serviceCallcurrentSearch}");
+
+                var serviceCallcontent = await serviceCallresponse.Content.ReadAsStringAsync();
+                var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
+
+                return Content(serviceCallcontent, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching service calls: {ex.Message}");
+            }
+
         }
 
         [HttpGet("ticketnotes/{ticketId}")]

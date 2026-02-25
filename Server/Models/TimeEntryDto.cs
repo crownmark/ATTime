@@ -47,6 +47,12 @@
 
         [JsonPropertyName("isNonBillable")]
         public bool IsNonBillable { get; set; }
+
+        // NEW
+        public string? ResourceName { get; set; }
+        public string? ResourceEmail { get; set; }
+        public bool isTimeEntry { get; set; }
+        public bool isNote { get; set; }
     }
 
     // For create/update you can re-use or make slimmer DTOs:

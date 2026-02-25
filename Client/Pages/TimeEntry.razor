@@ -39,8 +39,9 @@
 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
         <strong>Ticket: </strong>
-                <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal" MouseEnter="@TicketLink0MouseEnter" MouseLeave="@TicketLink0MouseLeave"></RadzenLink>
                 <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Text="Ticket Details" Icon="visibility" Click="@ViewTicketDescriptionButtonClick" MouseEnter="@TicketDetailsButtonMouseEnter" MouseLeave="@TicketDetailsButtonMouseLeave"></RadzenButton>
+
+                <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal" MouseEnter="@TicketLink0MouseEnter" MouseLeave="@TicketLink0MouseLeave"></RadzenLink>
                 
     </RadzenStack>
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
@@ -87,6 +88,14 @@
                                                    <RadzenText Text="@StatusName" Style="font-weight: bold" />
                                                </RadzenStack>
                                            </RadzenBadge>
+    </RadzenStack>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
+        <strong>Primary Resource: </strong>
+        <RadzenBadge Text="@ticketResource?.FullName" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+            <RadzenStack Style="width: 100%">
+                <RadzenText Text="@ticketResource?.FullName" Style="font-weight: bold" />
+            </RadzenStack>
+        </RadzenBadge>
     </RadzenStack>
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" AlignItems="Radzen.AlignItems.Center">
         <RadzenText Text="Time Entry Template:" TextStyle="Radzen.Blazor.TextStyle.H4" />
@@ -352,7 +361,11 @@
 
 </RadzenStack>
                         </RadzenStack>
+                        <RadzenStack>
+                                <RadzenLink Text="  All Open Tickets" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccountContact&filterType=AllOpen&recurringType=All&entityId={ticket.item.contactID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
+                                <RadzenLink Text="  Last 30 Days" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccountContact&filterType=CreatedInLastThirtyDays&recurringType=All&entityId={ticket.item.contactID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
 
+                        </RadzenStack>
                     </RadzenStack>
                     </RadzenFieldset>
 <RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="false">
@@ -388,7 +401,11 @@
 
                             <RadzenText Text="@($"{companyLocation?.item?.address1}, {(!string.IsNullOrEmpty(companyLocation?.item?.address2) ? companyLocation?.item?.address2 + ", " : "")}{companyLocation?.item?.city}, {companyLocation?.item?.state} {companyLocation?.item?.postalCode}")" Visible="@(company != null)" />
                         </RadzenStack>
+                        <RadzenStack>
+                                <RadzenLink Text="  All Open Tickets" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccount&filterType=AllOpen&recurringType=All&entityId={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
+                                <RadzenLink Text="  Last 30 Days" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccount&filterType=CreatedInLastThirtyDays&recurringType=All&entityId={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
 
+                        </RadzenStack>
                     </RadzenStack>
                     </RadzenFieldset>
                     <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch">
