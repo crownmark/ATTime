@@ -18,7 +18,7 @@
                             <RadzenNumericRangeValidator Text="Template is required" Component="selectedTemplate" Min="1"></RadzenNumericRangeValidator>
                         </Helper>
                     </RadzenFormField>
-                <RadzenFormField Text="Mentions" Component="CrownTeam">
+                <RadzenFormField Text="Mentions (Leave Blank to Mention The  Team)" Component="CrownTeam">
                     <ChildContent>
                         <RadzenDropDown TValue="IEnumerable<string>" @bind-Value="@crownTeamEmails" ValueProperty="Email" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" Multiple="true" Name="CrownTeam" AllowFiltering="true" ></RadzenDropDown>
 
