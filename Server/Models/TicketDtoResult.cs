@@ -29,9 +29,9 @@
             public int? contractID { get; set; }
             //public object contractServiceBundleID { get; set; }
             //public object contractServiceID { get; set; }
-            //public DateTime createDate { get; set; }
-            //public object createdByContactID { get; set; }
-            //public int creatorResourceID { get; set; }
+            public DateTime createDate { get; set; }
+            public int? createdByContactID { get; set; }
+            public int? creatorResourceID { get; set; }
             //public int creatorType { get; set; }
             //public object currentServiceThermometerRating { get; set; }
             public string description { get; set; }

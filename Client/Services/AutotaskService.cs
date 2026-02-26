@@ -801,11 +801,26 @@
             // ----------------------------------------------------
             foreach (var item in result.Items)
             {
-                if (resourceLookup.TryGetValue(item.creatorResourceID.Value, out var resource))
+                try
                 {
-                    item.ResourceName = resource.FirstName + " " + resource.LastName;
-                    item.ResourceEmail = resource.Email;
+                    
+                    if (item.creatorResourceID.HasValue && resourceLookup.TryGetValue(item.creatorResourceID.Value, out var resource))
+                    {
+                        item.ResourceName = resource.FirstName + " " + resource.LastName;
+                        item.ResourceEmail = resource.Email;
+                    }
+                    else
+                    {
+                        var contact = await GetContact(item.createdByContactID.Value);
+                        item.ResourceName = contact.item.fullName;
+                        item.ResourceEmail = contact.item.emailAddress;
+                    }
                 }
+                catch (Exception ex)
+                {
+
+                }
+                
             }
             return result;
         }

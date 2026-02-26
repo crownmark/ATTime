@@ -39,6 +39,9 @@ namespace CrownATTime.Client.Pages
         [Inject]
         protected AutotaskService AutotaskService { get; set; }
 
+        [Inject]
+        protected ATTimeService ATTimeService { get; set; }
+
         [Parameter]
         public TicketDtoResult Ticket { get; set; }
         [Parameter]
@@ -72,11 +75,39 @@ namespace CrownATTime.Client.Pages
         protected bool filterNotes { get; set; } = true;
         protected bool filterCommunication { get; set; } = true;
         protected string search = "";
+        protected string QueueName { get; set; }
+        protected List<string> SecondaryResources { get; set; } = new List<string>();
 
 
 
         protected override async Task OnInitializedAsync()
         {
+            try
+            {
+                if (Ticket.item.queueID.HasValue)
+                {
+                    var queue = await ATTimeService.GetTicketEntityPicklistValueCaches(filter: $"PicklistName eq 'queueID' and ValueInt eq {Ticket.item.queueID.Value}");
+                    if (queue.Value.Any())
+                    {
+                        QueueName = queue.Value.FirstOrDefault().Label;
+                    }
+                }
+                
+                var ticketSecondaryResources = await AutotaskService.GetSecondaryResources(Ticket.item.id);
+                if (ticketSecondaryResources != null)
+                {
+                    foreach (var secondaryResource in ticketSecondaryResources.Items)
+                    {
+                        var ticketSecondaryResource = await ATTimeService.GetResourceCacheById("", secondaryResource.resourceID);
+                        SecondaryResources.Add(ticketSecondaryResource.FullName);
+                        
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
             
         }
 
@@ -86,6 +117,7 @@ namespace CrownATTime.Client.Pages
             {
                 gridLoading = true;
                 timeEntries = new List<TimeEntryDto>();
+                
                 if (filterTimeEntries)
                 {
                     var result = await AutotaskService.GetTimeEntriesForTicket(Ticket.item.id);
@@ -100,11 +132,26 @@ namespace CrownATTime.Client.Pages
                         )
                         .ToList();
                 }
+                var allowedNoteTypes = new HashSet<int>
+                    {
+                        18,
+                        205,
+                        204,
+                        201,
+                        202,
+                        207,
+                        208,
+                        209,
+                        210,
+                        219,
+                        220
+                    };
                 if (filterNotes)
                 {
                     var result = await AutotaskService.GetNotesForTicket(Ticket.item.id);
+                    
                     var notes = result.Items
-                        .Where(x => !x.title.Contains("Customer") &&
+                        .Where(x => (!allowedNoteTypes.Contains(x.noteType)) &&
                             (
                                 (x.description?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) || 
                                 (x.title?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -118,7 +165,7 @@ namespace CrownATTime.Client.Pages
                         timeEntries.Add(new TimeEntryDto()
                         {
                             StartDateTime = note.createDateTime.Value,
-                            ResourceId = note.creatorResourceID.Value,
+                            ResourceId = note.creatorResourceID.HasValue ? note.creatorResourceID.Value : note.createdByContactID.Value,
                             ResourceEmail = note.ResourceEmail,
                             ResourceName = note.ResourceName,
                             SummaryNotes = note.publish == 1 ? note.title + Environment.NewLine + Environment.NewLine + note.description : null,
@@ -132,7 +179,7 @@ namespace CrownATTime.Client.Pages
                 {
                     var result = await AutotaskService.GetNotesForTicket(Ticket.item.id);
                     var notes = result.Items
-                        .Where(x => x.title.Contains("Customer") && 
+                        .Where(x => allowedNoteTypes.Contains(x.noteType) && 
                             (
                                 (x.description?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
                                 (x.title?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -146,7 +193,7 @@ namespace CrownATTime.Client.Pages
                         timeEntries.Add(new TimeEntryDto()
                         {
                             StartDateTime = note.createDateTime.Value,
-                            ResourceId = note.creatorResourceID.Value,
+                            ResourceId = note.creatorResourceID.HasValue ? note.creatorResourceID.Value : note.createdByContactID.Value,
                             ResourceEmail = note.ResourceEmail,
                             ResourceName = note.ResourceName,
                             SummaryNotes = note.publish == 1 ? note.title + Environment.NewLine + Environment.NewLine + note.description : null,
@@ -156,7 +203,7 @@ namespace CrownATTime.Client.Pages
                     }
                     //timeEntriesCount = timeEntries.Count();
                 }
-                timeEntries = timeEntries.OrderByDescending(x => x.DateWorked).ToList();
+                timeEntries = timeEntries.OrderByDescending(x => x.StartDateTime).ToList();
                 timeEntriesCount = timeEntries.Count();
                 
                 gridLoading = false;

@@ -2,10 +2,14 @@
 
 @attribute [Authorize]
 
-<RadzenStack>
+<RadzenStack Gap="2">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal">   
         <RadzenLabel Text="Title:" Style="font-weight: bold" />
 <RadzenLabel Text="@Ticket.item.title" />
+    </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal">   
+        <RadzenLabel Text="Created:" Style="font-weight: bold" />
+<RadzenLabel Text="@(Ticket.item.createDate.ToLocalTime().ToString())" />
     </RadzenStack>
 <RadzenStack Orientation="Radzen.Orientation.Horizontal">   
         <RadzenLabel Text="Status:" Style="font-weight: bold" />
@@ -51,8 +55,27 @@
 <RadzenStack Orientation="Radzen.Orientation.Horizontal">   
         <RadzenLabel Text="Primary Resource:" Style="font-weight: bold" />
 <RadzenBadge Text="@PrimaryResource" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+    <RadzenStack Style="width: 100%">
+        <RadzenText Text="@PrimaryResource" Style="font-weight: bold" />
+        </RadzenStack>
+        </RadzenBadge>
+</RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal">   
+        <RadzenLabel Text="Secondary Resource(s):" Style="font-weight: bold" />
+        @foreach (var item in SecondaryResources)
+        {
+            <RadzenBadge Text="@item" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+                <RadzenStack Style="width: 100%">                
+                    <RadzenText Text="@item" Style="font-weight: bold" />
+                </RadzenStack>
+            </RadzenBadge>
+        }
+</RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal">   
+        <RadzenLabel Text="Queue:" Style="font-weight: bold" />
+<RadzenBadge Text="@PrimaryResource" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
                                                <RadzenStack Style="width: 100%">
-                                                   <RadzenText Text="@PrimaryResource" Style="font-weight: bold" />
+                                                   <RadzenText Text="@QueueName" Style="font-weight: bold" />
                                                </RadzenStack>
                                            </RadzenBadge>
     </RadzenStack>
@@ -94,7 +117,7 @@
                                                 </RadzenDataGridColumn>
                                             </Columns>
                                             <HeaderTemplate>
-                                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
                                                     <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Click="@RefreshTimeEntriesButtonClick"></RadzenButton>
                                                     <RadzenLabel Text="Time Entries?" />
                                                     <RadzenCheckBox TValue="bool" @bind-Value="@filterTimeEntries" Change="@TimeEntriesSearchCheckBoxChange"></RadzenCheckBox>
