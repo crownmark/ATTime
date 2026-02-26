@@ -41,5 +41,33 @@ namespace CrownATTime.Server.Models.ATTime
         public string UserName { get; set; }
 
         public int? LicenseType { get; set; }
+
+        public bool ChecklistItemsCollapsed { get; set; }
+
+        public bool EmailNotesCollapsed { get; set; }
+
+        public bool CompanyDetailsCollapsed { get; set; }
+
+        [Column("AIChatCollapsed")]
+        public bool AichatCollapsed { get; set; }
+
+        public bool ContactDetailsCollapsed { get; set; }
+
+        public bool RocketshipCollapsed { get; set; }
+
+        public bool DeviceDetailsCollapsed { get; set; }
+
+        public bool HideTimeDetails { get; set; }
+
+        public int? DefaultEmailTemplate { get; set; }
+
+        public int? DefaultTimeEntryTemplate { get; set; }
+
+        public int? DefaultTeamsMessageTemplate { get; set; }
+
+        public int? DefaultNoteTemplate { get; set; }
+
+        [Column("DefaultAITemplate")]
+        public int? DefaultAitemplate { get; set; }
     }
 }

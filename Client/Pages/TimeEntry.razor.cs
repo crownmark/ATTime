@@ -95,6 +95,7 @@ namespace CrownATTime.Client.Pages
         protected int timeEntryTemplatesCount;
 
         protected List<TicketChecklistItemResult> TicketChecklistItemResult { get; set; }
+        protected int checklistItemsCount { get; set; }
         protected RadzenDataGrid<TicketChecklistItemResult> grid0 { get; set; }
         protected bool gridLoading { get; set; }
         protected IEnumerable<AiPromptConfiguration> promptConfigurations {  get; set; }
@@ -105,6 +106,14 @@ namespace CrownATTime.Client.Pages
         protected bool interalNotesAiBusy { get; set; }
         protected bool timeEntryAiBusy { get; set; }
         protected bool IsAiExpanded { get; set; }
+
+        protected bool ChecklistItemsCollapsed { get; set; } = true;
+        protected bool EmailNotesCollapsed { get; set; } = true;
+        protected bool AIChatCollapsed { get; set; } = true;
+        protected bool CompanyDetailsCollapsed { get; set; } = true;
+        protected bool ContactDetailsCollapsed { get; set; } = true;
+        protected bool RocketshipCollapsed { get; set; } = true;
+        protected bool DeviceDetailsCollapsed { get; set; } = true;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -130,7 +139,15 @@ namespace CrownATTime.Client.Pages
                 promptConfigurations = aiPrompts.Value.ToList();
                 try
                 {
-                    generalAiPromptConfiguration = promptConfigurations.Where(x => x.Name == "General AI Chat Prompt").FirstOrDefault();
+                    if (resource.DefaultAitemplate.HasValue)
+                    {
+                        generalAiPromptConfiguration = promptConfigurations.Where(x => x.AiPromptConfigurationId == resource.DefaultAitemplate.Value).FirstOrDefault();
+                    }
+                    else
+                    {
+                        generalAiPromptConfiguration = promptConfigurations.Where(x => x.Name == "General AI Chat Prompt").FirstOrDefault();
+
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -139,6 +156,16 @@ namespace CrownATTime.Client.Pages
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
                 //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'jordan@ce-technology.com'");// await AutotaskService.GetLoggedInResource(Security.User.Email); //cache in db
                 resource = resourceResult.Value.FirstOrDefault();
+                if (resource != null)
+                {
+                    ChecklistItemsCollapsed = resource.ChecklistItemsCollapsed;
+                    AIChatCollapsed = resource.AichatCollapsed;
+                    CompanyDetailsCollapsed = resource.CompanyDetailsCollapsed;
+                    ContactDetailsCollapsed = resource.ContactDetailsCollapsed;
+                    DeviceDetailsCollapsed = resource.DeviceDetailsCollapsed;
+                    EmailNotesCollapsed = resource.EmailNotesCollapsed;
+                    RocketshipCollapsed = resource.RocketshipCollapsed;
+                }
                 var billingCodeItems = await ATTimeService.GetBillingCodeCaches(filter: $"IsActive eq true");// await AutotaskService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Value.ToList();
                 var roles = await ATTimeService.GetRoleCaches(filter: $"IsActive eq true");// await AutotaskService.GetRoles(); //cache in db
@@ -236,6 +263,10 @@ namespace CrownATTime.Client.Pages
                         }
                         timeEntryRecord = await ATTimeService.CreateTimeEntry(newTimeEntry);
                     }
+                    if (resource.DefaultTimeEntryTemplate.HasValue)
+                    {
+                        TimeEntryTemplateChange(resource.DefaultTimeEntryTemplate.Value);
+                    }
                     UpdateTicketValues();
                     accordionSelectedIndex = 0;
 
@@ -300,7 +331,7 @@ namespace CrownATTime.Client.Pages
                 var picklistValuesList = picklistValues.Value.ToList();
                 var statuses = picklistValuesList.Where(x => x.PicklistName == "status");
                 //var statuses = ticketEntityFields.Where(x => x.Name == "status").FirstOrDefault().PicklistValues;
-                var allowedIds = new HashSet<int> { 1, 7, 8, 10, 12, 23, 29, 27, 32, 33, 34, 46, 47 }; // example status IDs
+                var allowedIds = new HashSet<int> { 1, 7, 8, 10, 12, 23, 29, 27, 30, 32, 33, 34, 46, 47 }; // example status IDs
 
                 var filtered = statuses
                     .Where(s => s.ValueInt.HasValue && allowedIds.Contains(s.ValueInt.Value)).OrderBy(x => x.Label)
@@ -1574,6 +1605,7 @@ namespace CrownATTime.Client.Pages
                 gridLoading = true;
                 TicketChecklistItemResult = await AutotaskService.GetOpenTicketChecklistItems(ticket.item.id);
                 TicketChecklistItemResult = TicketChecklistItemResult.OrderBy(x => x.position).ToList();
+                checklistItemsCount = TicketChecklistItemResult.Count;
                 gridLoading = false;
 
             }

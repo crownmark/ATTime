@@ -1,4 +1,4 @@
-using System.Net.Http;
+using CrownATTime.Client.Pages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using System.Net.Http;
 
 namespace CrownATTime.Client.Layout
 {
@@ -44,6 +45,10 @@ namespace CrownATTime.Client.Layout
 
         protected void ProfileMenuClick(RadzenProfileMenuItem args)
         {
+            if(args.Value == "My Profile")
+            {
+                DialogService.OpenAsync<EditProfile>("Edit Profile");
+            }
             if (args.Value == "Logout")
             {
                 Security.Logout();

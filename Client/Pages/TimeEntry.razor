@@ -142,7 +142,7 @@
                         </RadzenColumn>
                     </RadzenRow>
                     
-                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center" Visible="@(!timeEntryRecord.TimeStampStatus)">
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Start Date Time" Component="StartDateTime" style="width: 100%" />
                         </RadzenColumn>
@@ -157,7 +157,7 @@
                         </RadzenColumn>
                     </RadzenRow>
                     
-                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center" Visible="@(!timeEntryRecord.TimeStampStatus)">
                         <RadzenColumn SizeMD="3" SizeLG="2" SizeSM="3">
                             <RadzenLabel Text="Hours Worked" Component="HoursWorked" style="width: 100%" />
                         </RadzenColumn>
@@ -182,7 +182,7 @@
                             </RadzenStack>
                         </RadzenColumn>
                     </RadzenRow>
-                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center" Visible="@(!timeEntryRecord.TimeStampStatus)">
                     
                         <RadzenColumn SizeMD="3">
                             <RadzenLabel Text="Is Non Billable?" Component="IsNonBillable" style="width: 100%" />
@@ -246,10 +246,7 @@
                         
                     </RadzenRow>
                     <RadzenRow Gap="">
-                 
-                        <RadzenAccordion Style="margin-bottom: 10px" Multiple="true">
-                            <Items>
-                                <RadzenAccordionItem Expanded="True" Text="Checklist Items" Style="width: 100%" Icon="playlist_add_check" Selected="true">
+                        <RadzenFieldset Text="Checklist Items" AllowCollapse="true" Icon="playlist_add_check" Style="width: 100%" Collapsed="@(ChecklistItemsCollapsed && checklistItemsCount == 0)">
                                     @* <ChecklistItems TicketId="@(Convert.ToInt32(ticket.item.id))" ResourceId="@(Convert.ToInt32(resource.Id))" /> *@
                                     <RadzenRow>
                                         <RadzenColumn>
@@ -285,9 +282,8 @@
                                             </RadzenDataGrid>
                                         </RadzenColumn>
                                     </RadzenRow>
-                                </RadzenAccordionItem>
-                            </Items>
-                        </RadzenAccordion>
+                        </RadzenFieldset>
+                        
                     </RadzenRow>
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
                         <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
@@ -305,7 +301,7 @@
     </RadzenColumn>
     <RadzenColumn SizeXL="3" SizeLG="3" SizeMD="3" SizeSM="4">
     <RadzenStack>
-        <RadzenFieldset Text="Email & Notes" AllowCollapse="true" Icon="email">
+        <RadzenFieldset Text="Email & Note Actions" AllowCollapse="true" Icon="email" Collapsed="@EmailNotesCollapsed">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="email" Text="Send Email" Click="@SendEmailButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="note" Text="Add Note" Click="@AddNoteButtonClick" Visible="true"></RadzenButton>
@@ -313,7 +309,7 @@
                         </RadzenStack>
 
                     </RadzenFieldset>
-                    <RadzenFieldset Text="@($"RMM Device {configurationItem?.item?.referenceTitle}")" AllowCollapse="true" Icon="computer" Visible="@ticket.item.configurationItemID.HasValue">
+                    <RadzenFieldset Text="@($"RMM Device {configurationItem?.item?.referenceTitle}")" AllowCollapse="true" Icon="computer" Visible="@ticket.item.configurationItemID.HasValue" Collapsed="@DeviceDetailsCollapsed">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="computer" Text="Device" Click="@DeviceButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Web Remote" Click="@WebRemoteButtonClick"></RadzenButton>
@@ -325,7 +321,7 @@
                     </RadzenFieldset>
                         <div class="@(IsAiExpanded ? "ai-expanded" : "")">
 
-<RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat">
+<RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat" Collapsed="@AIChatCollapsed">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Icon="open_in_full" Click="@(() => IsAiExpanded = !IsAiExpanded)" Size="Radzen.ButtonSize.ExtraSmall" Variant="Radzen.Variant.Outlined" MouseEnter="@AiPopoutButtonMouseEnter" MouseLeave="@AiPopoutButtonMouseLeave" Text="" />
                             <AIGeneralAssistant Prompt="@generalAiPromptConfiguration" />
@@ -334,7 +330,7 @@
                     </RadzenFieldset>
                         </div>
 
-                    <RadzenFieldset Text="Contact Details" AllowCollapse="true" Icon="person" Collapsed="false" Visible="@ticket.item.contactID.HasValue">
+                    <RadzenFieldset Text="Contact Details" AllowCollapse="true" Icon="person" Collapsed="@ContactDetailsCollapsed" Visible="@ticket.item.contactID.HasValue">
                     <RadzenStack Gap="10">
 
                         <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
@@ -368,7 +364,7 @@
                         </RadzenStack>
                     </RadzenStack>
                     </RadzenFieldset>
-<RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="false">
+<RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="@CompanyDetailsCollapsed">
                     <RadzenStack Gap="10">
 
                         <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
@@ -408,7 +404,7 @@
                         </RadzenStack>
                     </RadzenStack>
                     </RadzenFieldset>
-                    <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch">
+                    <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch" Collapsed="@RocketshipCollapsed">
                     <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
 
                     </RadzenFieldset>

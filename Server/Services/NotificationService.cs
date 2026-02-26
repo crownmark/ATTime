@@ -42,6 +42,7 @@ namespace CrownATTime.Server.Services
                     () => Console.WriteLine("Scheduled for every day at 4:30pm"),
                     run => run.EveryWeekday().At(16, 30)
                 );
+            
             schedule.JobStarted += Schedule_JobStarted;
             schedule.JobEnded += Schedule_JobEnded;
             schedule.Start();

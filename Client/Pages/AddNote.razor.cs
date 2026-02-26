@@ -81,6 +81,12 @@ namespace CrownATTime.Client.Pages
         {
             note = new NewNote();
             note.TicketId = Ticket.item.id;
+
+            if (Resource.DefaultNoteTemplate.HasValue)
+            {
+                note.NoteTemplateId = Resource.DefaultNoteTemplate.Value;
+                NoteTemplateIdChange(null);
+            }
         }
         
         protected async Task ticketNoteEntityPicklistValueCachesNoteTypeLoadData(LoadDataArgs args)

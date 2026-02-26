@@ -124,15 +124,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var aiPrompts = await ATTimeService.GetAiPromptConfigurations(filter: $"Active eq true", orderby: $"MenuName", expand: $"TimeGuardSection");
-                promptConfigurations = aiPrompts.Value.ToList();
-                var results = await AutotaskService.GetContacts(Ticket.item.companyID);
-                contacts = results.Items
-                    .Where(c => !string.IsNullOrWhiteSpace(c.emailAddress))
-                    .GroupBy(c => c.emailAddress.Trim(), StringComparer.OrdinalIgnoreCase)
-                    .Select(g => g.First())
-                    .ToList();
-                if(Ticket.item.userDefinedFields.Any(x => x.name == "Quoter Quote Link"))
+                if (Ticket.item.userDefinedFields.Any(x => x.name == "Quoter Quote Link"))
                 {
                     var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quoter Quote Link");
                     emailMessage.QuoteLink = quoteUdf.value;
@@ -142,11 +134,29 @@ namespace CrownATTime.Client.Pages
                 {
                     ChecklistItems = checklistResults;
                 }
-                if(EmailTemplateId.HasValue)
+                if (EmailTemplateId.HasValue)
                 {
                     emailMessage.TemplateId = Convert.ToInt32(EmailTemplateId);
                     await TemplateIdChange(null);
                 }
+                else
+                {
+                    if (Resource.DefaultEmailTemplate.HasValue)
+                    {
+                        emailMessage.TemplateId = Resource.DefaultEmailTemplate.Value;
+                        await TemplateIdChange(null);
+                    }
+                }
+                var aiPrompts = await ATTimeService.GetAiPromptConfigurations(filter: $"Active eq true", orderby: $"MenuName", expand: $"TimeGuardSection");
+                promptConfigurations = aiPrompts.Value.ToList();
+                var results = await AutotaskService.GetContacts(Ticket.item.companyID);
+                contacts = results.Items
+                    .Where(c => !string.IsNullOrWhiteSpace(c.emailAddress))
+                    .GroupBy(c => c.emailAddress.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First())
+                    .ToList();
+                
+                
 
             }
             catch (Exception ex)

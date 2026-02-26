@@ -22,7 +22,7 @@
         public int RoleId { get; set; }
 
         [JsonPropertyName("billingCodeID")]
-        public int BillingCodeId { get; set; }
+        public int? BillingCodeId { get; set; }
 
         [JsonPropertyName("hoursWorked")]
         public decimal HoursWorked { get; set; }

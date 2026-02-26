@@ -13,6 +13,7 @@
                     <RadzenAppearanceToggle />
                     <RadzenProfileMenu Visible="@Security.IsAuthenticated()" Click="@ProfileMenuClick">
                         <ChildContent>
+                            <RadzenProfileMenuItem Text="My Profile" Icon="person_edit" Value="My Profile"></RadzenProfileMenuItem>
                             <RadzenProfileMenuItem Text="Logout" Value="Logout" Icon="power_settings_new" />
                         </ChildContent>
                         <Template>

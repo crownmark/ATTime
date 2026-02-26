@@ -97,6 +97,38 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.ChecklistItemsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.EmailNotesCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.CompanyDetailsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AichatCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.ContactDetailsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.RocketshipCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.DeviceDetailsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.HideTimeDetails)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
               .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");

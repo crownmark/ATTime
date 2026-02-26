@@ -97,6 +97,14 @@ namespace CrownATTime.Client.Pages
                     selectedTemplate = TeamsMessageTemplateId.Value;
                     await TemplateDropDown0Change(selectedTemplate);
                 }
+                else
+                {
+                    if (Resource.DefaultTeamsMessageTemplate.HasValue)
+                    {
+                        selectedTemplate = Resource.DefaultTeamsMessageTemplate.Value;
+                        await TemplateDropDown0Change(selectedTemplate);
+                    }
+                }
             }
             catch (Exception ex)
             {

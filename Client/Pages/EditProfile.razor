@@ -1,0 +1,92 @@
+@page "/edit-profile"
+
+@attribute [Authorize]
+
+<PageTitle>Edit Profile</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save ResourceCache</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Data="@(resourceCache)" Visible="@(resourceCache != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="4">
+                    <RadzenLabel Text="Checklist Items Collapsed" Component="ChecklistItemsCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="8">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.ChecklistItemsCollapsed)" Name="ChecklistItemsCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="4">
+                    <RadzenLabel Text="Email Notes Collapsed" Component="EmailNotesCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="8">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.EmailNotesCollapsed)" Name="EmailNotesCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="4">
+                    <RadzenLabel Text="Company Details Collapsed" Component="CompanyDetailsCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="8">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.CompanyDetailsCollapsed)" Name="CompanyDetailsCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="4">
+                    <RadzenLabel Text="Aichat Collapsed" Component="AichatCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="8">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.AichatCollapsed)" Name="AichatCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="4">
+                    <RadzenLabel Text="Contact Details Collapsed" Component="ContactDetailsCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="8">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.ContactDetailsCollapsed)" Name="ContactDetailsCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="4">
+                    <RadzenLabel Text="Rocketship Collapsed" Component="RocketshipCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="8">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.RocketshipCollapsed)" Name="RocketshipCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="4">
+                    <RadzenLabel Text="Device Details Collapsed" Component="DeviceDetailsCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="8">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.DeviceDetailsCollapsed)" Name="DeviceDetailsCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenStack>
+                <RadzenFormField Text="Default Email Template" Component="DefaultEmailTemplate">
+                    <RadzenDropDown TValue="int?" @bind-Value="@(resourceCache.DefaultEmailTemplate)" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultEmailTemplate" Data="@emailTemplates" ValueProperty="EmailTemplateId" TextProperty="Title" LoadData="@emailTemplatesLoadData"></RadzenDropDown> 
+                </RadzenFormField>
+                <RadzenFormField Text="Default Time Entry Template" Component="DefaultTimeEntryTemplate">
+                    <RadzenDropDown TValue="int?"  @bind-Value="@(resourceCache.DefaultTimeEntryTemplate)" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultTimeEntryTemplate" /> 
+                </RadzenFormField>
+                <RadzenFormField Text="Default Teams Message" Component="DefaultTeamsMessage">
+                    <RadzenDropDown TValue="int?" @bind-Value="@(resourceCache.DefaultTeamsMessageTemplate)" ValueProperty="TeamsMessageTemplateId" TextProperty="Title" Data="@teamsMessageTemplates" LoadData="@teamsMessageTemplatesLoadData" Count="@teamsMessageTemplatesCount" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultTeamsMessage" /> 
+                </RadzenFormField>
+                <RadzenFormField Text="Default Note Template" Component="DefaultNoteTemplate">
+                    <RadzenDropDown TValue="int?" @bind-Value="@(resourceCache.DefaultNoteTemplate)" ValueProperty="NoteTemplateId" TextProperty="Title" Data="@noteTemplates" LoadData="@noteTemplatesLoadData" Count="@noteTemplatesCount" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultNoteTemplate" /> 
+                </RadzenFormField>
+                <RadzenFormField Text="Default AI Template" Component="DefaultAITemplate">
+                    <RadzenDropDown TValue="int?" @bind-Value="@(resourceCache.DefaultAitemplate)" ValueProperty="AiPromptConfigurationId" TextProperty="Name" Data="@aiPromptConfigurations" LoadData="@aiPromptConfigurationsLoadData" Count="@aiPromptConfigurationsCount" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultAITemplate" /> 
+                </RadzenFormField>
+            </RadzenStack>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

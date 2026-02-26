@@ -1,0 +1,74 @@
+@page "/resource-caches"
+@attribute [Authorize]
+
+<PageTitle>ResourceCaches</PageTitle>
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenText Text="ResourceCaches" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0" />
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" aria-label="Search by all string columns" />
+    <RadzenRow>
+      <RadzenColumn SizeMD=12>
+        <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30]) 
+            Data="@(resourceCaches)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.ResourceCache" RowSelect="@EditRow">
+            <Columns>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="Id" Title="Id">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="Email" Title="Email">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="FirstName" Title="First Name">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="LastName" Title="Last Name">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="FullName" Title="Full Name">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="IsActive" Title="Is Active">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="OfficeExtension" Title="Office Extension">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="OfficePhone" Title="Office Phone">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="ResourceType" Title="Resource Type">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="UserName" Title="User Name">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="LicenseType" Title="License Type">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="ChecklistItemsCollapsed" Title="Checklist Items Collapsed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="EmailNotesCollapsed" Title="Email Notes Collapsed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="CompanyDetailsCollapsed" Title="Company Details Collapsed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="AichatCollapsed" Title="Aichat Collapsed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="ContactDetailsCollapsed" Title="Contact Details Collapsed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="RocketshipCollapsed" Title="Rocketship Collapsed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="DeviceDetailsCollapsed" Title="Device Details Collapsed">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Property="HideTimeDetails" Title="Hide Time Details">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                    <Template Context="resourceCache">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            Shade="Shade.Lighter" Variant="Variant.Flat"
+                            Click=@(args => GridDeleteButtonClick(args, resourceCache)) @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+
+    </RadzenColumn>
+  </RadzenRow>
+</RadzenStack>
