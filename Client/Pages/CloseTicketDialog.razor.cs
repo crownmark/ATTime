@@ -44,20 +44,23 @@ namespace CrownATTime.Client.Pages
         public int TicketId { get; set; }
         [Parameter]
         public int TimeEntryId { get; set; }
+        [Parameter]
+        public Server.Models.TicketDtoResult Ticket { get; set; }
 
         protected Server.Models.ATTime.TimeEntry timeEntryRecord { get; set; }
+       
+        
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
                 timeEntryRecord = await ATTimeService.GetTimeEntryByTimeEntryId("",TimeEntryId);
-                
+                closeTicketRecord.Resolution = Ticket.item.resolution;
             }
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Error Loading Time Entry Record.  Error: {ex.Message}" });
-
             }
         }
 
@@ -68,7 +71,8 @@ namespace CrownATTime.Client.Pages
                 await AutotaskService.UpdateTicket(new Server.Models.TicketUpdateDto()
                 {
                     Id = TicketId,
-                    Status = 5
+                    Status = 5,
+                    Resolution =  closeTicketRecord.Resolution
                 });
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Ticket Completed" });
                 DialogService.Close();
@@ -88,7 +92,7 @@ namespace CrownATTime.Client.Pages
                 // If SummaryNotes is empty, set directly
                 if (string.IsNullOrWhiteSpace(closeTicketRecord.Resolution))
                 {
-                    closeTicketRecord.Resolution = timeEntryRecord.SummaryNotes;
+                    closeTicketRecord.Resolution = string.IsNullOrEmpty(closeTicketRecord.Resolution) ? timeEntryRecord.SummaryNotes : $"{closeTicketRecord.Resolution}{Environment.NewLine}{timeEntryRecord.SummaryNotes}";
                     return;
                 }
 

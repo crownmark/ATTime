@@ -430,7 +430,7 @@ namespace CrownATTime.Client.Pages
                     {
                         if (await DialogService.Confirm("Are you sure you want to close this ticket?", "Close Ticket Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
                         {
-                            await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
+                            await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId }, {"Ticket", ticket } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
                             await JSRuntime.InvokeVoidAsync(
                                 "eval",
                                 "window.open('', '_self'); window.close();"
