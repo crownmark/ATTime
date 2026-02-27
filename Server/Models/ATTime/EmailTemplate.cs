@@ -61,6 +61,8 @@ namespace CrownATTime.Server.Models.ATTime
 
         public bool NotifyTicketSecondaryResources { get; set; }
 
+        public ICollection<ResourceCache> ResourceCaches { get; set; }
+
         public ICollection<TimeEntryTemplate> TimeEntryTemplates { get; set; }
     }
 }

@@ -242,5 +242,19 @@ namespace CrownATTime.Server.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetTimeGuardSections(), Request.Query, false), fileName);
         }
+
+        [HttpGet("/export/ATTime/allowedticketstatuses/csv")]
+        [HttpGet("/export/ATTime/allowedticketstatuses/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAllowedTicketStatusesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAllowedTicketStatuses(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/allowedticketstatuses/excel")]
+        [HttpGet("/export/ATTime/allowedticketstatuses/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAllowedTicketStatusesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAllowedTicketStatuses(), Request.Query, false), fileName);
+        }
     }
 }

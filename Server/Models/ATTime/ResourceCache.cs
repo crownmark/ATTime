@@ -61,13 +61,23 @@ namespace CrownATTime.Server.Models.ATTime
 
         public int? DefaultEmailTemplate { get; set; }
 
+        public EmailTemplate EmailTemplate { get; set; }
+
         public int? DefaultTimeEntryTemplate { get; set; }
+
+        public TimeEntryTemplate TimeEntryTemplate { get; set; }
 
         public int? DefaultTeamsMessageTemplate { get; set; }
 
+        public TeamsMessageTemplate TeamsMessageTemplate { get; set; }
+
         public int? DefaultNoteTemplate { get; set; }
+
+        public NoteTemplate NoteTemplate { get; set; }
 
         [Column("DefaultAITemplate")]
         public int? DefaultAitemplate { get; set; }
+
+        public AiPromptConfiguration AiPromptConfiguration { get; set; }
     }
 }

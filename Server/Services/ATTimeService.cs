@@ -1060,6 +1060,11 @@ namespace CrownATTime.Server
         {
             var items = Context.ResourceCaches.AsQueryable();
 
+            items = items.Include(i => i.AiPromptConfiguration);
+            items = items.Include(i => i.EmailTemplate);
+            items = items.Include(i => i.NoteTemplate);
+            items = items.Include(i => i.TeamsMessageTemplate);
+            items = items.Include(i => i.TimeEntryTemplate);
 
             if (query != null)
             {
@@ -1090,6 +1095,11 @@ namespace CrownATTime.Server
                               .AsNoTracking()
                               .Where(i => i.Id == id);
 
+            items = items.Include(i => i.AiPromptConfiguration);
+            items = items.Include(i => i.EmailTemplate);
+            items = items.Include(i => i.NoteTemplate);
+            items = items.Include(i => i.TeamsMessageTemplate);
+            items = items.Include(i => i.TimeEntryTemplate);
  
             OnGetResourceCacheById(ref items);
 
@@ -1161,6 +1171,11 @@ namespace CrownATTime.Server
             }
 
             Reset();
+            resourcecache.AiPromptConfiguration = null;
+            resourcecache.EmailTemplate = null;
+            resourcecache.NoteTemplate = null;
+            resourcecache.TeamsMessageTemplate = null;
+            resourcecache.TimeEntryTemplate = null;
 
             Context.Attach(resourcecache).State = EntityState.Modified;
 
@@ -2672,6 +2687,168 @@ namespace CrownATTime.Server
             }
 
             OnAfterTimeGuardSectionDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportAllowedTicketStatusesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/allowedticketstatuses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/allowedticketstatuses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportAllowedTicketStatusesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/allowedticketstatuses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/allowedticketstatuses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnAllowedTicketStatusesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.AllowedTicketStatus>> GetAllowedTicketStatuses(Query query = null)
+        {
+            var items = Context.AllowedTicketStatuses.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnAllowedTicketStatusesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnAllowedTicketStatusGet(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item);
+        partial void OnGetAllowedTicketStatusByAllowedTicketStatusId(ref IQueryable<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> GetAllowedTicketStatusByAllowedTicketStatusId(int allowedticketstatusid)
+        {
+            var items = Context.AllowedTicketStatuses
+                              .AsNoTracking()
+                              .Where(i => i.AllowedTicketStatusId == allowedticketstatusid);
+
+ 
+            OnGetAllowedTicketStatusByAllowedTicketStatusId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnAllowedTicketStatusGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnAllowedTicketStatusCreated(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item);
+        partial void OnAfterAllowedTicketStatusCreated(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> CreateAllowedTicketStatus(CrownATTime.Server.Models.ATTime.AllowedTicketStatus allowedticketstatus)
+        {
+            OnAllowedTicketStatusCreated(allowedticketstatus);
+
+            var existingItem = Context.AllowedTicketStatuses
+                              .Where(i => i.AllowedTicketStatusId == allowedticketstatus.AllowedTicketStatusId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.AllowedTicketStatuses.Add(allowedticketstatus);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(allowedticketstatus).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterAllowedTicketStatusCreated(allowedticketstatus);
+
+            return allowedticketstatus;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> CancelAllowedTicketStatusChanges(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnAllowedTicketStatusUpdated(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item);
+        partial void OnAfterAllowedTicketStatusUpdated(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> UpdateAllowedTicketStatus(int allowedticketstatusid, CrownATTime.Server.Models.ATTime.AllowedTicketStatus allowedticketstatus)
+        {
+            OnAllowedTicketStatusUpdated(allowedticketstatus);
+
+            var itemToUpdate = Context.AllowedTicketStatuses
+                              .Where(i => i.AllowedTicketStatusId == allowedticketstatus.AllowedTicketStatusId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(allowedticketstatus).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterAllowedTicketStatusUpdated(allowedticketstatus);
+
+            return allowedticketstatus;
+        }
+
+        partial void OnAllowedTicketStatusDeleted(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item);
+        partial void OnAfterAllowedTicketStatusDeleted(CrownATTime.Server.Models.ATTime.AllowedTicketStatus item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> DeleteAllowedTicketStatus(int allowedticketstatusid)
+        {
+            var itemToDelete = Context.AllowedTicketStatuses
+                              .Where(i => i.AllowedTicketStatusId == allowedticketstatusid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnAllowedTicketStatusDeleted(itemToDelete);
+
+            Reset();
+
+            Context.AllowedTicketStatuses.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterAllowedTicketStatusDeleted(itemToDelete);
 
             return itemToDelete;
         }

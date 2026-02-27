@@ -49,5 +49,7 @@ namespace CrownATTime.Server.Models.ATTime
         public TeamsMessageTemplate TeamsMessageTemplate { get; set; }
 
         public int? Minutes { get; set; }
+
+        public ICollection<ResourceCache> ResourceCaches { get; set; }
     }
 }

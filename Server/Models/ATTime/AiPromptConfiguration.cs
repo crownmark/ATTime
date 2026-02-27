@@ -41,5 +41,7 @@ namespace CrownATTime.Server.Models.ATTime
         public int? TimeGuardSectionsId { get; set; }
 
         public TimeGuardSection TimeGuardSection { get; set; }
+
+        public ICollection<ResourceCache> ResourceCaches { get; set; }
     }
 }

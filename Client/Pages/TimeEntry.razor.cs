@@ -330,9 +330,10 @@ namespace CrownATTime.Client.Pages
                 var picklistValues = await ATTimeService.GetTicketEntityPicklistValueCaches();
                 var picklistValuesList = picklistValues.Value.ToList();
                 var statuses = picklistValuesList.Where(x => x.PicklistName == "status");
-                //var statuses = ticketEntityFields.Where(x => x.Name == "status").FirstOrDefault().PicklistValues;
-                var allowedIds = new HashSet<int> { 1, 7, 8, 10, 12, 23, 29, 27, 30, 32, 33, 34, 46, 47 }; // example status IDs
-
+                //move to db for easier maintenance
+               // var allowedIds = new HashSet<int> { 1, 7, 8, 10, 12, 23, 29, 27, 30, 32, 33, 34, 46, 47, 57 }; // example status IDs
+                var allowedIdsResult = await ATTimeService.GetAllowedTicketStatuses();
+                var allowedIds = allowedIdsResult.Value.Select(x => x.TicketStatusId).ToHashSet();
                 var filtered = statuses
                     .Where(s => s.ValueInt.HasValue && allowedIds.Contains(s.ValueInt.Value)).OrderBy(x => x.Label)
                     .ToList();

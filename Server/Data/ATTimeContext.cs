@@ -29,6 +29,41 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.TimeGuardSectionsId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .HasOne(i => i.AiPromptConfiguration)
+              .WithMany(i => i.ResourceCaches)
+              .HasForeignKey(i => i.DefaultAitemplate)
+              .HasPrincipalKey(i => i.AiPromptConfigurationId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .HasOne(i => i.EmailTemplate)
+              .WithMany(i => i.ResourceCaches)
+              .HasForeignKey(i => i.DefaultEmailTemplate)
+              .HasPrincipalKey(i => i.EmailTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .HasOne(i => i.NoteTemplate)
+              .WithMany(i => i.ResourceCaches)
+              .HasForeignKey(i => i.DefaultNoteTemplate)
+              .HasPrincipalKey(i => i.NoteTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .HasOne(i => i.TeamsMessageTemplate)
+              .WithMany(i => i.ResourceCaches)
+              .HasForeignKey(i => i.DefaultTeamsMessageTemplate)
+              .HasPrincipalKey(i => i.TeamsMessageTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .HasOne(i => i.TimeEntryTemplate)
+              .WithMany(i => i.ResourceCaches)
+              .HasForeignKey(i => i.DefaultTimeEntryTemplate)
+              .HasPrincipalKey(i => i.TimeEntryTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
               .HasOne(i => i.TeamsMessageType)
               .WithMany(i => i.TeamsMessageTemplates)
@@ -214,6 +249,8 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> TimeEntryTemplates { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.TimeGuardSection> TimeGuardSections { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> AllowedTicketStatuses { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

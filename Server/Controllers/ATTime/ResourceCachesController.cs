@@ -113,7 +113,7 @@ namespace CrownATTime.Server.Controllers.ATTime
                 this.context.SaveChanges();
 
                 var itemToReturn = this.context.ResourceCaches.Where(i => i.Id == key);
-                
+                Request.QueryString = Request.QueryString.Add("$expand", "AiPromptConfiguration,EmailTemplate,NoteTemplate,TeamsMessageTemplate,TimeEntryTemplate");
                 this.OnAfterResourceCacheUpdated(item);
                 return new ObjectResult(SingleResult.Create(itemToReturn));
             }
@@ -148,7 +148,7 @@ namespace CrownATTime.Server.Controllers.ATTime
                 this.context.SaveChanges();
 
                 var itemToReturn = this.context.ResourceCaches.Where(i => i.Id == key);
-                
+                Request.QueryString = Request.QueryString.Add("$expand", "AiPromptConfiguration,EmailTemplate,NoteTemplate,TeamsMessageTemplate,TimeEntryTemplate");
                 this.OnAfterResourceCacheUpdated(item);
                 return new ObjectResult(SingleResult.Create(itemToReturn));
             }
@@ -184,7 +184,7 @@ namespace CrownATTime.Server.Controllers.ATTime
 
                 var itemToReturn = this.context.ResourceCaches.Where(i => i.Id == item.Id);
 
-                
+                Request.QueryString = Request.QueryString.Add("$expand", "AiPromptConfiguration,EmailTemplate,NoteTemplate,TeamsMessageTemplate,TimeEntryTemplate");
 
                 this.OnAfterResourceCacheCreated(item);
 

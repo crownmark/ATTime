@@ -1534,5 +1534,99 @@ namespace CrownATTime.Client
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
+
+        public async System.Threading.Tasks.Task ExportAllowedTicketStatusesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/allowedticketstatuses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/allowedticketstatuses/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportAllowedTicketStatusesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/allowedticketstatuses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/allowedticketstatuses/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetAllowedTicketStatuses(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.AllowedTicketStatus>> GetAllowedTicketStatuses(Query query)
+        {
+            return await GetAllowedTicketStatuses(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.AllowedTicketStatus>> GetAllowedTicketStatuses(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"AllowedTicketStatuses");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetAllowedTicketStatuses(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.AllowedTicketStatus>>(response);
+        }
+
+        partial void OnCreateAllowedTicketStatus(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> CreateAllowedTicketStatus(CrownATTime.Server.Models.ATTime.AllowedTicketStatus allowedTicketStatus = default(CrownATTime.Server.Models.ATTime.AllowedTicketStatus))
+        {
+            var uri = new Uri(baseUri, $"AllowedTicketStatuses");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(allowedTicketStatus), Encoding.UTF8, "application/json");
+
+            OnCreateAllowedTicketStatus(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.AllowedTicketStatus>(response);
+        }
+
+        partial void OnDeleteAllowedTicketStatus(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteAllowedTicketStatus(int allowedTicketStatusId = default(int))
+        {
+            var uri = new Uri(baseUri, $"AllowedTicketStatuses({allowedTicketStatusId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteAllowedTicketStatus(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetAllowedTicketStatusByAllowedTicketStatusId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> GetAllowedTicketStatusByAllowedTicketStatusId(string expand = default(string), int allowedTicketStatusId = default(int))
+        {
+            var uri = new Uri(baseUri, $"AllowedTicketStatuses({allowedTicketStatusId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetAllowedTicketStatusByAllowedTicketStatusId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.AllowedTicketStatus>(response);
+        }
+
+        partial void OnUpdateAllowedTicketStatus(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateAllowedTicketStatus(int allowedTicketStatusId = default(int), CrownATTime.Server.Models.ATTime.AllowedTicketStatus allowedTicketStatus = default(CrownATTime.Server.Models.ATTime.AllowedTicketStatus))
+        {
+            var uri = new Uri(baseUri, $"AllowedTicketStatuses({allowedTicketStatusId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(allowedTicketStatus), Encoding.UTF8, "application/json");
+
+            OnUpdateAllowedTicketStatus(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
     }
 }

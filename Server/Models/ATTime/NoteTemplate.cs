@@ -34,5 +34,7 @@ namespace CrownATTime.Server.Models.ATTime
 
         [MaxLength(4000)]
         public string NoteDescription { get; set; }
+
+        public ICollection<ResourceCache> ResourceCaches { get; set; }
     }
 }
