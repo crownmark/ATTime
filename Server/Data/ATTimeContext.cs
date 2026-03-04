@@ -220,6 +220,8 @@ namespace CrownATTime.Server.Data
 
         public DbSet<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> AiPromptConfigurations { get; set; }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> AllowedTicketStatuses { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.BillingCodeCache> BillingCodeCaches { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.CompanyCache> CompanyCaches { get; set; }
@@ -249,8 +251,6 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> TimeEntryTemplates { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.TimeGuardSection> TimeGuardSections { get; set; }
-
-        public DbSet<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> AllowedTicketStatuses { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

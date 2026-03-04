@@ -319,6 +319,57 @@
                         </RadzenStack>
 
                     </RadzenFieldset>
+            <RadzenFieldset Text="@($" ITGlue Passwords")" Collapsed="ItgluePasswordsCollapsed" AllowCollapse="true" Icon="password">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" aria-label="Search by all string columns" @bind-Value="@passwordSearch" Change="@PasswordSearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+
+                    <RadzenDataGrid @ref="@passwordsGrid" Data="@passwords" TItem=Server.Models.ITGluePasswordAttributeResults LoadData="@PasswordsDataGridLoadData" AllowFiltering="false" IsLoading="@passwordsGridLoading" Count="@passwordsCount" Style="max-height: 300px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGluePasswordAttributeResults" Property="name" Title="Name"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGluePasswordAttributeResults" Width="130px">
+                                <Template>
+                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" Gap="5" JustifyContent="Radzen.JustifyContent.Left">
+                                        <RadzenButton Icon="open_in_browser" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => OpenITGluePasswordButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px; min-height: 24px" MouseEnter="@ViewInITGlueButtonMouseEnter" MouseLeave="@ViewInITGlueButtonMouseLeave"></RadzenButton>
+                                        <RadzenButton Disabled="@(string.IsNullOrEmpty(context.username))" Icon="account_circle" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => CopyUserNameButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px" MouseEnter="@CopyUsernameButtonMouseEnter" MouseLeave="@CopyUsernameButtonMouseLeave"></RadzenButton>
+                                        <RadzenButton Icon="key" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => CopyPasswordButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px" MouseEnter="@CopyPasswordButtonMouseEnter" MouseLeave="@CopyPasswordButtonMouseLeave"></RadzenButton>
+                                        <RadzenButton Disabled="@(string.IsNullOrEmpty(context.url))" Icon="open_in_new" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => OpenPasswordButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px; min-height: 24px" MouseEnter="@OpenURLButtonMouseEnter" MouseLeave="@OpenURLButtonMouseLeave"></RadzenButton>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <HeaderTemplate>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="refresh" Click="@RefreshPasswordsDataGridButtonClick"></RadzenButton>
+                        </HeaderTemplate>
+
+                    </RadzenDataGrid>
+                </RadzenStack>
+
+            </RadzenFieldset>
+            <RadzenFieldset Text="@($" ITGlue Documents")" Collapsed="ItglueDocumentsCollapsed" AllowCollapse="true" Icon="book_4">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" aria-label="Search by all string columns" @bind-Value="@documentsSearch" Change="@DocumentsSearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+
+                    <RadzenDataGrid @ref="@documentsGrid" Data="@documents" TItem=Server.Models.ITGlueDocumentAttributesResults LoadData="@DocumentsDataGridLoadData" AllowFiltering="false" IsLoading="@documentsGridLoading" Count="@documentsCount" Style="max-height: 300px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGlueDocumentAttributesResults" Property="Name" Title="Name"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGlueDocumentAttributesResults" Width="50px">
+                                <Template>
+                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" Gap="5" JustifyContent="Radzen.JustifyContent.Left">
+                                        <RadzenButton Icon="open_in_browser" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => OpenITGlueDocumentButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px; min-height: 24px" MouseEnter="@ViewDocumentInITGlueButtonMouseEnter" MouseLeave="@ViewDocumentInITGlueButtonMouseLeave"></RadzenButton>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <HeaderTemplate>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="refresh" Click="@RefreshDocumentsDataGridButtonClick"></RadzenButton>
+                        </HeaderTemplate>
+
+                    </RadzenDataGrid>
+                </RadzenStack>
+
+            </RadzenFieldset>
                         <div class="@(IsAiExpanded ? "ai-expanded" : "")">
 
 <RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat" Collapsed="@AIChatCollapsed">

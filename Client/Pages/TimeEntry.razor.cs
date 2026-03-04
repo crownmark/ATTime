@@ -44,6 +44,8 @@ namespace CrownATTime.Client.Pages
 
         [Inject]
         public ATTimeService ATTimeService { get; set; }
+        [Inject]
+        public ITGlueService ITGlueService { get; set; }
 
         [Inject]
         public ThreeCxClientService ThreeCxClientService { get; set; }
@@ -114,6 +116,26 @@ namespace CrownATTime.Client.Pages
         protected bool ContactDetailsCollapsed { get; set; } = true;
         protected bool RocketshipCollapsed { get; set; } = true;
         protected bool DeviceDetailsCollapsed { get; set; } = true;
+        protected bool ItgluePasswordsCollapsed { get; set; } = true;
+        protected bool ItglueDocumentsCollapsed { get; set; } = true;
+        protected bool ItglueFlexibleAssetsCollapsed { get; set; } = true;
+        protected bool ItglueConfigurationsCollapsed { get; set; } = true;
+
+        protected List<ITGluePasswordAttributeResults> passwords { get; set; } = new List<ITGluePasswordAttributeResults>();
+        protected int passwordsCount { get; set; }
+        protected bool passwordsGridLoading { get; set; }
+        protected RadzenDataGrid<ITGluePasswordAttributeResults> passwordsGrid { get; set; }
+
+        protected string passwordSearch = "";
+
+        protected List<ITGlueDocumentAttributesResults> documents { get; set; } = new List<ITGlueDocumentAttributesResults>();
+        protected int documentsCount { get; set; }
+        protected bool documentsGridLoading { get; set; }
+        protected RadzenDataGrid<ITGlueDocumentAttributesResults> documentsGrid { get; set; }
+
+        protected string documentsSearch = "";
+
+
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -165,6 +187,10 @@ namespace CrownATTime.Client.Pages
                     DeviceDetailsCollapsed = resource.DeviceDetailsCollapsed;
                     EmailNotesCollapsed = resource.EmailNotesCollapsed;
                     RocketshipCollapsed = resource.RocketshipCollapsed;
+                    ItglueDocumentsCollapsed = resource.ItglueDocumentsCollapsed;
+                    ItgluePasswordsCollapsed = resource.ItgluePasswordsCollapsed;
+                    ItglueFlexibleAssetsCollapsed = resource.ItglueFlexibleAssetsCollapsed;
+                    ItglueConfigurationsCollapsed = resource.ItglueConfigurationsCollapsed;
                 }
                 var billingCodeItems = await ATTimeService.GetBillingCodeCaches(filter: $"IsActive eq true");// await AutotaskService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Value.ToList();
@@ -1598,6 +1624,7 @@ namespace CrownATTime.Client.Pages
         {
             TooltipService.Close();
         }
+        
 
         protected async System.Threading.Tasks.Task DataGrid0LoadData(Radzen.LoadDataArgs args)
         {
@@ -1799,5 +1826,199 @@ namespace CrownATTime.Client.Pages
         {
             TooltipService.Close();
         }
+
+        protected async System.Threading.Tasks.Task PasswordSearchTextBoxChange(System.String args)
+        {
+            await passwordsGrid.GoToPage(0);
+
+            await passwordsGrid.Reload();
+        }
+        protected async System.Threading.Tasks.Task PasswordsDataGridLoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                passwordsGridLoading = true;
+                var itGlueOrg = await ITGlueService.GetITGlueOrgIdByCompanyName(company.CompanyName);
+                passwords = await ITGlueService.GetITGluePasswordsByOrganizationId(itGlueOrg);
+                passwords = passwords
+                    .Where(x =>
+                        (x.name?.Contains(passwordSearch, StringComparison.OrdinalIgnoreCase) == true) ||
+                        (x.notes?.Contains(passwordSearch, StringComparison.OrdinalIgnoreCase) == true))
+                    .OrderBy(x => x.name)
+                    .ToList();
+                passwordsGridLoading = false;
+            }
+            catch (Exception ex)
+            {
+                passwordsGridLoading = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load passwords.  Error: {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task DocumentsSearchTextBoxChange(System.String args)
+        {
+            await documentsGrid.GoToPage(0);
+
+            await documentsGrid.Reload();
+        }
+        protected async System.Threading.Tasks.Task DocumentsDataGridLoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                documentsGridLoading = true;
+                var itGlueOrg = await ITGlueService.GetITGlueOrgIdByCompanyName(company.CompanyName);
+                documents = await ITGlueService.GetITGlueDocumentsByOrganizationId(itGlueOrg);
+                documents = documents
+                    .Where(x =>
+                        (x.Name?.Contains(documentsSearch, StringComparison.OrdinalIgnoreCase) == true))
+                    .OrderBy(x => x.Name)
+                    .ToList();
+                documentsGridLoading = false;
+            }
+            catch (Exception ex)
+            {
+                documentsGridLoading = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load documents.  Error: {ex.Message}" });
+
+            }
+        }
+        protected async System.Threading.Tasks.Task OpenITGlueDocumentButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, ITGlueDocumentAttributesResults data)
+        {
+            try
+            {
+                //var orgId = await ITGlueService.GetITGlueOrgIdByCompanyName(company.CompanyName);
+
+                //var doc = await ITGlueService.GetITGluePasswordByPasswordId(orgId, data.id);
+                //var folderId = data.DocumentFolderId == null ? data.OrganizationId : data.DocumentFolderId;
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{data.ResourceUrl}");
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task ViewDocumentInITGlueButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "View Password in ITGlue", new TooltipOptions() { Duration = null });
+        }
+
+        protected async System.Threading.Tasks.Task ViewDocumentInITGlueButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task RefreshDocumentsDataGridButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await documentsGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task CopyUserNameButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, ITGluePasswordAttributeResults data)
+        {
+            try
+            {
+
+                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", data.username);
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Username Copied to Clipboard" });
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task CopyPasswordButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, ITGluePasswordAttributeResults data)
+        {
+            try
+            {
+                var orgId = await ITGlueService.GetITGlueOrgIdByCompanyName(company.CompanyName);
+
+                var password = await ITGlueService.GetITGluePasswordByPasswordId(orgId, data.id);
+                await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", password.data.attributes.password);
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Password Copied to Clipboard" });
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task OpenPasswordButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, ITGluePasswordAttributeResults data)
+        {
+            try
+            {
+
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{data.url}");
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task OpenITGluePasswordButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, ITGluePasswordAttributeResults data)
+        {
+            try
+            {
+                var orgId = await ITGlueService.GetITGlueOrgIdByCompanyName(company.CompanyName);
+
+                var password = await ITGlueService.GetITGluePasswordByPasswordId(orgId, data.id);
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://crown.itglue.com/{orgId}/passwords/{password.data.id}");
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task RefreshPasswordsDataGridButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await passwordsGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task ViewInITGlueButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "View Password in ITGlue", new TooltipOptions() { Duration = null });
+        }
+
+        protected async System.Threading.Tasks.Task ViewInITGlueButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task CopyUsernameButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Copy Username", new TooltipOptions() { Duration = null });
+        }
+
+        protected async System.Threading.Tasks.Task CopyUsernameButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task CopyPasswordButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Copy Password", new TooltipOptions() { Duration = null });
+        }
+
+        protected async System.Threading.Tasks.Task CopyPasswordButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
+        protected async System.Threading.Tasks.Task OpenURLButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Open URL", new TooltipOptions() { Duration = null });
+        }
+
+        protected async System.Threading.Tasks.Task OpenURLButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
+
     }
 }

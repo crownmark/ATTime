@@ -33,6 +33,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetAiPromptConfigurations(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/allowedticketstatuses/csv")]
+        [HttpGet("/export/ATTime/allowedticketstatuses/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAllowedTicketStatusesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetAllowedTicketStatuses(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/allowedticketstatuses/excel")]
+        [HttpGet("/export/ATTime/allowedticketstatuses/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportAllowedTicketStatusesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetAllowedTicketStatuses(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/billingcodecaches/csv")]
         [HttpGet("/export/ATTime/billingcodecaches/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportBillingCodeCachesToCSV(string fileName = null)
@@ -241,20 +255,6 @@ namespace CrownATTime.Server.Controllers
         public async Task<FileStreamResult> ExportTimeGuardSectionsToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetTimeGuardSections(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/allowedticketstatuses/csv")]
-        [HttpGet("/export/ATTime/allowedticketstatuses/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportAllowedTicketStatusesToCSV(string fileName = null)
-        {
-            return ToCSV(ApplyQuery(await service.GetAllowedTicketStatuses(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/allowedticketstatuses/excel")]
-        [HttpGet("/export/ATTime/allowedticketstatuses/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportAllowedTicketStatusesToExcel(string fileName = null)
-        {
-            return ToExcel(ApplyQuery(await service.GetAllowedTicketStatuses(), Request.Query, false), fileName);
         }
     }
 }

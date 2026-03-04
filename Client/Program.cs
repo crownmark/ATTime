@@ -18,6 +18,7 @@ builder.Services.AddScoped<CrownATTime.Client.ThreeCxClientService>();
 builder.Services.AddScoped<CrownATTime.Client.EmailService>();
 builder.Services.AddScoped<CrownATTime.Client.TeamsChatService>();
 builder.Services.AddScoped<CrownATTime.Client.TemplateTokenDiscoveryService>();
+builder.Services.AddScoped<CrownATTime.Client.ITGlueService>();
 builder.Services.AddHttpClient("CrownATTime.Server", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("CrownATTime.Server"));
 builder.Services.AddScoped<CrownATTime.Client.SecurityService>();

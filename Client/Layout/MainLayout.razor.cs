@@ -47,7 +47,7 @@ namespace CrownATTime.Client.Layout
         {
             if(args.Value == "My Profile")
             {
-                DialogService.OpenAsync<EditProfile>("Edit Profile");
+                DialogService.OpenAsync<EditProfile>("Edit Profile", null, new DialogOptions() { Width = "800px"});
             }
             if (args.Value == "Logout")
             {

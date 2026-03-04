@@ -79,5 +79,17 @@ namespace CrownATTime.Server.Models.ATTime
         public int? DefaultAitemplate { get; set; }
 
         public AiPromptConfiguration AiPromptConfiguration { get; set; }
+
+        [Column("ITGluePasswordsCollapsed")]
+        public bool ItgluePasswordsCollapsed { get; set; }
+
+        [Column("ITGlueDocumentsCollapsed")]
+        public bool ItglueDocumentsCollapsed { get; set; }
+
+        [Column("ITGlueFlexibleAssetsCollapsed")]
+        public bool ItglueFlexibleAssetsCollapsed { get; set; }
+
+        [Column("ITGlueConfigurationsCollapsed")]
+        public bool ItglueConfigurationsCollapsed { get; set; }
     }
 }
