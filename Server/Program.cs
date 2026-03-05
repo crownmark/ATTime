@@ -25,8 +25,9 @@ builder.Services.AddRadzenCookieThemeService(options =>
 builder.Services.AddHttpClient();
 // Needed for IHttpContextAccessor injection
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<CrownATTime.Server.Services.NotificationService>();
-builder.Services.AddHostedService(sp => sp.GetRequiredService<CrownATTime.Server.Services.NotificationService>());
+//builder.Services.AddSingleton<CrownATTime.Server.Services.NotificationService>();
+//builder.Services.AddHostedService(sp => sp.GetRequiredService<CrownATTime.Server.Services.NotificationService>());
+builder.Services.AddHostedService<CrownATTime.Server.Services.NotificationService>();
 builder.Services.AddScoped<CrownATTime.Server.ATTimeService>();
 builder.Services.Configure<ThreeCxOptions>(opt =>
 {

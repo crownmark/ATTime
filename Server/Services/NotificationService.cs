@@ -3,12 +3,13 @@ using CrownATTime.Server.Models;
 using CrownATTime.Server.Models.ATTime;
 using FluentScheduler;
 using Microsoft.Graph.IdentityGovernance.LifecycleWorkflows.DeletedItems.Workflows.Item.MicrosoftGraphIdentityGovernanceActivateWithScope;
+using Microsoft.Win32;
 using System.Net.Http;
 using System.Text.Json;
 
 namespace CrownATTime.Server.Services
 {
-    public class NotificationService : IHostedService, IDisposable
+    public class NotificationService : BackgroundService
     {
         private readonly IServiceScopeFactory scopeFactory;
         private readonly IWebHostEnvironment _env;
@@ -36,39 +37,77 @@ namespace CrownATTime.Server.Services
                 ? "https://localhost:5001/"   // adjust to your dev URL
                 : "https://timeguard.crown.software/"; // adjust to your prod URL
         }
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            schedule = new Schedule(
-                    () => Console.WriteLine("Scheduled for every day at 4:30pm"),
-                    run => run.EveryWeekday().At(16, 30)
-                );
-            
-            schedule.JobStarted += Schedule_JobStarted;
-            schedule.JobEnded += Schedule_JobEnded;
-            schedule.Start();
+            Console.WriteLine("NotificationService started");
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var now = DateTime.Now;
+
+                // Calculate the next 4:30 PM
+                var nextRun = DateTime.Today.AddHours(16).AddMinutes(30);
+
+                if (now > nextRun)
+                    nextRun = nextRun.AddDays(1);
+
+                var delay = nextRun - now;
+
+                Console.WriteLine($"Next notification run scheduled for {nextRun}");
+
+                try
+                {
+                    await Task.Delay(delay, stoppingToken);
+
+                    if (!stoppingToken.IsCancellationRequested)
+                    {
+                        await SendEndOfDayOpenTimeEntriesEmail();
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    // Expected when the app shuts down
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"NotificationService error: {ex}");
+                }
+            }
         }
+        //public async Task StartAsync(CancellationToken cancellationToken)
+        //{
+        //    schedule = new Schedule(
+        //            () => Console.WriteLine("Scheduled for every day at 4:30pm"),
+        //            run => run.EveryWeekday().At(16, 30)
+        //        );
 
-        private void Schedule_JobEnded(object sender, JobEndedEventArgs e)
-        {
+        //    schedule.JobStarted += Schedule_JobStarted;
+        //    schedule.JobEnded += Schedule_JobEnded;
+        //    schedule.Start();
+        //    Console.WriteLine("NotificationService started at " + DateTime.Now);
+        //}
 
-        }
+        //private void Schedule_JobEnded(object sender, JobEndedEventArgs e)
+        //{
 
-        private void Schedule_JobStarted(object sender, JobStartedEventArgs e)
-        {
-            SendEndOfDayOpenTimeEntriesEmail();
-        }
+        //}
 
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            schedule.Stop();
-        }
+        //private async void Schedule_JobStarted(object sender, JobStartedEventArgs e)
+        //{
+        //    await SendEndOfDayOpenTimeEntriesEmail();
+        //}
 
-        public void Dispose()
-        {
+        //public async Task StopAsync(CancellationToken cancellationToken)
+        //{
+        //    schedule.Stop();
+        //}
 
-        }
+        //public void Dispose()
+        //{
 
-        private async void SendEndOfDayOpenTimeEntriesEmail()
+        //}
+
+        private async Task SendEndOfDayOpenTimeEntriesEmail()
         {
             try
             {
