@@ -27,13 +27,16 @@
            
             <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap">
                 <RadzenText Text="@($"{ticket?.item?.ticketNumber} - {ticket?.item?.title}")" TextStyle="Radzen.Blazor.TextStyle.H4" />
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="border: 2px solid var(--rz-primary-lighter); padding-top: 4px; padding: 4px" AlignItems="Radzen.AlignItems.Center">
-                    <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; background-color: #000000" />
-                    
-                    <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)" MouseEnter="@PlayButton0MouseEnter" MouseLeave="@PlayButton0MouseLeave"></RadzenButton>
-<RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)" MouseEnter="@PauseButton1MouseEnter" MouseLeave="@PauseButton1MouseLeave"></RadzenButton>
-<RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick" MouseEnter="@ClearButton2MouseEnter" MouseLeave="@ClearButton2MouseLeave"></RadzenButton>
-                </RadzenStack>
+                <div class="floating-timer">
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="border: 2px solid var(--rz-primary-lighter); padding-top: 4px; padding: 4px" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; background-color: #000000" />
+                        
+                        <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)" MouseEnter="@PlayButton0MouseEnter" MouseLeave="@PlayButton0MouseLeave"></RadzenButton>
+                        <RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)" MouseEnter="@PauseButton1MouseEnter" MouseLeave="@PauseButton1MouseLeave"></RadzenButton>
+                        <RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick" MouseEnter="@ClearButton2MouseEnter" MouseLeave="@ClearButton2MouseLeave"></RadzenButton>
+                    </RadzenStack>
+                </div>
+                
             </RadzenStack>
             
 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
@@ -499,6 +502,13 @@
     background: black;
     z-index: 2000;
     padding: 20px;
+    }
+    .floating-timer {
+    /* position: fixed;
+    top: 2%;
+    right: 27%;
+    background: #202226;
+    z-index: 1000; */
     }
 
 </style>

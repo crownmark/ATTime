@@ -1912,7 +1912,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task ViewDocumentInITGlueButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
         {
-            TooltipService.Open(args, "View Password in ITGlue", new TooltipOptions() { Duration = null });
+            TooltipService.Open(args, "View Document in ITGlue", new TooltipOptions() { Duration = null });
         }
 
         protected async System.Threading.Tasks.Task ViewDocumentInITGlueButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
