@@ -114,7 +114,11 @@
                         </RadzenColumn>
                         <RadzenColumn SizeMD="9" SizeLG="4">
                             <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.ContractId" ValueProperty="Id" TextProperty="ContractName" Name="ContractId" Style="width: 100%" Change="@(ContractIdChange)" Data="@contracts"></RadzenDropDown>
-                            <RadzenNumericRangeValidator Component="ContractId" Text="Contract is required" Min="1"></RadzenNumericRangeValidator>
+                            @if(contracts.Any())
+                            {
+                                <RadzenNumericRangeValidator Component="ContractId" Text="Contract is required" Min="1"></RadzenNumericRangeValidator>
+
+                            }
                         </RadzenColumn>
                         <RadzenColumn SizeMD="3" SizeLG="2">
                             <RadzenLabel Text="Ticket Status" Component="Status" style="width: 100%" />

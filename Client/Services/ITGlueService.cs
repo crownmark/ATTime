@@ -42,6 +42,18 @@ namespace CrownATTime.Client
 
         }
 
+        public async Task<List<ITGlueDocumentAttributesResults>> GetITGlueDocumentsByOrganizationAndFolderId(string orgId = default(string), string folderId = default(string))
+        {
+
+            var uri = new Uri(baseUri, $"ITGlue/Organization/Documents/ByOrgIdAndFolderId/{Uri.EscapeDataString(orgId.Trim().Replace("'", "''"))}/{Uri.EscapeDataString(folderId.Trim().Replace("'", "''"))}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<List<ITGlueDocumentAttributesResults>>(response);
+
+        }
+
         public async Task<List<ITGluePasswordAttributeResults>> GetITGluePasswordsByOrganizationId(string orgId = default(string))
         {
 

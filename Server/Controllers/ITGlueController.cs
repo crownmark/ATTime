@@ -85,6 +85,72 @@ namespace CrownATTime.Server.Controllers
 
         }
 
+        //GET Crown KB Documents
+        [HttpGet("Organization/Documents/ByOrgIdAndFolderId/{orgId}/{folderId}")]
+        public async Task<IActionResult> GetITGlueDocumentsByOrganizationAndFolderId(string orgId, string folderId)
+        {
+            try
+            {
+                const int pageSize = 100; // or 50, depending on IT Glue limits
+                int pageNumber = 1;
+                var documentsList = new List<ITGlueDocumentAttributesResults>();
+                while (true)
+                {
+                    var url = $"https://api.itglue.com/organizations/{orgId}/relationships/documents?filter[document_folder_id]={folderId}&page[size]={pageSize}&page[number]={pageNumber}";
+
+                    using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                    request.Headers.Add("X-API-Key", "ITG.8b48231efe864f6b6ecd16b026dddd18.TzgHc7tB2trFmrR4dcYtrYsZ3pfuhFZmcTueD80fdpF-CHwroNQh-mdx7EL28w34");
+                    request.Headers.Add("Accept", "application/json");
+
+                    using var response = await _http.SendAsync(request);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return StatusCode((int)response.StatusCode,
+                            await response.Content.ReadAsStringAsync());
+                    }
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    var result = JsonSerializer.Deserialize<ITGlueDocumentsResult>(
+                        json,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+
+                    if (result == null)
+                        break;
+                    foreach (var document in result.data)
+                    {
+                        documentsList.Add(new ITGlueDocumentAttributesResults()
+                        {
+                            Id = document.id,
+                            Archived = document.attributes.Archived,
+                            DocumentFolderId = document.attributes.DocumentFolderId,
+                            Name = document.attributes.Name,
+                            OrganizationId = document.attributes.OrganizationId,
+                            OrganizationName = document.attributes.OrganizationName,
+                            ResourceUrl = document.attributes.ResourceUrl,
+
+                        });
+                    }
+
+                    // Stop when less than page size returned
+                    if (result.links.next == null)
+                        break;
+
+                    // Go to next page
+                    pageNumber++;
+                }
+                // No match found in any page
+                return Ok(documentsList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+
         [HttpGet("Organization/ByCompanyName/{companyName}")]
         public async Task<IActionResult> GetITGlueOrganizationIdByCompanyNameAsync(string companyName)
         {

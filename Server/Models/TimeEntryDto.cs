@@ -73,6 +73,7 @@
         public string? SummaryNotes { get; set; }
         public string? InternalNotes { get; set; }
         public bool IsNonBillable { get; set; }
+        public bool ShowOnInvoice { get; set; }
     }
 
     public class TimeEntryUpdateDto

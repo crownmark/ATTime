@@ -430,6 +430,7 @@ namespace CrownATTime.Client.Pages
                         SummaryNotes = timeEntryRecord.SummaryNotes,
                         TicketId = timeEntryRecord.TicketId,
                         ContractId = timeEntryRecord.ContractId,
+                        ShowOnInvoice = timeEntryRecord.ShowOnInvoice,
                         //OffsetHours = timeEntryRecord.OffsetHours,
 
 
@@ -1874,6 +1875,15 @@ namespace CrownATTime.Client.Pages
                         (x.Name?.Contains(documentsSearch, StringComparison.OrdinalIgnoreCase) == true))
                     .OrderBy(x => x.Name)
                     .ToList();
+                var crownitGlueOrg = await ITGlueService.GetITGlueOrgIdByCompanyName("Crown Enterprises");
+                var kbdocuments = await ITGlueService.GetITGlueDocumentsByOrganizationAndFolderId(crownitGlueOrg, "3152508");
+                kbdocuments = kbdocuments
+                    .Where(x =>
+                        (x.Name?.Contains(documentsSearch, StringComparison.OrdinalIgnoreCase) == true))
+                    .OrderBy(x => x.Name)
+                    .ToList();
+                documents.AddRange(kbdocuments);
+
                 documentsGridLoading = false;
             }
             catch (Exception ex)
