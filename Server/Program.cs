@@ -28,6 +28,7 @@ builder.Services.AddHttpContextAccessor();
 //builder.Services.AddSingleton<CrownATTime.Server.Services.NotificationService>();
 //builder.Services.AddHostedService(sp => sp.GetRequiredService<CrownATTime.Server.Services.NotificationService>());
 builder.Services.AddHostedService<CrownATTime.Server.Services.NotificationService>();
+builder.Services.AddHostedService<CrownATTime.Server.Services.AutotaskSyncService>();
 builder.Services.AddScoped<CrownATTime.Server.ATTimeService>();
 builder.Services.Configure<ThreeCxOptions>(opt =>
 {
