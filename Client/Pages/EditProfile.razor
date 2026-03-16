@@ -35,7 +35,7 @@
             </RadzenRow>
             <RadzenRow style="margin-bottom: 1rem">
                 <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Aichat Collapsed" Component="AichatCollapsed" style="width: 100%" />
+                    <RadzenLabel Text="Ai Chat Collapsed" Component="AichatCollapsed" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="2">
                     <RadzenCheckBox @bind-Value="@(resourceCache.AichatCollapsed)" Name="AichatCollapsed" />
@@ -47,6 +47,14 @@
                 </RadzenColumn>
                 <RadzenColumn SizeMD="2">
                     <RadzenCheckBox @bind-Value="@(resourceCache.ContactDetailsCollapsed)" Name="ContactDetailsCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+<RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="10">
+                    <RadzenLabel Text="Live Links Collapsed" Component="LiveLinksCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="2">
+                    <RadzenCheckBox @bind-Value="@resourceCache.LiveLinksCollapsed" Name="LiveLinksCollapsed" />
                 </RadzenColumn>
             </RadzenRow>
               </RadzenColumn>

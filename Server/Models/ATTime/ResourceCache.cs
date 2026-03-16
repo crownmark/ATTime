@@ -91,5 +91,7 @@ namespace CrownATTime.Server.Models.ATTime
 
         [Column("ITGlueConfigurationsCollapsed")]
         public bool ItglueConfigurationsCollapsed { get; set; }
+
+        public bool LiveLinksCollapsed { get; set; }
     }
 }

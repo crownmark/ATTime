@@ -103,6 +103,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/livelinks/csv")]
+        [HttpGet("/export/ATTime/livelinks/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportLiveLinksToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetLiveLinks(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/livelinks/excel")]
+        [HttpGet("/export/ATTime/livelinks/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportLiveLinksToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetLiveLinks(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/notetemplates/csv")]
         [HttpGet("/export/ATTime/notetemplates/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportNoteTemplatesToCSV(string fileName = null)

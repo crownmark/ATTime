@@ -54,6 +54,7 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.CompanyCache>("CompanyCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ContractCache>("ContractCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.EmailTemplate>("EmailTemplates");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.LiveLink>("LiveLinks");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.NoteTemplate>("NoteTemplates");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ResourceCache>("ResourceCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.RoleCache>("RoleCaches");

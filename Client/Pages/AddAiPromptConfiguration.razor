@@ -55,7 +55,7 @@
             </RadzenRow>
             <RadzenFormField Text="Shared With Users (Comma Separated User Emails)" Variant="Variant.Outlined" Component="SharedWithUsers">
                   <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.SharedWithUsers)" Name="SharedWithUsers" AutoCompleteType="AutoCompleteType.Off" MaxLength="1000" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(aiPromptConfiguration.SharedWithUsers)" Name="SharedWithUsers" AutoCompleteType="AutoCompleteType.Off" MaxLength="4000" />
               </ChildContent>
             </RadzenFormField>
             <RadzenRow style="margin-bottom: 1rem">

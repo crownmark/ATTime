@@ -63,9 +63,9 @@
                 </ChildContent>
                 
             </RadzenFormField>
-            <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
+            <RadzenFormField Text="Shared With Users (Comma Separated User Emails)" Variant="Variant.Outlined">
                   <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" Name="Title" MaxLength="255" @bind-Value="@timeEntryTemplate.TemplateAssignedTo" />
+                    <RadzenTextBox style="display: block; width: 100%" Name="Title" MaxLength="4000" @bind-Value="@timeEntryTemplate.TemplateAssignedTo" />
                   </ChildContent>    
                   <Helper>
                   </Helper>

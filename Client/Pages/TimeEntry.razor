@@ -308,15 +308,32 @@
     </RadzenColumn>
     <RadzenColumn SizeXL="3" SizeLG="3" SizeMD="3" SizeSM="4">
     <RadzenStack>
-        <RadzenFieldset Text="Email & Note Actions" AllowCollapse="true" Icon="email" Collapsed="@EmailNotesCollapsed">
+        <RadzenFieldset Text="Email, Note, Teams, & Live Link Actions" AllowCollapse="true" Icon="email" Collapsed="@EmailNotesCollapsed">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="email" Text="Send Email" Click="@SendEmailButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="note" Text="Add Note" Click="@AddNoteButtonClick" Visible="true"></RadzenButton>
-<RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="chat" Text="Send Teams Message" Visible="true" Click="@AddTeamsMessageButtonClick"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="chat" Text="Send Teams Message" Visible="true" Click="@AddTeamsMessageButtonClick"></RadzenButton>
+                            <RadzenSplitButton AlwaysOpenPopup=true Text="Live Links" Click="@LiveLinkSplitButtonClick" Icon="link" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall">
+                                @foreach(var item in liveLinks.OrderBy(x => x.Title))
+                                {
+                                    <RadzenSplitButtonItem Text="@item.Title" Value="@item.LiveLinkId.ToString()" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "link")"></RadzenSplitButtonItem>
+                                }
+                            </RadzenSplitButton>
                         </RadzenStack>
 
                     </RadzenFieldset>
-                    <RadzenFieldset Text="@($"RMM Device {configurationItem?.item?.referenceTitle}")" AllowCollapse="true" Icon="computer" Visible="@ticket.item.configurationItemID.HasValue" Collapsed="@DeviceDetailsCollapsed">
+                    <RadzenFieldset Text="Live Links" AllowCollapse="true" Icon="link" Collapsed="@LiveLinksCollapsed" Visible="false">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenSplitButton AlwaysOpenPopup=true Text="Live Links" Click="@LiveLinkSplitButtonClick" Icon="link" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall">
+                                @foreach(var item in liveLinks.OrderBy(x => x.Title))
+                                {
+                                    <RadzenSplitButtonItem Text="@item.Title" Value="@item.LiveLinkId.ToString()" Icon="link"></RadzenSplitButtonItem>
+                                }
+                            </RadzenSplitButton>
+                        </RadzenStack>
+
+                    </RadzenFieldset>
+        <RadzenFieldset Text="@($"RMM Device {configurationItem?.item?.referenceTitle}")" AllowCollapse="true" Icon="computer" Visible="@ticket.item.configurationItemID.HasValue" Collapsed="@DeviceDetailsCollapsed">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="computer" Text="Device" Click="@DeviceButtonClick"></RadzenButton>
                             <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Web Remote" Click="@WebRemoteButtonClick"></RadzenButton>
@@ -377,7 +394,7 @@
                 </RadzenStack>
 
             </RadzenFieldset>
-                        <div class="@(IsAiExpanded ? "ai-expanded" : "")">
+                        <div class="@(!IsAiExpanded ? "" : "ai-expanded")">
 
 <RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat" Collapsed="@AIChatCollapsed">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">

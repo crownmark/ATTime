@@ -1,0 +1,82 @@
+@page "/add-live-link"
+
+@attribute [Authorize]
+
+<PageTitle>Add LiveLink</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save LiveLink</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.LiveLink" Data="@(liveLink)" Visible="@(liveLink != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(liveLink.Active)" Name="Active" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(liveLink.Title)" Name="Title" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Title" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Icon (Use Icon Name: Reference https://fonts.google.com/icons?icon.set=Material+Symbols)" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@liveLink.Icon" Name="Icon" AutoCompleteType="AutoCompleteType.Off" MaxLength="50" />
+                  </ChildContent>    
+                  <Helper>
+                  </Helper>
+            </RadzenFormField>
+            <RadzenStack AlignItems="Radzen.AlignItems.Start">
+                <RadzenButton Text="View Template Tokens" Icon="code" Size="Radzen.ButtonSize.Small" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@ViewTemplateTokensButtonClick"></RadzenButton>
+
+            </RadzenStack>
+            <RadzenFormField Text="Url" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(liveLink.Url)" Name="Url" AutoCompleteType="AutoCompleteType.Off" MaxLength="500" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Url" Text="Url is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Http Method" Variant="Variant.Outlined">
+                              <ChildContent>
+                                  <RadzenDropDown TValue="string" @bind-Value="@liveLink.HttpMethod" Data="@httpMethods" Name="HttpMethod"></RadzenDropDown>
+                              </ChildContent>    
+                              <Helper>
+                                <RadzenRequiredValidator Component="HttpMethod" Text="Http Method is required" />
+                              </Helper>
+                        </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="6">
+                    <RadzenLabel Text="Requires Confirmation To RunWith Others?" Component="RequiresConfirmationToRun" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="6">
+                    <RadzenCheckBox @bind-Value="@liveLink.RequiresConfirmationToRun" Name="RequiresConfirmationToRun" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Shared With Users (Comma Separated User Emails)" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(liveLink.AssignedTo)" Name="AssignedTo" AutoCompleteType="AutoCompleteType.Off" MaxLength="4000" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Share With Others" Component="ShareWithOthers" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(liveLink.ShareWithOthers)" Name="ShareWithOthers" />
+                </RadzenColumn>
+            </RadzenRow>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+
+    </RadzenColumn>
+

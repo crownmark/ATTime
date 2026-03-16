@@ -174,7 +174,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                string defaultFilter = $"ShareWithOthers eq true or contains(TemplateAssignedTo, '{Security.User.Email}')";
+                string defaultFilter = $"Active eq true and (ShareWithOthers eq true or contains(TemplateAssignedTo, '{Security.User.Email}'))";
                 var result = await ATTimeService.GetTeamsMessageTemplates(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Title, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Title asc");
 
                 teamsMessageTemplates = result.Value.AsODataEnumerable();

@@ -6,12 +6,18 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using Radzen.Blazor.Rendering;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
+using static CrownATTime.Server.Models.ITGlueDocumentsResult;
+using static System.Net.WebRequestMethods;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Net.Http;
+using System.Net.Http.Json;
 
 namespace CrownATTime.Client.Pages
 {
@@ -120,6 +126,7 @@ namespace CrownATTime.Client.Pages
         protected bool ItglueDocumentsCollapsed { get; set; } = true;
         protected bool ItglueFlexibleAssetsCollapsed { get; set; } = true;
         protected bool ItglueConfigurationsCollapsed { get; set; } = true;
+        protected bool LiveLinksCollapsed { get; set; } = true;
 
         protected List<ITGluePasswordAttributeResults> passwords { get; set; } = new List<ITGluePasswordAttributeResults>();
         protected int passwordsCount { get; set; }
@@ -132,6 +139,8 @@ namespace CrownATTime.Client.Pages
         protected int documentsCount { get; set; }
         protected bool documentsGridLoading { get; set; }
         protected RadzenDataGrid<ITGlueDocumentAttributesResults> documentsGrid { get; set; }
+
+        protected List<LiveLink> liveLinks { get; set; } = new List<LiveLink>();
 
         protected string documentsSearch = "";
 
@@ -157,7 +166,7 @@ namespace CrownATTime.Client.Pages
             {
                 pageLoading = true;
 
-                var aiPrompts = await ATTimeService.GetAiPromptConfigurations(filter: $"Active eq true", orderby: $"MenuName", expand: $"TimeGuardSection");
+                var aiPrompts = await ATTimeService.GetAiPromptConfigurations(filter: $"Active eq true and (SharedWithEveryone eq true or contains(SharedWithUsers, '{Security.User.Email}'))", orderby: $"MenuName", expand: $"TimeGuardSection");
                 promptConfigurations = aiPrompts.Value.ToList();
                 try
                 {
@@ -191,7 +200,10 @@ namespace CrownATTime.Client.Pages
                     ItgluePasswordsCollapsed = resource.ItgluePasswordsCollapsed;
                     ItglueFlexibleAssetsCollapsed = resource.ItglueFlexibleAssetsCollapsed;
                     ItglueConfigurationsCollapsed = resource.ItglueConfigurationsCollapsed;
+                    LiveLinksCollapsed = resource.LiveLinksCollapsed;
                 }
+                var liveLinksResult = await ATTimeService.GetLiveLinks(filter: $"(contains(AssignedTo, '{resource.Email}') and Active eq true) or (ShareWithOthers eq true and Active eq true)");
+                liveLinks = liveLinksResult.Value.ToList();
                 var billingCodeItems = await ATTimeService.GetBillingCodeCaches(filter: $"IsActive eq true");// await AutotaskService.GetBillingCodes(); //cache in db
                 billingCodes = billingCodeItems.Value.ToList();
                 var roles = await ATTimeService.GetRoleCaches(filter: $"IsActive eq true");// await AutotaskService.GetRoles(); //cache in db
@@ -1377,7 +1389,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                string defaultFilter = $"Active eq true and (ShareWithOthers eq true or TemplateAssignedTo eq '{Security.User.Email}')";
+                string defaultFilter = $"Active eq true and (ShareWithOthers eq true or contains(TemplateAssignedTo,'{Security.User.Email}'))";
                 var result = await ATTimeService.GetTimeEntryTemplates(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Title, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Title asc");
 
                 timeEntryTemplates = result.Value.AsODataEnumerable();
@@ -2030,5 +2042,142 @@ namespace CrownATTime.Client.Pages
             TooltipService.Close();
         }
 
+
+        protected async System.Threading.Tasks.Task LiveLinkSplitButtonClick(Radzen.Blazor.RadzenSplitButtonItem args)
+        {
+            try
+            {
+                if(args != null)
+                {
+                    var liveLink = await ATTimeService.GetLiveLinkByLiveLinkId("", Convert.ToInt32(args.Value));
+                    if(liveLink != null)
+                    {
+                        // Load picklists
+                        var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
+                        var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
+
+                        var picklists = EmailService.BuildPicklistMaps(picklistRows);
+
+                        var ctx = new TemplateContext
+                        {
+                            Contact = contact?.item,
+                            Ticket = ticket?.item,
+                            Resource = resource,
+                            TicketResource = ticketResource,
+                            Company = company,
+                            Picklists = picklists
+                        };
+                        liveLink.Url = EmailService.Render(liveLink.Url ?? string.Empty, ctx);
+
+                        //await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{liveLink.Url}");
+                        // Example: perform an HTTP GET to the rendered URL (replace with RequestMode.BrowserOpen or RequestMode.HttpPostJson as needed)
+                        if(liveLink.HttpMethod == "GET")
+                        {
+                            if (liveLink.RequiresConfirmationToRun)
+                            {
+                                if(await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                                {
+                                    await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
+
+                                }
+
+                            }
+                            else
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
+
+                            }
+                        }
+                        else if(liveLink.HttpMethod == "POST")
+                        {
+                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, null);
+
+                            }
+                            else
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, null);
+
+                            }
+
+                        }
+                        else 
+                        {
+                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.HttpGet);
+
+                            }
+                            else
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.HttpGet);
+
+                            }
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        // New: mode for how to handle the URL
+        protected enum RequestMode
+        {
+            BrowserOpen,
+            HttpGet,
+            HttpPostJson
+        }
+
+        // New: helper to either open the URL in a browser or perform HTTP requests
+        protected async Task RequestUrl(string url, RequestMode mode = RequestMode.BrowserOpen, object payload = null)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(url))
+                {
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "URL is empty." });
+                    return;
+                }
+                var _httpClient = new HttpClient();
+
+                switch (mode)
+                {
+                    case RequestMode.BrowserOpen:
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), url);
+                        break;
+
+                    case RequestMode.HttpGet:
+                        // Note: CORS must be allowed by the remote server for WASM HttpClient.
+                        var getResponse = await _httpClient.GetAsync(url);
+                        if (!getResponse.IsSuccessStatusCode)
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "HTTP GET failed", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
+                            return;
+                        }
+                        var getBody = await getResponse.Content.ReadAsStringAsync();
+                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "HTTP GET success", Detail = "Response received." });
+                        break;
+
+                    case RequestMode.HttpPostJson:
+                        var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
+                        if (!postResponse.IsSuccessStatusCode)
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "HTTP POST failed", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
+                            return;
+                        }
+                        var postBody = await postResponse.Content.ReadAsStringAsync();
+                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "HTTP POST success", Detail = "Response received." });
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Request error", Detail = ex.Message });
+            }
+        }
     }
 }

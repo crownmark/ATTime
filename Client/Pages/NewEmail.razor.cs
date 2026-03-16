@@ -170,7 +170,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var defaultFilter = $"Active eq true and (ShareWithOthers eq true or TemplateAssignedTo eq '{Resource.Email}')";
+                var defaultFilter = $"Active eq true and (ShareWithOthers eq true or contains(TemplateAssignedTo,'{Resource.Email}'))";
                 var result = await ATTimeService.GetEmailTemplates(top: args.Top, skip: args.Skip, count: args.Top != null && args.Skip != null, filter: $"{defaultFilter} and contains(Title, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"Title asc");
 
                 emailTemplates = result.Value.AsODataEnumerable();

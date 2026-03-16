@@ -33,7 +33,7 @@ namespace CrownATTime.Server.Models.ATTime
 
         public bool SharedWithEveryone { get; set; }
 
-        [MaxLength(1000)]
+        [MaxLength(4000)]
         public string SharedWithUsers { get; set; }
 
         public bool Active { get; set; }

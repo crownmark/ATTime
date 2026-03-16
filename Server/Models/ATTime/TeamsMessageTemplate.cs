@@ -32,7 +32,7 @@ namespace CrownATTime.Server.Models.ATTime
         [MaxLength(4000)]
         public string Message { get; set; }
 
-        [MaxLength(50)]
+        [MaxLength(4000)]
         public string TemplateAssignedTo { get; set; }
 
         public bool ShareWithOthers { get; set; }

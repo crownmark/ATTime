@@ -128,6 +128,18 @@ namespace CrownATTime.Server.Data
               .Property(p => p.NotifyTicketSecondaryResources)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.LiveLink>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.LiveLink>()
+              .Property(p => p.ShareWithOthers)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.LiveLink>()
+              .Property(p => p.RequiresConfirmationToRun)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.NoteTemplate>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
@@ -162,6 +174,26 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
               .Property(p => p.HideTimeDetails)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.ItgluePasswordsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.ItglueDocumentsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.ItglueFlexibleAssetsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.ItglueConfigurationsCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.LiveLinksCollapsed)
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
@@ -215,6 +247,14 @@ namespace CrownATTime.Server.Data
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.EndDateTime)
               .HasColumnType("datetimeoffset");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
+              .Property(p => p.HoursWorked)
+              .HasPrecision(18,2);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
+              .Property(p => p.OffsetHours)
+              .HasPrecision(18,2);
             this.OnModelBuilding(builder);
         }
 
@@ -229,6 +269,8 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.ContractCache> ContractCaches { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.EmailTemplate> EmailTemplates { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.LiveLink> LiveLinks { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.NoteTemplate> NoteTemplates { get; set; }
 

@@ -1044,6 +1044,168 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportLiveLinksToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/livelinks/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/livelinks/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportLiveLinksToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/livelinks/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/livelinks/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnLiveLinksRead(ref IQueryable<CrownATTime.Server.Models.ATTime.LiveLink> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.LiveLink>> GetLiveLinks(Query query = null)
+        {
+            var items = Context.LiveLinks.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnLiveLinksRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnLiveLinkGet(CrownATTime.Server.Models.ATTime.LiveLink item);
+        partial void OnGetLiveLinkByLiveLinkId(ref IQueryable<CrownATTime.Server.Models.ATTime.LiveLink> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.LiveLink> GetLiveLinkByLiveLinkId(int livelinkid)
+        {
+            var items = Context.LiveLinks
+                              .AsNoTracking()
+                              .Where(i => i.LiveLinkId == livelinkid);
+
+ 
+            OnGetLiveLinkByLiveLinkId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnLiveLinkGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnLiveLinkCreated(CrownATTime.Server.Models.ATTime.LiveLink item);
+        partial void OnAfterLiveLinkCreated(CrownATTime.Server.Models.ATTime.LiveLink item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.LiveLink> CreateLiveLink(CrownATTime.Server.Models.ATTime.LiveLink livelink)
+        {
+            OnLiveLinkCreated(livelink);
+
+            var existingItem = Context.LiveLinks
+                              .Where(i => i.LiveLinkId == livelink.LiveLinkId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.LiveLinks.Add(livelink);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(livelink).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterLiveLinkCreated(livelink);
+
+            return livelink;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.LiveLink> CancelLiveLinkChanges(CrownATTime.Server.Models.ATTime.LiveLink item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnLiveLinkUpdated(CrownATTime.Server.Models.ATTime.LiveLink item);
+        partial void OnAfterLiveLinkUpdated(CrownATTime.Server.Models.ATTime.LiveLink item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.LiveLink> UpdateLiveLink(int livelinkid, CrownATTime.Server.Models.ATTime.LiveLink livelink)
+        {
+            OnLiveLinkUpdated(livelink);
+
+            var itemToUpdate = Context.LiveLinks
+                              .Where(i => i.LiveLinkId == livelink.LiveLinkId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(livelink).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterLiveLinkUpdated(livelink);
+
+            return livelink;
+        }
+
+        partial void OnLiveLinkDeleted(CrownATTime.Server.Models.ATTime.LiveLink item);
+        partial void OnAfterLiveLinkDeleted(CrownATTime.Server.Models.ATTime.LiveLink item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.LiveLink> DeleteLiveLink(int livelinkid)
+        {
+            var itemToDelete = Context.LiveLinks
+                              .Where(i => i.LiveLinkId == livelinkid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnLiveLinkDeleted(itemToDelete);
+
+            Reset();
+
+            Context.LiveLinks.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterLiveLinkDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportNoteTemplatesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/notetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/notetemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);

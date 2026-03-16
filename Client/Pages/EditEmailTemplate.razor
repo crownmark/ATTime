@@ -116,9 +116,9 @@
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@emailTemplate.TeamsChannelEmail" Name="TeamsChannelEmail" MaxLength="255" />
               </ChildContent>
             </RadzenFormField>
-            <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
+            <RadzenFormField Text="Shared With Users (Comma Separated User Emails)" Variant="Variant.Outlined">
                   <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.TemplateAssignedTo)" Name="TemplateAssignedTo" MaxLength="50" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.TemplateAssignedTo)" Name="TemplateAssignedTo" MaxLength="4000" />
               </ChildContent>
             </RadzenFormField>
             

@@ -56,9 +56,9 @@
                     <RadzenTextArea @bind-Value="@teamsMessageTemplate.AdaptiveCardTemplate" Name="AdaptiveCardTemplate" Style="min-height: 300px"></RadzenTextArea>
               </ChildContent>
             </RadzenFormField>
-            <RadzenFormField Text="Template Assigned To" Variant="Variant.Outlined">
+            <RadzenFormField Text="Shared With Users (Comma Separated User Emails)" Variant="Variant.Outlined">
                   <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(teamsMessageTemplate.TemplateAssignedTo)" Name="TemplateAssignedTo" AutoCompleteType="AutoCompleteType.Off" MaxLength="50" />
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(teamsMessageTemplate.TemplateAssignedTo)" Name="TemplateAssignedTo" AutoCompleteType="AutoCompleteType.Off" MaxLength="4000" />
               </ChildContent>
             </RadzenFormField>
             <RadzenRow style="margin-bottom: 1rem">
