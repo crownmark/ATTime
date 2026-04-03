@@ -3014,5 +3014,677 @@ namespace CrownATTime.Server
 
             return itemToDelete;
         }
+    
+        public async Task ExportWorkflowRulesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowrules/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowrules/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportWorkflowRulesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowrules/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowrules/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnWorkflowRulesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowRule> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.WorkflowRule>> GetWorkflowRules(Query query = null)
+        {
+            var items = Context.WorkflowRules.AsQueryable();
+
+            items = items.Include(i => i.CompanyCache);
+            items = items.Include(i => i.WorkflowTriggerType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnWorkflowRulesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnWorkflowRuleGet(CrownATTime.Server.Models.ATTime.WorkflowRule item);
+        partial void OnGetWorkflowRuleByWorkflowRuleId(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowRule> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowRule> GetWorkflowRuleByWorkflowRuleId(int workflowruleid)
+        {
+            var items = Context.WorkflowRules
+                              .AsNoTracking()
+                              .Where(i => i.WorkflowRuleId == workflowruleid);
+
+            items = items.Include(i => i.CompanyCache);
+            items = items.Include(i => i.WorkflowTriggerType);
+ 
+            OnGetWorkflowRuleByWorkflowRuleId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnWorkflowRuleGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnWorkflowRuleCreated(CrownATTime.Server.Models.ATTime.WorkflowRule item);
+        partial void OnAfterWorkflowRuleCreated(CrownATTime.Server.Models.ATTime.WorkflowRule item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowRule> CreateWorkflowRule(CrownATTime.Server.Models.ATTime.WorkflowRule workflowrule)
+        {
+            OnWorkflowRuleCreated(workflowrule);
+
+            var existingItem = Context.WorkflowRules
+                              .Where(i => i.WorkflowRuleId == workflowrule.WorkflowRuleId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.WorkflowRules.Add(workflowrule);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(workflowrule).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterWorkflowRuleCreated(workflowrule);
+
+            return workflowrule;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowRule> CancelWorkflowRuleChanges(CrownATTime.Server.Models.ATTime.WorkflowRule item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnWorkflowRuleUpdated(CrownATTime.Server.Models.ATTime.WorkflowRule item);
+        partial void OnAfterWorkflowRuleUpdated(CrownATTime.Server.Models.ATTime.WorkflowRule item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowRule> UpdateWorkflowRule(int workflowruleid, CrownATTime.Server.Models.ATTime.WorkflowRule workflowrule)
+        {
+            OnWorkflowRuleUpdated(workflowrule);
+
+            var itemToUpdate = Context.WorkflowRules
+                              .Where(i => i.WorkflowRuleId == workflowrule.WorkflowRuleId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            workflowrule.CompanyCache = null;
+            workflowrule.WorkflowTriggerType = null;
+
+            Context.Attach(workflowrule).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterWorkflowRuleUpdated(workflowrule);
+
+            return workflowrule;
+        }
+
+        partial void OnWorkflowRuleDeleted(CrownATTime.Server.Models.ATTime.WorkflowRule item);
+        partial void OnAfterWorkflowRuleDeleted(CrownATTime.Server.Models.ATTime.WorkflowRule item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowRule> DeleteWorkflowRule(int workflowruleid)
+        {
+            var itemToDelete = Context.WorkflowRules
+                              .Where(i => i.WorkflowRuleId == workflowruleid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnWorkflowRuleDeleted(itemToDelete);
+
+            Reset();
+
+            Context.WorkflowRules.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterWorkflowRuleDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportWorkflowStepsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteps/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteps/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportWorkflowStepsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteps/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteps/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnWorkflowStepsRead(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowStep> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.WorkflowStep>> GetWorkflowSteps(Query query = null)
+        {
+            var items = Context.WorkflowSteps.AsQueryable();
+
+            items = items.Include(i => i.EmailTemplate);
+            items = items.Include(i => i.NoteTemplate);
+            items = items.Include(i => i.TeamsMessageTemplate);
+            items = items.Include(i => i.TimeEntryTemplate);
+            items = items.Include(i => i.WorkflowRule);
+            items = items.Include(i => i.WorkflowStepType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnWorkflowStepsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnWorkflowStepGet(CrownATTime.Server.Models.ATTime.WorkflowStep item);
+        partial void OnGetWorkflowStepByWorkflowStepId(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowStep> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStep> GetWorkflowStepByWorkflowStepId(int workflowstepid)
+        {
+            var items = Context.WorkflowSteps
+                              .AsNoTracking()
+                              .Where(i => i.WorkflowStepId == workflowstepid);
+
+            items = items.Include(i => i.EmailTemplate);
+            items = items.Include(i => i.NoteTemplate);
+            items = items.Include(i => i.TeamsMessageTemplate);
+            items = items.Include(i => i.TimeEntryTemplate);
+            items = items.Include(i => i.WorkflowRule);
+            items = items.Include(i => i.WorkflowStepType);
+ 
+            OnGetWorkflowStepByWorkflowStepId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnWorkflowStepGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnWorkflowStepCreated(CrownATTime.Server.Models.ATTime.WorkflowStep item);
+        partial void OnAfterWorkflowStepCreated(CrownATTime.Server.Models.ATTime.WorkflowStep item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStep> CreateWorkflowStep(CrownATTime.Server.Models.ATTime.WorkflowStep workflowstep)
+        {
+            OnWorkflowStepCreated(workflowstep);
+
+            var existingItem = Context.WorkflowSteps
+                              .Where(i => i.WorkflowStepId == workflowstep.WorkflowStepId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.WorkflowSteps.Add(workflowstep);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(workflowstep).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterWorkflowStepCreated(workflowstep);
+
+            return workflowstep;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStep> CancelWorkflowStepChanges(CrownATTime.Server.Models.ATTime.WorkflowStep item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnWorkflowStepUpdated(CrownATTime.Server.Models.ATTime.WorkflowStep item);
+        partial void OnAfterWorkflowStepUpdated(CrownATTime.Server.Models.ATTime.WorkflowStep item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStep> UpdateWorkflowStep(int workflowstepid, CrownATTime.Server.Models.ATTime.WorkflowStep workflowstep)
+        {
+            OnWorkflowStepUpdated(workflowstep);
+
+            var itemToUpdate = Context.WorkflowSteps
+                              .Where(i => i.WorkflowStepId == workflowstep.WorkflowStepId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            workflowstep.EmailTemplate = null;
+            workflowstep.NoteTemplate = null;
+            workflowstep.TeamsMessageTemplate = null;
+            workflowstep.TimeEntryTemplate = null;
+            workflowstep.WorkflowRule = null;
+            workflowstep.WorkflowStepType = null;
+
+            Context.Attach(workflowstep).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterWorkflowStepUpdated(workflowstep);
+
+            return workflowstep;
+        }
+
+        partial void OnWorkflowStepDeleted(CrownATTime.Server.Models.ATTime.WorkflowStep item);
+        partial void OnAfterWorkflowStepDeleted(CrownATTime.Server.Models.ATTime.WorkflowStep item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStep> DeleteWorkflowStep(int workflowstepid)
+        {
+            var itemToDelete = Context.WorkflowSteps
+                              .Where(i => i.WorkflowStepId == workflowstepid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnWorkflowStepDeleted(itemToDelete);
+
+            Reset();
+
+            Context.WorkflowSteps.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterWorkflowStepDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportWorkflowStepTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteptypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteptypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportWorkflowStepTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteptypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteptypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnWorkflowStepTypesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowStepType> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.WorkflowStepType>> GetWorkflowStepTypes(Query query = null)
+        {
+            var items = Context.WorkflowStepTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnWorkflowStepTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnWorkflowStepTypeGet(CrownATTime.Server.Models.ATTime.WorkflowStepType item);
+        partial void OnGetWorkflowStepTypeByWorkflowStepTypeId(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowStepType> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStepType> GetWorkflowStepTypeByWorkflowStepTypeId(int workflowsteptypeid)
+        {
+            var items = Context.WorkflowStepTypes
+                              .AsNoTracking()
+                              .Where(i => i.WorkflowStepTypeId == workflowsteptypeid);
+
+ 
+            OnGetWorkflowStepTypeByWorkflowStepTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnWorkflowStepTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnWorkflowStepTypeCreated(CrownATTime.Server.Models.ATTime.WorkflowStepType item);
+        partial void OnAfterWorkflowStepTypeCreated(CrownATTime.Server.Models.ATTime.WorkflowStepType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStepType> CreateWorkflowStepType(CrownATTime.Server.Models.ATTime.WorkflowStepType workflowsteptype)
+        {
+            OnWorkflowStepTypeCreated(workflowsteptype);
+
+            var existingItem = Context.WorkflowStepTypes
+                              .Where(i => i.WorkflowStepTypeId == workflowsteptype.WorkflowStepTypeId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.WorkflowStepTypes.Add(workflowsteptype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(workflowsteptype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterWorkflowStepTypeCreated(workflowsteptype);
+
+            return workflowsteptype;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStepType> CancelWorkflowStepTypeChanges(CrownATTime.Server.Models.ATTime.WorkflowStepType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnWorkflowStepTypeUpdated(CrownATTime.Server.Models.ATTime.WorkflowStepType item);
+        partial void OnAfterWorkflowStepTypeUpdated(CrownATTime.Server.Models.ATTime.WorkflowStepType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStepType> UpdateWorkflowStepType(int workflowsteptypeid, CrownATTime.Server.Models.ATTime.WorkflowStepType workflowsteptype)
+        {
+            OnWorkflowStepTypeUpdated(workflowsteptype);
+
+            var itemToUpdate = Context.WorkflowStepTypes
+                              .Where(i => i.WorkflowStepTypeId == workflowsteptype.WorkflowStepTypeId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(workflowsteptype).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterWorkflowStepTypeUpdated(workflowsteptype);
+
+            return workflowsteptype;
+        }
+
+        partial void OnWorkflowStepTypeDeleted(CrownATTime.Server.Models.ATTime.WorkflowStepType item);
+        partial void OnAfterWorkflowStepTypeDeleted(CrownATTime.Server.Models.ATTime.WorkflowStepType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStepType> DeleteWorkflowStepType(int workflowsteptypeid)
+        {
+            var itemToDelete = Context.WorkflowStepTypes
+                              .Where(i => i.WorkflowStepTypeId == workflowsteptypeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnWorkflowStepTypeDeleted(itemToDelete);
+
+            Reset();
+
+            Context.WorkflowStepTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterWorkflowStepTypeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportWorkflowTriggerTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowtriggertypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowtriggertypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportWorkflowTriggerTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowtriggertypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowtriggertypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnWorkflowTriggerTypesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>> GetWorkflowTriggerTypes(Query query = null)
+        {
+            var items = Context.WorkflowTriggerTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnWorkflowTriggerTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnWorkflowTriggerTypeGet(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item);
+        partial void OnGetWorkflowTriggerTypeByWorkflowTriggerTypeId(ref IQueryable<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> GetWorkflowTriggerTypeByWorkflowTriggerTypeId(int workflowtriggertypeid)
+        {
+            var items = Context.WorkflowTriggerTypes
+                              .AsNoTracking()
+                              .Where(i => i.WorkflowTriggerTypeId == workflowtriggertypeid);
+
+ 
+            OnGetWorkflowTriggerTypeByWorkflowTriggerTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnWorkflowTriggerTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnWorkflowTriggerTypeCreated(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item);
+        partial void OnAfterWorkflowTriggerTypeCreated(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> CreateWorkflowTriggerType(CrownATTime.Server.Models.ATTime.WorkflowTriggerType workflowtriggertype)
+        {
+            OnWorkflowTriggerTypeCreated(workflowtriggertype);
+
+            var existingItem = Context.WorkflowTriggerTypes
+                              .Where(i => i.WorkflowTriggerTypeId == workflowtriggertype.WorkflowTriggerTypeId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.WorkflowTriggerTypes.Add(workflowtriggertype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(workflowtriggertype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterWorkflowTriggerTypeCreated(workflowtriggertype);
+
+            return workflowtriggertype;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> CancelWorkflowTriggerTypeChanges(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnWorkflowTriggerTypeUpdated(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item);
+        partial void OnAfterWorkflowTriggerTypeUpdated(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> UpdateWorkflowTriggerType(int workflowtriggertypeid, CrownATTime.Server.Models.ATTime.WorkflowTriggerType workflowtriggertype)
+        {
+            OnWorkflowTriggerTypeUpdated(workflowtriggertype);
+
+            var itemToUpdate = Context.WorkflowTriggerTypes
+                              .Where(i => i.WorkflowTriggerTypeId == workflowtriggertype.WorkflowTriggerTypeId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(workflowtriggertype).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterWorkflowTriggerTypeUpdated(workflowtriggertype);
+
+            return workflowtriggertype;
+        }
+
+        partial void OnWorkflowTriggerTypeDeleted(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item);
+        partial void OnAfterWorkflowTriggerTypeDeleted(CrownATTime.Server.Models.ATTime.WorkflowTriggerType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> DeleteWorkflowTriggerType(int workflowtriggertypeid)
+        {
+            var itemToDelete = Context.WorkflowTriggerTypes
+                              .Where(i => i.WorkflowTriggerTypeId == workflowtriggertypeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnWorkflowTriggerTypeDeleted(itemToDelete);
+
+            Reset();
+
+            Context.WorkflowTriggerTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterWorkflowTriggerTypeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
         }
 }

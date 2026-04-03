@@ -51,5 +51,7 @@ namespace CrownATTime.Server.Models.ATTime
         public int? Minutes { get; set; }
 
         public ICollection<ResourceCache> ResourceCaches { get; set; }
+
+        public ICollection<WorkflowStep> WorkflowSteps { get; set; }
     }
 }

@@ -1,0 +1,159 @@
+@page "/edit-workflow-step"
+
+@attribute [Authorize]
+
+<PageTitle>Edit WorkflowStep</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save WorkflowStep</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Data="@(workflowStep)" Visible="@(workflowStep != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Workflow Rule" Variant="Variant.Outlined" Visible="false">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(workflowRulesForWorkflowRuleId)" TextProperty="Title" ValueProperty="WorkflowRuleId" AllowClear=true
+                        Disabled=@(hasWorkflowRuleIdValue)  style="display: block; width: 100%" @bind-Value="@(workflowStep.WorkflowRuleId)" Name="WorkflowRuleId"
+                         Count=@workflowRulesForWorkflowRuleIdCount LoadData=@workflowRulesForWorkflowRuleIdLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(workflowStep.Active)" Name="Active" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.Title)" Name="Title" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Title" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Step Assigned To" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.StepAssignedTo)" Name="StepAssignedTo" AutoCompleteType="AutoCompleteType.Off" MaxLength="4000" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Workflow Step Type" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(workflowStepTypesForWorkflowStepTypeId)" TextProperty="Title" ValueProperty="WorkflowStepTypeId" AllowClear=true
+                        Disabled=@(hasWorkflowStepTypeIdValue)  style="display: block; width: 100%" @bind-Value="@(workflowStep.WorkflowStepTypeId)" Name="WorkflowStepTypeId"
+                         Count=@workflowStepTypesForWorkflowStepTypeIdCount LoadData=@workflowStepTypesForWorkflowStepTypeIdLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Email Template" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 1)">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(emailTemplatesForEmailTemplateId)" TextProperty="Title" ValueProperty="EmailTemplateId" AllowClear=true
+                        Disabled=@(hasEmailTemplateIdValue)  style="display: block; width: 100%" @bind-Value="@(workflowStep.EmailTemplateId)" Name="EmailTemplateId"
+                         Count=@emailTemplatesForEmailTemplateIdCount LoadData=@emailTemplatesForEmailTemplateIdLoadData />
+              </ChildContent>
+              <Helper>
+                    <RadzenNumericRangeValidator Min="1" Component="EmailTemplateId" Text="required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Note Template" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 2)">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(noteTemplatesForNoteTemplateId)" TextProperty="Title" ValueProperty="NoteTemplateId" AllowClear=true
+                        Disabled=@(hasNoteTemplateIdValue)  style="display: block; width: 100%" @bind-Value="@(workflowStep.NoteTemplateId)" Name="NoteTemplateId"
+                         Count=@noteTemplatesForNoteTemplateIdCount LoadData=@noteTemplatesForNoteTemplateIdLoadData />
+              </ChildContent>
+              <Helper>
+                    <RadzenNumericRangeValidator Min="1" Component="NoteTemplateId" Text="required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Time Entry Template" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 4)">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(timeEntryTemplatesForTimeEntryTemplateId)" TextProperty="Title" ValueProperty="TimeEntryTemplateId" AllowClear=true
+                        Disabled=@(hasTimeEntryTemplateIdValue)  style="display: block; width: 100%" @bind-Value="@(workflowStep.TimeEntryTemplateId)" Name="TimeEntryTemplateId"
+                         Count=@timeEntryTemplatesForTimeEntryTemplateIdCount LoadData=@timeEntryTemplatesForTimeEntryTemplateIdLoadData />
+              </ChildContent>
+              <Helper>
+                    <RadzenNumericRangeValidator Min="1" Component="TimeEntryTemplateId" Text="required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Teams Message Template" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 3)">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(teamsMessageTemplatesForTeamsMessageTemplateId)" TextProperty="Title" ValueProperty="TeamsMessageTemplateId" AllowClear=true
+                        Disabled=@(hasTeamsMessageTemplateIdValue)  style="display: block; width: 100%" @bind-Value="@(workflowStep.TeamsMessageTemplateId)" Name="TeamsMessageTemplateId"
+                         Count=@teamsMessageTemplatesForTeamsMessageTemplateIdCount LoadData=@teamsMessageTemplatesForTeamsMessageTemplateIdLoadData />
+              </ChildContent>
+              <Helper>
+                    <RadzenNumericRangeValidator Min="1" Component="TeamsMessageTemplateId" Text="required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Confirmation Dialog Title" Variant="Variant.Outlined" Component="ConfirmationDialogTitle" Visible="@(workflowStep.WorkflowStepTypeId == 5)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowStep.ConfirmationDialogTitle" Name="ConfirmationDialogTitle" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="ConfirmationDialogTitle" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+<RadzenFormField Text="Confirmation Dialog Message" Variant="Variant.Outlined" Component="ConfirmationDialogMessage" Visible="@(workflowStep.WorkflowStepTypeId == 5)">
+                  <ChildContent>
+                    <RadzenTextArea Name="ConfirmationDialogMessage" @bind-Value="@workflowStep.ConfirmationDialogMessage"></RadzenTextArea>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="ConfirmationDialogMessage" Text="Message is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem" Visible="@(workflowStep.WorkflowStepTypeId == 5)">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Continue On No?" Component="ConfirmationDialogContinueOnNo" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@workflowStep.ConfirmationDialogContinueOnNo" Name="ConfirmationDialogContinueOnNo" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Notificaiton Dialog Title" Variant="Variant.Outlined" Component="NotificationDialogTitle" Visible="@(workflowStep.WorkflowStepTypeId == 6)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowStep.NotificationDialogTitle" Name="NotificationDialogTitle" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="NotificationDialogTitle" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Notification Dialog Message" Variant="Variant.Outlined" Component="NotificationDialogMessage" Visible="@(workflowStep.WorkflowStepTypeId == 6)">
+                  <ChildContent>
+                    <RadzenTextArea Name="NotificationDialogMessage" @bind-Value="@workflowStep.NotificationDialogMessage"></RadzenTextArea>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="NotificationDialogMessage" Text="Message is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenStack AlignItems="Radzen.AlignItems.Start" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
+              <RadzenButton Text="View Template Tokens" Icon="code" Size="Radzen.ButtonSize.Small" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@ViewTemplateTokensButtonClick"></RadzenButton>
+
+            </RadzenStack>
+            <RadzenFormField Text="n8n Workflow Url (Include Parameters as needed)" Variant="Variant.Outlined" Component="NotificationDialogTitle" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowStep.N8nWorkflowUrl" Name="N8nWorkflowUrl" AutoCompleteType="AutoCompleteType.Off" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="N8nWorkflowUrl" Text="Url is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="n8n Workflow Method Type" Variant="Variant.Outlined" Component="N8nWorkflowMethod" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
+                  <ChildContent>
+                      <RadzenDropDown TValue="string" Data="@httpMethods" Name="N8nWorkflowMethod" @bind-Value="@workflowStep.N8nWorkflowMethod" AllowClear="true"></RadzenDropDown>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="N8nWorkflowMethod" Text="Method is required" />
+                  </Helper>
+            </RadzenFormField>
+
+            <RadzenFormField Text="Step Order" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(workflowStep.StepOrder)" Name="StepOrder" AutoCompleteType="AutoCompleteType.Off"/>
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

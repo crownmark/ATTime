@@ -297,6 +297,7 @@
                         existingItem.Name = item.name;
                         existingItem.UseType = item.useType;
                         existingItem.BillingCodeType = item.billingCodeType;
+                        itemsToUpdate.Add(existingItem);
 
                     }
                     else
@@ -315,6 +316,7 @@
 
                     }
                 }
+                context.UpdateRange(itemsToUpdate);
                 await context.AddRangeAsync(itemsToCreate);
                 await context.SaveChangesAsync();
                 return Ok();
@@ -528,6 +530,7 @@
                         existingItem.ContractName = item.ContractName;
                         existingItem.BillingPreference = item.BillingPreference;
                         existingItem.CompanyId = Convert.ToInt32(item.CompanyID);
+                        itemsToUpdate.Add(existingItem);
                         
                     }
                     else
@@ -544,6 +547,7 @@
 
                     }
                 }
+                context.UpdateRange(itemsToUpdate);
                 await context.AddRangeAsync( itemsToCreate );
                 await context.SaveChangesAsync();
                 return Ok();
@@ -946,6 +950,7 @@
                         existingItem.Name = item.name;
                         existingItem.IsActive = item.isActive;
                         existingItem.RoleType = item.roleType.Value;
+                        itemsToUpdate.Add(existingItem);
                     }
                     else
                     {
@@ -961,6 +966,7 @@
                     }
                 }
                 await context.AddRangeAsync(itemsToCreate);
+                context.UpdateRange(itemsToUpdate);
                 await context.SaveChangesAsync();
                 return Ok();
             }
@@ -1023,6 +1029,7 @@
                         existingItem.IsDefault = item.isDefault;
                         existingItem.ResourceId = item.resourceID;
                         existingItem.RoleId = item.roleID;
+                        itemsToUpdate.Add(existingItem);
                     }
                     else
                     {
@@ -1039,6 +1046,7 @@
                     }
                 }
                 await context.AddRangeAsync(itemsToCreate);
+                context.UpdateRange(itemsToUpdate);
                 await context.SaveChangesAsync();
                 return Ok();
             }
@@ -1075,14 +1083,14 @@
                     {
                         foreach (var item in field.PicklistValues)
                         {
-                            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label);
+                            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label && x.Value == item.Value);
                             if (existingItem != null)
                             {
                                 existingItem.PicklistName = field.Name;
                                 existingItem.Label = item.Label;
                                 existingItem.Value = item.Value;
                                 existingItem.ValueInt = item.ValueInt.HasValue ? Convert.ToInt32(item.ValueInt) : null;
-
+                                itemsToUpdate.Add(existingItem);
                             }
                             else
                             {
@@ -1100,6 +1108,7 @@
                 }
                 
                 await context.AddRangeAsync(itemsToCreate);
+                context.UpdateRange(itemsToUpdate);
                 await context.SaveChangesAsync();
                 return Ok();
             }
@@ -1189,14 +1198,14 @@
                     {
                         foreach (var item in field.PicklistValues)
                         {
-                            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label);
+                            var existingItem = existingItems.FirstOrDefault(x => x.PicklistName == field.Name && x.Label == item.Label && x.Value == item.Value);
                             if (existingItem != null)
                             {
                                 existingItem.PicklistName = field.Name;
                                 existingItem.Label = item.Label;
                                 existingItem.Value = item.Value;
                                 existingItem.ValueInt = item.ValueInt.HasValue ? Convert.ToInt32(item.ValueInt) : null;
-
+                                itemsToUpdate.Add(existingItem);
                             }
                             else
                             {
@@ -1214,6 +1223,7 @@
                 }
 
                 await context.AddRangeAsync(itemsToCreate);
+                context.UpdateRange(itemsToUpdate);
                 await context.SaveChangesAsync();
                 return Ok();
             }

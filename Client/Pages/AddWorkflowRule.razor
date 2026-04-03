@@ -1,0 +1,95 @@
+@page "/add-workflow-rule"
+
+@attribute [Authorize]
+
+<PageTitle>Add WorkflowRule</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save WorkflowRule</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" Data="@(workflowRule)" Visible="@(workflowRule != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Active" Component="Active" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(workflowRule.Active)" Name="Active" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Trigger Type" Variant="Variant.Outlined" Component="WorkflowTriggerTypeId">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int" ValueProperty="WorkflowTriggerTypeId" TextProperty="Title" Data="@workflowTriggerTypes" LoadData="@workflowTriggerTypesLoadData" Count="@workflowTriggerTypesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" @bind-Value="@workflowRule.WorkflowTriggerTypeId" Name="WorkflowTriggerTypeId" ClearSearchAfterSelection="true" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenNumericRangeValidator Component="WorkflowTriggerTypeId" Text="Trigger Type is required" Min="1" />
+                  </Helper>
+            </RadzenFormField>
+<RadzenFormField Text="Title" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowRule.Title)" Name="Title" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Title" Text="Title is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Created By" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowRule.TicketCreatedBy)" Name="TicketCreatedBy" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Company Cache" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(companyCachesForCompanyId)" TextProperty="CompanyName" ValueProperty="Id" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(workflowRule.CompanyId)" Name="CompanyId" loadData=@companyCachesForCompanyIdLoadData
+                         Count=@companyCachesForCompanyIdCount AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true" TValue="int?" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Status" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int?" Data="@statuses" ValueProperty="ValueInt" TextProperty="Label" @bind-Value="@workflowRule.StatusId" Name="StatusId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true"></RadzenDropDown>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Priority" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int?" Data="@priorities" ValueProperty="ValueInt" TextProperty="Label" @bind-Value="@workflowRule.PriorityId" Name="PriorityId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true"></RadzenDropDown>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Queue" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int?" Data="@queues" ValueProperty="ValueInt" TextProperty="Label" @bind-Value="@workflowRule.QueueId" Name="QueueId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true"></RadzenDropDown>
+
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Category" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int?" Data="@ticketCategories" ValueProperty="ValueInt" TextProperty="Label" @bind-Value="@workflowRule.TicketCategoryId" Name="TicketCategoryId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true"></RadzenDropDown>
+
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Issue" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int?" Data="@issueTypes" ValueProperty="ValueInt" TextProperty="Label" @bind-Value="@workflowRule.IssueTypeId" Name="IssueTypeId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true"></RadzenDropDown>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Sub Issue" Variant="Variant.Outlined">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int?" Data="@subIssueTypes" ValueProperty="ValueInt" TextProperty="Label" @bind-Value="@workflowRule.SubIssueTypeId" Name="SubIssueTypeId" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true"></RadzenDropDown>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Time Entry Hours Worked Greater Than" Variant="Variant.Outlined" Component="TimeEntryHoursWorkedGreaterThan">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@workflowRule.TimeEntryHoursWorkedGreaterThan" Name="TimeEntryHoursWorkedGreaterThan" AutoCompleteType="AutoCompleteType.Off" Step=".25"/>
+              </ChildContent>
+            </RadzenFormField>
+<RadzenFormField Text="Rule Order" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(workflowRule.RuleOrder)" Name="RuleOrder" AutoCompleteType="AutoCompleteType.Off"/>
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

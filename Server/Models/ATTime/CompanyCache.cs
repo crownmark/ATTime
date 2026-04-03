@@ -52,5 +52,7 @@ namespace CrownATTime.Server.Models.ATTime
         [Column("postalCode")]
         [MaxLength(255)]
         public string PostalCode { get; set; }
+
+        public ICollection<WorkflowRule> WorkflowRules { get; set; }
     }
 }

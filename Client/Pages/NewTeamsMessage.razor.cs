@@ -105,6 +105,21 @@ namespace CrownATTime.Client.Pages
                         await TemplateDropDown0Change(selectedTemplate);
                     }
                 }
+
+                try
+                {
+                    var defaultFilter = $"IsActive eq true and (LicenseType eq 1 or LicenseType eq 3) and Email ne null and Email ne ''";
+
+                    var result = await ATTimeService.GetResourceCaches(filter: $"{defaultFilter}", orderby: $"Email asc");
+
+                    resourceCaches = result.Value.AsODataEnumerable();
+                    resourceCachesCount = result.Count;
+                }
+                catch (Exception ex)
+                {
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to Resources.  Error: {ex.Message}" });
+                }
+
             }
             catch (Exception ex)
             {

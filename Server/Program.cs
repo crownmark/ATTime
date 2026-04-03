@@ -66,6 +66,10 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeEntry>("TimeEntries");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeEntryTemplate>("TimeEntryTemplates");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.TimeGuardSection>("TimeGuardSections");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowRule>("WorkflowRules");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStep>("WorkflowSteps");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStepType>("WorkflowStepTypes");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>("WorkflowTriggerTypes");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));

@@ -20,7 +20,7 @@
                     </RadzenFormField>
                 <RadzenFormField Text="Mentions (Leave Blank to Mention The  Team)" Component="CrownTeam">
                     <ChildContent>
-                        <RadzenDropDown TValue="IEnumerable<string>" @bind-Value="@crownTeamEmails" ValueProperty="Email" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" Multiple="true" Name="CrownTeam" AllowFiltering="true" ></RadzenDropDown>
+                        <RadzenCheckBoxList TValue="string" Data="@resourceCaches" ValueProperty="Email" TextProperty="FullName" @bind-Value="@crownTeamEmails" Orientation="Radzen.Orientation.Horizontal" AllowSelectAll="true" Name="CrownTeam" Style="margin: 5px"></RadzenCheckBoxList>
 
                     </ChildContent>
                     

@@ -75,6 +75,9 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public CompanyCache Company { get; set; }
 
+        [Parameter]
+        public int? NoteTemplateId { get; set; }
+
         protected NoteTemplate selectedTemplate { get; set; }
 
         protected override async Task OnInitializedAsync()
@@ -85,6 +88,11 @@ namespace CrownATTime.Client.Pages
             if (Resource.DefaultNoteTemplate.HasValue)
             {
                 note.NoteTemplateId = Resource.DefaultNoteTemplate.Value;
+                NoteTemplateIdChange(null);
+            }
+            if (NoteTemplateId.HasValue)
+            {
+                note.NoteTemplateId = NoteTemplateId.Value;
                 NoteTemplateIdChange(null);
             }
         }

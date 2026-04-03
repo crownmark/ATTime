@@ -36,5 +36,7 @@ namespace CrownATTime.Server.Models.ATTime
         public string NoteDescription { get; set; }
 
         public ICollection<ResourceCache> ResourceCaches { get; set; }
+
+        public ICollection<WorkflowStep> WorkflowSteps { get; set; }
     }
 }

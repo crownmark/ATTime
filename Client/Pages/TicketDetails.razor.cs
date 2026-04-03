@@ -53,6 +53,8 @@ namespace CrownATTime.Client.Pages
 
         [Parameter]
         public int ResourceId { get; set; }
+        protected List<TimeEntryDto> timeEntriesResults { get; set; } = new List<TimeEntryDto>();
+        protected List<NoteDto> noteResults { get; set; } = new List<NoteDto>();
 
         protected List<TimeEntryDto> timeEntries { get; set; }  = new List<TimeEntryDto>();
         protected int timeEntriesCount { get; set; }
@@ -103,12 +105,33 @@ namespace CrownATTime.Client.Pages
                         
                     }
                 }
+
+                await ReloadTimeEntriesAndNotesFromAutotask();
             }
             catch (Exception ex)
             {
 
             }
             
+        }
+        protected async System.Threading.Tasks.Task ReloadTimeEntriesAndNotesFromAutotask()
+        {
+            try
+            {
+                gridLoading = true;
+
+                var timeResult = await AutotaskService.GetTimeEntriesForTicket(Ticket.item.id);
+                timeEntriesResults = timeResult.Items.OrderByDescending(x => x.StartDateTime).ToList();
+                var noteresult = await AutotaskService.GetNotesForTicket(Ticket.item.id);
+                noteResults = noteresult.Items.OrderByDescending(x => x.createDateTime).ToList();
+                gridLoading = false;
+                await timeEntriesGrid.Reload();
+
+            }
+            catch (Exception ex)
+            {
+                gridLoading = false;
+            }
         }
 
         protected async System.Threading.Tasks.Task TimeEntriesDataGridLoadData(Radzen.LoadDataArgs args)
@@ -120,9 +143,9 @@ namespace CrownATTime.Client.Pages
                 
                 if (filterTimeEntries)
                 {
-                    var result = await AutotaskService.GetTimeEntriesForTicket(Ticket.item.id);
+                    //var result = await AutotaskService.GetTimeEntriesForTicket(Ticket.item.id);
 
-                    timeEntries = result.Items
+                    timeEntries = timeEntriesResults
                         .Where(x =>
                             (x.SummaryNotes?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
                             (x.InternalNotes?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -148,9 +171,9 @@ namespace CrownATTime.Client.Pages
                     };
                 if (filterNotes)
                 {
-                    var result = await AutotaskService.GetNotesForTicket(Ticket.item.id);
+                    //var result = await AutotaskService.GetNotesForTicket(Ticket.item.id);
                     
-                    var notes = result.Items
+                    var notes = noteResults
                         .Where(x => (!allowedNoteTypes.Contains(x.noteType)) &&
                             (
                                 (x.description?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) || 
@@ -177,8 +200,8 @@ namespace CrownATTime.Client.Pages
                 }
                 if (filterCommunication)
                 {
-                    var result = await AutotaskService.GetNotesForTicket(Ticket.item.id);
-                    var notes = result.Items
+                    //var result = await AutotaskService.GetNotesForTicket(Ticket.item.id);
+                    var notes = noteResults
                         .Where(x => allowedNoteTypes.Contains(x.noteType) && 
                             (
                                 (x.description?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
@@ -219,6 +242,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task RefreshTimeEntriesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
+            await ReloadTimeEntriesAndNotesFromAutotask();
             await timeEntriesGrid.Reload();
         }
 

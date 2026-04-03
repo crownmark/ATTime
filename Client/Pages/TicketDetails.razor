@@ -3,7 +3,7 @@
 @attribute [Authorize]
 
 <RadzenStack Gap="2">
-    <RadzenStack Orientation="Radzen.Orientation.Horizontal">   
+@*     <RadzenStack Orientation="Radzen.Orientation.Horizontal">   
         <RadzenLabel Text="Title:" Style="font-weight: bold" />
 <RadzenLabel Text="@Ticket.item.title" />
     </RadzenStack>
@@ -78,7 +78,7 @@
                                                    <RadzenText Text="@QueueName" Style="font-weight: bold" />
                                                </RadzenStack>
                                            </RadzenBadge>
-    </RadzenStack>
+    </RadzenStack> *@
                                            
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
         <RadzenLabel Text="Description:" Style="font-weight: bold">
@@ -135,7 +135,7 @@
                                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Attachments" Icon="attachment" Selected="false">
                     <ChildContent>
-                        <RadzenDataGrid @ref="@attachmentsGrid" TItem="Server.Models.AttachmentDtoResult" Data="@attachments" IsLoading="@attachmentsLoading" LoadData="@DataGrid2LoadData">
+                        <RadzenDataGrid @ref="@attachmentsGrid" TItem="Server.Models.AttachmentDtoResult" Data="@attachments" IsLoading="@attachmentsLoading" LoadData="@DataGrid2LoadData" Style="max-height: 500px">
                         <Columns>
                             <RadzenDataGridColumn TItem="Server.Models.AttachmentDtoResult" Title="Title" MinWidth="200px">
                                 <Template>
@@ -165,7 +165,7 @@
                     
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Service Calls" Icon="assignment" Selected="false">
-                    <RadzenDataGrid @ref="@serviceCallsGrid" TItem="Server.Models.ServiceCall" Data="@serviceCalls" IsLoading="@serviceCallsLoading" LoadData="@DataGrid1LoadData">
+                    <RadzenDataGrid @ref="@serviceCallsGrid" TItem="Server.Models.ServiceCall" Data="@serviceCalls" IsLoading="@serviceCallsLoading" LoadData="@DataGrid1LoadData" Style="max-height: 500px">
                         <Columns>
                             <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="description" Title="Description" Width="150px">
                                 <Template>

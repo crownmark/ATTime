@@ -335,11 +335,171 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+        protected async System.Threading.Tasks.Task ProcessWorkflows(int workflowTriggerTypeId) 
+        {
+            try
+            {
+                var email = contact?.item?.emailAddress?.Replace("'", "''");
+                var filter = $@"
+                (                    
+                    (TicketCreatedBy eq '{ticket.item.createdByContactID.ToString()}' or TicketCreatedBy eq null)
+                    and (CompanyId eq {ticket.item.companyID} or CompanyId eq null)
+                    and (StatusId eq {ticket.item.status} or StatusId eq null)
+                    and (PriorityId eq {ticket.item.priority} or PriorityId eq null)
+                    and (QueueId eq {ticket.item.queueID} or QueueId eq null)
+                    and (TicketCategoryId eq {ticket.item.ticketCategory} or TicketCategoryId eq null)
+                    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} ge TimeEntryHoursWorkedGreaterThan or TimeEntryHoursWorkedGreaterThan eq null)
+                    and (
+                        {(ticket.item.issueType != null
+                            ? $"(IssueTypeId eq {ticket.item.issueType} or IssueTypeId eq null)"
+                            : "(IssueTypeId eq null)")}
+                    )
+
+                    and (
+                        {(ticket.item.subIssueType != null
+                            ? $"(SubIssueTypeId eq {ticket.item.subIssueType} or SubIssueTypeId eq null)"
+                            : "(SubIssueTypeId eq null)")}
+                    )
+                )
+                ";
+                var workflowResult = await ATTimeService.GetWorkflowRules(filter: $"Active eq true and WorkflowTriggerTypeId eq {workflowTriggerTypeId} and {filter}", expand: "WorkflowSteps", orderby: $"RuleOrder");
+                var workflowsList = workflowResult.Value.ToList();
+                foreach (var workflow in workflowsList)
+                {
+                    foreach (var step in workflow.WorkflowSteps.Where(x => x.Active == true).OrderBy(x => x.StepOrder))
+                    {
+                        if (step.WorkflowStepTypeId == 1 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //email
+                        {
+                            try
+                            {
+                                await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", step.EmailTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        else if (step.WorkflowStepTypeId == 2 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //note
+                        {
+                            try
+                            {
+                                await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "NoteTemplateId", step.NoteTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
+
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        else if (step.WorkflowStepTypeId == 3 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //teams message
+                        {
+                            try
+                            {
+                                await DialogService.OpenAsync<NewTeamsMessage>($"New Teams Message {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TeamsMessageTemplateId", step.TeamsMessageTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
+
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        else if (step.WorkflowStepTypeId == 4 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //time entry template
+                        {
+                            try
+                            {
+                                await TimeEntryTemplateChange(step.TimeEntryTemplateId.Value);
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                        }
+                        else if (step.WorkflowStepTypeId == 5 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //confirmation dialog
+                        {
+                            var confirmed = await DialogService.Confirm(step.ConfirmationDialogMessage, step.ConfirmationDialogTitle, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+                            if (!confirmed.HasValue || !confirmed.Value)
+                            {
+                                //user cancelled, stop processing workflow steps
+                                if (step.ConfirmationDialogContinueOnNo)
+                                {
+
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        else if (step.WorkflowStepTypeId == 6 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //notification dialog
+                        {
+                            await DialogService.Alert(step.NotificationDialogMessage, step.NotificationDialogTitle, new AlertOptions() { OkButtonText = "OK" });
+                        }
+                        else if (step.WorkflowStepTypeId == 7 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //n8n workflow
+                        {
+                            try
+                            {
+                                // Load picklists
+                                var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
+                                var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
+
+                                var picklists = EmailService.BuildPicklistMaps(picklistRows);
+
+                                var ctx = new TemplateContext
+                                {
+                                    Contact = contact?.item,
+                                    Ticket = ticket?.item,
+                                    Resource = resource,
+                                    TicketResource = ticketResource,
+                                    Company = company,
+                                    Picklists = picklists
+                                };
+                                step.N8nWorkflowUrl = EmailService.Render(step.N8nWorkflowUrl ?? string.Empty, ctx);
+
+                                if (step.N8nWorkflowMethod == "GET")
+                                {
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
+
+                                }
+                                else if (step.N8nWorkflowMethod == "POST")
+                                {
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
+
+                                }
+                                else
+                                {
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
+
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                            
+                        }
+                        else if (step.WorkflowStepTypeId == 8 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //Datto RMM Job
+                        {
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Workflow Error: {ex.Message}" });
+
+            }
+        }
         
         protected async System.Threading.Tasks.Task UpdateTicketValues()
         {
             try
             {
+                await ProcessWorkflows(1); //time entry update
+
                 timeEntryRecord.HoursWorked =
                   Math.Max(
                       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2), 0);
@@ -411,6 +571,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+
         protected async System.Threading.Tasks.Task TemplateForm0Submit(CrownATTime.Server.Models.ATTime.TimeEntry args)
         {
             try
@@ -424,6 +585,8 @@ namespace CrownATTime.Client.Pages
                 }
                 else
                 {
+                    await ProcessWorkflows(2); //time entry completing
+
                     //if ((timeEntryRecord.EndDateTime - timeEntryRecord.StartDateTime).Value.Duration() < TimeSpan.FromMinutes(1))
                     //{
                     //    timeEntryRecord.StartDateTime = timeEntryRecord.EndDateTime.Value.AddMinutes(-2);
@@ -470,6 +633,8 @@ namespace CrownATTime.Client.Pages
                     {
                         if (await DialogService.Confirm("Are you sure you want to close this ticket?", "Close Ticket Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
                         {
+                            await ProcessWorkflows(3); //ticket completing
+
                             await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId }, {"Ticket", ticket } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
                             await JSRuntime.InvokeVoidAsync(
                                 "eval",
@@ -1381,7 +1546,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task AddNoteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company} }, new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company}, { "NoteTemplateId", null } }, new DialogOptions { Width = "800px", Draggable = true });
         }
 
 

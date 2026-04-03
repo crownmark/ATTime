@@ -1,0 +1,89 @@
+@page "/workflow-rules"
+
+@attribute [Authorize]
+
+<PageTitle>WorkflowRules</PageTitle>
+<RadzenStack>
+    <RadzenRow AlignItems="AlignItems.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                    <RadzenIcon Icon="rule"></RadzenIcon>
+
+                <RadzenText Text="Workflow Rules" TextStyle="TextStyle.H3" TagName="TagName.H1" style="margin: 0">
+                </RadzenText>
+            </RadzenStack>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                <RadzenButton Icon="add_circle_outline" Text="Add" Click="@AddButtonClick" Variant="Variant.Flat" />
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
+    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" @oninput="@Search" aria-label="Search by all string columns" />
+    <RadzenRow>
+      <RadzenColumn SizeMD=12>
+        <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30]) AllowColumnResize="true"
+            Data="@(workflowRules)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" RowDoubleClick="@EditRow" RowSelect="@GetChildData">
+            <Columns>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" Property="RuleOrder" Title="Rule Order" SortOrder="Radzen.SortOrder.Ascending" SortProperty="RuleOrder" Width="150px">
+                                                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" Property="Active" Title="Active" Width="125px">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" Property="Title" Title="Title" MinWidth="200px">
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" Property="WorkflowTriggerType.Title" Title="Trigger" Width="200px"></RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                    <Template Context="workflowRule">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium"
+                            Shade="Shade.Lighter" Variant="Variant.Flat"
+                            Click=@(args => GridDeleteButtonClick(args, workflowRule)) @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+
+        </RadzenDataGrid>
+
+                <RadzenStack Class="rz-my-8">
+                    <RadzenRow Gap="0" AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="6">
+                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                                    <RadzenIcon Icon="conversion_path" Visible="@(workflowRuleChild != null)"></RadzenIcon>
+
+                                <RadzenText Visible="@(workflowRuleChild != null)" Text="Workflow Steps" TextStyle="TextStyle.H4" TagName="TagName.H2" style="margin: 0">
+                            </RadzenText>
+                                </RadzenStack>
+
+                            
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                                <RadzenButton Visible="@(workflowRuleChild != null)" Icon="add_circle_outline" Text="Add" Click=@(args => WorkflowStepsAddButtonClick(args,workflowRuleChild)) />
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenDataGrid ColumnWidth="200px" Visible="@(workflowRuleChild != null)" @ref=WorkflowStepsDataGrid AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30]) AllowColumnResize="true"
+                      Data="@workflowRuleChild?.WorkflowSteps" TItem="CrownATTime.Server.Models.ATTime.WorkflowStep"  RowSelect="@(args => WorkflowStepsRowSelect(args, workflowRuleChild))">
+                      <Columns>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="StepOrder" Title="Step Order">
+                                                </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="Active" Title="Active">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="Title" Title="Title">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="WorkflowStepType.Title" Title="Step Type">
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="StepAssignedTo" Title="Applied To"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center" Frozen="true" FrozenPosition="Radzen.FrozenColumnPosition.Right">
+                                                    <Template Context="workflowStepChild">
+                        
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Size="ButtonSize.Medium" Shade="Shade.Lighter" Variant="Variant.Flat"
+                                                            Click=@(args => WorkflowStepsDeleteButtonClick(args, workflowStepChild)) @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                      </Columns>
+                    </RadzenDataGrid>
+                </RadzenStack>
+    </RadzenColumn>
+  </RadzenRow>
+</RadzenStack>

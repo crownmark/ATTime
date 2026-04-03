@@ -61,8 +61,13 @@ namespace CrownATTime.Server.Models.ATTime
 
         public bool NotifyTicketSecondaryResources { get; set; }
 
+        [MaxLength(4000)]
+        public string NotifyAdditionalEmails { get; set; }
+
         public ICollection<ResourceCache> ResourceCaches { get; set; }
 
         public ICollection<TimeEntryTemplate> TimeEntryTemplates { get; set; }
+
+        public ICollection<WorkflowStep> WorkflowSteps { get; set; }
     }
 }

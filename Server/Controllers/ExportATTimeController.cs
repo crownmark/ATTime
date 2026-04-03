@@ -270,5 +270,61 @@ namespace CrownATTime.Server.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetTimeGuardSections(), Request.Query, false), fileName);
         }
+
+        [HttpGet("/export/ATTime/workflowrules/csv")]
+        [HttpGet("/export/ATTime/workflowrules/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowRulesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetWorkflowRules(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/workflowrules/excel")]
+        [HttpGet("/export/ATTime/workflowrules/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowRulesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetWorkflowRules(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/workflowsteps/csv")]
+        [HttpGet("/export/ATTime/workflowsteps/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowStepsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetWorkflowSteps(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/workflowsteps/excel")]
+        [HttpGet("/export/ATTime/workflowsteps/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowStepsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetWorkflowSteps(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/workflowsteptypes/csv")]
+        [HttpGet("/export/ATTime/workflowsteptypes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowStepTypesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetWorkflowStepTypes(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/workflowsteptypes/excel")]
+        [HttpGet("/export/ATTime/workflowsteptypes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowStepTypesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetWorkflowStepTypes(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/workflowtriggertypes/csv")]
+        [HttpGet("/export/ATTime/workflowtriggertypes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowTriggerTypesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/workflowtriggertypes/excel")]
+        [HttpGet("/export/ATTime/workflowtriggertypes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWorkflowTriggerTypesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
+        }
     }
 }

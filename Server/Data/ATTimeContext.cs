@@ -92,6 +92,62 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.TeamsMessageTemplateId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowRule>()
+              .HasOne(i => i.CompanyCache)
+              .WithMany(i => i.WorkflowRules)
+              .HasForeignKey(i => i.CompanyId)
+              .HasPrincipalKey(i => i.Id)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowRule>()
+              .HasOne(i => i.WorkflowTriggerType)
+              .WithMany(i => i.WorkflowRules)
+              .HasForeignKey(i => i.WorkflowTriggerTypeId)
+              .HasPrincipalKey(i => i.WorkflowTriggerTypeId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .HasOne(i => i.EmailTemplate)
+              .WithMany(i => i.WorkflowSteps)
+              .HasForeignKey(i => i.EmailTemplateId)
+              .HasPrincipalKey(i => i.EmailTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .HasOne(i => i.NoteTemplate)
+              .WithMany(i => i.WorkflowSteps)
+              .HasForeignKey(i => i.NoteTemplateId)
+              .HasPrincipalKey(i => i.NoteTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .HasOne(i => i.TeamsMessageTemplate)
+              .WithMany(i => i.WorkflowSteps)
+              .HasForeignKey(i => i.TeamsMessageTemplateId)
+              .HasPrincipalKey(i => i.TeamsMessageTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .HasOne(i => i.TimeEntryTemplate)
+              .WithMany(i => i.WorkflowSteps)
+              .HasForeignKey(i => i.TimeEntryTemplateId)
+              .HasPrincipalKey(i => i.TimeEntryTemplateId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .HasOne(i => i.WorkflowRule)
+              .WithMany(i => i.WorkflowSteps)
+              .HasForeignKey(i => i.WorkflowRuleId)
+              .HasPrincipalKey(i => i.WorkflowRuleId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .HasOne(i => i.WorkflowStepType)
+              .WithMany(i => i.WorkflowSteps)
+              .HasForeignKey(i => i.WorkflowStepTypeId)
+              .HasPrincipalKey(i => i.WorkflowStepTypeId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
               .Property(p => p.SharedWithEveryone)
               .HasDefaultValueSql(@"((0))");
@@ -236,6 +292,34 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowRule>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowRule>()
+              .Property(p => p.RuleOrder)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .Property(p => p.StepOrder)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .Property(p => p.ConfirmationDialogContinueOnNo)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStepType>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
               .HasColumnType("datetimeoffset");
@@ -254,6 +338,10 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.OffsetHours)
+              .HasPrecision(18,2);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowRule>()
+              .Property(p => p.TimeEntryHoursWorkedGreaterThan)
               .HasPrecision(18,2);
             this.OnModelBuilding(builder);
         }
@@ -293,6 +381,14 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> TimeEntryTemplates { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.TimeGuardSection> TimeGuardSections { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.WorkflowRule> WorkflowRules { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStep> WorkflowSteps { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStepType> WorkflowStepTypes { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> WorkflowTriggerTypes { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

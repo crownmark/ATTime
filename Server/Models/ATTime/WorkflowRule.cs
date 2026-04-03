@@ -1,0 +1,53 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace CrownATTime.Server.Models.ATTime
+{
+    [Table("WorkflowRules", Schema = "dbo")]
+    public partial class WorkflowRule
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int WorkflowRuleId { get; set; }
+
+        public bool Active { get; set; }
+
+        [Required]
+        [MaxLength(255)]
+        public string Title { get; set; }
+
+        [MaxLength(255)]
+        public string TicketCreatedBy { get; set; }
+
+        public int? CompanyId { get; set; }
+
+        public CompanyCache CompanyCache { get; set; }
+
+        public int? StatusId { get; set; }
+
+        public int? PriorityId { get; set; }
+
+        public int? QueueId { get; set; }
+
+        public int? TicketCategoryId { get; set; }
+
+        public int? IssueTypeId { get; set; }
+
+        public int? SubIssueTypeId { get; set; }
+
+        public decimal? TimeEntryHoursWorkedGreaterThan { get; set; }
+
+        public int RuleOrder { get; set; }
+
+        [Required]
+        public int WorkflowTriggerTypeId { get; set; }
+
+        public WorkflowTriggerType WorkflowTriggerType { get; set; }
+
+        public ICollection<WorkflowStep> WorkflowSteps { get; set; }
+    }
+}

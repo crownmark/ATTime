@@ -1722,5 +1722,381 @@ namespace CrownATTime.Client
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
+
+        public async System.Threading.Tasks.Task ExportWorkflowRulesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowrules/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowrules/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportWorkflowRulesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowrules/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowrules/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetWorkflowRules(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowRule>> GetWorkflowRules(Query query)
+        {
+            return await GetWorkflowRules(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowRule>> GetWorkflowRules(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"WorkflowRules");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowRules(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowRule>>(response);
+        }
+
+        partial void OnCreateWorkflowRule(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowRule> CreateWorkflowRule(CrownATTime.Server.Models.ATTime.WorkflowRule workflowRule = default(CrownATTime.Server.Models.ATTime.WorkflowRule))
+        {
+            var uri = new Uri(baseUri, $"WorkflowRules");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowRule), Encoding.UTF8, "application/json");
+
+            OnCreateWorkflowRule(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowRule>(response);
+        }
+
+        partial void OnDeleteWorkflowRule(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteWorkflowRule(int workflowRuleId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowRules({workflowRuleId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteWorkflowRule(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetWorkflowRuleByWorkflowRuleId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowRule> GetWorkflowRuleByWorkflowRuleId(string expand = default(string), int workflowRuleId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowRules({workflowRuleId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowRuleByWorkflowRuleId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowRule>(response);
+        }
+
+        partial void OnUpdateWorkflowRule(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateWorkflowRule(int workflowRuleId = default(int), CrownATTime.Server.Models.ATTime.WorkflowRule workflowRule = default(CrownATTime.Server.Models.ATTime.WorkflowRule))
+        {
+            var uri = new Uri(baseUri, $"WorkflowRules({workflowRuleId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowRule), Encoding.UTF8, "application/json");
+
+            OnUpdateWorkflowRule(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportWorkflowStepsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteps/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteps/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportWorkflowStepsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteps/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteps/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetWorkflowSteps(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowStep>> GetWorkflowSteps(Query query)
+        {
+            return await GetWorkflowSteps(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowStep>> GetWorkflowSteps(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"WorkflowSteps");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowSteps(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowStep>>(response);
+        }
+
+        partial void OnCreateWorkflowStep(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStep> CreateWorkflowStep(CrownATTime.Server.Models.ATTime.WorkflowStep workflowStep = default(CrownATTime.Server.Models.ATTime.WorkflowStep))
+        {
+            var uri = new Uri(baseUri, $"WorkflowSteps");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowStep), Encoding.UTF8, "application/json");
+
+            OnCreateWorkflowStep(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowStep>(response);
+        }
+
+        partial void OnDeleteWorkflowStep(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteWorkflowStep(int workflowStepId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowSteps({workflowStepId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteWorkflowStep(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetWorkflowStepByWorkflowStepId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStep> GetWorkflowStepByWorkflowStepId(string expand = default(string), int workflowStepId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowSteps({workflowStepId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowStepByWorkflowStepId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowStep>(response);
+        }
+
+        partial void OnUpdateWorkflowStep(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateWorkflowStep(int workflowStepId = default(int), CrownATTime.Server.Models.ATTime.WorkflowStep workflowStep = default(CrownATTime.Server.Models.ATTime.WorkflowStep))
+        {
+            var uri = new Uri(baseUri, $"WorkflowSteps({workflowStepId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowStep), Encoding.UTF8, "application/json");
+
+            OnUpdateWorkflowStep(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportWorkflowStepTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteptypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteptypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportWorkflowStepTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowsteptypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowsteptypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetWorkflowStepTypes(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowStepType>> GetWorkflowStepTypes(Query query)
+        {
+            return await GetWorkflowStepTypes(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowStepType>> GetWorkflowStepTypes(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"WorkflowStepTypes");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowStepTypes(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowStepType>>(response);
+        }
+
+        partial void OnCreateWorkflowStepType(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStepType> CreateWorkflowStepType(CrownATTime.Server.Models.ATTime.WorkflowStepType workflowStepType = default(CrownATTime.Server.Models.ATTime.WorkflowStepType))
+        {
+            var uri = new Uri(baseUri, $"WorkflowStepTypes");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowStepType), Encoding.UTF8, "application/json");
+
+            OnCreateWorkflowStepType(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowStepType>(response);
+        }
+
+        partial void OnDeleteWorkflowStepType(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteWorkflowStepType(int workflowStepTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowStepTypes({workflowStepTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteWorkflowStepType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetWorkflowStepTypeByWorkflowStepTypeId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowStepType> GetWorkflowStepTypeByWorkflowStepTypeId(string expand = default(string), int workflowStepTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowStepTypes({workflowStepTypeId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowStepTypeByWorkflowStepTypeId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowStepType>(response);
+        }
+
+        partial void OnUpdateWorkflowStepType(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateWorkflowStepType(int workflowStepTypeId = default(int), CrownATTime.Server.Models.ATTime.WorkflowStepType workflowStepType = default(CrownATTime.Server.Models.ATTime.WorkflowStepType))
+        {
+            var uri = new Uri(baseUri, $"WorkflowStepTypes({workflowStepTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowStepType), Encoding.UTF8, "application/json");
+
+            OnUpdateWorkflowStepType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportWorkflowTriggerTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowtriggertypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowtriggertypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportWorkflowTriggerTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/workflowtriggertypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/workflowtriggertypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetWorkflowTriggerTypes(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>> GetWorkflowTriggerTypes(Query query)
+        {
+            return await GetWorkflowTriggerTypes(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>> GetWorkflowTriggerTypes(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"WorkflowTriggerTypes");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowTriggerTypes(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>>(response);
+        }
+
+        partial void OnCreateWorkflowTriggerType(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> CreateWorkflowTriggerType(CrownATTime.Server.Models.ATTime.WorkflowTriggerType workflowTriggerType = default(CrownATTime.Server.Models.ATTime.WorkflowTriggerType))
+        {
+            var uri = new Uri(baseUri, $"WorkflowTriggerTypes");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowTriggerType), Encoding.UTF8, "application/json");
+
+            OnCreateWorkflowTriggerType(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>(response);
+        }
+
+        partial void OnDeleteWorkflowTriggerType(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteWorkflowTriggerType(int workflowTriggerTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowTriggerTypes({workflowTriggerTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteWorkflowTriggerType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetWorkflowTriggerTypeByWorkflowTriggerTypeId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> GetWorkflowTriggerTypeByWorkflowTriggerTypeId(string expand = default(string), int workflowTriggerTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"WorkflowTriggerTypes({workflowTriggerTypeId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetWorkflowTriggerTypeByWorkflowTriggerTypeId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>(response);
+        }
+
+        partial void OnUpdateWorkflowTriggerType(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateWorkflowTriggerType(int workflowTriggerTypeId = default(int), CrownATTime.Server.Models.ATTime.WorkflowTriggerType workflowTriggerType = default(CrownATTime.Server.Models.ATTime.WorkflowTriggerType))
+        {
+            var uri = new Uri(baseUri, $"WorkflowTriggerTypes({workflowTriggerTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(workflowTriggerType), Encoding.UTF8, "application/json");
+
+            OnUpdateWorkflowTriggerType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
     }
 }

@@ -42,7 +42,7 @@
 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
         <strong>Ticket: </strong>
-                <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Text="Ticket Details" Icon="visibility" Click="@ViewTicketDescriptionButtonClick" MouseEnter="@TicketDetailsButtonMouseEnter" MouseLeave="@TicketDetailsButtonMouseLeave"></RadzenButton>
+                <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Text="Ticket Details" Icon="visibility" Click="@ViewTicketDescriptionButtonClick" MouseEnter="@TicketDetailsButtonMouseEnter" MouseLeave="@TicketDetailsButtonMouseLeave" Visible="false"></RadzenButton>
 
                 <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal" MouseEnter="@TicketLink0MouseEnter" MouseLeave="@TicketLink0MouseLeave"></RadzenLink>
                 
@@ -252,6 +252,15 @@
                         
                         
                     </RadzenRow>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
+                        <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                            <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
+                            <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
+                        </RadzenStack>
+                            <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default" MouseEnter="@CompleteTimeEntryButton6MouseEnter" MouseLeave="@CompleteTimeEntryButton6MouseLeave"/>
+                        <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" MouseEnter="@CloseTicketButton7MouseEnter" MouseLeave="@CloseTicketButton7MouseLeave" />
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" MouseEnter="@DeleteTimeEntryButton8MouseEnter" MouseLeave="@DeleteTimeEntryButton8MouseLeave" />
+                    </RadzenStack>
                     <RadzenRow Gap="">
                         <RadzenFieldset Text="Checklist Items" AllowCollapse="true" Icon="playlist_add_check" Style="width: 100%" Collapsed="@(ChecklistItemsCollapsed && checklistItemsCount == 0)">
                                     @* <ChecklistItems TicketId="@(Convert.ToInt32(ticket.item.id))" ResourceId="@(Convert.ToInt32(resource.Id))" /> *@
@@ -290,17 +299,12 @@
                                         </RadzenColumn>
                                     </RadzenRow>
                         </RadzenFieldset>
-                        
+                        <RadzenFieldset Text="Ticket Details" AllowCollapse="true" Icon="confirmation_number" Style="width: 100%">
+                            <TicketDetails PrimaryResource="ticketResource?.FullName" PriorityName="PriorityName" ResourceId="@resource.Id" StatusName="@StatusName" Ticket="@ticket"/>
+
+                        </RadzenFieldset>
                     </RadzenRow>
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
-                        <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
-                            <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
-                            <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
-                        </RadzenStack>
-                            <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default" MouseEnter="@CompleteTimeEntryButton6MouseEnter" MouseLeave="@CompleteTimeEntryButton6MouseLeave"/>
-                        <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" MouseEnter="@CloseTicketButton7MouseEnter" MouseLeave="@CloseTicketButton7MouseLeave" />
-                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" MouseEnter="@DeleteTimeEntryButton8MouseEnter" MouseLeave="@DeleteTimeEntryButton8MouseLeave" />
-                    </RadzenStack>
+                    
                 </RadzenTemplateForm>
             
             </RadzenStack>

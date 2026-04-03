@@ -301,6 +301,10 @@ namespace CrownATTime.Client.Pages
                 {
                     secondaryResources = true;
                 }
+                if (!string.IsNullOrEmpty(selectedTemplate.NotifyAdditionalEmails))
+                {
+                    additionalEmail = selectedTemplate.NotifyAdditionalEmails;
+                }
 
                 // Load picklists
                 var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();

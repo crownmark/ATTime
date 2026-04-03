@@ -28,6 +28,7 @@
 
                 </RadzenColumn>
             </RadzenRow>
+            
             <RadzenFormField Text="Title" Variant="Variant.Outlined">
                   <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.Title)" Name="Title" MaxLength="255" />
@@ -106,6 +107,11 @@
 
                 </RadzenColumn>
             </RadzenRow>
+            <RadzenFormField Text="Notify Additional Email Addresses (Comma Separated Emails)" Variant="Variant.Outlined" Visible="true" Component="NotifyAdditionalEmails">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@emailTemplate.NotifyAdditionalEmails" Name="NotifyAdditionalEmails" MaxLength="255" />
+              </ChildContent>
+            </RadzenFormField>
             <RadzenFormField Text="From Email Address" Variant="Variant.Outlined" Visible="false">
                   <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(emailTemplate.FromEmailAddress)" Name="FromEmailAddress" MaxLength="255" />
