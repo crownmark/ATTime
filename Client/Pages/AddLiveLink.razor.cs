@@ -31,7 +31,7 @@ namespace CrownATTime.Client.Pages
         protected NotificationService NotificationService { get; set; }
         [Inject]
         public ATTimeService ATTimeService { get; set; }
-        protected List<string> httpMethods { get; set; } = new List<string> { "GET", "POST", "PUT", "DELETE", "PATCH" };
+        protected List<string> httpMethods { get; set; } = new List<string> { "OPENURL", "GET", "POST", "PUT", "DELETE", "PATCH" };
 
         protected override async Task OnInitializedAsync()
         {

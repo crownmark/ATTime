@@ -11,13 +11,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Net.Mail;
+using System.Text.Json;
 using System.Threading.Tasks;
 using static CrownATTime.Server.Models.ITGlueDocumentsResult;
 using static System.Net.WebRequestMethods;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Net.Http;
-using System.Net.Http.Json;
 
 namespace CrownATTime.Client.Pages
 {
@@ -415,7 +416,7 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step.WorkflowStepTypeId == 5 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //confirmation dialog
                         {
-                            var confirmed = await DialogService.Confirm(step.ConfirmationDialogMessage, step.ConfirmationDialogTitle, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+                            var confirmed = await DialogService.Confirm(step.ConfirmationDialogMessage, step.ConfirmationDialogTitle, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", Width = "600px" });
                             if (!confirmed.HasValue || !confirmed.Value)
                             {
                                 //user cancelled, stop processing workflow steps
@@ -431,7 +432,7 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step.WorkflowStepTypeId == 6 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //notification dialog
                         {
-                            await DialogService.Alert(step.NotificationDialogMessage, step.NotificationDialogTitle, new AlertOptions() { OkButtonText = "OK" });
+                            await DialogService.Alert(step.NotificationDialogMessage, step.NotificationDialogTitle, new AlertOptions() { OkButtonText = "OK", Width = "600px" });
                         }
                         else if (step.WorkflowStepTypeId == 7 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //n8n workflow
                         {
@@ -456,13 +457,18 @@ namespace CrownATTime.Client.Pages
 
                                 if (step.N8nWorkflowMethod == "GET")
                                 {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpGet);
 
                                 }
                                 else if (step.N8nWorkflowMethod == "POST")
                                 {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
+                                    var json = JsonSerializer.Serialize(ticket);
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpPostJson, json);
 
+                                }
+                                else if (step.N8nWorkflowMethod == "OPENURL")
+                                {
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
                                 }
                                 else
                                 {
@@ -2242,14 +2248,14 @@ namespace CrownATTime.Client.Pages
                             {
                                 if(await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
                                 {
-                                    await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
+                                    await RequestUrl(liveLink.Url, RequestMode.HttpGet);
 
                                 }
 
                             }
                             else
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
+                                await RequestUrl(liveLink.Url, RequestMode.HttpGet);
 
                             }
                         }
@@ -2257,12 +2263,28 @@ namespace CrownATTime.Client.Pages
                         {
                             if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, null);
+                                var json = JsonSerializer.Serialize(ticket);
+                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json);
 
                             }
                             else
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, null);
+                                var json = JsonSerializer.Serialize(ticket);
+                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json);
+
+                            }
+
+                        }
+                        else if (liveLink.HttpMethod == "OPENURL")
+                        {
+                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen, null);
+
+                            }
+                            else
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen, null);
 
                             }
 
@@ -2271,12 +2293,12 @@ namespace CrownATTime.Client.Pages
                         {
                             if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.HttpGet);
+                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
 
                             }
                             else
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.HttpGet);
+                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
 
                             }
 

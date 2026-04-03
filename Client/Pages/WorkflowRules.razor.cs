@@ -100,6 +100,71 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+        protected async Task GridCopyButtonClick(MouseEventArgs args, CrownATTime.Server.Models.ATTime.WorkflowRule workflowRule)
+        {
+            try
+            {
+                if (await DialogService.Confirm("Are you sure you want to copy this record?") == true)
+                {
+                    int ruleId = workflowRule.WorkflowRuleId;
+                    var copiedRule = workflowRule;
+                    copiedRule.WorkflowRuleId = 0;
+                    copiedRule.Title = $"{workflowRule.Title} (Copy)";
+                    var copyresult = await ATTimeService.CreateWorkflowRule(copiedRule);
+                    var steps = await ATTimeService.GetWorkflowSteps(filter: $"WorkflowRuleId eq {ruleId}");
+                    foreach (var step in steps.Value.ToList())
+                    {
+                        step.WorkflowStepId = 0;
+                        step.WorkflowRuleId = copyresult.WorkflowRuleId;
+                        //step.Title = $"{step.Title} (Copy)";
+                        await ATTimeService.CreateWorkflowStep(step);
+                    }
+
+                    if (copyresult != null)
+                    {
+                        await grid0.Reload();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"Unable to copy WorkflowRule"
+                });
+            }
+        }
+        protected async Task WorkflowStepCopyButtonClick(MouseEventArgs args, CrownATTime.Server.Models.ATTime.WorkflowStep workflowStep)
+        {
+            try
+            {
+                if (await DialogService.Confirm("Are you sure you want to copy this record?") == true)
+                {
+                    var copiedStep = workflowStep;
+                    copiedStep.WorkflowStepId = 0;
+                    copiedStep.Title = $"{workflowStep.Title} (Copy)";
+                    var copyresult = await ATTimeService.CreateWorkflowStep(copiedStep);
+
+                    if (copyresult != null)
+                    {
+                        var ruleRecord = await ATTimeService.GetWorkflowRuleByWorkflowRuleId("", workflowStep.WorkflowRuleId);
+                        await GetChildData(ruleRecord);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = $"Error",
+                    Detail = $"Unable to copy WorkflowRule"
+                });
+            }
+        }
+
         protected CrownATTime.Server.Models.ATTime.WorkflowRule workflowRuleChild;
         protected async Task GetChildData(CrownATTime.Server.Models.ATTime.WorkflowRule args)
         {
