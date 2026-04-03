@@ -2354,12 +2354,16 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step != null && step.N8nWorkflowNotificationType == "Alert")
                         {
-                            await DialogService.Alert($"{RenderMessage(getBody)}", $"{step?.N8nWorkflowNotificationTitle}", null, null);
+                            await DialogService.Alert((RenderFragment)(builder =>
+                                    builder.AddMarkupContent(0, getBody)
+                                ), $"{step?.N8nWorkflowNotificationTitle}", null, null);
 
                         }
                         else if (step != null && step.N8nWorkflowNotificationType == "Confirmation")
                         {
-                            await DialogService.Confirm($"{step?.N8nWorkflowNotificationTitle}", $"{RenderMessage(getBody)}", null, null);
+                            await DialogService.Confirm((RenderFragment)(builder =>
+                                    builder.AddMarkupContent(0, getBody)
+                                ), $"{step?.N8nWorkflowNotificationTitle}", null, null);
 
                         }
                         else
@@ -2370,6 +2374,7 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpPostJson:
+
                         var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
                         if (!postResponse.IsSuccessStatusCode)
                         {
@@ -2391,9 +2396,9 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step != null && step.N8nWorkflowNotificationType == "Confirmation")
                         {
-                            await DialogService.Confirm($"{step?.N8nWorkflowNotificationTitle}", $"{(RenderFragment)(builder =>
+                            await DialogService.Confirm((RenderFragment)(builder =>
                                     builder.AddMarkupContent(0, postBody)
-                                )}", null, null);
+                                ),$"{step?.N8nWorkflowNotificationTitle}", null, null);
 
                         }
                         else
