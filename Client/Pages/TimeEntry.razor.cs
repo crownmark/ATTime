@@ -2339,8 +2339,10 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpGet:
+                        BusyDialog("Performing Background Task...");
                         // Note: CORS must be allowed by the remote server for WASM HttpClient.
                         var getResponse = await _httpClient.GetAsync(url);
+                        DialogService.Close();
                         if (!getResponse.IsSuccessStatusCode)
                         {
                             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = $"Error: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
@@ -2354,9 +2356,20 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step != null && step.N8nWorkflowNotificationType == "Alert")
                         {
-                            await DialogService.Alert((RenderFragment)(builder =>
-                                    builder.AddMarkupContent(0, getBody)
-                                ), $"{step?.N8nWorkflowNotificationTitle}", null, null);
+                            //await DialogService.Alert((RenderFragment)(builder =>
+                            //        builder.AddMarkupContent(0, getBody)
+                            //    ), $"{step?.N8nWorkflowNotificationTitle}", null, null);
+
+                            await DialogService.OpenAsync(
+                                $"{step?.N8nWorkflowNotificationTitle}",
+                                ds => builder =>
+                                {
+                                    builder.OpenElement(0, "div");
+                                    builder.AddMarkupContent(1, getBody);
+                                    builder.CloseElement();
+                                }, new DialogOptions { ShowTitle = true, ShowClose = true },
+                                null
+                            );
 
                         }
                         else if (step != null && step.N8nWorkflowNotificationType == "Confirmation")
@@ -2374,8 +2387,11 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpPostJson:
+                        BusyDialog("Performing Background Task...");
 
                         var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
+                        DialogService.Close();
+
                         if (!postResponse.IsSuccessStatusCode)
                         {
                             NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = $"Error: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
@@ -2389,9 +2405,21 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step != null && step.N8nWorkflowNotificationType == "Alert")
                         {
-                            await DialogService.Alert((RenderFragment)(builder =>
-                                    builder.AddMarkupContent(0, postBody)
-                                ), $"{step?.N8nWorkflowNotificationTitle}", null, null);
+                            //await DialogService.Alert((RenderFragment)(builder =>
+                            //        builder.AddMarkupContent(0, postBody)
+                            //    ), $"{step?.N8nWorkflowNotificationTitle}", null, null);
+
+                            
+                            await DialogService.OpenAsync(
+                                $"{step?.N8nWorkflowNotificationTitle}",
+                                ds => builder =>
+                                {
+                                    builder.OpenElement(0, "div");
+                                    builder.AddMarkupContent(1, postBody);
+                                    builder.CloseElement();
+                                }, new DialogOptions { ShowTitle = true, ShowClose = true },
+                                null
+                            );
 
                         }
                         else if (step != null && step.N8nWorkflowNotificationType == "Confirmation")
@@ -2412,14 +2440,33 @@ namespace CrownATTime.Client.Pages
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Request error", Detail = ex.Message });
+                DialogService.Close();
+
             }
         }
-        RenderFragment RenderMessage(string body)
+        // Busy dialog from string
+        async Task BusyDialog(string message)
         {
-            return builder =>
+            await DialogService.OpenAsync("", ds =>
             {
-                builder.AddMarkupContent(0, body);
-            };
+                RenderFragment content = dialogContent =>
+                {
+                    dialogContent.OpenComponent<RadzenRow>(0);
+                    dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+                    {
+                        rowContent.OpenComponent<RadzenColumn>(0);
+                        rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+                        rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+                        {
+                            columnContent.AddContent(0, message);
+                        }));
+                        rowContent.CloseComponent();
+                    }));
+
+                    dialogContent.CloseComponent();
+                };
+                return content;
+            }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
         }
     }
 }
