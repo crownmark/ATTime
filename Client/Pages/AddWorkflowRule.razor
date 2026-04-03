@@ -36,11 +36,12 @@
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowRule.TicketCreatedBy)" Name="TicketCreatedBy" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
               </ChildContent>
             </RadzenFormField>
-            <RadzenFormField Text="Company Cache" Variant="Variant.Outlined">
+            <RadzenFormField Text="Company " Variant="Variant.Outlined">
                   <ChildContent>
-                    <RadzenDropDown Data="@(companyCachesForCompanyId)" TextProperty="CompanyName" ValueProperty="Id" AllowClear=true
-                          style="display: block; width: 100%" @bind-Value="@(workflowRule.CompanyId)" Name="CompanyId" loadData=@companyCachesForCompanyIdLoadData
-                         Count=@companyCachesForCompanyIdCount AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true" TValue="int?" />
+                  <RadzenDropDown Data="@(companyCachesForCompanyId)" TextProperty="CompanyName" ValueProperty="Id" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(workflowRule.CompanyId)" Name="CompanyId"
+                         Count=@companyCachesForCompanyIdCount LoadData=@companyCachesForCompanyIdLoadData AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true" />
+                    
               </ChildContent>
             </RadzenFormField>
             <RadzenFormField Text="Status" Variant="Variant.Outlined">
@@ -78,6 +79,11 @@
             <RadzenFormField Text="Time Entry Hours Worked Greater Than" Variant="Variant.Outlined" Component="TimeEntryHoursWorkedGreaterThan">
                   <ChildContent>
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@workflowRule.TimeEntryHoursWorkedGreaterThan" Name="TimeEntryHoursWorkedGreaterThan" AutoCompleteType="AutoCompleteType.Off" Step=".25"/>
+              </ChildContent>
+            </RadzenFormField>
+<RadzenFormField Text="Time Entry Hours Worked Less Than" Variant="Variant.Outlined" Component="TimeEntryHoursWorkedLessThan">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@workflowRule.TimeEntryHoursWorkedLessThan" Name="TimeEntryHoursWorkedLessThan" AutoCompleteType="AutoCompleteType.Off" Step=".25"/>
               </ChildContent>
             </RadzenFormField>
 <RadzenFormField Text="Rule Order" Variant="Variant.Outlined">

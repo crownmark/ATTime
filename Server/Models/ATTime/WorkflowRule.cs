@@ -41,6 +41,8 @@ namespace CrownATTime.Server.Models.ATTime
 
         public decimal? TimeEntryHoursWorkedGreaterThan { get; set; }
 
+        public decimal? TimeEntryHoursWorkedLessThan { get; set; }
+
         public int RuleOrder { get; set; }
 
         [Required]

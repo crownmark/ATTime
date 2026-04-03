@@ -350,6 +350,7 @@ namespace CrownATTime.Client.Pages
                     and (QueueId eq {ticket.item.queueID} or QueueId eq null)
                     and (TicketCategoryId eq {ticket.item.ticketCategory} or TicketCategoryId eq null)
                     and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} ge TimeEntryHoursWorkedGreaterThan or TimeEntryHoursWorkedGreaterThan eq null)
+                    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} le TimeEntryHoursWorkedLessThan or TimeEntryHoursWorkedLessThan eq null)
                     and (
                         {(ticket.item.issueType != null
                             ? $"(IssueTypeId eq {ticket.item.issueType} or IssueTypeId eq null)"
@@ -416,7 +417,7 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step.WorkflowStepTypeId == 5 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //confirmation dialog
                         {
-                            var confirmed = await DialogService.Confirm(step.ConfirmationDialogMessage, step.ConfirmationDialogTitle, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", Width = "600px" });
+                            var confirmed = await DialogService.Confirm(step.ConfirmationDialogMessage, step.ConfirmationDialogTitle, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
                             if (!confirmed.HasValue || !confirmed.Value)
                             {
                                 //user cancelled, stop processing workflow steps
@@ -432,7 +433,7 @@ namespace CrownATTime.Client.Pages
                         }
                         else if (step.WorkflowStepTypeId == 6 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //notification dialog
                         {
-                            await DialogService.Alert(step.NotificationDialogMessage, step.NotificationDialogTitle, new AlertOptions() { OkButtonText = "OK", Width = "600px" });
+                            await DialogService.Alert(step.NotificationDialogMessage, step.NotificationDialogTitle, new AlertOptions() { OkButtonText = "OK" });
                         }
                         else if (step.WorkflowStepTypeId == 7 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //n8n workflow
                         {
@@ -457,22 +458,22 @@ namespace CrownATTime.Client.Pages
 
                                 if (step.N8nWorkflowMethod == "GET")
                                 {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpGet);
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpGet, step);
 
                                 }
                                 else if (step.N8nWorkflowMethod == "POST")
                                 {
                                     var json = JsonSerializer.Serialize(ticket);
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpPostJson, json);
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpPostJson, json, step);
 
                                 }
                                 else if (step.N8nWorkflowMethod == "OPENURL")
                                 {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen, step);
                                 }
                                 else
                                 {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen);
+                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen, step);
 
                                 }
                             }
@@ -2320,7 +2321,7 @@ namespace CrownATTime.Client.Pages
         }
 
         // New: helper to either open the URL in a browser or perform HTTP requests
-        protected async Task RequestUrl(string url, RequestMode mode = RequestMode.BrowserOpen, object payload = null)
+        protected async Task RequestUrl(string url, RequestMode mode = RequestMode.BrowserOpen, object payload = null, WorkflowStep step = null)
         {
             try
             {
@@ -2342,22 +2343,64 @@ namespace CrownATTime.Client.Pages
                         var getResponse = await _httpClient.GetAsync(url);
                         if (!getResponse.IsSuccessStatusCode)
                         {
-                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "HTTP GET failed", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = $"Error: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
                             return;
                         }
                         var getBody = await getResponse.Content.ReadAsStringAsync();
-                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "HTTP GET success", Detail = "Response received." });
+                        if (step != null && step.N8nWorkflowNotificationType == "Notification")
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"{step?.N8nWorkflowNotificationTitle}", Detail = $"{getResponse}" });
+
+                        }
+                        else if (step != null && step.N8nWorkflowNotificationType == "Alert")
+                        {
+                            await DialogService.Alert($"{RenderMessage(getBody)}", $"{step?.N8nWorkflowNotificationTitle}", null, null);
+
+                        }
+                        else if (step != null && step.N8nWorkflowNotificationType == "Confirmation")
+                        {
+                            await DialogService.Confirm($"{step?.N8nWorkflowNotificationTitle}", $"{RenderMessage(getBody)}", null, null);
+
+                        }
+                        else
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
+
+                        }
                         break;
 
                     case RequestMode.HttpPostJson:
                         var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
                         if (!postResponse.IsSuccessStatusCode)
                         {
-                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "HTTP POST failed", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = $"Error: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
                             return;
                         }
                         var postBody = await postResponse.Content.ReadAsStringAsync();
-                        NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "HTTP POST success", Detail = "Response received." });
+                        if (step != null && step.N8nWorkflowNotificationType == "Notification")
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"{step?.N8nWorkflowNotificationTitle}", Detail = $"{postBody}" });
+
+                        }
+                        else if (step != null && step.N8nWorkflowNotificationType == "Alert")
+                        {
+                            await DialogService.Alert((RenderFragment)(builder =>
+                                    builder.AddMarkupContent(0, postBody)
+                                ), $"{step?.N8nWorkflowNotificationTitle}", null, null);
+
+                        }
+                        else if (step != null && step.N8nWorkflowNotificationType == "Confirmation")
+                        {
+                            await DialogService.Confirm($"{step?.N8nWorkflowNotificationTitle}", $"{(RenderFragment)(builder =>
+                                    builder.AddMarkupContent(0, postBody)
+                                )}", null, null);
+
+                        }
+                        else
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
+
+                        }
                         break;
                 }
             }
@@ -2365,6 +2408,13 @@ namespace CrownATTime.Client.Pages
             {
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Request error", Detail = ex.Message });
             }
+        }
+        RenderFragment RenderMessage(string body)
+        {
+            return builder =>
+            {
+                builder.AddMarkupContent(0, body);
+            };
         }
     }
 }

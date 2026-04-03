@@ -343,6 +343,10 @@ namespace CrownATTime.Server.Data
             builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowRule>()
               .Property(p => p.TimeEntryHoursWorkedGreaterThan)
               .HasPrecision(18,2);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowRule>()
+              .Property(p => p.TimeEntryHoursWorkedLessThan)
+              .HasPrecision(18,2);
             this.OnModelBuilding(builder);
         }
 

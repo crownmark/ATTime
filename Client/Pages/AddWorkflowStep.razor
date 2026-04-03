@@ -126,7 +126,7 @@
               <RadzenButton Text="View Template Tokens" Icon="code" Size="Radzen.ButtonSize.Small" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@ViewTemplateTokensButtonClick"></RadzenButton>
 
             </RadzenStack>
-            <RadzenFormField Text="n8n Workflow Url (Include Parameters as needed)" Variant="Variant.Outlined" Component="NotificationDialogTitle" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
+            <RadzenFormField Text="Workflow Url (Include Parameters as needed)" Variant="Variant.Outlined" Component="NotificationDialogTitle" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
                   <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowStep.N8nWorkflowUrl" Name="N8nWorkflowUrl" AutoCompleteType="AutoCompleteType.Off" />
                   </ChildContent>    
@@ -134,12 +134,28 @@
                     <RadzenRequiredValidator Component="N8nWorkflowUrl" Text="Url is required" />
                   </Helper>
             </RadzenFormField>
-            <RadzenFormField Text="n8n Workflow Method Type" Variant="Variant.Outlined" Component="N8nWorkflowMethod" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
+            <RadzenFormField Text="Workflow Method Type" Variant="Variant.Outlined" Component="N8nWorkflowMethod" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
                   <ChildContent>
                       <RadzenDropDown TValue="string" Data="@httpMethods" Name="N8nWorkflowMethod" @bind-Value="@workflowStep.N8nWorkflowMethod" AllowClear="true"></RadzenDropDown>
                   </ChildContent>    
                   <Helper>
                     <RadzenRequiredValidator Component="N8nWorkflowMethod" Text="Method is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Workflow Method Type" Variant="Variant.Outlined" Component="N8nWorkflowMethod" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
+                  <ChildContent>
+                      <RadzenDropDown TValue="string" Data="@notificationTypes" Name="N8nWorkflowNotificationType" @bind-Value="@workflowStep.N8nWorkflowNotificationType" AllowClear="true"></RadzenDropDown>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="N8nWorkflowNotificationType" Text="Method is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Workflow Notification Dialog Title" Variant="Variant.Outlined" Component="NotificationDialogTitle" Visible="@(workflowStep.WorkflowStepTypeId == 7)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowStep.N8nWorkflowNotificationTitle" Name="N8nWorkflowNotificationTitle" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="N8nWorkflowNotificationTitle" Text="Title is required" />
                   </Helper>
             </RadzenFormField>
             <RadzenFormField Text="Step Order" Variant="Variant.Outlined">
