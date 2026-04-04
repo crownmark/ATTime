@@ -51,9 +51,17 @@
                                 <RadzenRequiredValidator Component="HttpMethod" Text="Http Method is required" />
                               </Helper>
                         </RadzenFormField>
+            <RadzenFormField Text="Dialog Window Width" Variant="Variant.Outlined" Component="DialogWindowWidth" Visible="@(liveLink.HttpMethod != "OPENURL")">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@liveLink.DialogWindowWidth" Name="DialogWindowWidth" AutoCompleteType="AutoCompleteType.Off" MaxLength="500" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="DialogWindowWidth" Text="Width is required" />
+                  </Helper>
+            </RadzenFormField>
                         <RadzenRow style="margin-bottom: 1rem">
                 <RadzenColumn SizeMD="6">
-                    <RadzenLabel Text="Requires Confirmation To RunWith Others?" Component="RequiresConfirmationToRun" style="width: 100%" />
+                    <RadzenLabel Text="Requires Confirmation To Run?" Component="RequiresConfirmationToRun" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="6">
                     <RadzenCheckBox @bind-Value="@liveLink.RequiresConfirmationToRun" Name="RequiresConfirmationToRun" />

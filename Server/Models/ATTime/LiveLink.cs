@@ -37,5 +37,8 @@ namespace CrownATTime.Server.Models.ATTime
 
         [MaxLength(50)]
         public string Icon { get; set; }
+
+        [MaxLength(50)]
+        public string DialogWindowWidth { get; set; }
     }
 }

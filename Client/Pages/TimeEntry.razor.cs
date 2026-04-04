@@ -2367,7 +2367,7 @@ namespace CrownATTime.Client.Pages
                                     builder.OpenElement(0, "div");
                                     builder.AddMarkupContent(1, getBody);
                                     builder.CloseElement();
-                                }, new DialogOptions { ShowTitle = true, ShowClose = true },
+                                }, new DialogOptions { ShowTitle = true, ShowClose = true, Width = $"{step.N8nWorkflowNotificationWindowWidth}" },
                                 null
                             );
 
@@ -2417,7 +2417,7 @@ namespace CrownATTime.Client.Pages
                                     builder.OpenElement(0, "div");
                                     builder.AddMarkupContent(1, postBody);
                                     builder.CloseElement();
-                                }, new DialogOptions { ShowTitle = true, ShowClose = true },
+                                }, new DialogOptions { ShowTitle = true, ShowClose = true, Width = $"{step.N8nWorkflowNotificationWindowWidth}" },
                                 null
                             );
 

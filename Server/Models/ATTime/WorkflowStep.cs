@@ -77,6 +77,10 @@ namespace CrownATTime.Server.Models.ATTime
         [MaxLength(255)]
         public string N8nWorkflowNotificationTitle { get; set; }
 
+        [Column("n8nWorkflowNotificationWindowWidth")]
+        [MaxLength(50)]
+        public string N8nWorkflowNotificationWindowWidth { get; set; }
+
         public int StepOrder { get; set; }
 
         public bool ConfirmationDialogContinueOnNo { get; set; }

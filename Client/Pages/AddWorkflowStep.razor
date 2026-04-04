@@ -158,6 +158,14 @@
                     <RadzenRequiredValidator Component="N8nWorkflowNotificationTitle" Text="Title is required" />
                   </Helper>
             </RadzenFormField>
+            <RadzenFormField Text="Dialog Window Width" Variant="Variant.Outlined" Component="N8nWorkflowNotificationWindowWidth" Visible="@(workflowStep.N8nWorkflowNotificationType != "OPENURL" && workflowStep.WorkflowStepTypeId == 7)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowStep.N8nWorkflowNotificationWindowWidth" Name="N8nWorkflowNotificationWindowWidth" AutoCompleteType="AutoCompleteType.Off" MaxLength="500" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="N8nWorkflowNotificationWindowWidth" Text="Width is required" />
+                  </Helper>
+            </RadzenFormField>
             <RadzenFormField Text="Step Order" Variant="Variant.Outlined">
                   <ChildContent>
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(workflowStep.StepOrder)" Name="StepOrder" AutoCompleteType="AutoCompleteType.Off"/>
