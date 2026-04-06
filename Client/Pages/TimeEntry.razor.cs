@@ -2247,41 +2247,49 @@ namespace CrownATTime.Client.Pages
                         {
                             if (liveLink.RequiresConfirmationToRun)
                             {
-                                if(await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                                if(await DialogService.Confirm("Are you sure you want to run this live link?", $"Confirmation: {liveLink.Title}", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
                                 {
-                                    await RequestUrl(liveLink.Url, RequestMode.HttpGet);
+                                    var json = JsonSerializer.Serialize(ticket);
+                                    await RequestUrl(liveLink.Url, RequestMode.HttpGet, json, null, liveLink);
 
                                 }
 
                             }
                             else
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.HttpGet);
+                                var json = JsonSerializer.Serialize(ticket);
+                                await RequestUrl(liveLink.Url, RequestMode.HttpGet, json, null, liveLink);
 
                             }
                         }
                         else if(liveLink.HttpMethod == "POST")
                         {
-                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            if (liveLink.RequiresConfirmationToRun)
                             {
-                                var json = JsonSerializer.Serialize(ticket);
-                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json);
+                                if (await DialogService.Confirm("Are you sure you want to run this live link?", $"Confirmation: {liveLink.Title}", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                                {
+                                    var json = JsonSerializer.Serialize(ticket);
+                                    await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json, null, liveLink);
 
+                                }
                             }
                             else
                             {
                                 var json = JsonSerializer.Serialize(ticket);
-                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json);
-
+                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json, null, liveLink);
                             }
+                                
 
                         }
                         else if (liveLink.HttpMethod == "OPENURL")
                         {
-                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            if (liveLink.RequiresConfirmationToRun)
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen, null);
+                                if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                                {
+                                    await RequestUrl(liveLink.Url, RequestMode.BrowserOpen, null);
 
+                                }
                             }
                             else
                             {
@@ -2292,11 +2300,14 @@ namespace CrownATTime.Client.Pages
                         }
                         else 
                         {
-                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            if (liveLink.RequiresConfirmationToRun)
                             {
-                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
+                                if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                                {
+                                    await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
 
-                            }
+                                }
+                            }                                
                             else
                             {
                                 await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
@@ -2321,7 +2332,7 @@ namespace CrownATTime.Client.Pages
         }
 
         // New: helper to either open the URL in a browser or perform HTTP requests
-        protected async Task RequestUrl(string url, RequestMode mode = RequestMode.BrowserOpen, object payload = null, WorkflowStep step = null)
+        protected async Task RequestUrl(string url, RequestMode mode = RequestMode.BrowserOpen, object payload = null, WorkflowStep step = null, LiveLink liveLink = null)
         {
             try
             {
@@ -2339,7 +2350,7 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpGet:
-                        BusyDialog("Performing Background Task...");
+                        BusyDialog("Performing Task.  Please Wait...");
                         // Note: CORS must be allowed by the remote server for WASM HttpClient.
                         var getResponse = await _httpClient.GetAsync(url);
                         DialogService.Close();
@@ -2381,13 +2392,38 @@ namespace CrownATTime.Client.Pages
                         }
                         else
                         {
-                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
+                            if(liveLink != null)
+                            {
+                                if (!string.IsNullOrEmpty(liveLink.DialogWindowWidth))
+                                {
+                                    await DialogService.OpenAsync(
+                                        $"{liveLink?.Title}",
+                                        ds => builder =>
+                                        {
+                                            builder.OpenElement(0, "div");
+                                            builder.AddMarkupContent(1, getBody);
+                                            builder.CloseElement();
+                                        }, new DialogOptions { ShowTitle = true, ShowClose = true, Width = $"{liveLink.DialogWindowWidth}" },
+                                        null
+                                    );
+                                }
+                                else
+                                {
+                                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success: {liveLink?.Title}", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
+
+                                }
+                            }
+                            else
+                            {
+                                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success:", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
+
+                            }
 
                         }
                         break;
 
                     case RequestMode.HttpPostJson:
-                        BusyDialog("Performing Background Task...");
+                        BusyDialog("Performing Task.  Please Wait...");
 
                         var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
                         DialogService.Close();
@@ -2431,8 +2467,32 @@ namespace CrownATTime.Client.Pages
                         }
                         else
                         {
-                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success: {step?.N8nWorkflowNotificationTitle}", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
+                            if (liveLink != null)
+                            {
+                                if (!string.IsNullOrEmpty(liveLink.DialogWindowWidth))
+                                {
+                                    await DialogService.OpenAsync(
+                                        $"{liveLink?.Title}",
+                                        ds => builder =>
+                                        {
+                                            builder.OpenElement(0, "div");
+                                            builder.AddMarkupContent(1, postBody);
+                                            builder.CloseElement();
+                                        }, new DialogOptions { ShowTitle = true, ShowClose = true, Width = $"{liveLink.DialogWindowWidth}" },
+                                        null
+                                    );
+                                }
+                                else
+                                {
+                                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success: {liveLink?.Title}", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
 
+                                }
+                            }
+                            else
+                            {
+                                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = $"Success:", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
+
+                            }
                         }
                         break;
                 }
