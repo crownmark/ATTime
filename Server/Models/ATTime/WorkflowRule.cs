@@ -50,6 +50,24 @@ namespace CrownATTime.Server.Models.ATTime
 
         public WorkflowTriggerType WorkflowTriggerType { get; set; }
 
+        [MaxLength(255)]
+        public string Udf1Name { get; set; }
+
+        [MaxLength(255)]
+        public string Udf1Value { get; set; }
+
+        [MaxLength(255)]
+        public string Udf2Name { get; set; }
+
+        [MaxLength(255)]
+        public string Udf2Value { get; set; }
+
+        [MaxLength(255)]
+        public string Udf3Name { get; set; }
+
+        [MaxLength(255)]
+        public string Udf3Value { get; set; }
+
         public ICollection<WorkflowStep> WorkflowSteps { get; set; }
     }
 }

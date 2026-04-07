@@ -86,6 +86,36 @@
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@workflowRule.TimeEntryHoursWorkedLessThan" Name="TimeEntryHoursWorkedLessThan" AutoCompleteType="AutoCompleteType.Off" Step=".25"/>
               </ChildContent>
             </RadzenFormField>
+            <RadzenFormField Text="UDF 1 Name" Variant="Variant.Outlined" Component="Udf1Name">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.Udf1Name" Name="Udf1Name" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
+<RadzenFormField Text="UDF 1 Value" Variant="Variant.Outlined" Component="Udf1Value">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.Udf1Value" Name="Udf1Value" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
+<RadzenFormField Text="UDF 2 Name" Variant="Variant.Outlined" Component="Udf2Name">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.Udf2Name" Name="Udf2Name" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
+<RadzenFormField Text="UDF 2 Value" Variant="Variant.Outlined" Component="Udf2Value">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.Udf2Value" Name="Udf2Value" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
+<RadzenFormField Text="UDF 3 Name" Variant="Variant.Outlined" Component="Udf3Name">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.Udf3Name" Name="Udf3Name" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
+<RadzenFormField Text="UDF 3 Value" Variant="Variant.Outlined" Component="Udf3Value">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.Udf3Value" Name="Udf3Value" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
             <RadzenFormField Text="Rule Order" Variant="Variant.Outlined">
                   <ChildContent>
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(workflowRule.RuleOrder)" Name="RuleOrder" AutoCompleteType="AutoCompleteType.Off"/>

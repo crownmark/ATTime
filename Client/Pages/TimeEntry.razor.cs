@@ -336,34 +336,80 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+        
+
         protected async System.Threading.Tasks.Task ProcessWorkflows(int workflowTriggerTypeId) 
         {
             try
             {
-                var email = contact?.item?.emailAddress?.Replace("'", "''");
-                var filter = $@"
-                (                    
-                    (TicketCreatedBy eq '{ticket.item.createdByContactID.ToString()}' or TicketCreatedBy eq null)
-                    and (CompanyId eq {ticket.item.companyID} or CompanyId eq null)
-                    and (StatusId eq {ticket.item.status} or StatusId eq null)
-                    and (PriorityId eq {ticket.item.priority} or PriorityId eq null)
-                    and (QueueId eq {ticket.item.queueID} or QueueId eq null)
-                    and (TicketCategoryId eq {ticket.item.ticketCategory} or TicketCategoryId eq null)
-                    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} ge TimeEntryHoursWorkedGreaterThan or TimeEntryHoursWorkedGreaterThan eq null)
-                    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} le TimeEntryHoursWorkedLessThan or TimeEntryHoursWorkedLessThan eq null)
-                    and (
-                        {(ticket.item.issueType != null
-                            ? $"(IssueTypeId eq {ticket.item.issueType} or IssueTypeId eq null)"
-                            : "(IssueTypeId eq null)")}
-                    )
+                string Escape(string s) => s.Replace("'", "''");
 
-                    and (
-                        {(ticket.item.subIssueType != null
-                            ? $"(SubIssueTypeId eq {ticket.item.subIssueType} or SubIssueTypeId eq null)"
-                            : "(SubIssueTypeId eq null)")}
-                    )
-                )
-                ";
+                string BuildUdfFilter(string nameField, string valueField, TicketDtoResult.Userdefinedfield[] userDefinedFields)
+                {
+                    var matches = userDefinedFields?
+                        .Where(x => !string.IsNullOrWhiteSpace(x.name) && !string.IsNullOrWhiteSpace(x.value))
+                        .Select(x => $"({nameField} eq '{Escape(x.name.Trim())}' and {valueField} eq '{Escape(x.value.Trim())}')")
+                        .ToList() ?? new List<string>();
+
+                    var slotUnused =
+                        $"((({nameField} eq null) or ({nameField} eq '')) and (({valueField} eq null) or ({valueField} eq '')))";
+
+                    if (!matches.Any())
+                        return slotUnused;
+
+                    return $"({slotUnused} or ({string.Join(" or ", matches)}))";
+                }
+
+                var udf1Filter = BuildUdfFilter("Udf1Name", "Udf1Value", ticket.item.userDefinedFields);
+                var udf2Filter = BuildUdfFilter("Udf2Name", "Udf2Value", ticket.item.userDefinedFields);
+                var udf3Filter = BuildUdfFilter("Udf3Name", "Udf3Value", ticket.item.userDefinedFields);
+
+                //var filter = $@"
+                //(                    
+                //    (TicketCreatedBy eq '{ticket.item.createdByContactID.ToString()}' or TicketCreatedBy eq null)
+                //    and (CompanyId eq {ticket.item.companyID} or CompanyId eq null)
+                //    and (StatusId eq {ticket.item.status} or StatusId eq null)
+                //    and (PriorityId eq {ticket.item.priority} or PriorityId eq null)
+                //    and (QueueId eq {ticket.item.queueID} or QueueId eq null)
+                //    and (TicketCategoryId eq {ticket.item.ticketCategory} or TicketCategoryId eq null)
+                //    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} ge TimeEntryHoursWorkedGreaterThan or TimeEntryHoursWorkedGreaterThan eq null)
+                //    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} le TimeEntryHoursWorkedLessThan or TimeEntryHoursWorkedLessThan eq null)
+                //    and (
+                //        {(ticket.item.issueType != null
+                //            ? $"(IssueTypeId eq {ticket.item.issueType} or IssueTypeId eq null)"
+                //            : "(IssueTypeId eq null)")}
+                //    )
+
+                //    and (
+                //        {(ticket.item.subIssueType != null
+                //            ? $"(SubIssueTypeId eq {ticket.item.subIssueType} or SubIssueTypeId eq null)"
+                //            : "(SubIssueTypeId eq null)")}
+                //    )
+                //    and {udf1Filter}
+                //    and {udf2Filter}
+                //    and {udf3Filter}
+                //)
+                //";
+                var filter = string.Join(" and ", new[]
+                {
+                    $"(TicketCreatedBy eq '{ticket.item.createdByContactID}' or TicketCreatedBy eq null)",
+                    $"(CompanyId eq {ticket.item.companyID} or CompanyId eq null)",
+                    $"(StatusId eq {ticket.item.status} or StatusId eq null)",
+                    $"(PriorityId eq {ticket.item.priority} or PriorityId eq null)",
+                    $"(QueueId eq {ticket.item.queueID} or QueueId eq null)",
+                    $"(TicketCategoryId eq {ticket.item.ticketCategory} or TicketCategoryId eq null)",
+                    $"({(timeEntryRecord.HoursWorked ?? 0.0m)} ge TimeEntryHoursWorkedGreaterThan or TimeEntryHoursWorkedGreaterThan eq null)",
+                    $"({(timeEntryRecord.HoursWorked ?? 0.0m)} le TimeEntryHoursWorkedLessThan or TimeEntryHoursWorkedLessThan eq null)",
+                    (ticket.item.issueType != null
+                        ? $"(IssueTypeId eq {ticket.item.issueType} or IssueTypeId eq null)"
+                        : "(IssueTypeId eq null)"),
+                    (ticket.item.subIssueType != null
+                        ? $"(SubIssueTypeId eq {ticket.item.subIssueType} or SubIssueTypeId eq null)"
+                        : "(SubIssueTypeId eq null)"),
+                    udf1Filter,
+                    udf2Filter,
+                    udf3Filter
+                });
                 var workflowResult = await ATTimeService.GetWorkflowRules(filter: $"Active eq true and WorkflowTriggerTypeId eq {workflowTriggerTypeId} and {filter}", expand: "WorkflowSteps", orderby: $"RuleOrder");
                 var workflowsList = workflowResult.Value.ToList();
                 foreach (var workflow in workflowsList)
@@ -496,7 +542,7 @@ namespace CrownATTime.Client.Pages
             }
             catch (Exception ex)
             {
-                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Workflow Error: {ex.Message}" });
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Workflow Error: {ex.Message} | {ex.StackTrace.ToString()}" });
 
             }
         }
