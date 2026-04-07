@@ -1542,6 +1542,17 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+        protected async System.Threading.Tasks.Task ScreenConnectButtonBackstageClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{configurationItem.item.userDefinedFields.FirstOrDefault(x => x.name == "ScreenConnect Link").value}WithOptions");
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
 
         protected async System.Threading.Tasks.Task SendEmailButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
