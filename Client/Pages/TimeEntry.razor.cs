@@ -364,32 +364,6 @@ namespace CrownATTime.Client.Pages
                 var udf2Filter = BuildUdfFilter("Udf2Name", "Udf2Value", ticket.item.userDefinedFields);
                 var udf3Filter = BuildUdfFilter("Udf3Name", "Udf3Value", ticket.item.userDefinedFields);
 
-                //var filter = $@"
-                //(                    
-                //    (TicketCreatedBy eq '{ticket.item.createdByContactID.ToString()}' or TicketCreatedBy eq null)
-                //    and (CompanyId eq {ticket.item.companyID} or CompanyId eq null)
-                //    and (StatusId eq {ticket.item.status} or StatusId eq null)
-                //    and (PriorityId eq {ticket.item.priority} or PriorityId eq null)
-                //    and (QueueId eq {ticket.item.queueID} or QueueId eq null)
-                //    and (TicketCategoryId eq {ticket.item.ticketCategory} or TicketCategoryId eq null)
-                //    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} ge TimeEntryHoursWorkedGreaterThan or TimeEntryHoursWorkedGreaterThan eq null)
-                //    and ({(timeEntryRecord.HoursWorked != null ? timeEntryRecord.HoursWorked : 0.0)} le TimeEntryHoursWorkedLessThan or TimeEntryHoursWorkedLessThan eq null)
-                //    and (
-                //        {(ticket.item.issueType != null
-                //            ? $"(IssueTypeId eq {ticket.item.issueType} or IssueTypeId eq null)"
-                //            : "(IssueTypeId eq null)")}
-                //    )
-
-                //    and (
-                //        {(ticket.item.subIssueType != null
-                //            ? $"(SubIssueTypeId eq {ticket.item.subIssueType} or SubIssueTypeId eq null)"
-                //            : "(SubIssueTypeId eq null)")}
-                //    )
-                //    and {udf1Filter}
-                //    and {udf2Filter}
-                //    and {udf3Filter}
-                //)
-                //";
                 var filter = string.Join(" and ", new[]
                 {
                     $"(TicketCreatedBy eq '{ticket.item.createdByContactID}' or TicketCreatedBy eq null)",
@@ -408,7 +382,9 @@ namespace CrownATTime.Client.Pages
                         : "(SubIssueTypeId eq null)"),
                     udf1Filter,
                     udf2Filter,
-                    udf3Filter
+                    udf3Filter,
+                    $"(TimeEntryCreatedBy eq {timeEntryRecord.ResourceId} or TimeEntryCreatedBy eq null)",
+                    $"(TicketAssignedTo eq {ticket.item.assignedResourceID} or TicketAssignedTo eq null)"
                 });
                 var workflowResult = await ATTimeService.GetWorkflowRules(filter: $"Active eq true and WorkflowTriggerTypeId eq {workflowTriggerTypeId} and {filter}", expand: "WorkflowSteps", orderby: $"RuleOrder");
                 var workflowsList = workflowResult.Value.ToList();
@@ -509,7 +485,11 @@ namespace CrownATTime.Client.Pages
                                 }
                                 else if (step.N8nWorkflowMethod == "POST")
                                 {
-                                    var json = JsonSerializer.Serialize(ticket);
+                                    var json = JsonSerializer.Serialize(new
+                                    {
+                                        Ticket = ticket,
+                                        TimeEntry = timeEntryRecord
+                                    });
                                     await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpPostJson, json, step);
 
                                 }

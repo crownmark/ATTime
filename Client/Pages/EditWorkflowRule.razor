@@ -1,5 +1,4 @@
 @page "/edit-workflow-rule"
-
 @attribute [Authorize]
 
 <PageTitle>Edit WorkflowRule</PageTitle>
@@ -32,7 +31,7 @@
                     <RadzenRequiredValidator Component="Title" Text="Title is required" />
                   </Helper>
             </RadzenFormField>
-            <RadzenFormField Text="Ticket Created By" Variant="Variant.Outlined">
+            <RadzenFormField Text="Ticket Created By (ResourceId)" Variant="Variant.Outlined">
                   <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowRule.TicketCreatedBy)" Name="TicketCreatedBy" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
               </ChildContent>
@@ -114,6 +113,16 @@
 <RadzenFormField Text="UDF 3 Value" Variant="Variant.Outlined" Component="Udf3Value">
       <ChildContent>
         <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.Udf3Value" Name="Udf3Value" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
+<RadzenFormField Text="Time Entry Created By (ResourceId)" Variant="Variant.Outlined" Component="TimeEntryCreatedBy" Visible="true">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.TimeEntryCreatedBy" Name="TimeEntryCreatedBy" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+  </ChildContent>
+</RadzenFormField>
+<RadzenFormField Text="Ticket Primary Resource (ResourceId)" Variant="Variant.Outlined" Component="TicketAssignedTo" Visible="true">
+      <ChildContent>
+        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.TicketAssignedTo" Name="TicketAssignedTo" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
   </ChildContent>
 </RadzenFormField>
             <RadzenFormField Text="Rule Order" Variant="Variant.Outlined">

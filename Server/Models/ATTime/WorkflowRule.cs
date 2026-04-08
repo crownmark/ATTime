@@ -68,6 +68,12 @@ namespace CrownATTime.Server.Models.ATTime
         [MaxLength(255)]
         public string Udf3Value { get; set; }
 
+        [MaxLength(255)]
+        public string TimeEntryCreatedBy { get; set; }
+
+        [MaxLength(255)]
+        public string TicketAssignedTo { get; set; }
+
         public ICollection<WorkflowStep> WorkflowSteps { get; set; }
     }
 }
