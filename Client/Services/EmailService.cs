@@ -162,7 +162,8 @@ namespace CrownATTime.Client
                 if (!string.IsNullOrEmpty(fmt) && value is IFormattable f)
                     return f.ToString(fmt, System.Globalization.CultureInfo.InvariantCulture);
 
-                return value.ToString() ?? "";
+                //return value.ToString() ?? "";
+                return MakeJsonSafe(value.ToString() ?? "");
             });
         }
 

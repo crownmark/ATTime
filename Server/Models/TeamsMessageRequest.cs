@@ -2,7 +2,9 @@
 {
     public class TeamsMessageRequest
     {
-
+        public string MessageTypeTitle { get; set; }
+        public int CreatedByResourceId { get; set; }
+        public int TicketId { get; set; }
         public string ChatId { get; set; }
 
         // ➜ Needed for channel posts

@@ -132,6 +132,8 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                teamsMessage.TicketId = Ticket.item.id;
+                teamsMessage.CreatedByResourceId = Resource.Id;
                 //convert crownTeamEmails into csv
                 string csv = string.Join(",", crownTeamEmails);
                 teamsMessage.MentionsCsv = csv;
@@ -154,8 +156,8 @@ namespace CrownATTime.Client.Pages
 
                 // Convert [TeamsMessage.Body} Token to plain text
                 teamsMessage.AdaptiveCard = EmailService.ReplaceTeamsMessageBodyTokenOnSubmit(teamsMessage.Message, teamsMessage.AdaptiveCard);
-
-                await TeamsChatService.SendTeamsChannelMessage(args);
+                
+                await TeamsChatService.SendTeamsChannelMessage(teamsMessage);
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = $"Teams Channel Message Sent" });
 
                 DialogService.Close();
@@ -166,6 +168,7 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+        
 
         protected async Task resourceCachesLoadData(LoadDataArgs args)
         {
@@ -210,6 +213,7 @@ namespace CrownATTime.Client.Pages
                 teamsMessage.TeamId = template.TeamId;
                 teamsMessage.Message = template.Message;
                 teamsMessage.AdaptiveCard = template.AdaptiveCardTemplate;
+                teamsMessage.MessageTypeTitle = template.Title;
             }
             catch (Exception ex)
             {
