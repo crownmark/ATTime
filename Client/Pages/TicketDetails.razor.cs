@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static CrownATTime.Server.Models.EmailMessage;
+using CrownATTime.Client.Helpers;
 
 namespace CrownATTime.Client.Pages
 {
@@ -86,6 +87,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                
                 if (Ticket.item.queueID.HasValue)
                 {
                     var queue = await ATTimeService.GetTicketEntityPicklistValueCaches(filter: $"PicklistName eq 'queueID' and ValueInt eq {Ticket.item.queueID.Value}");
@@ -191,6 +193,7 @@ namespace CrownATTime.Client.Pages
                             ResourceId = note.creatorResourceID.HasValue ? note.creatorResourceID.Value : note.createdByContactID.Value,
                             ResourceEmail = note.ResourceEmail,
                             ResourceName = note.ResourceName,
+                            LicenseTypeId = note.LicenseTypeId,
                             SummaryNotes = note.publish == 1 ? note.title + Environment.NewLine + Environment.NewLine + note.description : null,
                             InternalNotes = note.publish == 2 ? note.title + Environment.NewLine + Environment.NewLine + note.description : null,
                             isNote = true     
@@ -219,6 +222,7 @@ namespace CrownATTime.Client.Pages
                             ResourceId = note.creatorResourceID.HasValue ? note.creatorResourceID.Value : note.createdByContactID.Value,
                             ResourceEmail = note.ResourceEmail,
                             ResourceName = note.ResourceName,
+                            LicenseTypeId = note.LicenseTypeId,
                             SummaryNotes = note.publish == 1 ? note.title + Environment.NewLine + Environment.NewLine + note.description : null,
                             InternalNotes = note.publish == 2 ? note.title + Environment.NewLine + Environment.NewLine + note.description : null,
                             isNote = true

@@ -51,6 +51,7 @@
         // NEW
         public string? ResourceName { get; set; }
         public string? ResourceEmail { get; set; }
+        public int? LicenseTypeId { get; set; }
         public bool isTimeEntry { get; set; }
         public bool isNote { get; set; }
     }

@@ -299,14 +299,14 @@
                                         </RadzenColumn>
                                     </RadzenRow>
                         </RadzenFieldset>
-                        <RadzenFieldset Text="Ticket Details" AllowCollapse="true" Icon="confirmation_number" Style="width: 100%">
-                            <TicketDetails PrimaryResource="ticketResource?.FullName" PriorityName="PriorityName" ResourceId="@resource.Id" StatusName="@StatusName" Ticket="@ticket"/>
-
-                        </RadzenFieldset>
+                        
                     </RadzenRow>
                     
                 </RadzenTemplateForm>
-            
+            <RadzenFieldset Text="Ticket Details" AllowCollapse="true" Icon="confirmation_number" Style="width: 100%">
+                            <TicketDetails PrimaryResource="ticketResource?.FullName" PriorityName="PriorityName" ResourceId="@resource.Id" StatusName="@StatusName" Ticket="@ticket"/>
+
+                        </RadzenFieldset>
             </RadzenStack>
        </RadzenStack>
     </RadzenColumn>

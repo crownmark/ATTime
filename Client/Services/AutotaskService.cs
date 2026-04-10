@@ -747,6 +747,7 @@
                 {
                     item.ResourceName = resource.FirstName + " " + resource.LastName;
                     item.ResourceEmail = resource.Email;
+                    item.LicenseTypeId = resource.LicenseType;
                 }
                 item.isTimeEntry = true;
             }
@@ -808,6 +809,7 @@
                     {
                         item.ResourceName = resource.FirstName + " " + resource.LastName;
                         item.ResourceEmail = resource.Email;
+                        item.LicenseTypeId = resource.LicenseType;
                     }
                     else
                     {

@@ -1,4 +1,5 @@
 @page "/ticket-details"
+@using CrownATTime.Client.Helpers
 
 @attribute [Authorize]
 
@@ -82,15 +83,18 @@
                                            
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
         <RadzenLabel Text="Description:" Style="font-weight: bold">
-            <RadzenFieldset Text="Description" AllowCollapse="true" Icon="description">
-                <RadzenTextArea @bind-Value="@Ticket.item.description" Rows="10" ReadOnly="true" Style="width: 100%"></RadzenTextArea>
+            <RadzenFieldset Text="Description" AllowCollapse="false" Icon="description">
+                @* <RadzenText Text="@Ticket.item.description" style="white-space: break-spaces;" /> *@
+                <div class="rz-text-body1" style=white-space: pre-line">
+                    @((MarkupString)TextHelpers.Linkify(Ticket.item.description))
+                </div>
             </RadzenFieldset>
         </RadzenLabel>
         <RadzenTabs RenderMode="Radzen.TabRenderMode.Client" Change="@Tabs0Change">
             <Tabs>
                 <RadzenTabsItem Text="Activity" Icon="history">
                                     <ChildContent>
-                                        <RadzenDataGrid @ref="timeEntriesGrid" TItem="Server.Models.TimeEntryDto" IsLoading="@gridLoading" Data="@timeEntries" Count="@timeEntriesCount" LoadData="@TimeEntriesDataGridLoadData" Style="max-height: 500px">
+                                        <RadzenDataGrid @ref="timeEntriesGrid" TItem="Server.Models.TimeEntryDto" IsLoading="@gridLoading" Data="@timeEntries" Count="@timeEntriesCount" LoadData="@TimeEntriesDataGridLoadData">
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="Server.Models.TimeEntryDto" Property="SummaryNotes" Title="Activity">
                                                     <Template>
@@ -99,17 +103,40 @@
                                                                 <RadzenLabel Text="Created: " Style="font-weight: bold" />
                                                                 <RadzenLabel Text="@context.StartDateTime.Value.ToLocalTime().ToString("MM/dd/yyyy h:mm tt")" />
                                                             </RadzenStack>
-                                                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                                                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                                                <RadzenImage Path="@($"images/{context.ResourceId}.png")" class="avatar" Visible="@((context.LicenseTypeId == 1 || context.LicenseTypeId == 3) && context.ResourceName != "Autotask Administrator")" />
+                                                <RadzenIcon Icon="person" Style="width: 50px; height: 50px; font-size: 45px" IconStyle="Radzen.IconStyle.Primary" Visible="@((context.LicenseTypeId != 1 && context.LicenseTypeId != 3) || context.ResourceName == "Autotask Administrator")"></RadzenIcon>
                                                                 <RadzenLabel Text="Resource: " Style="font-weight: bold" />
                                                                 <RadzenLabel Text="@context.ResourceName" />
                                                             </RadzenStack>
                                                             <RadzenStack Orientation="Radzen.Orientation.Vertical">
                                                                 <RadzenLabel Text="Summary Notes: " Style="font-weight: bold" Visible="@(!string.IsNullOrEmpty(context.SummaryNotes))" />
-                                                                <RadzenText Text="@context.SummaryNotes" Visible="@(!string.IsNullOrEmpty(context.SummaryNotes))" style="white-space: pre-line;" />
+                                                                <RadzenText Text="@(context.SummaryNotes)" Visible="@(!string.IsNullOrEmpty(context.SummaryNotes))" style="white-space: pre-line;" />
+                                                                
                                                             </RadzenStack>
                                                             <RadzenStack Orientation="Radzen.Orientation.Vertical">
-                                                                <RadzenLabel Text="Internal Notes: " Style="font-weight: bold; color: var(--rz-danger)" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" />
-                                                                <RadzenText Text="@context.InternalNotes" style="font-weight: bold; color: var(--rz-danger); white-space: pre-line;" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" />
+                                                <RadzenLabel Text="Internal Notes: " Style="font-weight: bold; color: var(--rz-success-dark)" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" />
+
+                                                @* <RadzenText Text="@((MarkupString)TextHelpers.Linkify(context.InternalNotes))" style="font-weight: bold; color: var(--rz-success-dark); white-space: pre-line" Visible="@(!string.IsNullOrEmpty(context.InternalNotes))" /> *@
+                                                <div>
+                                                    @if (!string.IsNullOrEmpty(context.InternalNotes))
+                                                    {
+                                                        @if (!string.IsNullOrEmpty(context.InternalNotes) && context.InternalNotes.Contains("Teams Message Link"))
+                                                        {
+                                                            <div class="rz-text-body1" style="font-weight: bold; color: var(--rz-success-dark); white-space: pre-line">
+                                                                @((MarkupString)TextHelpers.Linkify(context.InternalNotes))
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="rz-text-body1" style="font-weight: bold; color: var(--rz-success-dark); white-space: pre-line">
+                                                                @context.InternalNotes
+                                                            </div>
+
+                                                        }
+                                                    }
+                                                    
+                                                </div>
                                                             </RadzenStack>
                                                         </RadzenStack>
                                                     </Template>
@@ -125,9 +152,9 @@
                                                     <RadzenCheckBox TValue="bool" @bind-Value="@filterNotes" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
                                                     <RadzenLabel Text="Communication?" />
                                                     <RadzenCheckBox TValue="bool" @bind-Value="@filterCommunication" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
-                                                    <RadzenTextBox Placeholder="Search ..." style="display: block" aria-label="Search by all string columns" @bind-Value="@search" Change="@SearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+                                    <RadzenTextBox Placeholder="Search ..." style="display: block" aria-label="Search by all string columns" @bind-Value="@search" Change="@SearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @onkeydown:stopPropagation />
                                                     <RadzenButton Icon="search" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Text="Search" Click="@SearchTimeEntriesButtonClick" Visible="false"></RadzenButton>
-                
+                                                        
                                                 </RadzenStack>
                                             </HeaderTemplate>
                                         </RadzenDataGrid>
@@ -135,7 +162,7 @@
                                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Attachments" Icon="attachment" Selected="false">
                     <ChildContent>
-                        <RadzenDataGrid @ref="@attachmentsGrid" TItem="Server.Models.AttachmentDtoResult" Data="@attachments" IsLoading="@attachmentsLoading" LoadData="@DataGrid2LoadData" Style="max-height: 500px">
+                        <RadzenDataGrid @ref="@attachmentsGrid" TItem="Server.Models.AttachmentDtoResult" Data="@attachments" IsLoading="@attachmentsLoading" LoadData="@DataGrid2LoadData">
                         <Columns>
                             <RadzenDataGridColumn TItem="Server.Models.AttachmentDtoResult" Title="Title" MinWidth="200px">
                                 <Template>
@@ -165,7 +192,7 @@
                     
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Service Calls" Icon="assignment" Selected="false">
-                    <RadzenDataGrid @ref="@serviceCallsGrid" TItem="Server.Models.ServiceCall" Data="@serviceCalls" IsLoading="@serviceCallsLoading" LoadData="@DataGrid1LoadData" Style="max-height: 500px">
+                    <RadzenDataGrid @ref="@serviceCallsGrid" TItem="Server.Models.ServiceCall" Data="@serviceCalls" IsLoading="@serviceCallsLoading" LoadData="@DataGrid1LoadData">
                         <Columns>
                             <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="description" Title="Description" Width="150px">
                                 <Template>
@@ -200,3 +227,12 @@
         </RadzenTabs>
     </RadzenStack>
 </RadzenStack>
+
+<style>
+.avatar {
+    width: 50px;
+    height: 50px;
+    object-fit: scale-down;
+    border-radius: 50%;
+}
+</style>
