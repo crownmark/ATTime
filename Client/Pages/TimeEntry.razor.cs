@@ -531,11 +531,14 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await ProcessWorkflows(1); //time entry update
 
+                
                 timeEntryRecord.HoursWorked =
                   Math.Max(
                       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2), 0);
+                
+                await ProcessWorkflows(1); //time entry update
+
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
@@ -618,7 +621,14 @@ namespace CrownATTime.Client.Pages
                 }
                 else
                 {
-                    await ProcessWorkflows(2); //time entry completing
+                    if(saveAndCloseTicket)
+                    {
+
+                    }
+                    else
+                    {
+                        await ProcessWorkflows(2); //time entry completing
+                    }
 
                     //if ((timeEntryRecord.EndDateTime - timeEntryRecord.StartDateTime).Value.Duration() < TimeSpan.FromMinutes(1))
                     //{
@@ -676,6 +686,8 @@ namespace CrownATTime.Client.Pages
                         }
                         else
                         {
+                            await ProcessWorkflows(2); //time entry completing
+
                             await JSRuntime.InvokeVoidAsync(
                                 "eval",
                                 "window.open('', '_self'); window.close();"
@@ -686,6 +698,7 @@ namespace CrownATTime.Client.Pages
                     }
                     else
                     {
+
                         await JSRuntime.InvokeVoidAsync(
                                                 "eval",
                                                 "window.open('', '_self'); window.close();"
@@ -1339,14 +1352,10 @@ namespace CrownATTime.Client.Pages
             {
                 StateHasChanged();
                 _isRunning = false;
-                // Timer can keep running; we just ignore ticks when not running.
-                // (Or call _stopwatchTimer?.Stop(); if you prefer.)
-                //timeEntryRecord.HoursWorked =
-                //    Math.Max(
-                //        Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2)
-                //        - (timeEntryRecord.OffsetHours ?? 0),
-                //        0
-                //    );
+                if(timeEntryRecord.DurationMs < 108000)
+                {
+                    timeEntryRecord.DurationMs = 108000;
+                }
                 timeEntryRecord.TimeStampStatus = false;
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
@@ -1504,7 +1513,15 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task SaveAndCloseTicketButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            saveAndCloseTicket = true;
+            try 
+            {
+                saveAndCloseTicket = true;
+            }
+            catch(Exception ex)
+            {
+
+            }
+            
         }
 
 
@@ -2387,7 +2404,7 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpGet:
-                        BusyDialog("Performing Task.  Please Wait...");
+                        BusyDialog($"{step.BusyDialogMessage}");
                         // Note: CORS must be allowed by the remote server for WASM HttpClient.
                         var getResponse = await _httpClient.GetAsync(url);
                         DialogService.Close();
@@ -2460,7 +2477,7 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpPostJson:
-                        BusyDialog("Performing Task.  Please Wait...");
+                        BusyDialog($"{step.BusyDialogMessage}");
 
                         var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
                         DialogService.Close();

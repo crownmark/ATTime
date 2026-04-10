@@ -84,5 +84,8 @@ namespace CrownATTime.Server.Models.ATTime
         public int StepOrder { get; set; }
 
         public bool ConfirmationDialogContinueOnNo { get; set; }
+
+        [MaxLength(255)]
+        public string BusyDialogMessage { get; set; }
     }
 }

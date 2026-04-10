@@ -166,6 +166,14 @@
                     <RadzenRequiredValidator Component="N8nWorkflowNotificationWindowWidth" Text="Width is required" />
                   </Helper>
             </RadzenFormField>
+<RadzenFormField Text="Busy Notification Text" Variant="Variant.Outlined" Component="BusyDialogMessage" Visible="@(workflowStep.N8nWorkflowNotificationType != "OPENURL" && workflowStep.WorkflowStepTypeId == 7)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowStep.BusyDialogMessage" Name="BusyDialogMessage" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="BusyDialogMessage" Text="Busy Dialog Text is required" />
+                  </Helper>
+            </RadzenFormField>
             <RadzenFormField Text="Step Order" Variant="Variant.Outlined">
                   <ChildContent>
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(workflowStep.StepOrder)" Name="StepOrder" AutoCompleteType="AutoCompleteType.Off"/>
