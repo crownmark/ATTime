@@ -215,7 +215,7 @@ namespace CrownATTime.Client.Pages
                 Start = DateTime.Today.AddHours(14.5),
                 DurationMinutes = 45,
                 Title = "Backup Verification Alert Review",
-                Type = "Remote Support",
+                Type = "Flexible Support",
                 TicketNumber = "T20260411.0098"
             },
 
@@ -251,6 +251,46 @@ namespace CrownATTime.Client.Pages
         };
 
         protected override async Task OnInitializedAsync()
+        {
+        }
+
+        protected async System.Threading.Tasks.Task TicketsDataGrid0RowSelect(Pages.TechDashboard.TicketSample args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task TodayDataGrid1RowSelect(Pages.TechDashboard.CalendarItemSample args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task TomorrowDataGrid2RowClick(Radzen.DataGridRowMouseEventArgs<Pages.TechDashboard.CalendarItemSample> args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task Day3DataGrid3RowClick(Radzen.DataGridRowMouseEventArgs<Pages.TechDashboard.CalendarItemSample> args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task TimeEntryDataGrid0RowClick(Radzen.DataGridRowMouseEventArgs<Pages.TechDashboard.TimeEntrySample> args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task TimeEntryDataGrid0RowSelect(Pages.TechDashboard.TimeEntrySample args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task TomorrowDataGrid3RowSelect(Pages.TechDashboard.CalendarItemSample args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task Day3DataGrid4RowSelect(Pages.TechDashboard.CalendarItemSample args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task TodayDataGrid2RowDeselect(Pages.TechDashboard.CalendarItemSample args)
+        {
+        }
+
+        protected async System.Threading.Tasks.Task OverdueDataGrid2RowSelect(Pages.TechDashboard.CalendarItemSample args)
         {
         }
     }
