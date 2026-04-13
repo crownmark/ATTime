@@ -1,0 +1,43 @@
+@page "/edit-ticket-entity-picklist-value-cache"
+@attribute [Authorize]
+
+<PageTitle>Edit TicketEntityPicklistValueCache</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save TicketEntityPicklistValueCache</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache" Data="@(ticketEntityPicklistValueCache)" Visible="@(ticketEntityPicklistValueCache != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Value" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ticketEntityPicklistValueCache.Value)" Name="Value" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Label" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ticketEntityPicklistValueCache.Label)" Name="Label" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="Label" Text="Label is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Value Int" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(ticketEntityPicklistValueCache.ValueInt)" Name="ValueInt" AutoCompleteType="AutoCompleteType.Off"/>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Picklist Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ticketEntityPicklistValueCache.PicklistName)" Name="PicklistName" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="PicklistName" Text="PicklistName is required" />
+                  </Helper>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+
