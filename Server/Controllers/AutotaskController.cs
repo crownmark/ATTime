@@ -8,6 +8,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Graph.Models;
+    using Microsoft.Graph.Models.Security;
     using Microsoft.IdentityModel.Logging;
     using System.Collections.Generic;
     using System.Net.Http;
@@ -16,6 +17,8 @@
     using System.Text.Json.Serialization;
     using System.Threading;
     using System.Threading.Tasks;
+    using static CrownATTime.Server.Models.ITGlueDocumentsResult;
+
     [ApiController]
     [Route("api/[controller]")]
     public class AutotaskController : ControllerBase
@@ -1266,6 +1269,31 @@
             {
                 return StatusCode(500, $"Error creating ticket: {ex.Message}");
             }
+        }
+
+
+        [HttpGet("tickets/query")]
+        public async Task<IActionResult> GetTickes([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/Tickets/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching tickes: {ex.Message}");
+            }
+
         }
 
         // GET: api/autotask/tickets/123

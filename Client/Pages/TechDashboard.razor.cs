@@ -1,12 +1,14 @@
+using CrownATTime.Server.Models;
+using CrownATTime.Server.Models.ATTime;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using Radzen;
+using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Radzen;
-using Radzen.Blazor;
 
 namespace CrownATTime.Client.Pages
 {
@@ -31,155 +33,29 @@ namespace CrownATTime.Client.Pages
         protected NotificationService NotificationService { get; set; }
 
         [Inject]
+        protected AutotaskService AutotaskService { get; set; }
+
+        [Inject]
+        protected ATTimeService ATTimeService { get; set; }
+
+        [Inject]
         protected SecurityService Security { get; set; }
 
-        public class TicketSample
-        {
-            public int Id { get; set; }
-            public string TicketNumber { get; set; }
-            public string Title { get; set; }
-            public string Account { get; set; }
-            public string Contact { get; set; }
-            public string Status { get; set; } // New, Waiting, Overdue, Scheduled
-            public string Priority { get; set; } // High, Medium, Low
-            public DateTime? DueDate { get; set; }
-            public DateTime CreatedDate { get; set; }
-            public string Queue { get; set; }
-            public string AssignedTo { get; set; }
-        }
-        public List<TicketSample> Tickets = new()
-        {
-            new TicketSample
-            {
-                Id = 1,
-                TicketNumber = "T20260412.0007",
-                Title = "Outlook profile corruption on startup",
-                Account = "Harmony Communities",
-                Contact = "Robert Medina",
-                Status = "Overdue",
-                Priority = "High",
-                DueDate = DateTime.Today.AddHours(9.5),
-                CreatedDate = DateTime.Now.AddHours(-5),
-                Queue = "Service Desk",
-                AssignedTo = "Mark"
-            },
-            new TicketSample
-            {
-                Id = 2,
-                TicketNumber = "T20260412.0010",
-                Title = "Printer mapping issue in accounting office",
-                Account = "Aaron Read & Associates",
-                Contact = "Joelle",
-                Status = "Scheduled",
-                Priority = "Medium",
-                DueDate = DateTime.Today.AddHours(11),
-                CreatedDate = DateTime.Now.AddHours(-3),
-                Queue = "Service Desk",
-                AssignedTo = "Mark"
-            },
-            new TicketSample
-            {
-                Id = 3,
-                TicketNumber = "T20260412.0014",
-                Title = "New user onboarding for payroll clerk",
-                Account = "Golden State Fire",
-                Contact = "HR Team",
-                Status = "Waiting",
-                Priority = "Medium",
-                DueDate = DateTime.Today.AddDays(1),
-                CreatedDate = DateTime.Now.AddHours(-2),
-                Queue = "Centralized Services",
-                AssignedTo = "Team"
-            },
-            new TicketSample
-            {
-                Id = 4,
-                TicketNumber = "T20260412.0019",
-                Title = "VPN client not connecting from Maui office",
-                Account = "ARA",
-                Contact = "Aaron Read",
-                Status = "New",
-                Priority = "High",
-                CreatedDate = DateTime.Now.AddMinutes(-15),
-                Queue = "Service Desk",
-                AssignedTo = null
-            },
-            new TicketSample
-            {
-                Id = 5,
-                TicketNumber = "T20260411.0098",
-                Title = "Server backup verification alert",
-                Account = "CE Bro Frozen Foods",
-                Contact = "System",
-                Status = "Scheduled",
-                Priority = "Low",
-                DueDate = DateTime.Today.AddHours(14.5),
-                CreatedDate = DateTime.Now.AddDays(-1),
-                Queue = "Monitoring Alerts",
-                AssignedTo = "Mark"
-            },
-            new TicketSample
-            {
-                Id = 6,
-                TicketNumber = "T20260410.0082",
-                Title = "Wi-Fi drops in conference room",
-                Account = "San Joaquin County Bar Association",
-                Contact = "Office Manager",
-                Status = "Waiting",
-                Priority = "Medium",
-                DueDate = DateTime.Today.AddDays(2),
-                CreatedDate = DateTime.Now.AddDays(-2),
-                Queue = "Design Desk",
-                AssignedTo = "Mark"
-            }
-        };
-        public class TimeEntrySample
-        {
-            public int Id { get; set; }
-            public string TicketNumber { get; set; }
-            public string Title { get; set; }
-            public DateTime StartTime { get; set; }
-            public int DurationMinutes { get; set; }
-            public bool IsRunning { get; set; }
-            public string Account { get; set; }
+        protected List<TicketDtoResult.Item> ticketResults { get; set; } = new List<TicketDtoResult.Item>();
+        protected bool myTicketsGridLoading {  get; set; }
+        protected List<TicketDtoResult.Item> myTickets {  get; set; } = new List<TicketDtoResult.Item>();
+        
+        protected RadzenDataGrid<TicketDtoResult.Item> myTicketsGrid;
 
-        }
-        public List<TimeEntrySample> TimeEntries = new()
-        {
-            new TimeEntrySample
-            {
-                Id = 1,
-                TicketNumber = "T20260412.0019",
-                Title = "VPN client not connecting",
-                StartTime = DateTime.Now.AddMinutes(-18),
-                DurationMinutes = 18,
-                IsRunning = true,
-                Account = "Aaron Read",
+        protected string myTicketsSearch = "";
+        protected bool openTickets { get; set; } = true;
+        protected bool newTickets {  get; set; }
+        protected bool overdueTickets {  get; set; }
+        protected bool scheduledTodayTickets {  get; set; }
+        protected bool waitingTickets {  get; set; }
+        protected bool inMyCourtTickets {  get; set; }
 
-            },
-            new TimeEntrySample
-            {
-                Id = 2,
-                TicketNumber = "T20260412.0010",
-                Title = "Printer mapping issue",
-                StartTime = DateTime.Now.AddMinutes(-42),
-                DurationMinutes = 42,
-                IsRunning = false,
-                Account = "San Joaquin County Bar Association",
-
-            },
-            new TimeEntrySample
-            {
-                Id = 3,
-                TicketNumber = "T20260411.0098",
-                Title = "Backup verification alert",
-                StartTime = DateTime.Now.AddMinutes(-72),
-                DurationMinutes = 72,
-                IsRunning = false,
-                Account = "Crown Enterprises",
-
-            }
-        };
+        
         public class CalendarItemSample
         {
             public int Id { get; set; }
@@ -250,12 +126,160 @@ namespace CrownATTime.Client.Pages
             }
         };
 
+        protected ResourceCache resource {  get; set; }
+        protected List<TicketEntityPicklistValueCache> queues { get; set; }
+        protected int? queueId { get; set; }
+
+        protected RadzenDataGrid<CrownATTime.Server.Models.ATTime.TimeEntry> myTimeEntriesGrid;
+
+        protected bool myTimeEntriesGridLoading {  get; set; }
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntry> timeEntries;
+
+        protected int timeEntriesCount;
+
+        
         protected override async Task OnInitializedAsync()
         {
+            try
+            {
+                
+                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
+                resource = resourceResult.Value.FirstOrDefault();
+                ReloadTicketsFromAutotask();
+                var queueResult = await ATTimeService.GetTicketEntityPicklistValueCaches(filter: $"PicklistName eq 'queueID'", orderby: "Label");
+                queues = queueResult.Value.ToList();
+                await myTimeEntriesGrid.Reload();
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            
         }
 
-        protected async System.Threading.Tasks.Task TicketsDataGrid0RowSelect(Pages.TechDashboard.TicketSample args)
+        protected async System.Threading.Tasks.Task ReloadTicketsFromAutotask()
         {
+            try
+            {
+                myTicketsGridLoading = true;
+                ticketResults.Clear();
+                var results = await AutotaskService.GetTicketsForResourceId(resource.Id);
+                foreach(var item in results.Items)
+                {
+                    ticketResults.Add(item);
+                }
+
+                await myTicketsGrid.Reload();
+                myTicketsGridLoading = false;
+
+
+            }
+            catch (Exception ex)
+            {
+                myTicketsGridLoading = false;
+            }
+        }
+        protected async System.Threading.Tasks.Task TicketsDataGrid1LoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                myTickets = new List<TicketDtoResult.Item>();
+                
+                
+                if (openTickets)
+                {
+                    var filteredTickets = ticketResults.Where(x => x.status != 5);
+                    myTickets.AddRange(filteredTickets);
+
+                }
+                else if (newTickets)
+                {
+                    var filteredTickets = ticketResults.Where(x => x.status != 5);
+                    myTickets.AddRange(filteredTickets);
+                }
+                else if (overdueTickets)
+                {
+                    var filteredTickets = ticketResults.Where(x => x.dueDateTime < DateTime.Now);
+                    myTickets.AddRange(filteredTickets);
+                }
+                else if (scheduledTodayTickets)
+                {
+                    var filteredTickets = ticketResults.Where(x => x.dueDateTime >= DateTime.Today && x.dueDateTime < DateTime.Today.AddDays(1));
+                    myTickets.AddRange(filteredTickets);
+                }
+                else if (waitingTickets)
+                {
+                    var waitingStatuses = new HashSet<int>
+                    {
+                        7,
+                        9,
+                        12,
+                        33,
+                        34,
+                        39
+                    };
+                    var filteredTickets = ticketResults.Where(x => waitingStatuses.Contains(x.status));
+                    myTickets.AddRange(filteredTickets);
+                }
+                else if (inMyCourtTickets)
+                {
+                    var waitingStatuses = new HashSet<int>
+                    {
+                        5,
+                        7,
+                        9,
+                        12,
+                        33,
+                        34,
+                        39
+                    };
+                    var filteredTickets = ticketResults.Where(x => !waitingStatuses.Contains(x.status));
+                    myTickets.AddRange(filteredTickets);
+                }
+                else
+                {
+                    myTickets.AddRange(ticketResults);
+                }
+                if (queueId.HasValue)
+                {
+                    myTickets = myTickets.Where(x => x.queueID == queueId.Value).ToList();
+                }
+                if (!string.IsNullOrEmpty(myTicketsSearch))
+                {
+                    myTickets = myTickets.Where(x =>
+                            (x.title?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (x.ticketNumber?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false)
+                        //(x.assignedResourceID?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        //(x.status?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        //(x.status?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        //(x.priority?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false)
+
+                        ).ToList();
+                    //myTickets.AddRange(filteredTickets);
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task TicketsDataGrid0RowSelect(TicketDtoResult.Item args)
+        {
+            try
+            {
+                var ticket = new TicketDtoResult()
+                {
+                    item = args
+                };
+                var primaryResource = await AutotaskService.GetResourceById(args.assignedResourceID.Value);
+                await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { {"ResourceId", resource.Id}, {"Ticket", ticket}, {"PriorityName", args.priority.ToString()}, {"StatusName", args.status.ToString()}, {"PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+            }
+            catch (Exception ex)
+            {
+            }
         }
 
         protected async System.Threading.Tasks.Task TodayDataGrid1RowSelect(Pages.TechDashboard.CalendarItemSample args)
@@ -270,12 +294,23 @@ namespace CrownATTime.Client.Pages
         {
         }
 
-        protected async System.Threading.Tasks.Task TimeEntryDataGrid0RowClick(Radzen.DataGridRowMouseEventArgs<Pages.TechDashboard.TimeEntrySample> args)
+        protected async System.Threading.Tasks.Task TimeEntryDataGrid0RowClick(Radzen.DataGridRowMouseEventArgs<Server.Models.ATTime.TimeEntry> args)
         {
+            
         }
 
-        protected async System.Threading.Tasks.Task TimeEntryDataGrid0RowSelect(Pages.TechDashboard.TimeEntrySample args)
+        protected async System.Threading.Tasks.Task TimeEntryDataGrid0RowSelect(Server.Models.ATTime.TimeEntry args)
         {
+            try
+            {
+                await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "1300px" });
+                await myTimeEntriesGrid.Reload();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Time Entry.  Error: {ex.Message}" });
+
+            }
         }
 
         protected async System.Threading.Tasks.Task TomorrowDataGrid3RowSelect(Pages.TechDashboard.CalendarItemSample args)
@@ -292,6 +327,119 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task OverdueDataGrid2RowSelect(Pages.TechDashboard.CalendarItemSample args)
         {
+        }
+
+        protected async System.Threading.Tasks.Task AllOpenTicketsChip2Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            openTickets = true;
+            newTickets = false;
+            overdueTickets = false;
+            scheduledTodayTickets = false;
+            waitingTickets = false;
+            inMyCourtTickets = false;
+            await myTicketsGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task ScheduledTodayChip3Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            openTickets = false;
+            newTickets = false;
+            overdueTickets = false;
+            scheduledTodayTickets = true;
+            waitingTickets = false;
+            inMyCourtTickets = false;
+
+            await myTicketsGrid.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task NewTicketsChip4Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            openTickets = false;
+            newTickets = true;
+            overdueTickets = false;
+            scheduledTodayTickets = false;
+            waitingTickets = false;
+            inMyCourtTickets = false;
+
+            await myTicketsGrid.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task WaitingTicketsChip5Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            openTickets = false;
+            newTickets = false;
+            overdueTickets = false;
+            scheduledTodayTickets = false;
+            waitingTickets = true;
+            inMyCourtTickets = false;
+
+            await myTicketsGrid.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task OverdueChip6Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            openTickets = false;
+            newTickets = false;
+            overdueTickets = true;
+            scheduledTodayTickets = false;
+            waitingTickets = false;
+            inMyCourtTickets = false;
+
+            await myTicketsGrid.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task InMyCourtChip3Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            openTickets = false;
+            newTickets = false;
+            overdueTickets = false;
+            scheduledTodayTickets = false;
+            waitingTickets = false;
+            inMyCourtTickets = true;
+
+            await myTicketsGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task TicketSearchTextBox0Change(System.String args)
+        {
+            await myTicketsGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task QueuesChange(System.Object args)
+        {
+            await myTicketsGrid.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task ReloadTicketsButton1Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await ReloadTicketsFromAutotask();
+        }
+
+        protected async System.Threading.Tasks.Task TimeEntriesGridRefreshButton1Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await myTimeEntriesGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task TimeEntriesDataGrid0LoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                myTimeEntriesGridLoading = true;
+                var results = await ATTimeService.GetTimeEntries(filter: $"IsCompleted eq false and ResourceId eq {resource.Id}", orderby: "StartDateTime");
+                timeEntries = results.Value.AsODataEnumerable();
+                myTimeEntriesGridLoading = false;
+
+            }
+            catch (Exception ex)
+            {
+                myTimeEntriesGridLoading = false;
+
+            }
         }
     }
 }

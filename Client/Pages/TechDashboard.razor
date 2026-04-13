@@ -1,4 +1,5 @@
 @page "/tech-dashboard"
+@using CrownATTime.Server.Models;
 
 @attribute [Authorize]
 
@@ -101,27 +102,30 @@
 <RadzenRow>
     <RadzenColumn Size="12" SizeSM="8" SizeMD="8">
         <RadzenPanel Style="margin-bottom: 10px" Text="Open Time Entries" Icon="av_timer" AllowCollapse="true">
-            <HeaderTemplate>
-            </HeaderTemplate>
             
             <ChildContent>
-                <RadzenDataGrid TItem="Pages.TechDashboard.TimeEntrySample" Data="@TimeEntries" RowSelect="@TimeEntryDataGrid0RowSelect">
+
+                <RadzenStack>
+                    <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@TimeEntriesGridRefreshButton1Click"></RadzenButton>
+
+                </RadzenStack>
+                <RadzenDataGrid @ref="@myTimeEntriesGrid" TItem="@CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntries" RowSelect="@TimeEntryDataGrid0RowSelect" LoadData="@TimeEntriesDataGrid0LoadData" IsLoading="@myTimeEntriesGridLoading">
                     <Columns>
-                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TimeEntrySample">
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry">
                             <Template>
                                 <RadzenCard Style="width: 100%">
                                     <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center" Gap="2">
                                         <RadzenStack>
                                             <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
-                                                <RadzenText Text="@($"{context.TicketNumber} - {context.Title}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
-                                                <RadzenText Text="@context.Account" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
+                                                <RadzenText Text="@($"{context.TicketNumber} - {context.TicketTitle}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
+                                                <RadzenText Text="@context.AccountName" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
 
                                             </RadzenStack>
                                         </RadzenStack>
                                         <RadzenStack Orientation="Radzen.Orientation.Horizontal">
-                                            <RadzenIcon Visible="@(context.IsRunning)" Icon="pause" Style="color: var(--rz-danger)" />
-                                            <RadzenIcon Visible="@(!context.IsRunning)" Icon="play_arrow" IconColor="green" Style="color: var(--rz-success-dark)" />
-                                            <RadzenText Text="@(TimeSpan.FromMinutes(context.DurationMinutes).ToString(@"hh\:mm\:ss"))" Style="color: var(--rz-success-dark)" />
+                                            <RadzenIcon Visible="@(context.TimeStampStatus)" Icon="pause" Style="color: var(--rz-danger)" />
+                                            <RadzenIcon Visible="@(!context.TimeStampStatus)" Icon="play_arrow" IconColor="green" Style="color: var(--rz-success-dark)" />
+                                            <RadzenText Text="@(TimeSpan.FromMilliseconds(context.DurationMs.Value).ToString(@"hh\:mm\:ss"))" Style="color: var(--rz-success-dark)" />
                                         </RadzenStack>
                                     </RadzenStack>
                                 </RadzenCard>
@@ -130,7 +134,6 @@
                         </RadzenDataGridColumn>
                     </Columns>
                 </RadzenDataGrid>
-                
             </ChildContent>
         </RadzenPanel>
         <RadzenPanel Text="Tickets" Icon="confirmation_number" AllowCollapse="true">
@@ -138,45 +141,47 @@
             </HeaderTemplate>            
             <ChildContent>
                 <RadzenStack Style="width: 100%" Gap="10" Wrap="Radzen.FlexWrap.Wrap">
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap">
-                        <RadzenButton Variant="Radzen.Variant.Outlined" Text="All Open"></RadzenButton>
-                        <RadzenButton Variant="Radzen.Variant.Outlined" Text="Scheduled Today"></RadzenButton>
-                        <RadzenButton Variant="Radzen.Variant.Outlined" Text="New"></RadzenButton>
-                        <RadzenButton Variant="Radzen.Variant.Outlined" Text="Waiting"></RadzenButton>
-                        <RadzenButton Variant="Radzen.Variant.Outlined" Text="Overdue"></RadzenButton>
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" Style="height: 40px; padding-top: 4px; padding-bottom: 4px; padding-right: 4px; padding-left: 4px; margin-bottom: 5px">
+                        <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click"></RadzenButton>
+                        <RadzenChip Text="All Open" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@AllOpenTicketsChip2Click" Selected="@openTickets"></RadzenChip>
+                        <RadzenChip Text="In My Court" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Selected="@inMyCourtTickets" Click="@InMyCourtChip3Click"></RadzenChip>
+                        <RadzenChip Text="Scheduled Today" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@ScheduledTodayChip3Click" Selected="@scheduledTodayTickets"></RadzenChip>
+                        <RadzenChip Text="New" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@NewTicketsChip4Click" Selected="@newTickets"></RadzenChip>
+                        <RadzenChip Text="Waiting" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@WaitingTicketsChip5Click" Selected="@waitingTickets"></RadzenChip>
+                        <RadzenChip Text="Overdue" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@OverdueChip6Click" Selected="@overdueTickets"></RadzenChip>
                     </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Style="width: 100%">
-                        <RadzenTextBox Placeholder="Search Tickets..." Style="width: 50%"></RadzenTextBox>
-                        <RadzenDropDown TValue="dynamic" Placeholder="All Queues" Style="width: 50%"></RadzenDropDown>
+                        <RadzenTextBox Placeholder="Search Tickets..." Style="width: 50%" @bind-Value="@myTicketsSearch" @onkeydown:stopPropagation Change="@TicketSearchTextBox0Change"></RadzenTextBox>
+                        <RadzenDropDown @bind-Value="@queueId" Placeholder="All Queues" Style="width: 50%" AllowClear="true" Data="@queues" ValueProperty="ValueInt" TextProperty="Label" Name="Queues" Change="@QueuesChange" ClearSearchAfterSelection="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"></RadzenDropDown>
 
                     </RadzenStack>
 
                 </RadzenStack>
-                <RadzenDataGrid TItem="Pages.TechDashboard.TicketSample" Data="@Tickets" Responsive="true" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowSorting="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" RowSelect="@TicketsDataGrid0RowSelect">
+                <RadzenDataGrid @ref="@myTicketsGrid" IsLoading="@myTicketsGridLoading" TItem="TicketDtoResult.Item" Data="@myTickets" Responsive="true" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowSorting="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" RowSelect="@TicketsDataGrid0RowSelect" LoadData="@TicketsDataGrid1LoadData">
                     
                     <Columns>
-                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Ticket" Width="450px">
+                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Ticket" Width="450px" Property="title">
                             <Template>
                                 <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
-                                    <RadzenText Text="@($"{context.TicketNumber} - {context.Title}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
-                                    <RadzenText Text="@context.Account" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
+                                    <RadzenText Text="@($"{context.ticketNumber} - {context.title}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
+                                    <RadzenText Text="@context.companyID.ToString()" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
 
                                 </RadzenStack>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Status" Property="Status" Width="200px">
+                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Status" Property="status" Width="200px">
                             <Template>
                                 <RadzenStack AlignItems="Radzen.AlignItems.Start">
-                                    <RadzenBadge Text="@context.Status" Variant="Radzen.Variant.Outlined" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Success" Style="padding-left: 8px; padding-right: 8px; padding-top: 2px; padding-bottom: 2px" Shade="Radzen.Shade.Dark"></RadzenBadge>
+                                    <RadzenBadge Text="@context.status.ToString()" Variant="Radzen.Variant.Outlined" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Success" Style="padding-left: 8px; padding-right: 8px; padding-top: 2px; padding-bottom: 2px" Shade="Radzen.Shade.Dark"></RadzenBadge>
                                 </RadzenStack>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Priority" Property="Priority" Width="125px">
+                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Priority" Property="priority" Width="125px">
                             <Template>
-                                <RadzenBadge Text="@context.Priority" BadgeStyle="Radzen.BadgeStyle.Warning" Variant="Radzen.Variant.Outlined" IsPill="true" Style="padding-left: 8px; padding-right: 9px; padding-top: 2px; padding-bottom: 2px"></RadzenBadge>
+                                <RadzenBadge Text="@context.priority.ToString()" BadgeStyle="Radzen.BadgeStyle.Warning" Variant="Radzen.Variant.Outlined" IsPill="true" Style="padding-left: 8px; padding-right: 9px; padding-top: 2px; padding-bottom: 2px"></RadzenBadge>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Due" Property="DueDate" Width="200px"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Due" Property="dueDateTime" Width="200px"></RadzenDataGridColumn>
                     </Columns>
                 </RadzenDataGrid>
             </ChildContent>

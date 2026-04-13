@@ -545,6 +545,33 @@
                 .ReadAsync<System.Collections.Generic.List<TicketDto>>(response);
         }
 
+
+        public async Task<AutotaskItemsResponse<TicketDtoResult.Item>> GetTicketsForResourceId(int resourceId)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "assignedResourceID", value = resourceId },
+                    new { op = "noteq", field = "status", value = 5 }
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"tickets/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            //var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ContractDto>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<TicketDtoResult.Item>>(response);
+        }
+
         public async Task<TicketEntityFieldsDto.EntityInformationFieldsResponse> GetTicketFields()
         {
             var uri = new Uri(baseUri, $"tickets/fields");
