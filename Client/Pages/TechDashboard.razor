@@ -1,0 +1,306 @@
+@page "/tech-dashboard"
+
+@attribute [Authorize]
+
+<PageTitle>TechDashboard</PageTitle>
+<RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px">
+    <RadzenColumn SizeLG="6">
+        <RadzenStack>
+            <RadzenText Text="Tech Dashboard" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+            <RadzenText Text="Your single pane of glass for tickets, priorities, and the next 3 days of scheduling." TextStyle="Radzen.Blazor.TextStyle.Caption" TagName="Radzen.Blazor.TagName.Auto" />
+        
+        </RadzenStack>
+    </RadzenColumn>
+<RadzenColumn SizeLG="6">
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.End">
+        <RadzenChip Text="Tech: Mark Williams" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
+<RadzenChip Text="Status: Available" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
+<RadzenButton Text="New Ticket" Icon="add" Variant="Radzen.Variant.Filled" ButtonStyle="Radzen.ButtonStyle.Primary"></RadzenButton>
+    
+    </RadzenStack>
+    </RadzenColumn>
+</RadzenRow>
+<RadzenRow Style="margin-bottom: 10px">
+    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
+        <RadzenPanel>
+            <HeaderTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="All Open Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" />
+                </RadzenStack>
+            </HeaderTemplate>
+            <FooterTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="All Queues" TextStyle="Radzen.Blazor.TextStyle.Body2" />
+                </RadzenStack>
+            </FooterTemplate>
+            <ChildContent>
+                <RadzenStack Style="width: 100%">
+                    <RadzenText Text="25" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-primary); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
+                </RadzenStack>
+            </ChildContent>
+        </RadzenPanel>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
+    <RadzenPanel>
+            <HeaderTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="Scheduled Today" TextStyle="Radzen.Blazor.TextStyle.H5" />
+                </RadzenStack>
+            </HeaderTemplate>
+            <FooterTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="3 Onsite, 3 Remote, 2 Internal" TextStyle="Radzen.Blazor.TextStyle.Body2" />
+                </RadzenStack>
+            </FooterTemplate>
+            <ChildContent>
+                <RadzenStack Style="width: 100%">
+                    <RadzenText Text="8" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-success-dark); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
+                </RadzenStack>
+            </ChildContent>
+        </RadzenPanel>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
+    <RadzenPanel>
+            <HeaderTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="New Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" />
+                </RadzenStack>
+            </HeaderTemplate>
+            <FooterTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="Unworked or Newly Assigned" TextStyle="Radzen.Blazor.TextStyle.Body2" />
+                </RadzenStack>
+            </FooterTemplate>
+            <ChildContent>
+                <RadzenStack Style="width: 100%">
+                    <RadzenText Text="2" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-primary); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
+                </RadzenStack>
+            </ChildContent>
+        </RadzenPanel>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
+    <RadzenPanel>
+            <HeaderTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="All Open Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" />
+                </RadzenStack>
+            </HeaderTemplate>
+            <FooterTemplate>
+                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                <RadzenText Text="All Queues" TextStyle="Radzen.Blazor.TextStyle.Body2" />
+                </RadzenStack>
+            </FooterTemplate>
+            <ChildContent>
+                <RadzenStack Style="width: 100%">
+                    <RadzenText Text="10" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-warning); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
+                </RadzenStack>
+            </ChildContent>
+        </RadzenPanel>
+    </RadzenColumn>
+</RadzenRow>
+<RadzenRow>
+    <RadzenColumn Size="12" SizeXS="8">
+        <RadzenPanel Style="margin-bottom: 10px" Text="Open Time Entries" Icon="av_timer" AllowCollapse="true">
+            <HeaderTemplate>
+            </HeaderTemplate>
+            
+            <ChildContent>
+                <RadzenDataList TItem="Pages.TechDashboard.TimeEntrySample" Style="width: 100%" Data="@TimeEntries">
+                    <Template>
+                        <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" AlignItems="Radzen.AlignItems.Center" Gap="2">
+                            <RadzenStack>
+                                <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
+                                    <RadzenText Text="@($"{context.TicketNumber} - {context.Title}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
+                                    <RadzenText Text="@context.Account" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
+
+                                </RadzenStack>
+                            </RadzenStack>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                                <RadzenIcon Visible="@(context.IsRunning)" Icon="pause" Style="color: var(--rz-danger)" />
+                                <RadzenIcon Visible="@(!context.IsRunning)" Icon="play_arrow" IconColor="green" Style="color: var(--rz-success-dark)" />
+                                <RadzenText Text="@(TimeSpan.FromMinutes(context.DurationMinutes).ToString(@"hh\:mm\:ss"))" Style="color: var(--rz-success-dark)" />
+                            </RadzenStack>
+                        </RadzenStack>
+                    </Template>
+                </RadzenDataList>
+                
+            </ChildContent>
+        </RadzenPanel>
+        <RadzenPanel Text="Tickets" Icon="confirmation_number" AllowCollapse="true">
+            <HeaderTemplate>
+            </HeaderTemplate>            
+            <ChildContent>
+                <RadzenDataGrid TItem="Pages.TechDashboard.TicketSample" Data="@Tickets" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowSorting="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive">
+                    <HeaderTemplate>
+                        <RadzenStack Style="width: 100%" Gap="10">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                                <RadzenButton Variant="Radzen.Variant.Outlined" Text="All Open"></RadzenButton>
+                                <RadzenButton Variant="Radzen.Variant.Outlined" Text="Scheduled Today"></RadzenButton>
+                                <RadzenButton Variant="Radzen.Variant.Outlined" Text="New"></RadzenButton>
+                                <RadzenButton Variant="Radzen.Variant.Outlined" Text="Waiting"></RadzenButton>
+                                <RadzenButton Variant="Radzen.Variant.Outlined" Text="Overdue"></RadzenButton>
+                            </RadzenStack>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Style="width: 100%">
+                                <RadzenTextBox Placeholder="Search Tickets..." Style="width: 50%"></RadzenTextBox>
+                                <RadzenDropDown TValue="dynamic" Placeholder="All Queues" Style="width: 50%"></RadzenDropDown>
+
+                            </RadzenStack>
+                            
+                        </RadzenStack>
+                    </HeaderTemplate>
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Ticket" Width="450px">
+                            <Template>
+                                <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
+                                    <RadzenText Text="@($"{context.TicketNumber} - {context.Title}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
+                                    <RadzenText Text="@context.Account" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
+
+                                </RadzenStack>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Status" Property="Status" Width="200px">
+                            <Template>
+                                <RadzenStack Style="width: 100%">
+                                    <RadzenBadge Text="@context.Status" Variant="Radzen.Variant.Outlined" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Success" Style="padding-left: 8px; padding-right: 8px; padding-top: 2px; padding-bottom: 2px" Shade="Radzen.Shade.Dark"></RadzenBadge>
+                                </RadzenStack>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Priority" Property="Priority" Width="125px">
+                            <Template>
+                                <RadzenBadge Text="@context.Priority" BadgeStyle="Radzen.BadgeStyle.Warning" Variant="Radzen.Variant.Outlined" IsPill="true" Style="padding-left: 8px; padding-right: 9px; padding-top: 2px; padding-bottom: 2px"></RadzenBadge>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Pages.TechDashboard.TicketSample" Title="Due" Property="DueDate" Width="200px"></RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </ChildContent>
+            
+        </RadzenPanel>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeXS="4">
+    <RadzenPanel Style="margin-bottom: 10px" AllowCollapse="true">
+            <HeaderTemplate>
+                <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
+                    <RadzenColumn SizeLG="8">
+                        <RadzenStack>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                            <RadzenIcon Icon="calendar_month" />
+                            <RadzenText Text="Next 3 Days" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
+
+                            </RadzenStack>
+                            <RadzenText Text="Calendar + scheduled ticket commitments" TextStyle="Radzen.Blazor.TextStyle.Caption" TagName="Radzen.Blazor.TagName.Auto" />
+                        
+                        </RadzenStack>
+                    </RadzenColumn>
+                    <RadzenColumn SizeLG="4">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.End">
+                            <RadzenChip Text="Agenda View" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
+    
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
+            </HeaderTemplate>
+            
+            <ChildContent>
+                <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
+                <HeaderTemplate>
+                    <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
+                        <RadzenColumn Size="12">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween">
+                                <RadzenText Text="Today" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
+                                    <RadzenText Text="@($"{DateTime.Today.ToString(" MMM d")}")" TextStyle="Radzen.Blazor.TextStyle.Body2" TagName="Radzen.Blazor.TagName.Auto" Style="color: var(--rz-primary)" />
+                        
+                            </RadzenStack>
+                        </RadzenColumn>
+                    
+                    </RadzenRow>
+                </HeaderTemplate>
+            
+                <ChildContent>
+                        <RadzenDataGrid TItem="Pages.TechDashboard.CalendarItemSample" Data="@(CalendarItems.Where(x => x.Start > DateTime.Today && x.Start <= DateTime.Today.AddDays(1)))">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Pages.TechDashboard.CalendarItemSample" >
+                                <Template>
+                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal">
+                                        <RadzenLabel Text="@context.Start.ToString("h:mm tt")" Style="color: var(--rz-primary)" />
+                                        <RadzenStack>
+                                            <RadzenLabel Text="@($"{context.TicketNumber} {context.Title}")" />
+                                            <RadzenLabel Text="@($"{context.DurationMinutes} minutes - {context.Type} ")" />
+
+                                        </RadzenStack>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+
+                
+                </ChildContent>
+            </RadzenPanel>
+            <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
+                <HeaderTemplate>
+                    <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
+                        <RadzenColumn Size="12">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween">
+                                <RadzenText Text="Tomorrow" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
+                                    <RadzenText Text="@($"{DateTime.Today.AddDays(1).ToString(" MMM d")}")" TextStyle="Radzen.Blazor.TextStyle.Body2" TagName="Radzen.Blazor.TagName.Auto" Style="color: var(--rz-primary)" />
+                        
+                            </RadzenStack>
+                        </RadzenColumn>
+                        </RadzenRow>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenDataGrid TItem="Pages.TechDashboard.CalendarItemSample" Data="@(CalendarItems.Where(x => x.Start > DateTime.Today.AddDays(1) && x.Start <= DateTime.Today.AddDays(2)))">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Pages.TechDashboard.CalendarItemSample" >
+                                <Template>
+                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal">
+                                        <RadzenLabel Text="@context.Start.ToString("h:mm tt")" Style="color: var(--rz-primary)" />
+                                        <RadzenStack>
+                                            <RadzenLabel Text="@($"{context.TicketNumber} {context.Title}")" />
+                                            <RadzenLabel Text="@($"{context.DurationMinutes} minutes - {context.Type} ")" />
+
+                                        </RadzenStack>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>        
+                </ChildContent>
+            </RadzenPanel>
+                <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
+                    <HeaderTemplate>
+                        <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
+                            <RadzenColumn Size="12">
+                                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween">
+                                    <RadzenText Text="@(DateTime.Today.AddDays(3).DayOfWeek.ToString())" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
+                                    <RadzenText Text="@($"{DateTime.Today.ToString("MMM d")}")" TextStyle="Radzen.Blazor.TextStyle.Body2" TagName="Radzen.Blazor.TagName.Auto" Style="color: var(--rz-primary)" />
+
+                                </RadzenStack>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <RadzenDataGrid TItem="Pages.TechDashboard.CalendarItemSample" Data="@(CalendarItems.Where(x => x.Start > DateTime.Today.AddDays(2) && x.Start <= DateTime.Today.AddDays(3)))">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Pages.TechDashboard.CalendarItemSample">
+                                    <Template>
+                                        <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal">
+                                            <RadzenLabel Text="@context.Start.ToString("h:mm tt")" Style="color: var(--rz-primary)" />
+                                            <RadzenStack>
+                                                <RadzenLabel Text="@($"{context.TicketNumber} {context.Title}")" />
+                                                <RadzenLabel Text="@($"{context.DurationMinutes} minutes - {context.Type} ")" />
+
+                                            </RadzenStack>
+                                        </RadzenStack>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </ChildContent>
+                </RadzenPanel>
+            </ChildContent>
+
+        </RadzenPanel>
+    </RadzenColumn>
+</RadzenRow>
