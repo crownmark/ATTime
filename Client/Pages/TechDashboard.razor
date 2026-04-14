@@ -163,7 +163,10 @@
                         <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Ticket" Width="450px" Property="title">
                             <Template>
                                 <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
-                                    <RadzenText Text="@($"{context.ticketNumber} - {context.title}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
+                                        <RadzenButton Icon="more_time" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Style="width: 28px"></RadzenButton>
+
+                                    <RadzenText Text="@($"{context.ticketNumber} - {context.title}")" TextStyle="Radzen.Blazor.TextStyle.Body1">
+                                    </RadzenText>
                                     <RadzenText Text="@context.companyID.ToString()" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
 
                                 </RadzenStack>

@@ -125,6 +125,12 @@
     --rz-series-22: #d7f5a3;
     --rz-series-23: #a3f5ac;
     --rz-series-24: #a3f5ea;
+    --rz-link-color: #73bce2;
+    --rz-link-hover-color: #58abd8;
+    --rz-toc-link-selected-color: #73bce2;
+    --rz-toc-horizontal-link-selected-color: #73bce2;
+    --rz-toc-link-selected-indicator-color: #73bce2;
+    --rz-toc-link-hover-color: #58abd8;
 }
 
 body {
