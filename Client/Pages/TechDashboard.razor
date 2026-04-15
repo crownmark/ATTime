@@ -141,14 +141,14 @@
             </HeaderTemplate>            
             <ChildContent>
                 <RadzenStack Style="width: 100%" Gap="10" Wrap="Radzen.FlexWrap.Wrap">
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" Style="height: 40px; padding-top: 4px; padding-bottom: 4px; padding-right: 4px; padding-left: 4px; margin-bottom: 5px">
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" Style="padding-top: 4px; padding-bottom: 4px; padding-right: 4px; padding-left: 4px; margin-bottom: 5px; min-height: 40px; max-height: 150px">
                         <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click"></RadzenButton>
-                        <RadzenChip Text="All Open" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@AllOpenTicketsChip2Click" Selected="@openTickets"></RadzenChip>
-                        <RadzenChip Text="In My Court" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Selected="@inMyCourtTickets" Click="@InMyCourtChip3Click"></RadzenChip>
-                        <RadzenChip Text="Scheduled Today" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@ScheduledTodayChip3Click" Selected="@scheduledTodayTickets"></RadzenChip>
+                        <RadzenChip Text="All Open" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@AllOpenTicketsChip2Click" Selected="@openTickets" Style="min-height: 40px"></RadzenChip>
+                        <RadzenChip Text="In My Court" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Selected="@inMyCourtTickets" Click="@InMyCourtChip3Click" Style="min-height: 40px"></RadzenChip>
+                        <RadzenChip Text="Scheduled Today" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@ScheduledTodayChip3Click" Selected="@scheduledTodayTickets" Style="min-height: 40px"></RadzenChip>
                         <RadzenChip Text="New" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@NewTicketsChip4Click" Selected="@newTickets"></RadzenChip>
                         <RadzenChip Text="Waiting" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@WaitingTicketsChip5Click" Selected="@waitingTickets"></RadzenChip>
-                        <RadzenChip Text="Overdue" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@OverdueChip6Click" Selected="@overdueTickets"></RadzenChip>
+                        <RadzenChip Text="Overdue" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@OverdueChip6Click" Selected="@overdueTickets" Style="min-height: 40px"></RadzenChip>
                     </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Style="width: 100%">
                         <RadzenTextBox Placeholder="Search Tickets..." Style="width: 50%" @bind-Value="@myTicketsSearch" @onkeydown:stopPropagation Change="@TicketSearchTextBox0Change"></RadzenTextBox>
@@ -163,10 +163,13 @@
                         <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Ticket" Width="450px" Property="title">
                             <Template>
                                 <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
-                                        <RadzenButton Icon="more_time" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Style="width: 28px"></RadzenButton>
+                                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
+                                        <RadzenButton Icon="more_time" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" @onclick:stopPropagation Click="@((args) => AddTimeButton3Click(args, context))" Style="width: 28px; height: 28px"></RadzenButton>
+                                        <RadzenText Text="@($"{context.ticketNumber} - {context.title}")" TextStyle="Radzen.Blazor.TextStyle.Body1">
+                                        </RadzenText>
+                                    </RadzenStack>
 
-                                    <RadzenText Text="@($"{context.ticketNumber} - {context.title}")" TextStyle="Radzen.Blazor.TextStyle.Body1">
-                                    </RadzenText>
+                                    
                                     <RadzenText Text="@context.companyID.ToString()" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
 
                                 </RadzenStack>

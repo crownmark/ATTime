@@ -303,7 +303,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "1300px" });
+                await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
                 await myTimeEntriesGrid.Reload();
             }
             catch (Exception ex)
@@ -438,6 +438,20 @@ namespace CrownATTime.Client.Pages
             catch (Exception ex)
             {
                 myTimeEntriesGridLoading = false;
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task AddTimeButton3Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, Server.Models.TicketDtoResult.Item data)
+        {
+            try
+            {
+                await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", data.id.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
+
+                await myTimeEntriesGrid.Reload();
+            }
+            catch (Exception ex)
+            {
 
             }
         }
