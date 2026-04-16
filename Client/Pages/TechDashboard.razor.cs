@@ -1,3 +1,4 @@
+using CrownATTime.Client.CustomComponents.DialogManager;
 using CrownATTime.Server.Models;
 using CrownATTime.Server.Models.ATTime;
 using Microsoft.AspNetCore.Components;
@@ -40,6 +41,8 @@ namespace CrownATTime.Client.Pages
 
         [Inject]
         protected SecurityService Security { get; set; }
+        [Inject]
+        protected DialogManager DialogManager { get; set; }
 
         protected List<TicketDtoResult.Item> ticketResults { get; set; } = new List<TicketDtoResult.Item>();
         protected bool myTicketsGridLoading {  get; set; }
@@ -143,13 +146,18 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                
+                myTimeEntriesGridLoading = true;
+                myTicketsGridLoading = true;
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
                 resource = resourceResult.Value.FirstOrDefault();
-                ReloadTicketsFromAutotask();
+                await ReloadTicketsFromAutotask();
                 var queueResult = await ATTimeService.GetTicketEntityPicklistValueCaches(filter: $"PicklistName eq 'queueID'", orderby: "Label");
                 queues = queueResult.Value.ToList();
                 await myTimeEntriesGrid.Reload();
+                
+                DialogManager.OnChange += StateHasChanged;
+                myTimeEntriesGridLoading = false;
+                myTicketsGridLoading = false;
 
             }
             catch (Exception ex)
@@ -157,6 +165,11 @@ namespace CrownATTime.Client.Pages
 
             }
             
+        }
+
+        public void Dispose()
+        {
+            DialogManager.OnChange -= StateHasChanged;
         }
 
         protected async System.Threading.Tasks.Task ReloadTicketsFromAutotask()
@@ -196,7 +209,7 @@ namespace CrownATTime.Client.Pages
                 }
                 else if (newTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.status != 5);
+                    var filteredTickets = ticketResults.Where(x => x.status != 5 && x.userDefinedFields.Where(x => x.name == "New Ticket" && x.value == "Yes").Any());
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (overdueTickets)
@@ -250,8 +263,12 @@ namespace CrownATTime.Client.Pages
                 {
                     myTickets = myTickets.Where(x =>
                             (x.title?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            (x.ticketNumber?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false)
-                        //(x.assignedResourceID?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (x.ticketNumber?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                              (x.priorityName?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                              (x.statusName?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                              (x.queueName?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                              (x.companyName?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false)
+
                         //(x.status?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         //(x.status?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
                         //(x.priority?.Contains(myTicketsSearch, StringComparison.OrdinalIgnoreCase) ?? false)
@@ -259,6 +276,7 @@ namespace CrownATTime.Client.Pages
                         ).ToList();
                     //myTickets.AddRange(filteredTickets);
                 }
+                
             }
             catch (Exception ex)
             {
@@ -303,8 +321,19 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
-                await myTimeEntriesGrid.Reload();
+                DialogManager.OpenOrFocus<TimeEntry>(
+                    id: args.TicketId,
+                    title: $"{args.TicketNumber} - {args.TicketTitle}",
+                    type: "TimeEntry",
+                    parameters: new Dictionary<string, object>
+                    {
+                        { "TicketId", args.TicketId.ToString() }
+                    }
+                );
+                //await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } });
+
+                //await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
+                //await myTimeEntriesGrid.Reload();
             }
             catch (Exception ex)
             {
@@ -446,14 +475,131 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", data.id.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
+                DialogManager.OpenOrFocus<TimeEntry>(
+                    id: data.id,
+                    title: $"{data.ticketNumber} - {data.title}",
+                    type: "TimeEntry",
+                    parameters: new Dictionary<string, object>
+                    {
+                        { "TicketId", data.id.ToString() }
+                    }
+                );
+                //await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", data.id.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
 
-                await myTimeEntriesGrid.Reload();
+                //await myTimeEntriesGrid.Reload();
             }
             catch (Exception ex)
             {
 
             }
+        }
+
+        protected RenderFragment CreateComponent<T>(Dictionary<string, object>? parameters = null) where T : IComponent
+        {
+            return builder =>
+            {
+                builder.OpenComponent(0, typeof(T));
+
+                if (parameters != null)
+                {
+                    var i = 1;
+                    foreach (var parameter in parameters)
+                    {
+                        builder.AddAttribute(i++, parameter.Key, parameter.Value);
+                    }
+                }
+
+                builder.CloseComponent();
+            };
+        }
+
+        protected async System.Threading.Tasks.Task MinimizeWindowButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, AppDialog dialog)
+        {
+            DialogManager.Minimize(dialog.Id, dialog.Type);
+            await myTimeEntriesGrid.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task CloseWindowButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, AppDialog dialog)
+        {
+            DialogManager.Close(dialog.Id, dialog.Type);
+            await myTimeEntriesGrid.Reload();
+
+        }
+
+        protected async System.Threading.Tasks.Task PopoutWindowButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, AppDialog dialog)
+        {
+            DialogManager.Close(dialog.Id, dialog.Type);
+            await myTimeEntriesGrid.Reload();
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"timeentry/{dialog.Id.ToString()}");
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
+
+
+        protected async System.Threading.Tasks.Task NewTicketButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=NewTicket");
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task AddTimeEntryButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Create a Time Entry");
+
+        }
+
+        protected async System.Threading.Tasks.Task AddTimeEntryButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task RefreshTimeEntriesButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Reload Time Entries");
+
+        }
+
+        protected async System.Threading.Tasks.Task RefreshTimeEntriesButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task RefreshTicketsButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Reload Tickets from Autotask");
+
+        }
+
+        protected async System.Threading.Tasks.Task RefreshTicketsButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
+        }
+
+        protected async System.Threading.Tasks.Task PopoutTimeEntryButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Pop Out Time Entry in a New Window");
+
+        }
+
+        protected async System.Threading.Tasks.Task PopoutTimeEntryButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+
         }
     }
 }

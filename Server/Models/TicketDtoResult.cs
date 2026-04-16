@@ -1,4 +1,5 @@
-﻿namespace CrownATTime.Server.Models
+﻿
+namespace CrownATTime.Server.Models
 {
     public class TicketDtoResult
     {
@@ -83,6 +84,15 @@
             //public int ticketType { get; set; }
             public string title { get; set; }
             public Userdefinedfield[] userDefinedFields { get; set; }
+
+            public string companyName { get; set; }
+            public string contactName { get; set; }
+            public string priorityName { get; set; }
+            public string statusName { get; set; }
+            public string queueName { get; set; }
+            public string primaryResourceName { get; set; }
+            public string secondaryResourceNames { get; set; }
+            public DateTime? ServiceCallScheduledDate { get; set; }
         }
 
         public class Userdefinedfield

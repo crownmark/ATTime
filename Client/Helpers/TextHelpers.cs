@@ -15,7 +15,14 @@
             {
                 var url = match.Value;
 
-                return $"<a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\">Open Teams Message</a>";
+                // Detect Teams message links
+                var isTeamsLink = url.Contains("teams.microsoft.com/l/message");
+
+                var label = isTeamsLink
+                    ? "Open Teams Message"
+                    : url; // default to showing the URL itself
+
+                return $"<a href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\">{label}</a>";
             });
 
             // 2. Convert Ticket Numbers
@@ -25,7 +32,6 @@
             {
                 var ticket = match.Value;
 
-                // 🔁 Replace with your actual ticket URL pattern
                 var ticketUrl = $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketNumber={ticket}";
 
                 return $"<a href=\"{ticketUrl}\" target=\"_blank\">{ticket}</a>";

@@ -1,4 +1,5 @@
 using CrownATTime.Client;
+using CrownATTime.Client.CustomComponents.DialogManager;
 using CrownATTime.Server.Components;
 using CrownATTime.Server.Models;
 using CrownATTime.Server.Services;
@@ -29,6 +30,7 @@ builder.Services.AddHttpContextAccessor();
 //builder.Services.AddHostedService(sp => sp.GetRequiredService<CrownATTime.Server.Services.NotificationService>());
 builder.Services.AddHostedService<CrownATTime.Server.Services.NotificationService>();
 builder.Services.AddHostedService<CrownATTime.Server.Services.AutotaskSyncService>();
+builder.Services.AddScoped<DialogManager>();
 builder.Services.AddScoped<CrownATTime.Server.ATTimeService>();
 builder.Services.Configure<ThreeCxOptions>(opt =>
 {

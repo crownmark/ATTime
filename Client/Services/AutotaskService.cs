@@ -567,9 +567,90 @@
 
             var response = await httpClient.SendAsync(httpRequestMessage);
             var content = await response.Content.ReadAsStringAsync();
-            //var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ContractDto>>(content);
-            return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<AutotaskItemsResponse<TicketDtoResult.Item>>(response);
+            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketDtoResult.Item>>(content);
+
+            // ----------------------------------------------------
+            // 🔥 Get distinct resource IDs from time entries
+            // ----------------------------------------------------
+            var resourceIds = converted.Items
+                .Select(x => x.assignedResourceID)
+                .Distinct()
+                .ToList();
+
+            // ----------------------------------------------------
+            // 🔥 Pull matching resources from your cache table
+            // ----------------------------------------------------
+            var resourcesResult = await _atTimeService.GetResourceCaches();
+            var resources = resourcesResult.Value.Where(r => resourceIds.Contains(r.Id)).ToList();
+
+            var resourceLookup = resources
+                .ToDictionary(r => r.Id);
+
+            // ----------------------------------------------------
+            // 🔥 Map back onto DTO
+            // ----------------------------------------------------
+            foreach (var item in converted.Items)
+            {
+                try
+                {
+
+                    if (item.assignedResourceID.HasValue && resourceLookup.TryGetValue(item.assignedResourceID.Value, out var resource))
+                    {
+                        item.primaryResourceName = resource.FirstName + " " + resource.LastName;
+                    }
+                    else
+                    {
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+            }
+
+            //Get lookup fields
+            var ticketlookupFieldsResult = await _atTimeService.GetTicketEntityPicklistValueCaches();
+            var ticketLookupFields = ticketlookupFieldsResult.Value.ToList();
+            var companiesResult = await _atTimeService.GetCompanyCaches();
+            var companies = companiesResult.Value.ToList();
+            var serviceCalls = await GetServiceCallsForTickets(converted.Items.Select(x => x.id).ToList());
+
+
+            // ----------------------------------------------------
+            // 🔥 Map back onto DTO
+            // ----------------------------------------------------
+            foreach (var item in converted.Items)
+            {
+                try
+                {
+
+                    item.priorityName = ticketLookupFields.Where(x => x.PicklistName == "priority" && x.ValueInt == item.priority).Any() ? 
+                        ticketLookupFields.Where(x => x.PicklistName == "priority" && x.ValueInt == item.priority).FirstOrDefault().Label :
+                        "";
+                    item.statusName = ticketLookupFields.Where(x => x.PicklistName == "status" && x.ValueInt == item.status).Any() ?
+                        ticketLookupFields.Where(x => x.PicklistName == "status" && x.ValueInt == item.status).FirstOrDefault().Label :
+                        "";
+                    item.queueName = ticketLookupFields.Where(x => x.PicklistName == "queueID" && x.ValueInt == item.queueID).Any() ?
+                        ticketLookupFields.Where(x => x.PicklistName == "queueID" && x.ValueInt == item.queueID).FirstOrDefault().Label :
+                        "";
+                    item.companyName = companies.Where(x => x.Id == item.companyID).Any() ?
+                        companies.Where(x => x.Id == item.companyID).FirstOrDefault().CompanyName :
+                        "";
+                    item.ServiceCallScheduledDate = serviceCalls.Items.Where(x => x.creatorResourceID == resourceId && x.).Any() ? serviceCalls.Items.Where(x => x.creatorResourceID == resourceId).FirstOrDefault().startDateTime : null;
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+            }
+
+
+            return converted;
+            //return await Radzen.HttpResponseMessageExtensions
+            //    .ReadAsync<AutotaskItemsResponse<TicketDtoResult.Item>>(response);
         }
 
         public async Task<TicketEntityFieldsDto.EntityInformationFieldsResponse> GetTicketFields()
@@ -688,6 +769,31 @@
             httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
             return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async Task<AutotaskItemsResponse<ServiceCall>> GetServiceCallsForTickets(List<int> ticketIds)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "in", field = "ticketID", value = ticketIds.ToArray() },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"ticketservicecalls/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<ServiceCall>>(response);
         }
 
         public async Task<AutotaskItemsResponse<ServiceCall>> GetServiceCallsForTicket(long ticketId)

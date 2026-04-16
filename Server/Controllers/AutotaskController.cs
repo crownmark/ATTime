@@ -196,6 +196,27 @@
                 var serviceCallcontent = await serviceCallresponse.Content.ReadAsStringAsync();
                 var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
 
+                //// Build lookup: serviceCallId → ticketId
+                //var ticketLookup = ticketServiceCalls.Items
+                //    .GroupBy(x => x.serviceCallID)
+                //    .ToDictionary(
+                //        g => g.Key,
+                //        g => g.Select(x => x.ticketID).FirstOrDefault() // or handle multiples if needed
+                //    );
+
+                //// Merge into ServiceCalls
+                //var result = serviceCalls.Items.Select(sc => new ServiceCallWithTicketId
+                //{
+                //    // Copy base properties
+                //    id = sc.id,
+                //    // map all other properties as needed...
+
+                //    // Inject TicketId
+                //    TicketId = ticketLookup.ContainsKey(sc.id)
+                //        ? ticketLookup[sc.id]
+                //        : null
+                //}).ToList();
+
                 return Content(serviceCallcontent, "application/json");
             }
             catch (Exception ex)

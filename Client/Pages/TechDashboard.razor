@@ -1,12 +1,18 @@
 @page "/tech-dashboard"
+@using CrownATTime.Client.CustomComponents.DialogManager
 @using CrownATTime.Server.Models;
 
 @attribute [Authorize]
 
 <PageTitle>TechDashboard</PageTitle>
+
+
+
+
 <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px">
     <RadzenColumn SizeLG="6">
         <RadzenStack>
+            
             <RadzenText Text="Tech Dashboard" TextStyle="TextStyle.H3" TagName="TagName.H1" />
             <RadzenText Text="Your single pane of glass for tickets, priorities, and the next 3 days of scheduling." TextStyle="Radzen.Blazor.TextStyle.Caption" TagName="Radzen.Blazor.TagName.Auto" />
         
@@ -16,7 +22,7 @@
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
         <RadzenChip Text="Tech: Mark Williams" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
 <RadzenChip Text="Status: Available" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
-<RadzenButton Text="New Ticket" Icon="add" Variant="Radzen.Variant.Filled" ButtonStyle="Radzen.ButtonStyle.Primary"></RadzenButton>
+<RadzenButton Text="New Ticket" Icon="add" Variant="Radzen.Variant.Filled" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@NewTicketButtonClick"></RadzenButton>
     
     </RadzenStack>
     </RadzenColumn>
@@ -105,8 +111,8 @@
             
             <ChildContent>
 
-                <RadzenStack>
-                    <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@TimeEntriesGridRefreshButton1Click"></RadzenButton>
+                <RadzenStack Style="padding-bottom: 5px" ">
+                    <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@TimeEntriesGridRefreshButton1Click" MouseEnter="RefreshTimeEntriesButtonMouseEnter" MouseLeave="RefreshTimeEntriesButtonMouseLeave"></RadzenButton>
 
                 </RadzenStack>
                 <RadzenDataGrid @ref="@myTimeEntriesGrid" TItem="@CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntries" RowSelect="@TimeEntryDataGrid0RowSelect" LoadData="@TimeEntriesDataGrid0LoadData" IsLoading="@myTimeEntriesGridLoading">
@@ -142,7 +148,7 @@
             <ChildContent>
                 <RadzenStack Style="width: 100%" Gap="10" Wrap="Radzen.FlexWrap.Wrap">
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" Style="padding-top: 4px; padding-bottom: 4px; padding-right: 4px; padding-left: 4px; margin-bottom: 5px; min-height: 40px; max-height: 150px">
-                        <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click"></RadzenButton>
+                        <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click" MouseEnter="RefreshTicketsButtonMouseEnter" MouseLeave="RefreshTicketsButtonMouseLeave"></RadzenButton>
                         <RadzenChip Text="All Open" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@AllOpenTicketsChip2Click" Selected="@openTickets" Style="min-height: 40px"></RadzenChip>
                         <RadzenChip Text="In My Court" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Selected="@inMyCourtTickets" Click="@InMyCourtChip3Click" Style="min-height: 40px"></RadzenChip>
                         <RadzenChip Text="Scheduled Today" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@ScheduledTodayChip3Click" Selected="@scheduledTodayTickets" Style="min-height: 40px"></RadzenChip>
@@ -150,41 +156,44 @@
                         <RadzenChip Text="Waiting" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@WaitingTicketsChip5Click" Selected="@waitingTickets"></RadzenChip>
                         <RadzenChip Text="Overdue" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@OverdueChip6Click" Selected="@overdueTickets" Style="min-height: 40px"></RadzenChip>
                     </RadzenStack>
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Style="width: 100%">
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Style="width: 100%;  padding-bottom: 5px">
                         <RadzenTextBox Placeholder="Search Tickets..." Style="width: 50%" @bind-Value="@myTicketsSearch" @onkeydown:stopPropagation Change="@TicketSearchTextBox0Change"></RadzenTextBox>
                         <RadzenDropDown @bind-Value="@queueId" Placeholder="All Queues" Style="width: 50%" AllowClear="true" Data="@queues" ValueProperty="ValueInt" TextProperty="Label" Name="Queues" Change="@QueuesChange" ClearSearchAfterSelection="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive"></RadzenDropDown>
 
                     </RadzenStack>
 
                 </RadzenStack>
-                <RadzenDataGrid @ref="@myTicketsGrid" IsLoading="@myTicketsGridLoading" TItem="TicketDtoResult.Item" Data="@myTickets" Responsive="true" AllowFiltering="true" FilterMode="Radzen.FilterMode.Advanced" AllowSorting="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" RowSelect="@TicketsDataGrid0RowSelect" LoadData="@TicketsDataGrid1LoadData">
+                <RadzenDataGrid @ref="@myTicketsGrid" IsLoading="@myTicketsGridLoading" TItem="TicketDtoResult.Item" Data="@myTickets" Responsive="true" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowSorting="false" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" RowSelect="@TicketsDataGrid0RowSelect" LoadData="@TicketsDataGrid1LoadData">
                     
                     <Columns>
                         <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Ticket" Width="450px" Property="title">
                             <Template>
                                 <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
                                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
-                                        <RadzenButton Icon="more_time" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" @onclick:stopPropagation Click="@((args) => AddTimeButton3Click(args, context))" Style="width: 28px; height: 28px"></RadzenButton>
+                                        <RadzenButton Icon="more_time" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" @onclick:stopPropagation Click="@((args) => AddTimeButton3Click(args, context))" Style="width: 28px; height: 28px" MouseEnter="@AddTimeEntryButtonMouseEnter" MouseLeave="@AddTimeEntryButtonMouseLeave"></RadzenButton>
                                         <RadzenText Text="@($"{context.ticketNumber} - {context.title}")" TextStyle="Radzen.Blazor.TextStyle.Body1">
                                         </RadzenText>
                                     </RadzenStack>
 
-                                    
-                                    <RadzenText Text="@context.companyID.ToString()" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-base-200)" />
+                                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
+                                        <RadzenText Text="@context.companyName" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-primary)" />
+                                        <RadzenText Text="@($"({context.queueName})")" TextStyle="Radzen.Blazor.TextStyle.Caption" Style="color: var(--rz-warning)" />
+
+                                    </RadzenStack>
 
                                 </RadzenStack>
                             </Template>
                         </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Priority" Property="priority" Width="125px">
+                                                    <Template>
+                                                        <RadzenBadge Text="@context.priorityName" BadgeStyle="Radzen.BadgeStyle.Warning" Variant="Radzen.Variant.Outlined" IsPill="true" Style="padding-left: 8px; padding-right: 9px; padding-top: 2px; padding-bottom: 2px"></RadzenBadge>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Status" Property="status" Width="200px">
                             <Template>
                                 <RadzenStack AlignItems="Radzen.AlignItems.Start">
-                                    <RadzenBadge Text="@context.status.ToString()" Variant="Radzen.Variant.Outlined" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Success" Style="padding-left: 8px; padding-right: 8px; padding-top: 2px; padding-bottom: 2px" Shade="Radzen.Shade.Dark"></RadzenBadge>
+                                    <RadzenBadge Text="@context.statusName" Variant="Radzen.Variant.Outlined" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Success" Style="padding-left: 8px; padding-right: 8px; padding-top: 2px; padding-bottom: 2px" Shade="Radzen.Shade.Dark"></RadzenBadge>
                                 </RadzenStack>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Priority" Property="priority" Width="125px">
-                            <Template>
-                                <RadzenBadge Text="@context.priority.ToString()" BadgeStyle="Radzen.BadgeStyle.Warning" Variant="Radzen.Variant.Outlined" IsPill="true" Style="padding-left: 8px; padding-right: 9px; padding-top: 2px; padding-bottom: 2px"></RadzenBadge>
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Due" Property="dueDateTime" Width="200px"></RadzenDataGridColumn>
@@ -196,6 +205,84 @@
     </RadzenColumn>
     <RadzenColumn Size="12" SizeSM="4" SizeMD="4">
         <RadzenPanel Style="margin-bottom: 10px" AllowCollapse="true">
+            <HeaderTemplate>
+                <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
+                    <RadzenColumn >
+                        <RadzenStack>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                                <RadzenIcon Icon="av_timer" />
+                                <RadzenText Text="Minimized Time Entries" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
+
+                            </RadzenStack>
+
+                        </RadzenStack>
+                    </RadzenColumn>
+                    
+                </RadzenRow>
+            </HeaderTemplate>
+
+            <ChildContent>
+                <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
+
+                    <ChildContent>
+                        <div id="desktop">
+                            @foreach (var dialog in DialogManager.Dialogs)
+                            {
+                                @if (DialogManager.Dialogs.Any(d => !d.IsMinimized))
+                                {
+                                    var active = DialogManager.Dialogs
+                                    .Where(d => !d.IsMinimized)
+                                    .OrderByDescending(d => d.ZIndex)
+                                    .FirstOrDefault();
+
+                                    if (active != null)
+                                    {
+                                        <div class="window-overlay"
+                                             style="z-index:@(active.ZIndex - 1)">
+                                        </div>
+                                    }
+                                }
+                                <div class="window @(dialog.IsMinimized ? "hidden-window" : "")"
+                                     style="width:@dialog.Width; z-index:@dialog.ZIndex"
+                                     @onclick="() => DialogManager.SetActive(dialog.Id, dialog.Type)">
+
+                                    <div class="header">
+                                        <span>@dialog.Title</span>
+
+                                        <div>
+                                            <RadzenButton @onclick:stopPropagation Click="@((args) => PopoutWindowButtonClick(args, dialog))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="open_in_browser" Style="width: 24px" MouseEnter="PopoutTimeEntryButtonMouseEnter" MouseLeave="PopoutTimeEntryButtonMouseLeave"/>
+                                            <RadzenButton @onclick:stopPropagation Click="@((args) => MinimizeWindowButtonClick(args, dialog))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="minimize" Style="width: 24px" />
+                                            <RadzenButton @onclick:stopPropagation Click="@((args) => CloseWindowButtonClick(args, dialog))" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="close" Style="width: 24px" />
+                                            
+                                        </div>
+                                    </div>
+
+                                    <div class="body">
+                                        @dialog.Content
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Taskbar -->
+                        <div class="taskbar">
+                            @foreach (var dialog in DialogManager.Dialogs.Where(d => d.IsMinimized))
+                            {
+                                <div class="taskbar-item"
+                                     title="@dialog.Title"
+                                     @onclick="() => DialogManager.Restore(dialog.Id, dialog.Type)">
+                                    @dialog.Title
+                                </div>
+                            }
+                        </div>
+                    </ChildContent>
+                </RadzenPanel>
+                
+                
+            </ChildContent>
+
+        </RadzenPanel>
+<RadzenPanel Style="margin-bottom: 10px" AllowCollapse="true">
             <HeaderTemplate>
                 <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
                     <RadzenColumn >
@@ -367,3 +454,91 @@
         </RadzenPanel>
     </RadzenColumn>
 </RadzenRow>
+
+<style>
+    /* Keep window alive but hidden */
+    .window.hidden-window {
+        display: none !important;
+    }
+
+    /* Your centered window */
+    .window {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 98%;
+        max-width: 100%;
+        max-height: 90vh;
+        background: #1e1e1e;
+        border: 1px solid #444;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        /* remove or keep low fallback */
+        z-index: 1000;
+    }
+
+    .window-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        backdrop-filter: blur(2px); /* optional 🔥 */
+        z-index: 1400;
+        /* pointer-events: none; /* 👈 IMPORTANT: allows clicks through */ */
+
+        transition: opacity 0.2s ease;
+    }
+
+    /* Header */
+    .header {
+        background: #2a2a2a;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Body scrolls */
+    .body {
+        padding: 12px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    
+    /* Taskbar */
+    .taskbar {
+        /* position: fixed; */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #1e1e1e;
+        border-top: 1px solid #333;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 6px;
+        gap: 6px;
+        max-height: 120px;
+        overflow-y: auto;
+        z-index: 1500; /* 👈 BELOW windows */
+    }
+
+    .taskbar-item {
+        background: #2d2d2d;
+        color: #ddd;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+        .taskbar-item:hover {
+            background: #3a3a3a;
+        }
+</style>

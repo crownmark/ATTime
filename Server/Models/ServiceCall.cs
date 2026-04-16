@@ -18,6 +18,7 @@
         public DateTime lastModifiedDateTime { get; set; }
         public DateTime startDateTime { get; set; }
         public int status { get; set; }
+        public int? ticketId { get; set; }
 
     }
 }

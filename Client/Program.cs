@@ -1,8 +1,9 @@
+using CrownATTime.Client;
+using CrownATTime.Client.CustomComponents.DialogManager;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
-using CrownATTime.Client;
-using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddRadzenComponents();
@@ -19,6 +20,7 @@ builder.Services.AddScoped<CrownATTime.Client.EmailService>();
 builder.Services.AddScoped<CrownATTime.Client.TeamsChatService>();
 builder.Services.AddScoped<CrownATTime.Client.TemplateTokenDiscoveryService>();
 builder.Services.AddScoped<CrownATTime.Client.ITGlueService>();
+builder.Services.AddScoped<DialogManager>();
 builder.Services.AddHttpClient("CrownATTime.Server", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("CrownATTime.Server"));
 builder.Services.AddScoped<CrownATTime.Client.SecurityService>();
