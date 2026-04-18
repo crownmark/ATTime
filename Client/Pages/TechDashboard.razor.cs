@@ -326,7 +326,7 @@ namespace CrownATTime.Client.Pages
                     item = args
                 };
                 var primaryResource = await AutotaskService.GetResourceById(args.assignedResourceID.Value);
-                await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { {"ResourceId", resource.Id}, {"Ticket", ticket}, {"PriorityName", args.priority.ToString()}, {"StatusName", args.status.ToString()}, {"PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { {"ResourceId", resource.Id}, {"Ticket", ticket}, {"PriorityName", args.priorityName.ToString()}, {"StatusName", args.statusName.ToString()}, {"PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
             }
             catch (Exception ex)
             {
