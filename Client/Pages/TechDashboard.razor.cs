@@ -80,7 +80,7 @@ namespace CrownATTime.Client.Pages
 
         protected int timeEntriesCount;
 
-        protected IEnumerable<CrownATTime.Server.Models.CalendarEvent> calendarEvents;
+        protected IEnumerable<CalendarEvent> calendarEvents = new List<CalendarEvent>();
 
         protected int calendarEventsCount;
 
@@ -88,27 +88,27 @@ namespace CrownATTime.Client.Pages
         protected RadzenDataGrid<CalendarEvent> todaysEventsGrid;
         protected RadzenDataGrid<CalendarEvent> tomorrowsEventsGrid;
         protected RadzenDataGrid<CalendarEvent> thirdDayEventsGrid;
+        protected bool calendarGridLoading { get; set; }
 
-
-
+        
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                myTimeEntriesGridLoading = true;
-                myTicketsGridLoading = true;
+                
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
                 resource = resourceResult.Value.FirstOrDefault();
+                myTimeEntriesGridLoading = true;
+                myTicketsGridLoading = true;
                 await ReloadTicketsFromAutotask();
                 var queueResult = await ATTimeService.GetTicketEntityPicklistValueCaches(filter: $"PicklistName eq 'queueID'", orderby: "Label");
                 queues = queueResult.Value.ToList();
                 await myTimeEntriesGrid.Reload();
-                
-                calendarEvents = await AutotaskService.GetCalendarEventsForResource(resource.Id);
-                calendarEventsCount = calendarEvents.Count();
                 DialogManager.OnChange += StateHasChanged;
                 myTimeEntriesGridLoading = false;
                 myTicketsGridLoading = false;
+                await overdueEventsGrid.Reload();
+
 
             }
             catch (Exception ex)
@@ -116,6 +116,44 @@ namespace CrownATTime.Client.Pages
 
             }
             
+        }
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                myTimeEntriesGridLoading = true;
+                myTicketsGridLoading = true;
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task CalendarDataGrid1LoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                calendarGridLoading = true;
+                await LoadCalendarData();
+                calendarGridLoading = false;
+
+            }
+            catch (Exception ex)
+            {
+                calendarGridLoading = false;
+
+            }
+        }
+        protected async Task LoadCalendarData()
+        {
+            try
+            {
+                calendarEvents = await AutotaskService.GetCalendarEventsForResource(resource.Id);
+                calendarEventsCount = calendarEvents.Count();
+
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         public void Dispose()
@@ -134,7 +172,7 @@ namespace CrownATTime.Client.Pages
                 {
                     ticketResults.Add(item);
                 }
-
+                UpdateTicketCounts();
                 await myTicketsGrid.Reload();
                 myTicketsGridLoading = false;
 
@@ -295,9 +333,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        protected async System.Threading.Tasks.Task TodayDataGrid1RowSelect(CalendarEvent args)
-        {
-        }
+        
 
         protected async System.Threading.Tasks.Task TomorrowDataGrid2RowClick(Radzen.DataGridRowMouseEventArgs<CalendarEvent> args)
         {
@@ -325,10 +361,6 @@ namespace CrownATTime.Client.Pages
                         { "TicketId", args.TicketId.ToString() }
                     }
                 );
-                //await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } });
-
-                //await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", args.TicketId.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
-                //await myTimeEntriesGrid.Reload();
             }
             catch (Exception ex)
             {
@@ -339,18 +371,106 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task TomorrowDataGrid3RowSelect(CalendarEvent args)
         {
+            try
+            {
+                if(args.TicketId != null)
+                {
+                    DialogManager.OpenOrFocus<TimeEntry>(
+                    id: args.TicketId.Value,
+                    title: $"{args.Title}",
+                    type: "TimeEntry",
+                    parameters: new Dictionary<string, object>
+                    {
+                        { "TicketId", args.TicketId.ToString() }
+                    }
+                );
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Time Entry.  Error: {ex.Message}" });
+
+            }
         }
 
         protected async System.Threading.Tasks.Task Day3DataGrid4RowSelect(CalendarEvent args)
         {
+            try
+            {
+                if (args.TicketId != null)
+                {
+                    DialogManager.OpenOrFocus<TimeEntry>(
+                    id: args.TicketId.Value,
+                    title: $"{args.Title}",
+                    type: "TimeEntry",
+                    parameters: new Dictionary<string, object>
+                    {
+                        { "TicketId", args.TicketId.ToString() }
+                    }
+                );
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Time Entry.  Error: {ex.Message}" });
+
+            }
+        }
+        protected async System.Threading.Tasks.Task TodayDataGrid1RowSelect(CalendarEvent args)
+        {
+            try
+            {
+                if (args.TicketId != null)
+                {
+                    DialogManager.OpenOrFocus<TimeEntry>(
+                    id: args.TicketId.Value,
+                    title: $"{args.Title}",
+                    type: "TimeEntry",
+                    parameters: new Dictionary<string, object>
+                    {
+                        { "TicketId", args.TicketId.ToString() }
+                    }
+                );
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Time Entry.  Error: {ex.Message}" });
+
+            }
         }
 
         protected async System.Threading.Tasks.Task TodayDataGrid2RowDeselect(CalendarEvent args)
         {
+            
         }
 
         protected async System.Threading.Tasks.Task OverdueDataGrid2RowSelect(CalendarEvent args)
         {
+            try
+            {
+                if (args.TicketId != null)
+                {
+                    DialogManager.OpenOrFocus<TimeEntry>(
+                    id: args.TicketId.Value,
+                    title: $"{args.Title}",
+                    type: "TimeEntry",
+                    parameters: new Dictionary<string, object>
+                    {
+                        { "TicketId", args.TicketId.ToString() }
+                    }
+                );
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Time Entry.  Error: {ex.Message}" });
+
+            }
         }
 
         protected async System.Threading.Tasks.Task AllOpenTicketsChip2Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
@@ -614,5 +734,7 @@ namespace CrownATTime.Client.Pages
             TooltipService.Close();
 
         }
+
+        
     }
 }

@@ -92,7 +92,7 @@ namespace CrownATTime.Server.Models
             public string statusName { get; set; }
             public string queueName { get; set; }
             public string primaryResourceName { get; set; }
-            public string secondaryResourceNames { get; set; }
+            public string secondaryResources { get; set; }
             public DateTime? ServiceCallScheduledDate { get; set; }
 
             public int? ServiceCallAssignedTo { get; set; }

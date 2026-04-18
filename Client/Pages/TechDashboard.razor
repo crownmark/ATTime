@@ -21,7 +21,9 @@
 <RadzenColumn SizeLG="6">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
         <RadzenChip Text="Tech: Mark Williams" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
-<RadzenChip Text="Status: Available" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
+<RadzenChip Text="Status: Available" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined">
+   
+</RadzenChip>
 <RadzenButton Text="New Ticket" Icon="add" Variant="Radzen.Variant.Filled" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@NewTicketButtonClick"></RadzenButton>
     
     </RadzenStack>
@@ -149,13 +151,46 @@
                 <RadzenStack Style="width: 100%" Gap="10" Wrap="Radzen.FlexWrap.Wrap">
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" Style="padding-top: 4px; padding-bottom: 4px; padding-right: 4px; padding-left: 4px; margin-bottom: 5px; min-height: 40px; max-height: 150px">
                         <RadzenButton Size="Radzen.ButtonSize.Medium" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click" MouseEnter="RefreshTicketsButtonMouseEnter" MouseLeave="RefreshTicketsButtonMouseLeave"></RadzenButton>
-                        <RadzenChip Text="@($"Scheduled Today ({scheduledTodayTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@ScheduledTodayChip3Click" Selected="@scheduledTodayTickets" Style="min-height: 40px"></RadzenChip>
-                        <RadzenChip Text="@($"Need To Schedule ({unscheduledTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@UnScheduledTodayChip3Click" Selected="@unscheduledTickets" Style="min-height: 40px"></RadzenChip>
-                        <RadzenChip Text="@($"Overdue ({overdueTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@OverdueChip6Click" Selected="@overdueTickets" Style="min-height: 40px"></RadzenChip>
-                        <RadzenChip Text="@($"In My Court ({inMyCourtTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Selected="@inMyCourtTickets" Click="@InMyCourtChip3Click" Style="min-height: 40px"></RadzenChip>
-                        <RadzenChip Text="@($"New ({newTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@NewTicketsChip4Click" Selected="@newTickets"></RadzenChip>
-                        <RadzenChip Text="@($"Waiting ({waitingTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@WaitingTicketsChip5Click" Selected="@waitingTickets"></RadzenChip>
-                        <RadzenChip Text="@($"All Open ({openTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@AllOpenTicketsChip2Click" Selected="@openTickets" Style="min-height: 40px"></RadzenChip>
+                        <RadzenChip Text="@($"Scheduled Today ({scheduledTodayTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@ScheduledTodayChip3Click" Selected="@scheduledTodayTickets" Style="min-height: 40px">
+                             <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="4" Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Scheduled Today" />
+                                <RadzenBadge Text="@scheduledTodayTicketsCount.ToString()" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true"></RadzenBadge>
+                            </RadzenStack>
+                        </RadzenChip>
+                        <RadzenChip Text="@($"Need To Schedule ({unscheduledTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@UnScheduledTodayChip3Click" Selected="@unscheduledTickets" Style="min-height: 40px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="4" Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Need To Schedule" />
+                                <RadzenBadge Text="@unscheduledTicketsCount.ToString()" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true"></RadzenBadge>
+                            </RadzenStack></RadzenChip>
+                        <RadzenChip Text="@($"Overdue ({overdueTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@OverdueChip6Click" Selected="@overdueTickets" Style="min-height: 40px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="4" Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Overdue" />
+                                <RadzenBadge Text="@overdueTicketsCount.ToString()" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true"></RadzenBadge>
+                            </RadzenStack></RadzenChip>
+                        <RadzenChip Text="@($"In My Court ({inMyCourtTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Selected="@inMyCourtTickets" Click="@InMyCourtChip3Click" Style="min-height: 40px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="4" Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="In My Court" />
+                                <RadzenBadge Text="@inMyCourtTicketsCount.ToString()" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true"></RadzenBadge>
+                            </RadzenStack>
+                        </RadzenChip>
+                        <RadzenChip Text="@($"New ({newTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@NewTicketsChip4Click" Selected="@newTickets">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="4" Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="New" />
+                                <RadzenBadge Text="@newTicketsCount.ToString()" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true"></RadzenBadge>
+                            </RadzenStack>
+                        </RadzenChip>
+                        <RadzenChip Text="@($"Waiting ({waitingTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@WaitingTicketsChip5Click" Selected="@waitingTickets">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="4" Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Waiting" />
+                                <RadzenBadge Text="@waitingTicketsCount.ToString()" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true"></RadzenBadge>
+                            </RadzenStack>
+                        </RadzenChip>
+                        <RadzenChip Text="@($"All Open ({openTicketsCount})")" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@AllOpenTicketsChip2Click" Selected="@openTickets" Style="min-height: 40px">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="4" Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="All Open" />
+                                <RadzenBadge Text="@openTicketsCount.ToString()" Variant="Radzen.Variant.Outlined" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true"></RadzenBadge>
+                            </RadzenStack>
+                        </RadzenChip>
 
                     </RadzenStack>
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Style="width: 100%;  padding-bottom: 5px">
@@ -305,7 +340,7 @@
                 <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
 
                     <ChildContent>
-                        <RadzenDataGrid Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start < DateTime.Today))" RowSelect="@OverdueDataGrid2RowSelect">
+                        <RadzenDataGrid IsLoading="calendarGridLoading" @ref="overdueEventsGrid" LoadData="CalendarDataGrid1LoadData" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start < DateTime.Today))" RowSelect="@OverdueDataGrid2RowSelect">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
                                     <Template>
@@ -369,7 +404,7 @@
                 </HeaderTemplate>
             
                 <ChildContent>
-                        <RadzenDataGrid @ref="todaysEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today && x.Start <= DateTime.Today.AddDays(1)))" RowSelect="@TodayDataGrid1RowSelect" RowDeselect="@TodayDataGrid2RowDeselect">
+                        <RadzenDataGrid IsLoading="calendarGridLoading" LoadData="CalendarDataGrid1LoadData" @ref="todaysEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today && x.Start <= DateTime.Today.AddDays(1)))" RowSelect="@TodayDataGrid1RowSelect" RowDeselect="@TodayDataGrid2RowDeselect">
                         <Columns>
                                 <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
                                 <Template>
@@ -402,7 +437,7 @@
                         </RadzenRow>
                 </HeaderTemplate>
                 <ChildContent>
-                        <RadzenDataGrid @ref="tomorrowsEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today.AddDays(1) && x.Start <= DateTime.Today.AddDays(2)))" RowClick="@TomorrowDataGrid2RowClick" RowSelect="@TomorrowDataGrid3RowSelect">
+                        <RadzenDataGrid IsLoading="calendarGridLoading" @ref="tomorrowsEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today.AddDays(1) && x.Start <= DateTime.Today.AddDays(2)))" RowClick="@TomorrowDataGrid2RowClick" RowSelect="@TomorrowDataGrid3RowSelect">
                         <Columns>
                                 <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
                                 <Template>
@@ -433,7 +468,7 @@
                         </RadzenRow>
                     </HeaderTemplate>
                     <ChildContent>
-                        <RadzenDataGrid @ref="thirdDayEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today.AddDays(2) && x.Start <= DateTime.Today.AddDays(3)))" RowClick="@Day3DataGrid3RowClick" RowSelect="@Day3DataGrid4RowSelect">
+                        <RadzenDataGrid @ref="thirdDayEventsGrid" LoadData="CalendarDataGrid1LoadData" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today.AddDays(2) && x.Start <= DateTime.Today.AddDays(3)))" RowClick="@Day3DataGrid3RowClick" RowSelect="@Day3DataGrid4RowSelect">
                             <Columns>
                                 <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
                                     <Template>

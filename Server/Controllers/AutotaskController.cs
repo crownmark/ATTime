@@ -299,8 +299,8 @@
 
         }
 
-        [HttpGet("ticketservicecalls/query")]
-        public async Task<IActionResult> GetTicketServiceCalls([FromQuery] string search)
+        [HttpGet("serviceCallTickets/query")]
+        public async Task<IActionResult> GetServiceCallTickets([FromQuery] string search)
         {
             try
             {
@@ -341,10 +341,10 @@
                     filter = ServiceCallTicketResourceFilter,
                     MaxRecords = 500
                 };
-
+                //Errors Here
                 var serviceCallTicketResourcecurrentSearch = JsonSerializer.Serialize(scTicketResourceObject);
                 var serviceCallTicketResourceencodedSearch = Uri.EscapeDataString(serviceCallTicketResourcecurrentSearch);
-                var serviceCallTicketResourceresponse = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={serviceCallTicketResourcecurrentSearch}");
+                var serviceCallTicketResourceresponse = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={serviceCallTicketResourceencodedSearch}");
 
                 var serviceCallTicketResourcecontent = await serviceCallTicketResourceresponse.Content.ReadAsStringAsync();
                 var serviceCallTicketResources = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicketResource>>(serviceCallTicketResourcecontent);
@@ -1544,7 +1544,7 @@
 
 
         [HttpGet("tickets/query")]
-        public async Task<IActionResult> GetTickes([FromQuery] string search)
+        public async Task<IActionResult> GetTickets([FromQuery] string search)
         {
             try
             {
@@ -1557,7 +1557,39 @@
                 var encodedSearch = Uri.EscapeDataString(search);
                 var response = await _http.GetAsync($"v1.0/Tickets/query?search={encodedSearch}");
                 var content = await response.Content.ReadAsStringAsync();
+                var ticketsResult = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketDtoResult.Item>>(content);
 
+
+                //Get secondary resources
+                var ticketIds = ticketsResult.Items.Select(x => x.id).ToArray();
+
+
+                var ServiceCallTicketResourceFilter = new List<object>
+                {
+                    new { op = "in", field = "ticketID", value = ticketIds },
+                };
+                var ticketSecondaryResourcesObject = new
+                {
+                    filter = ServiceCallTicketResourceFilter,
+                    MaxRecords = 500
+                };
+
+                var ticketSecondaryResourcesSearch = JsonSerializer.Serialize(ticketSecondaryResourcesObject);
+                var ticketSecondaryResourcesEncodedSearch = Uri.EscapeDataString(ticketSecondaryResourcesSearch);
+                var ticketSecondaryResourcesResponse = await _http.GetAsync($"v1.0/TicketSecondaryResources/query?search={ticketSecondaryResourcesEncodedSearch}");
+
+                var ticketSecondaryResourcesContent = await ticketSecondaryResourcesResponse.Content.ReadAsStringAsync();
+                var ticketSecondaryResources = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(ticketSecondaryResourcesContent);
+
+                foreach ( var item in ticketsResult.Items)
+                {
+                    var resourceIds = ticketSecondaryResources.Items
+                    .Where(x => x.ticketID == item.id)
+                    .Select(x => x.resourceID.ToString());
+
+                    item.secondaryResources = string.Join(",", resourceIds);
+
+                }
                 return Content(content, "application/json");
             }
             catch (Exception ex)
