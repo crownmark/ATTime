@@ -98,16 +98,18 @@ namespace CrownATTime.Client.Pages
                 
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
                 resource = resourceResult.Value.FirstOrDefault();
-                myTimeEntriesGridLoading = true;
-                myTicketsGridLoading = true;
-                await ReloadTicketsFromAutotask();
                 var queueResult = await ATTimeService.GetTicketEntityPicklistValueCaches(filter: $"PicklistName eq 'queueID'", orderby: "Label");
                 queues = queueResult.Value.ToList();
-                await myTimeEntriesGrid.Reload();
+                //myTimeEntriesGridLoading = true;
+                //myTicketsGridLoading = true;
+                myTimeEntriesGrid.Reload();
+
+                ReloadTicketsFromAutotask();
+                
+                //myTimeEntriesGridLoading = false;
+                //myTicketsGridLoading = false;
+                overdueEventsGrid.Reload();
                 DialogManager.OnChange += StateHasChanged;
-                myTimeEntriesGridLoading = false;
-                myTicketsGridLoading = false;
-                await overdueEventsGrid.Reload();
 
 
             }
@@ -247,7 +249,7 @@ namespace CrownATTime.Client.Pages
                 }
                 else if (scheduledTodayTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1));
+                    var filteredTickets = ticketResults.Where(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1)).OrderBy(x => x.ServiceCallScheduledDate);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if(unscheduledTickets)
@@ -688,6 +690,21 @@ namespace CrownATTime.Client.Pages
             }
         }
 
+        protected async System.Threading.Tasks.Task CalendarGridRefreshButton1Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await overdueEventsGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task CalendarRefreshButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Open(args, "Reload Calendar Data");
+
+        }
+
+        protected async System.Threading.Tasks.Task CalendarRefreshButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
+        {
+            TooltipService.Close();
+        }
         protected async System.Threading.Tasks.Task AddTimeEntryButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
         {
             TooltipService.Open(args, "Create a Time Entry");
