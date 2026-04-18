@@ -51,83 +51,22 @@ namespace CrownATTime.Client.Pages
         protected RadzenDataGrid<TicketDtoResult.Item> myTicketsGrid;
 
         protected string myTicketsSearch = "";
-        protected bool openTickets { get; set; } = true;
+        protected bool openTickets { get; set; }
+        protected int openTicketsCount { get; set; }
         protected bool newTickets {  get; set; }
+        protected int newTicketsCount {  get; set; }
         protected bool overdueTickets {  get; set; }
-        protected bool scheduledTodayTickets {  get; set; }
+        protected int overdueTicketsCount { get; set; }
+        protected bool scheduledTodayTickets { get; set; } = true;
+        protected int scheduledTodayTicketsCount { get; set; }
         protected bool waitingTickets {  get; set; }
+        protected int waitingTicketsCount { get; set; }
+
         protected bool inMyCourtTickets {  get; set; }
+        protected int inMyCourtTicketsCount { get; set; }
 
-        
-        public class CalendarItemSample
-        {
-            public int Id { get; set; }
-            public DateTime Start { get; set; }
-            public int DurationMinutes { get; set; }
-            public string Title { get; set; }
-            public string Type { get; set; } // Meeting, Ticket, Internal
-            public string TicketNumber { get; set; }
-        }
-        public List<CalendarItemSample> CalendarItems = new()
-        {
-            // TODAY
-            new CalendarItemSample
-            {
-                Id = 1,
-                Start = DateTime.Today.AddHours(9),
-                DurationMinutes = 15,
-                Title = "Daily Dispatch Review",
-                Type = "Meeting"
-            },
-            new CalendarItemSample
-            {
-                Id = 2,
-                Start = DateTime.Today.AddHours(11),
-                DurationMinutes = 60,
-                Title = "Printer Mapping Issue",
-                Type = "Onsite Support",
-                TicketNumber = "T20260412.0010"
-            },
-            new CalendarItemSample
-            {
-                Id = 3,
-                Start = DateTime.Today.AddHours(14.5),
-                DurationMinutes = 45,
-                Title = "Backup Verification Alert Review",
-                Type = "Flexible Support",
-                TicketNumber = "T20260411.0098"
-            },
-
-            // TOMORROW
-            new CalendarItemSample
-            {
-                Id = 4,
-                Start = DateTime.Today.AddDays(1).AddHours(8.5),
-                DurationMinutes = 60,
-                Title = "Firewall Rule Review",
-                Type = "Meeting"
-            },
-            new CalendarItemSample
-            {
-                Id = 5,
-                Start = DateTime.Today.AddDays(1).AddHours(10),
-                DurationMinutes = 60,
-                Title = "New User Setup Validation",
-                Type = "Remote Support",
-                TicketNumber = "T20260412.0014"
-            },
-
-            // DAY 3
-            new CalendarItemSample
-            {
-                Id = 6,
-                Start = DateTime.Today.AddDays(2).AddHours(9.5),
-                DurationMinutes = 60,
-                Title = "Wi-Fi Troubleshooting",
-                Type = "Onsite Support",
-                TicketNumber = "T20260410.0082"
-            }
-        };
+        protected bool unscheduledTickets {  get; set; }
+        protected int unscheduledTicketsCount { get; set; }
 
         protected ResourceCache resource {  get; set; }
         protected List<TicketEntityPicklistValueCache> queues { get; set; }
@@ -141,7 +80,17 @@ namespace CrownATTime.Client.Pages
 
         protected int timeEntriesCount;
 
-        
+        protected IEnumerable<CrownATTime.Server.Models.CalendarEvent> calendarEvents;
+
+        protected int calendarEventsCount;
+
+        protected RadzenDataGrid<CalendarEvent> overdueEventsGrid;
+        protected RadzenDataGrid<CalendarEvent> todaysEventsGrid;
+        protected RadzenDataGrid<CalendarEvent> tomorrowsEventsGrid;
+        protected RadzenDataGrid<CalendarEvent> thirdDayEventsGrid;
+
+
+
         protected override async Task OnInitializedAsync()
         {
             try
@@ -155,6 +104,8 @@ namespace CrownATTime.Client.Pages
                 queues = queueResult.Value.ToList();
                 await myTimeEntriesGrid.Reload();
                 
+                calendarEvents = await AutotaskService.GetCalendarEventsForResource(resource.Id);
+                calendarEventsCount = calendarEvents.Count();
                 DialogManager.OnChange += StateHasChanged;
                 myTimeEntriesGridLoading = false;
                 myTicketsGridLoading = false;
@@ -194,6 +145,45 @@ namespace CrownATTime.Client.Pages
                 myTicketsGridLoading = false;
             }
         }
+
+        protected void UpdateTicketCounts()
+        {
+            // This method can be used to update any ticket count indicators on the UI based on the current filters
+            // For example, you could set properties like OpenTicketsCount, NewTicketsCount, etc. here by applying the same filters to ticketResults
+            openTicketsCount = ticketResults.Count(x => x.status != 5);
+            newTicketsCount = ticketResults.Count(x => x.status != 5 && x.userDefinedFields.Where(x => x.name == "New Ticket" && x.value == "Yes").Any());
+            overdueTicketsCount = ticketResults.Count(x => x.ServiceCallScheduledDate < DateTime.Now);
+            scheduledTodayTicketsCount = ticketResults.Count(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1));
+            waitingTicketsCount = ticketResults.Count(x =>
+            {
+                var waitingStatuses = new HashSet<int>
+                {
+                    7,
+                    9,
+                    12,
+                    33,
+                    34,
+                    39
+                };
+                return waitingStatuses.Contains(x.status);
+            });
+            inMyCourtTicketsCount = ticketResults.Count(x =>
+            {
+                var waitingStatuses = new HashSet<int>
+                {
+                    5,
+                    7,
+                    9,
+                    12,
+                    33,
+                    34,
+                    39
+                };
+                return !waitingStatuses.Contains(x.status);
+            });
+            unscheduledTicketsCount = ticketResults.Count(x => !x.ServiceCallScheduledDate.HasValue);
+
+        }
         protected async System.Threading.Tasks.Task TicketsDataGrid1LoadData(Radzen.LoadDataArgs args)
         {
             try
@@ -214,12 +204,17 @@ namespace CrownATTime.Client.Pages
                 }
                 else if (overdueTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.dueDateTime < DateTime.Now);
+                    var filteredTickets = ticketResults.Where(x => x.ServiceCallScheduledDate < DateTime.Now);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (scheduledTodayTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.dueDateTime >= DateTime.Today && x.dueDateTime < DateTime.Today.AddDays(1));
+                    var filteredTickets = ticketResults.Where(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1));
+                    myTickets.AddRange(filteredTickets);
+                }
+                else if(unscheduledTickets)
+                {
+                    var filteredTickets = ticketResults.Where(x => !x.ServiceCallScheduledDate.HasValue);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (waitingTickets)
@@ -300,15 +295,15 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        protected async System.Threading.Tasks.Task TodayDataGrid1RowSelect(Pages.TechDashboard.CalendarItemSample args)
+        protected async System.Threading.Tasks.Task TodayDataGrid1RowSelect(CalendarEvent args)
         {
         }
 
-        protected async System.Threading.Tasks.Task TomorrowDataGrid2RowClick(Radzen.DataGridRowMouseEventArgs<Pages.TechDashboard.CalendarItemSample> args)
+        protected async System.Threading.Tasks.Task TomorrowDataGrid2RowClick(Radzen.DataGridRowMouseEventArgs<CalendarEvent> args)
         {
         }
 
-        protected async System.Threading.Tasks.Task Day3DataGrid3RowClick(Radzen.DataGridRowMouseEventArgs<Pages.TechDashboard.CalendarItemSample> args)
+        protected async System.Threading.Tasks.Task Day3DataGrid3RowClick(Radzen.DataGridRowMouseEventArgs<CalendarEvent> args)
         {
         }
 
@@ -342,19 +337,19 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        protected async System.Threading.Tasks.Task TomorrowDataGrid3RowSelect(Pages.TechDashboard.CalendarItemSample args)
+        protected async System.Threading.Tasks.Task TomorrowDataGrid3RowSelect(CalendarEvent args)
         {
         }
 
-        protected async System.Threading.Tasks.Task Day3DataGrid4RowSelect(Pages.TechDashboard.CalendarItemSample args)
+        protected async System.Threading.Tasks.Task Day3DataGrid4RowSelect(CalendarEvent args)
         {
         }
 
-        protected async System.Threading.Tasks.Task TodayDataGrid2RowDeselect(Pages.TechDashboard.CalendarItemSample args)
+        protected async System.Threading.Tasks.Task TodayDataGrid2RowDeselect(CalendarEvent args)
         {
         }
 
-        protected async System.Threading.Tasks.Task OverdueDataGrid2RowSelect(Pages.TechDashboard.CalendarItemSample args)
+        protected async System.Threading.Tasks.Task OverdueDataGrid2RowSelect(CalendarEvent args)
         {
         }
 
@@ -366,6 +361,8 @@ namespace CrownATTime.Client.Pages
             scheduledTodayTickets = false;
             waitingTickets = false;
             inMyCourtTickets = false;
+            unscheduledTickets = false;
+
             await myTicketsGrid.Reload();
         }
 
@@ -377,7 +374,19 @@ namespace CrownATTime.Client.Pages
             scheduledTodayTickets = true;
             waitingTickets = false;
             inMyCourtTickets = false;
+            unscheduledTickets = false;
+            await myTicketsGrid.Reload();
 
+        }
+        protected async System.Threading.Tasks.Task UnScheduledTodayChip3Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            openTickets = false;
+            newTickets = false;
+            overdueTickets = false;
+            scheduledTodayTickets = false;
+            waitingTickets = false;
+            inMyCourtTickets = false;
+            unscheduledTickets = true;
             await myTicketsGrid.Reload();
 
         }
@@ -390,6 +399,7 @@ namespace CrownATTime.Client.Pages
             scheduledTodayTickets = false;
             waitingTickets = false;
             inMyCourtTickets = false;
+            unscheduledTickets = false;
 
             await myTicketsGrid.Reload();
 
@@ -403,6 +413,7 @@ namespace CrownATTime.Client.Pages
             scheduledTodayTickets = false;
             waitingTickets = true;
             inMyCourtTickets = false;
+            unscheduledTickets = false;
 
             await myTicketsGrid.Reload();
 
@@ -416,6 +427,7 @@ namespace CrownATTime.Client.Pages
             scheduledTodayTickets = false;
             waitingTickets = false;
             inMyCourtTickets = false;
+            unscheduledTickets = false;
 
             await myTicketsGrid.Reload();
 
@@ -429,8 +441,9 @@ namespace CrownATTime.Client.Pages
             scheduledTodayTickets = false;
             waitingTickets = false;
             inMyCourtTickets = true;
-
+            unscheduledTickets = false;
             await myTicketsGrid.Reload();
+
         }
 
         protected async System.Threading.Tasks.Task TicketSearchTextBox0Change(System.String args)

@@ -18,7 +18,11 @@
         public DateTime lastModifiedDateTime { get; set; }
         public DateTime startDateTime { get; set; }
         public int status { get; set; }
+
+        // custom properties
         public int? ticketId { get; set; }
+        public int assignedToResourceId { get; set; }
+
 
     }
 }

@@ -11,6 +11,7 @@
     using Microsoft.Graph.Models.Security;
     using Microsoft.IdentityModel.Logging;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Net.Http;
     using System.Text;
     using System.Text.Json;
@@ -137,6 +138,30 @@
             }
         }
 
+        [HttpGet("appointments/query")]
+        public async Task<IActionResult> GetAppointments([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/Appointments/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching appointments: {ex.Message}");
+            }
+
+        }
+
         [HttpGet("servicecalls/query")]
         public async Task<IActionResult> GetServiceCalls([FromQuery] string search)
         {
@@ -161,6 +186,119 @@
 
         }
 
+        [HttpGet("servicecallTicketResources/query")]
+        public async Task<IActionResult> GetTicketResourceServiceCalls([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var ticketResourceServiceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicketResource>>(content);
+
+
+                //Get ServiceCallTicketResources
+
+                var serviceCallTicketIds = ticketResourceServiceCalls.Items.Select(x => x.serviceCallTicketID).ToArray();
+
+
+                var ServiceCallTicketFilter = new List<object>
+                {
+                    new { op = "in", field = "id", value = serviceCallTicketIds },
+                };
+                var scTicketResourceObject = new
+                {
+                    filter = ServiceCallTicketFilter,
+                    MaxRecords = 500
+                };
+
+                var serviceCallTicketSearch = JsonSerializer.Serialize(scTicketResourceObject);
+                var serviceCallTicketencodedSearch = Uri.EscapeDataString(serviceCallTicketSearch);
+                var serviceCallTicketresponse = await _http.GetAsync($"v1.0/ServiceCallTickets/query?search={serviceCallTicketencodedSearch}");
+
+                var serviceCallTicketcontent = await serviceCallTicketresponse.Content.ReadAsStringAsync();
+                var serviceCallTickets = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicket>>(serviceCallTicketcontent);
+
+                //Get Service Calls
+                var serviceCallIds = serviceCallTickets.Items.Select(x => x.serviceCallID).ToArray();
+
+                var ServiceCallFilter = new List<object>
+                {
+                    new { op = "in", field = "id", value = serviceCallIds },
+                };
+                var scObject = new
+                {
+                    filter = ServiceCallFilter,
+                    MaxRecords = 500
+                };
+
+                var serviceCallSearch = JsonSerializer.Serialize(scObject);
+                var serviceCallencodedSearch = Uri.EscapeDataString(serviceCallSearch);
+                var serviceCallresponse = await _http.GetAsync($"v1.0/ServiceCalls/query?search={serviceCallencodedSearch}");
+
+                var serviceCallcontent = await serviceCallTicketresponse.Content.ReadAsStringAsync();
+                var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
+
+
+                // ----------------------------------------------------
+                // Build lookup: serviceCallID → ticketID
+                // ----------------------------------------------------
+                var lookupServiceCall = serviceCallTickets.Items
+                    .GroupBy(x => x.serviceCallID)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => x.ticketID).FirstOrDefault() // or ToList() if needed
+                    );
+
+
+                // ----------------------------------------------------
+                // Merge TicketId into ServiceCalls
+                // ----------------------------------------------------
+                var resultItems = serviceCalls.Items.Where(x => x.isComplete == 0).Select(sc => new ServiceCall
+                {
+                    id = sc.id,
+                    companyID = sc.companyID,
+                    companyLocationID = sc.companyLocationID,
+                    createDateTime = sc.createDateTime,
+                    creatorResourceID = sc.creatorResourceID,
+                    description = sc.description,
+                    duration = sc.duration,
+                    endDateTime = sc.endDateTime,
+                    impersonatorCreatorResourceID = sc.impersonatorCreatorResourceID,
+                    isComplete = sc.isComplete,
+                    lastModifiedDateTime = sc.lastModifiedDateTime,
+                    startDateTime = sc.startDateTime,
+                    status = sc.status,
+
+                    // copy other properties as needed...
+
+                    ticketId = lookupServiceCall.ContainsKey(sc.id)
+                        ? lookupServiceCall[sc.id]
+                        : null,
+                }).ToList();
+
+                var result = new AutotaskItemsResponse<ServiceCall>
+                {
+                    Items = resultItems,
+                    PageDetails = serviceCalls.PageDetails
+                };
+
+
+                return Content(JsonSerializer.Serialize(result), "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching service calls: {ex.Message}");
+            }
+
+        }
+
         [HttpGet("ticketservicecalls/query")]
         public async Task<IActionResult> GetTicketServiceCalls([FromQuery] string search)
         {
@@ -176,9 +314,85 @@
                 var response = await _http.GetAsync($"v1.0/ServiceCallTickets/query?search={encodedSearch}");
                 var content = await response.Content.ReadAsStringAsync();
                 var ticketServiceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicket>>(content);
+
+                // ----------------------------------------------------
+                // Build lookup: serviceCallID → ticketID
+                // ----------------------------------------------------
+                var lookupServiceCall = ticketServiceCalls.Items
+                    .GroupBy(x => x.serviceCallID)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => x.ticketID).FirstOrDefault() // or ToList() if needed
+                    );
+
                 var serviceCallIds = ticketServiceCalls.Items.Select(x => x.serviceCallID).ToArray();
 
-                //Get service calls
+                //Get ServiceCallTicketResources
+                
+                var serviceCallTicketIds = ticketServiceCalls.Items.Select(x => x.id).ToArray();
+
+                
+                var ServiceCallTicketResourceFilter = new List<object>
+                {
+                    new { op = "in", field = "serviceCallTicketID", value = serviceCallTicketIds },
+                };
+                var scTicketResourceObject = new
+                {
+                    filter = ServiceCallTicketResourceFilter,
+                    MaxRecords = 500
+                };
+
+                var serviceCallTicketResourcecurrentSearch = JsonSerializer.Serialize(scTicketResourceObject);
+                var serviceCallTicketResourceencodedSearch = Uri.EscapeDataString(serviceCallTicketResourcecurrentSearch);
+                var serviceCallTicketResourceresponse = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={serviceCallTicketResourcecurrentSearch}");
+
+                var serviceCallTicketResourcecontent = await serviceCallTicketResourceresponse.Content.ReadAsStringAsync();
+                var serviceCallTicketResources = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicketResource>>(serviceCallTicketResourcecontent);
+
+                // ----------------------------------------------------
+                // Build lookup: serviceCallTicketId > ServiceCallId
+                // ----------------------------------------------------
+                var serviceCallTicketAndResourceLookup = new List<ServiceCallTicketAndResource>();
+
+
+                
+                foreach (var item in ticketServiceCalls.Items)
+                {
+                    serviceCallTicketAndResourceLookup.Add(new ServiceCallTicketAndResource()
+                    {
+                        ticketID = item.ticketID,
+                        serviceCallID = item.serviceCallID,
+                        serviceCallTicketID = item.id
+                    });
+                }
+                foreach (var item in serviceCallTicketResources.Items)
+                {
+                    var serviceCallsList = serviceCallTicketAndResourceLookup.Where(x => x.serviceCallTicketID == item.serviceCallTicketID).FirstOrDefault();
+                    if(serviceCallsList != null)
+                    {
+                        serviceCallsList.resourceID = item.resourceID;
+                        serviceCallsList.serviceCallTicketResourceID = item.id;
+                    }
+                }
+
+                var lookupServiceResource =
+                    (from sct in ticketServiceCalls.Items
+                     join sctr in serviceCallTicketResources.Items
+                         on sct.id equals sctr.serviceCallTicketID
+                     select new ServiceCallTicketAndResource
+                     {
+                         serviceCallTicketID = sct.id,
+                         serviceCallID = sct.serviceCallID,
+                         ticketID = sct.ticketID,
+
+                         serviceCallTicketResourceID = sctr.id,
+                         resourceID = sctr.resourceID
+                     })
+                    .ToList();
+
+                
+
+                //Get Service Calls
                 var filters = new List<object>
                 {
                     new { op = "in", field = "id", value = serviceCallIds },
@@ -196,28 +410,42 @@
                 var serviceCallcontent = await serviceCallresponse.Content.ReadAsStringAsync();
                 var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
 
-                //// Build lookup: serviceCallId → ticketId
-                //var ticketLookup = ticketServiceCalls.Items
-                //    .GroupBy(x => x.serviceCallID)
-                //    .ToDictionary(
-                //        g => g.Key,
-                //        g => g.Select(x => x.ticketID).FirstOrDefault() // or handle multiples if needed
-                //    );
+                // ----------------------------------------------------
+                // Merge TicketId into ServiceCalls
+                // ----------------------------------------------------
+                var resultItems = serviceCalls.Items.Where(x => x.isComplete == 0).Select(sc => new ServiceCall
+                {
+                    id = sc.id,
+                    companyID = sc.companyID,
+                    companyLocationID = sc.companyLocationID,
+                    createDateTime = sc.createDateTime,
+                    creatorResourceID = sc.creatorResourceID,
+                    description = sc.description,
+                    duration = sc.duration,
+                    endDateTime = sc.endDateTime,
+                    impersonatorCreatorResourceID = sc.impersonatorCreatorResourceID,
+                    isComplete = sc.isComplete,
+                    lastModifiedDateTime = sc.lastModifiedDateTime,
+                    startDateTime = sc.startDateTime,
+                    status = sc.status,
 
-                //// Merge into ServiceCalls
-                //var result = serviceCalls.Items.Select(sc => new ServiceCallWithTicketId
-                //{
-                //    // Copy base properties
-                //    id = sc.id,
-                //    // map all other properties as needed...
+                    // copy other properties as needed...
 
-                //    // Inject TicketId
-                //    TicketId = ticketLookup.ContainsKey(sc.id)
-                //        ? ticketLookup[sc.id]
-                //        : null
-                //}).ToList();
+                    //ticketId = lookupServiceCall.ContainsKey(sc.id)
+                    //    ? lookupServiceCall[sc.id]
+                    //    : null,
+                    ticketId = lookupServiceResource.Where(x => x.serviceCallID == sc.id).Any() ? lookupServiceResource.Where(x => x.serviceCallID == sc.id).FirstOrDefault().ticketID : null,
+                    assignedToResourceId = lookupServiceResource.Where(x => x.serviceCallID == sc.id).Any() ? lookupServiceResource.Where(x => x.serviceCallID == sc.id).FirstOrDefault().resourceID : 0
+                }).ToList();
 
-                return Content(serviceCallcontent, "application/json");
+                var result = new AutotaskItemsResponse<ServiceCall>
+                {
+                    Items = resultItems,
+                    PageDetails = serviceCalls.PageDetails
+                };
+
+
+                return Content(JsonSerializer.Serialize(result), "application/json");
             }
             catch (Exception ex)
             {
@@ -825,6 +1053,28 @@
                 return StatusCode(500, $"Error fetching resources: {ex.Message}");
             }
 
+        }
+        [HttpGet("tickets/secondaryresources/query")]
+        public async Task<IActionResult> GetTicketSecondaryResources([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/TicketSecondaryResources/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching resources: {ex.Message}");
+            }
         }
 
         [HttpGet("tickets/resources/{id:long}")]

@@ -85,6 +85,7 @@ namespace CrownATTime.Server.Models
             public string title { get; set; }
             public Userdefinedfield[] userDefinedFields { get; set; }
 
+            //Custom properties
             public string companyName { get; set; }
             public string contactName { get; set; }
             public string priorityName { get; set; }
@@ -93,6 +94,8 @@ namespace CrownATTime.Server.Models
             public string primaryResourceName { get; set; }
             public string secondaryResourceNames { get; set; }
             public DateTime? ServiceCallScheduledDate { get; set; }
+
+            public int? ServiceCallAssignedTo { get; set; }
         }
 
         public class Userdefinedfield
