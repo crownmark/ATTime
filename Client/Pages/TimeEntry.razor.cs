@@ -1689,7 +1689,7 @@ namespace CrownATTime.Client.Pages
                 if(await DialogService.Confirm("Are you sure you want to delete this Time Entry?", "Delete Time Entry", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = true }, null) == true)
                 {
                     await ATTimeService.DeleteTimeEntry(timeEntryRecord.TimeEntryId);
-
+                    timeEntryRecord.IsCompleted = true;
                     DialogService.Close();
                     await JSRuntime.InvokeVoidAsync(
                                 "eval",

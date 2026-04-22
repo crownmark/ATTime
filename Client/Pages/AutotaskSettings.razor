@@ -26,6 +26,14 @@
 <RadzenRow>
             <RadzenColumn SizeLG="6">
                 <RadzenStack>
+                    <RadzenLabel Text="Action Types" />
+                    <RadzenButton Text="Re-Sync Action Types" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@ActionTypesButtonClick" BusyText="Syncing Action Types" IsBusy="@syncingActionTypes"></RadzenButton>
+                </RadzenStack>
+                
+            </RadzenColumn>
+            <RadzenColumn SizeLG="6">
+                
+                <RadzenStack>
                     <RadzenLabel Text="Billing Codes" />
                     <RadzenButton Text="Re-Sync Billing Codes" Icon="refresh" Variant="Radzen.Variant.Outlined" Style="width: 300px" Click="@BillingCodesButtonClick" BusyText="Syncing Billing Codes" IsBusy="@syncingBillingCodes"></RadzenButton>
                 </RadzenStack>

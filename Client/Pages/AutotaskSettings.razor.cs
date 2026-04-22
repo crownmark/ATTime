@@ -44,6 +44,7 @@ namespace CrownATTime.Client.Pages
         protected bool syncingTicketFields { get; set; }
         protected bool syncingTicketNoteFields { get; set; }
         protected bool syncingBillingCodes { get; set; }
+        protected bool syncingActionTypes { get; set; }
         protected bool syncingRoles { get; set; }
         protected bool syncingResources { get; set; }
         protected bool syncingServiceDeskRoles { get; set; }
@@ -51,6 +52,24 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task CredentialsButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
+        }
+
+        protected async System.Threading.Tasks.Task ActionTypesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                syncingActionTypes = true;
+                await AutotaskService.SyncActionTypes();
+                syncingActionTypes = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Action Types Synced" });
+
+            }
+            catch (Exception ex)
+            {
+                syncingActionTypes = false;
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}" });
+
+            }
         }
 
         protected async System.Threading.Tasks.Task BillingCodesButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)

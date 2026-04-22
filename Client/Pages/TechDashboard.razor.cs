@@ -363,6 +363,8 @@ namespace CrownATTime.Client.Pages
                         { "TicketId", args.TicketId.ToString() }
                     }
                 );
+
+                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
             }
             catch (Exception ex)
             {
@@ -387,7 +389,9 @@ namespace CrownATTime.Client.Pages
                     }
                 );
                 }
-                
+                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+
             }
             catch (Exception ex)
             {
@@ -412,6 +416,8 @@ namespace CrownATTime.Client.Pages
                     }
                 );
                 }
+                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
 
             }
             catch (Exception ex)
@@ -436,6 +442,8 @@ namespace CrownATTime.Client.Pages
                     }
                 );
                 }
+                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
 
             }
             catch (Exception ex)
@@ -466,6 +474,8 @@ namespace CrownATTime.Client.Pages
                     }
                 );
                 }
+                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
 
             }
             catch (Exception ex)
@@ -619,6 +629,8 @@ namespace CrownATTime.Client.Pages
                         { "TicketId", data.id.ToString() }
                     }
                 );
+                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
                 //await DialogService.OpenAsync<TimeEntry>("Time Entry", new Dictionary<string, object>() { { "TicketId", data.id.ToString() } }, new DialogOptions() { CloseDialogOnOverlayClick = true, Width = "90%" });
 
                 //await myTimeEntriesGrid.Reload();

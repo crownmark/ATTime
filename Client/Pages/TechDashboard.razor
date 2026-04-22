@@ -128,9 +128,7 @@
             </HeaderTemplate>
             <ChildContent>
 
-                <RadzenStack Style="padding-bottom: 5px" ">
 
-                </RadzenStack>
                 <RadzenDataGrid @ref="@myTimeEntriesGrid" TItem="@CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntries" RowSelect="@TimeEntryDataGrid0RowSelect" LoadData="@TimeEntriesDataGrid0LoadData" IsLoading="@myTimeEntriesGridLoading">
                     <Columns>
                         <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry">
@@ -374,7 +372,7 @@
                                     <Template>
                                         <RadzenStack Style="@($"border-radius: 4px; width: 100%; padding:5px; {(context.EventType.Contains("Flexible") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Remote") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Onsite") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Service Call") ? "background-color: var(--rz-primary-darker)" : "")}")" Orientation="Radzen.Orientation.Horizontal">
                                             <RadzenStack>
-                                                <RadzenLabel Text="@context.Start.ToLocalTime().ToString("h:mm tt")" Style="color: var(--rz-primary)" />
+                                                <RadzenLabel Text="@context.Start.ToLocalTime().ToString("MM-dd-yyyy h:mm tt")" Style="color: var(--rz-primary)" />
                                                 <RadzenIcon Icon="confirmation_number" Visible="@(context.EventType.Contains("Flexible") || context.EventType.Contains("Remote") || context.EventType.Contains("Service Call"))" />
                                                 <RadzenIcon Icon="local_shipping" Visible="@(context.EventType.Contains("Onsite"))" />
                                             </RadzenStack>
@@ -624,3 +622,14 @@
             background: #3a3a3a;
         }
 </style>
+
+<script>
+    window.scrollToTopBlazor = () => {
+        const el = document.querySelector(".rz-body"); // adjust if needed
+        if (el) {
+            el.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+</script>

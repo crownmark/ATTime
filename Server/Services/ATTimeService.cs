@@ -3686,5 +3686,167 @@ namespace CrownATTime.Server
 
             return itemToDelete;
         }
+    
+        public async Task ExportActionTypesCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/actiontypescaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/actiontypescaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportActionTypesCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/actiontypescaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/actiontypescaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnActionTypesCachesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.ActionTypesCache> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.ActionTypesCache>> GetActionTypesCaches(Query query = null)
+        {
+            var items = Context.ActionTypesCaches.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnActionTypesCachesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnActionTypesCacheGet(CrownATTime.Server.Models.ATTime.ActionTypesCache item);
+        partial void OnGetActionTypesCacheById(ref IQueryable<CrownATTime.Server.Models.ATTime.ActionTypesCache> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.ActionTypesCache> GetActionTypesCacheById(int id)
+        {
+            var items = Context.ActionTypesCaches
+                              .AsNoTracking()
+                              .Where(i => i.Id == id);
+
+ 
+            OnGetActionTypesCacheById(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnActionTypesCacheGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnActionTypesCacheCreated(CrownATTime.Server.Models.ATTime.ActionTypesCache item);
+        partial void OnAfterActionTypesCacheCreated(CrownATTime.Server.Models.ATTime.ActionTypesCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ActionTypesCache> CreateActionTypesCache(CrownATTime.Server.Models.ATTime.ActionTypesCache actiontypescache)
+        {
+            OnActionTypesCacheCreated(actiontypescache);
+
+            var existingItem = Context.ActionTypesCaches
+                              .Where(i => i.Id == actiontypescache.Id)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.ActionTypesCaches.Add(actiontypescache);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(actiontypescache).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterActionTypesCacheCreated(actiontypescache);
+
+            return actiontypescache;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.ActionTypesCache> CancelActionTypesCacheChanges(CrownATTime.Server.Models.ATTime.ActionTypesCache item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnActionTypesCacheUpdated(CrownATTime.Server.Models.ATTime.ActionTypesCache item);
+        partial void OnAfterActionTypesCacheUpdated(CrownATTime.Server.Models.ATTime.ActionTypesCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ActionTypesCache> UpdateActionTypesCache(int id, CrownATTime.Server.Models.ATTime.ActionTypesCache actiontypescache)
+        {
+            OnActionTypesCacheUpdated(actiontypescache);
+
+            var itemToUpdate = Context.ActionTypesCaches
+                              .Where(i => i.Id == actiontypescache.Id)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(actiontypescache).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterActionTypesCacheUpdated(actiontypescache);
+
+            return actiontypescache;
+        }
+
+        partial void OnActionTypesCacheDeleted(CrownATTime.Server.Models.ATTime.ActionTypesCache item);
+        partial void OnAfterActionTypesCacheDeleted(CrownATTime.Server.Models.ATTime.ActionTypesCache item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ActionTypesCache> DeleteActionTypesCache(int id)
+        {
+            var itemToDelete = Context.ActionTypesCaches
+                              .Where(i => i.Id == id)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnActionTypesCacheDeleted(itemToDelete);
+
+            Reset();
+
+            Context.ActionTypesCaches.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterActionTypesCacheDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
         }
 }

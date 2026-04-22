@@ -1,4 +1,4 @@
-﻿namespace CrownATTime.Server.Models
+namespace CrownATTime.Server.Models
 {
     public class AttachmentDtoResult
     {

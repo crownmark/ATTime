@@ -80,6 +80,7 @@ namespace CrownATTime.Server.Services
         private async Task RunHourlyJob()
         {
             Console.WriteLine($"Running hourly job at {DateTime.Now}");
+            await SyncActionTypes();
             await SyncBillingCodes();
             await SyncCompanies();
             await SyncContracts();
@@ -93,7 +94,37 @@ namespace CrownATTime.Server.Services
             // your logic here
 
         }
+        public async Task SyncActionTypes()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "gt", field = "id", value = 0 }
 
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri($"{baseUri}actiontypes/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                Console.WriteLine($"AutotaskSyncService SyncBillingCodes error: {content}");
+
+            }
+        }
         public async Task SyncBillingCodes()
         {
             var filters = new List<object>

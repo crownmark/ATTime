@@ -326,5 +326,19 @@ namespace CrownATTime.Server.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
         }
+
+        [HttpGet("/export/ATTime/actiontypescaches/csv")]
+        [HttpGet("/export/ATTime/actiontypescaches/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportActionTypesCachesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetActionTypesCaches(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/actiontypescaches/excel")]
+        [HttpGet("/export/ATTime/actiontypescaches/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportActionTypesCachesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetActionTypesCaches(), Request.Query, false), fileName);
+        }
     }
 }

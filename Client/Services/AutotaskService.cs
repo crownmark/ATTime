@@ -1,4 +1,4 @@
-﻿namespace CrownATTime.Client
+namespace CrownATTime.Client
 {
     using CrownATTime.Client.Pages;
     using CrownATTime.Server.Models.ATTime;
@@ -1114,110 +1114,121 @@
 
         public async Task<List<CrownATTime.Server.Models.CalendarEvent>> GetCalendarEventsForResource(int resourceId)
         {
-            var calendarEvents = new List<CalendarEvent>();
-
             try
             {
-                var appointments = await GetAppointmentsForResource(resourceId);
-                foreach (var item in appointments.Items)
-                {
-                    calendarEvents.Add(new CalendarEvent
-                    {
-                        AppointmentId = item.id,
-                        Title = item.title,
-                        Start = item.startDateTime,
-                        End = item.endDateTime,
-                        Description = item.description,
-                        EventType = "Appointment",
-                        ResourceId = item.resourceID,
-                        CreatedDate = item.createDateTime,
-                        CreatorResourceId = item.creatorResourceID,
-                        IsComplete = false,
-                        UpdatedDate = item.updateDateTime,
-                    });
-                }
-            }
-            catch(Exception ex)
-            {
-
-            }
-
-            try
-            {
-                
-                //var serviceCalls = await GetOpenServiceCallsByRange(DateTime.Today.AddDays(-7), DateTime.Today.AddDays(7));
-                //foreach (var item in serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId))
-                //{
-                //    calendarEvents.Add(new CalendarEvent
-                //    {
-                //        AppointmentId = 0,
-                //        ServiceCallId = item.id,
-                //        Title = $"Service Call",
-                //        Start = item.startDateTime,
-                //        End = item.endDateTime,
-                //        //IsAllDay = false,
-                //        Description = item.description,
-                //        EventType = "ServiceCall",
-                //        ResourceId = item.assignedToResourceId,
-                //        CreatedDate = item.createDateTime,
-                //        CreatorResourceId = item.creatorResourceID,
-                //        IsComplete = Convert.ToBoolean(item.isComplete),
-                //        Status = item.status,
-                //        TicketId = item.ticketId,
-                //        UpdatedDate = item.lastModifiedDateTime,
-
-                //    });
-                //}
-            }
-            catch (Exception ex)
-            {
-
-            }
-            try
-            {
+                var calendarEvents = new List<CalendarEvent>();
                 var openTicketsWithoutServiceCalls = await GetOpenTicketsWithoutServiceCalls();
-                var resource = await _atTimeService.GetResourceCacheById("", resourceId);
-                var openTickets = openTicketsWithoutServiceCalls.Items.Where(x => (x.secondaryResources != null && x.secondaryResources.Contains(resource.FullName)) || x.assignedResourceID == resourceId).ToList();
-                var ticketIds = openTickets.Select(x => x.id).ToList();
-                var serviceCallTickets = await GetServiceCallsForTickets(ticketIds.ToList());
 
-                foreach (var item in serviceCallTickets.Items.Where(x => x.assignedToResourceId == resourceId))
+                try
                 {
-                    string eventTitle = "Service Call";
-                    var tickets = openTickets.Where(x => x.id == item.ticketId);
-                    if (tickets.Any()) 
+                    var appointments = await GetAppointmentsForResource(resourceId);
+                    foreach (var item in appointments.Items)
                     {
-                        eventTitle = $"{tickets.FirstOrDefault().ticketNumber} - {tickets.FirstOrDefault().title}";
+                        calendarEvents.Add(new CalendarEvent
+                        {
+                            AppointmentId = item.id,
+                            Title = item.title,
+                            Start = item.startDateTime,
+                            End = item.endDateTime,
+                            Description = item.description,
+                            EventType = "Appointment",
+                            ResourceId = item.resourceID,
+                            CreatedDate = item.createDateTime,
+                            CreatorResourceId = item.creatorResourceID,
+                            IsComplete = false,
+                            UpdatedDate = item.updateDateTime,
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                try
+                {
+                    var appointments = await GetOpenCompanyTodosForResource(resourceId);
+                    foreach (var item in appointments.Items)
+                    {
+                        string eventTitle = "Flexible";
+                        var tickets = openTicketsWithoutServiceCalls.Items.Where(x => x.id == item.ticketID);
+                        if (tickets.Any())
+                        {
+                            eventTitle = $"{tickets.FirstOrDefault().ticketNumber} - {tickets.FirstOrDefault().title}";
+                        }
+                        calendarEvents.Add(new CalendarEvent
+                        {
+                            AppointmentId = item.id,
+                            Title = eventTitle,
+                            Start = item.startDateTime,
+                            End = item.endDateTime,
+                            Description = item.activityDescription,
+                            EventType = "Flexible",
+                            ResourceId = item.assignedToResourceID,
+                            CreatedDate = item.createDateTime,
+                            CreatorResourceId = item.creatorResourceID,
+                            IsComplete = false,
+                            UpdatedDate = item.lastModifiedDate,
+                        });
                     }
 
-
-                    calendarEvents.Add(new CalendarEvent
-                    {
-                        AppointmentId = 0,
-                        ServiceCallId = item.id,
-                        Title = eventTitle,
-                        Start = item.startDateTime,
-                        End = item.endDateTime,
-                        //IsAllDay = false,
-                        Description = item.description,
-                        EventType = item.status == 104 ? "Flexible" : item.status == 105 ? "Remote" : item.status == 106 ? "Onsite" : "Service Call",
-                        ResourceId = item.assignedToResourceId,
-                        CreatedDate = item.createDateTime,
-                        CreatorResourceId = item.creatorResourceID,
-                        IsComplete = Convert.ToBoolean(item.isComplete),
-                        Status = item.status,
-                        TicketId = item.ticketId,
-                        UpdatedDate = item.lastModifiedDateTime,
-
-                    });
                 }
+                catch (Exception ex)
+                {
+
+                }
+                try
+                {
+                    var resource = await _atTimeService.GetResourceCacheById("", resourceId);
+                    var openTickets = openTicketsWithoutServiceCalls.Items.Where(x => (x.secondaryResources != null && x.secondaryResources.Contains(resource.FullName)) || x.assignedResourceID == resourceId).ToList();
+                    var ticketIds = openTickets.Select(x => x.id).ToList();
+                    var serviceCallTickets = await GetServiceCallsForTickets(ticketIds.ToList());
+
+                    foreach (var item in serviceCallTickets.Items.Where(x => x.assignedToResourceId == resourceId))
+                    {
+                        string eventTitle = "Service Call";
+                        var tickets = openTickets.Where(x => x.id == item.ticketId);
+                        if (tickets.Any())
+                        {
+                            eventTitle = $"{tickets.FirstOrDefault().ticketNumber} - {tickets.FirstOrDefault().title}";
+                        }
+
+
+                        calendarEvents.Add(new CalendarEvent
+                        {
+                            AppointmentId = 0,
+                            ServiceCallId = item.id,
+                            Title = eventTitle,
+                            Start = item.startDateTime,
+                            End = item.endDateTime,
+                            //IsAllDay = false,
+                            Description = item.description,
+                            EventType = item.status == 104 ? "Flexible" : item.status == 105 ? "Remote" : item.status == 106 ? "Onsite" : "Service Call",
+                            ResourceId = item.assignedToResourceId,
+                            CreatedDate = item.createDateTime,
+                            CreatorResourceId = item.creatorResourceID,
+                            IsComplete = Convert.ToBoolean(item.isComplete),
+                            Status = item.status,
+                            TicketId = item.ticketId,
+                            UpdatedDate = item.lastModifiedDateTime,
+
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+                return calendarEvents.OrderBy(x => x.Start).ToList();
+
             }
             catch (Exception ex)
             {
+                return new List<CalendarEvent>();
 
             }
 
-            return calendarEvents.OrderBy(x => x.Start).ToList();
+
         }
 
         public async Task<AutotaskItemsResponse<ServiceCall>> GetOpenServiceCallsByRange(DateTime start, DateTime end)
@@ -1305,6 +1316,32 @@
             var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<AppointmentDtoResult>>(content);
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<AppointmentDtoResult>>(response);
+        }
+
+        public async Task<AutotaskItemsResponse<CompanyTodoDtoResult>> GetOpenCompanyTodosForResource(int resourceId)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "assignedToResourceID", value = resourceId },
+                    new { op = "notExist", field = "completedDate" },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"companyToDos/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<CompanyTodoDtoResult>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<CompanyTodoDtoResult>>(response);
         }
 
         #region Get time entries for ticket
@@ -1721,6 +1758,36 @@
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<BillingCodeDto>>(response);
         }
+
+        public async Task SyncActionTypes()
+        {
+            var filters = new List<object>
+                {
+                    new { op = "gt", field = "id", value = 0 },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"actiontypes/sync?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+
+            }
+            else
+            {
+                throw new Exception($"Error Syncing Action Types.  {content}");
+            }
+        }
         public async Task SyncBillingCodes()
         {
             var filters = new List<object>
@@ -1852,9 +1919,8 @@
         public async Task SyncRoles()
         {
             var filters = new List<object>
-                {
-                //new { op = "eq", field = "isActive", value = true },
-                //new { op = "eq", field = "isActive", value = true },
+            {
+                new { op = "gt", field = "id", value = 0 }
 
             };
             var searchObj = new

@@ -2098,5 +2098,99 @@ namespace CrownATTime.Client
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
+
+        public async System.Threading.Tasks.Task ExportActionTypesCachesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/actiontypescaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/actiontypescaches/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportActionTypesCachesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/actiontypescaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/actiontypescaches/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetActionTypesCaches(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ActionTypesCache>> GetActionTypesCaches(Query query)
+        {
+            return await GetActionTypesCaches(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ActionTypesCache>> GetActionTypesCaches(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"ActionTypesCaches");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetActionTypesCaches(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ActionTypesCache>>(response);
+        }
+
+        partial void OnCreateActionTypesCache(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ActionTypesCache> CreateActionTypesCache(CrownATTime.Server.Models.ATTime.ActionTypesCache actionTypesCache = default(CrownATTime.Server.Models.ATTime.ActionTypesCache))
+        {
+            var uri = new Uri(baseUri, $"ActionTypesCaches");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(actionTypesCache), Encoding.UTF8, "application/json");
+
+            OnCreateActionTypesCache(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ActionTypesCache>(response);
+        }
+
+        partial void OnDeleteActionTypesCache(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteActionTypesCache(int id = default(int))
+        {
+            var uri = new Uri(baseUri, $"ActionTypesCaches({id})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteActionTypesCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetActionTypesCacheById(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ActionTypesCache> GetActionTypesCacheById(string expand = default(string), int id = default(int))
+        {
+            var uri = new Uri(baseUri, $"ActionTypesCaches({id})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetActionTypesCacheById(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ActionTypesCache>(response);
+        }
+
+        partial void OnUpdateActionTypesCache(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateActionTypesCache(int id = default(int), CrownATTime.Server.Models.ATTime.ActionTypesCache actionTypesCache = default(CrownATTime.Server.Models.ATTime.ActionTypesCache))
+        {
+            var uri = new Uri(baseUri, $"ActionTypesCaches({id})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(actionTypesCache), Encoding.UTF8, "application/json");
+
+            OnUpdateActionTypesCache(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
     }
 }

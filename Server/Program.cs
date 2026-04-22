@@ -72,6 +72,7 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStep>("WorkflowSteps");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStepType>("WorkflowStepTypes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>("WorkflowTriggerTypes");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ActionTypesCache>("ActionTypesCaches");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));

@@ -1,5 +1,6 @@
-﻿namespace CrownATTime.Server.Controllers
+namespace CrownATTime.Server.Controllers
 {
+    using CrownATTime.Client;
     using CrownATTime.Server.Models;
     using CrownATTime.Server.Models.ATTime;
     using CrownATTime.Server.Services;
@@ -158,6 +159,53 @@
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error fetching appointments: {ex.Message}");
+            }
+
+        }
+        [HttpGet("actionTypes/query")]
+        public async Task<IActionResult> GetActionTypes([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/ActionTypes/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching entries: {ex.Message}");
+            }
+
+        }
+
+        [HttpGet("companyToDos/query")]
+        public async Task<IActionResult> GetCompanyToDos([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/CompanyToDos/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching entries: {ex.Message}");
             }
 
         }
@@ -1193,6 +1241,63 @@
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error fetching contacts: {ex.Message}");
+            }
+
+        }
+
+        [HttpGet("actiontypes/sync")]
+        public async Task<IActionResult> SyncActionTypes([FromQuery] string search)
+        {
+            try
+            {
+                // Provide a default valid search if none is provided
+                if (string.IsNullOrWhiteSpace(search))
+                {
+                    search = "{\"filter\":[{\"op\":\"gt\",\"field\":\"id\",\"value\":0}]}";
+                }
+
+                var encodedSearch = Uri.EscapeDataString(search);
+                var response = await _http.GetAsync($"v1.0/ActionTypes/query?search={encodedSearch}");
+                var content = await response.Content.ReadAsStringAsync();
+                var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ActionTypesDtoResult>>(content);
+                var existingItems = context.ActionTypesCaches.ToList();
+                var itemsToUpdate = new List<ActionTypesCache>();
+                var itemsToCreate = new List<ActionTypesCache>();
+                foreach (var item in converted.Items)
+                {
+                    var existingItem = existingItems.FirstOrDefault(x => x.Id == item.id);
+                    if (existingItem != null)
+                    {
+                        existingItem.Id = item.id;
+                        existingItem.Name = item.name;
+                        existingItem.IsActive = item.isActive;
+                        existingItem.IsSystemActionType = item.isSystemActionType;
+                        existingItem.View = item.view;
+
+                        itemsToUpdate.Add(existingItem);
+                    }
+                    else
+                    {
+                        itemsToCreate.Add(new ActionTypesCache()
+                        {
+                            Id = item.id,
+                            Name = item.name,
+                            IsActive = item.isActive,
+                            IsSystemActionType = item.isSystemActionType,
+                            View = item.view,
+
+                        });
+
+                    }
+                }
+                await context.AddRangeAsync(itemsToCreate);
+                context.UpdateRange(itemsToUpdate);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching action types: {ex.Message}");
             }
 
         }
