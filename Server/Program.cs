@@ -50,6 +50,7 @@ builder.Services.AddDbContext<CrownATTime.Server.Data.ATTimeContext>(options =>
 builder.Services.AddControllers().AddOData(opt =>
 {
     var oDataBuilderATTime = new ODataConventionModelBuilder();
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ActionTypesCache>("ActionTypesCaches");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>("AiPromptConfigurations");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.AllowedTicketStatus>("AllowedTicketStatuses");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.BillingCodeCache>("BillingCodeCaches");
@@ -72,7 +73,6 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStep>("WorkflowSteps");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStepType>("WorkflowStepTypes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>("WorkflowTriggerTypes");
-    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ActionTypesCache>("ActionTypesCaches");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));

@@ -87,5 +87,31 @@ namespace CrownATTime.Server.Models.ATTime
 
         [MaxLength(255)]
         public string BusyDialogMessage { get; set; }
+
+        public int? TicketStatusId { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfName { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfValue { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfName1 { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfValue1 { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfName2 { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfValue2 { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfName3 { get; set; }
+
+        [MaxLength(255)]
+        public string TicketUdfValue3 { get; set; }
     }
 }

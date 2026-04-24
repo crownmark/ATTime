@@ -43,6 +43,78 @@
                          Count=@workflowStepTypesForWorkflowStepTypeIdCount LoadData=@workflowStepTypesForWorkflowStepTypeIdLoadData />
               </ChildContent>
             </RadzenFormField>
+            <RadzenFormField Text="Update Ticket Status" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                      <RadzenDropDown TValue="int?" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketEntityPicklistValueCaches" LoadData="@ticketEntityPicklistValueCachesLoadData" Count="@ticketEntityPicklistValueCachesCount" @bind-Value="@workflowStep.TicketStatusId" Name="TicketStatusId" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketStatusId" Text="Ticket Status is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Name" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfName)" Name="TicketUdfName" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfName" Text="Ticket Udf Name is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Value" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfValue)" Name="TicketUdfValue" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfValue" Text="Ticket Udf Value is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Name 1" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfName1)" Name="TicketUdfName1" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfName1" Text="Ticket Udf1 Name is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Value 1" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfValue1)" Name="TicketUdfValue1" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfValue1" Text="Ticket Udf Value 1 is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Name 2" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfName2)" Name="TicketUdfName2" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfName2" Text="Ticket Udf2 Name is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Value 2" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfValue2)" Name="TicketUdfValue2" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfValue2" Text="Ticket Udf Value 2 is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Name 3" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfName3)" Name="TicketUdfName3" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfName3" Text="Ticket Udf Name 3 is required" /> *@
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Ticket Udf Value" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfValue3)" Name="TicketUdfValue3" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+                  </ChildContent>    
+                  <Helper>
+                    @* <RadzenRequiredValidator Component="TicketUdfValue3" Text="Ticket Udf Value 3 is required" /> *@
+                  </Helper>
+            </RadzenFormField>
             <RadzenFormField Text="Email Template" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 1)">
                   <ChildContent>
                     <RadzenDropDown Data="@(emailTemplatesForEmailTemplateId)" TextProperty="Title" ValueProperty="EmailTemplateId" AllowClear=true

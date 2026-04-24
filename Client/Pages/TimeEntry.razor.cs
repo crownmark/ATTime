@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
+using Radzen.Blazor.Markdown;
 using Radzen.Blazor.Rendering;
 using System;
 using System.Collections.Generic;
@@ -507,10 +508,46 @@ namespace CrownATTime.Client.Pages
                             {
 
                             }
-                            
+
                         }
                         else if (step.WorkflowStepTypeId == 8 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //Datto RMM Job
                         {
+                        }
+                        else if (step.WorkflowStepTypeId == 9 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //ticket update
+                        {
+                            try
+                            {
+                                var udfList = new List<TicketUpdateDto.Userdefinedfield>();
+                                if (!string.IsNullOrEmpty(step.TicketUdfName))
+                                {
+                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName, value = step.TicketUdfValue });
+                                }
+                                if (!string.IsNullOrEmpty(step.TicketUdfName1))
+                                {
+                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName1, value = step.TicketUdfValue1 });
+                                }
+                                if (!string.IsNullOrEmpty(step.TicketUdfName2))
+                                {
+                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName2, value = step.TicketUdfValue2 });
+                                }
+                                if(!string.IsNullOrEmpty(step.TicketUdfName3))
+                                {
+                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName3, value = step.TicketUdfValue3 });
+                                }
+                                var updateTicket = new TicketUpdateDto()
+                                {
+                                    Id = ticket.item.id,
+                                    Status = step.TicketStatusId.Value,
+                                    userDefinedFields = udfList.ToArray(),
+                                };
+
+                                await AutotaskService.UpdateTicket(updateTicket);
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                
+                            }
                         }
                         else
                         {

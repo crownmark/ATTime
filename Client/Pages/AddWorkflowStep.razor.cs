@@ -214,6 +214,10 @@ namespace CrownATTime.Client.Pages
 
         [Inject]
         protected SecurityService Security { get; set; }
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> ticketEntityPicklistValueCaches;
+
+        protected int ticketEntityPicklistValueCachesCount;
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             workflowStep = new CrownATTime.Server.Models.ATTime.WorkflowStep();
@@ -260,6 +264,22 @@ namespace CrownATTime.Client.Pages
                 workflowStep.WorkflowStepTypeId = hasWorkflowStepTypeIdResult;
             }
             await base.SetParametersAsync(parameters);
+        }
+
+
+        protected async Task ticketEntityPicklistValueCachesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                var result = await ATTimeService.GetTicketEntityPicklistValueCaches(new Query { Top = args.Top, Skip = args.Skip, Filter = $"PicklistName eq 'status' and contains(Label, \"{(!string.IsNullOrEmpty(args.Filter) ? args.Filter: "")}\")", OrderBy = "Label" });
+
+                ticketEntityPicklistValueCaches = result.Value.AsODataEnumerable();
+                ticketEntityPicklistValueCachesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+            }
         }
     }
 }

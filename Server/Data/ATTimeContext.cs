@@ -350,6 +350,8 @@ namespace CrownATTime.Server.Data
             this.OnModelBuilding(builder);
         }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.ActionTypesCache> ActionTypesCaches { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> AiPromptConfigurations { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> AllowedTicketStatuses { get; set; }
@@ -393,8 +395,6 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStepType> WorkflowStepTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> WorkflowTriggerTypes { get; set; }
-
-        public DbSet<CrownATTime.Server.Models.ATTime.ActionTypesCache> ActionTypesCaches { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());
