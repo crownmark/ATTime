@@ -258,7 +258,13 @@
                                 </RadzenStack>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Due" Property="dueDateTime" Width="200px"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Due" Property="ServiceCallScheduledDate" Width="200px">
+                            <Template>
+                                <RadzenStack AlignItems="Radzen.AlignItems.Start">
+                                    <RadzenText Text="@context.ServiceCallScheduledDate?.ToLocalTime().ToString("MM-dd-yyyy h:mm tt")" />
+                                </RadzenStack>
+                            </Template>
+                        </RadzenDataGridColumn>
                     </Columns>
                 </RadzenDataGrid>
             </ChildContent>

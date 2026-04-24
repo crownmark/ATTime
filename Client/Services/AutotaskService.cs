@@ -1203,7 +1203,7 @@ namespace CrownATTime.Client
                             End = item.endDateTime,
                             //IsAllDay = false,
                             Description = item.description,
-                            EventType = item.status == 104 ? "Flexible" : item.status == 105 ? "Remote" : item.status == 106 ? "Onsite" : "Service Call",
+                            EventType = item.description.Contains("Tentative Service Call") ? "Flexible" : item.status == 104 ? "Flexible" : item.status == 105 ? "Remote" : item.status == 106 ? "Onsite" : "Service Call",
                             ResourceId = item.assignedToResourceId,
                             CreatedDate = item.createDateTime,
                             CreatorResourceId = item.creatorResourceID,
