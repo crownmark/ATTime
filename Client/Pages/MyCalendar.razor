@@ -1,9 +1,40 @@
-@page "/my--calendar"
+@layout WindowLayoutLayout
+@page "/my-calendar"
+
 @attribute [Authorize]
 
 <PageTitle>My Calendar</PageTitle>
 <RadzenRow>
     <RadzenColumn Size="12">
-        <RadzenText Text="My Calendar" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+        <RadzenText Text="@($"{resource.FullName} Calendar")" TextStyle="TextStyle.H3" TagName="TagName.H1" />
     </RadzenColumn>
 </RadzenRow>
+<RadzenScheduler TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 80vh;" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect">
+    <ChildContent>
+        <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
+            
+        </RadzenDayView>
+        <RadzenMultiDayView NumberOfDays="7" AdvanceDays="1" MinutesPerSlot="15"/>
+        <RadzenWeekView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))"></RadzenWeekView>
+        <RadzenMonthView />
+        
+    </ChildContent>
+    <Template Context="calendarEvent">
+        <RadzenStack Gap="5">
+            <RadzenStack Orientation="Orientation.Horizontal" Gap="5">
+                <RadzenIcon Icon="confirmation_number" Visible="@(calendarEvent.TicketId.HasValue)"/>
+                <RadzenText Text="@calendarEvent.Title"/>
+            </RadzenStack>
+            <RadzenText Text="@($"{calendarEvent.Start:t} - {calendarEvent.End:t}")" />
+        </RadzenStack>
+    </Template>
+    
+    
+    
+</RadzenScheduler>
+
+<style>
+.my-class {
+    background-color: var(--rz-info-light);
+}
+</style>

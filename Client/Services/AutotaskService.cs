@@ -1128,15 +1128,15 @@ namespace CrownATTime.Client
                         {
                             AppointmentId = item.id,
                             Title = item.title,
-                            Start = item.startDateTime,
-                            End = item.endDateTime,
+                            Start = item.startDateTime.ToLocalTime(),
+                            End = item.endDateTime.ToLocalTime(),
                             Description = item.description,
                             EventType = "Appointment",
                             ResourceId = item.resourceID,
-                            CreatedDate = item.createDateTime,
+                            CreatedDate = item.createDateTime.ToLocalTime(),
                             CreatorResourceId = item.creatorResourceID,
                             IsComplete = false,
-                            UpdatedDate = item.updateDateTime,
+                            UpdatedDate = item.updateDateTime.ToLocalTime(),
                         });
                     }
                 }
@@ -1160,8 +1160,8 @@ namespace CrownATTime.Client
                         {
                             AppointmentId = item.id,
                             Title = eventTitle,
-                            Start = item.startDateTime,
-                            End = item.endDateTime,
+                            Start = item.startDateTime.ToLocalTime(),
+                            End = item.endDateTime.ToLocalTime(),
                             Description = item.activityDescription,
                             EventType = "Flexible",
                             ResourceId = item.assignedToResourceID,
@@ -1169,6 +1169,8 @@ namespace CrownATTime.Client
                             CreatorResourceId = item.creatorResourceID,
                             IsComplete = false,
                             UpdatedDate = item.lastModifiedDate,
+                            TicketId = item.ticketID,
+                            
                         });
                     }
 
@@ -1199,8 +1201,8 @@ namespace CrownATTime.Client
                             AppointmentId = 0,
                             ServiceCallId = item.id,
                             Title = eventTitle,
-                            Start = item.startDateTime,
-                            End = item.endDateTime,
+                            Start = item.startDateTime.ToLocalTime(),
+                            End = item.endDateTime.ToLocalTime(),
                             //IsAllDay = false,
                             Description = item.description,
                             EventType = item.description.Contains("Tentative Service Call") ? "Flexible" : item.status == 104 ? "Flexible" : item.status == 105 ? "Remote" : item.status == 106 ? "Onsite" : "Service Call",

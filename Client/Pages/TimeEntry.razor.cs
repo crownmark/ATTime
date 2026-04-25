@@ -2345,11 +2345,16 @@ namespace CrownATTime.Client.Pages
                         // Example: perform an HTTP GET to the rendered URL (replace with RequestMode.BrowserOpen or RequestMode.HttpPostJson as needed)
                         if(liveLink.HttpMethod == "GET")
                         {
+                            var json = JsonSerializer.Serialize(new
+                            {
+                                Ticket = ticket,
+                                TimeEntry = timeEntryRecord
+                            });
                             if (liveLink.RequiresConfirmationToRun)
                             {
                                 if(await DialogService.Confirm("Are you sure you want to run this live link?", $"Confirmation: {liveLink.Title}", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
                                 {
-                                    var json = JsonSerializer.Serialize(ticket);
+                                    //var json = JsonSerializer.Serialize(ticket);
                                     await RequestUrl(liveLink.Url, RequestMode.HttpGet, json, null, liveLink);
 
                                 }
@@ -2357,25 +2362,30 @@ namespace CrownATTime.Client.Pages
                             }
                             else
                             {
-                                var json = JsonSerializer.Serialize(ticket);
+                                //var json = JsonSerializer.Serialize(ticket);
                                 await RequestUrl(liveLink.Url, RequestMode.HttpGet, json, null, liveLink);
 
                             }
                         }
                         else if(liveLink.HttpMethod == "POST")
                         {
+                            var json = JsonSerializer.Serialize(new
+                            {
+                                Ticket = ticket,
+                                TimeEntry = timeEntryRecord
+                            });
                             if (liveLink.RequiresConfirmationToRun)
                             {
                                 if (await DialogService.Confirm("Are you sure you want to run this live link?", $"Confirmation: {liveLink.Title}", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
                                 {
-                                    var json = JsonSerializer.Serialize(ticket);
+                                    //var json = JsonSerializer.Serialize(ticket);
                                     await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json, null, liveLink);
 
                                 }
                             }
                             else
                             {
-                                var json = JsonSerializer.Serialize(ticket);
+                                //var json = JsonSerializer.Serialize(ticket);
                                 await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json, null, liveLink);
                             }
                                 
@@ -2450,7 +2460,7 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpGet:
-                        BusyDialog($"{step.BusyDialogMessage}");
+                        BusyDialog($"{(step != null ? step.BusyDialogMessage : "Please wait...")}");
                         // Note: CORS must be allowed by the remote server for WASM HttpClient.
                         var getResponse = await _httpClient.GetAsync(url);
                         DialogService.Close();
@@ -2523,7 +2533,8 @@ namespace CrownATTime.Client.Pages
                         break;
 
                     case RequestMode.HttpPostJson:
-                        BusyDialog($"{step.BusyDialogMessage}");
+                        BusyDialog($"{(step != null ? step.BusyDialogMessage : "Please wait...")}");
+
 
                         var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
                         DialogService.Close();
