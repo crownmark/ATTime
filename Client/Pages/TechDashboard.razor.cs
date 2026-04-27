@@ -8,6 +8,7 @@ using Radzen;
 using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -779,5 +780,31 @@ namespace CrownATTime.Client.Pages
         }
 
         
+
+        protected async System.Threading.Tasks.Task CalendarChip9Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            try
+            {
+                await DialogService.OpenAsync<MyCalendar>("My Calendar", new Dictionary<string, object>() { {"SelectedCalendarViewIndex", 1} }, new DialogOptions { Width = "90%", AutoFocusFirstElement = false });
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"{ex.Message}" });
+
+            }
+        }
+
+        protected void TodayDataGridRowRender(Radzen.RowRenderEventArgs<Server.Models.CalendarEvent> args)
+        {
+            
+        }
+
+        protected void TodayDataGridCellRender(Radzen.DataGridCellRenderEventArgs<Server.Models.CalendarEvent> args)
+        {
+            if (args.Data.Start <= DateTime.Now && DateTime.Now <= args.Data.End)
+            {
+                args.Attributes["style"] = "border-width: 2px; border-style: solid; border-color: var(--rz-success-dark);";
+            }
+        }
     }
 }

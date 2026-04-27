@@ -10,12 +10,15 @@
 
         public string Title { get; set; }
         public string Description { get; set; }
-
         public int ResourceId { get; set; }
+        public int CompanyId { get; set; }
         public int CreatorResourceId { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+
+        //Company Todo Specific
+        public int? CompanyToDoId { get; set; }
 
         // ServiceCall-specific
         public int? ServiceCallId { get; set; }

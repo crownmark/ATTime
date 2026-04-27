@@ -117,7 +117,7 @@
                             <RadzenStack Orientation="Radzen.Orientation.Horizontal">
                                 <RadzenIcon Icon="av_timer" />
                                 <RadzenText Text="Open Time Entries" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
-                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@TimeEntriesGridRefreshButton1Click" MouseEnter="RefreshTimeEntriesButtonMouseEnter" MouseLeave="RefreshTimeEntriesButtonMouseLeave"></RadzenButton>
+                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@TimeEntriesGridRefreshButton1Click" MouseEnter="RefreshTimeEntriesButtonMouseEnter" MouseLeave="RefreshTimeEntriesButtonMouseLeave" Shade="Radzen.Shade.Light"></RadzenButton>
 
                             </RadzenStack>
 
@@ -164,7 +164,7 @@
                             <RadzenStack Orientation="Radzen.Orientation.Horizontal">
                                 <RadzenIcon Icon="confirmation_number" />
                                 <RadzenText Text="Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
-                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click" MouseEnter="RefreshTicketsButtonMouseEnter" MouseLeave="RefreshTicketsButtonMouseLeave"></RadzenButton>
+                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click" MouseEnter="RefreshTicketsButtonMouseEnter" MouseLeave="RefreshTicketsButtonMouseLeave" Shade="Radzen.Shade.Light"></RadzenButton>
 
                             </RadzenStack>
 
@@ -350,57 +350,6 @@
             </ChildContent>
 
         </RadzenPanel>
-<RadzenPanel Style="margin-bottom: 10px" AllowCollapse="true">
-            <HeaderTemplate>
-                <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
-                    <RadzenColumn >
-                        <RadzenStack>
-                            <RadzenStack Orientation="Radzen.Orientation.Horizontal">
-                                <RadzenIcon Icon="calendar_month" />
-                                <RadzenText Text="Overdue" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
-                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@CalendarGridRefreshButton1Click" MouseEnter="CalendarRefreshButtonMouseEnter" MouseLeave="CalendarRefreshButtonMouseLeave"></RadzenButton>
-
-                            </RadzenStack>
-
-                        </RadzenStack>
-                    </RadzenColumn>
-                    
-                </RadzenRow>
-            </HeaderTemplate>
-
-            <ChildContent>
-                <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
-
-                    <ChildContent>
-                        <RadzenDataGrid IsLoading="calendarGridLoading" @ref="overdueEventsGrid" LoadData="CalendarDataGrid1LoadData" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start < DateTime.Today))" RowSelect="@OverdueDataGrid2RowSelect" Style="max-height: 302px;">
-                            <Columns>
-                                <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
-                                    <Template>
-                                        <RadzenStack Style="@($"border-radius: 4px; width: 100%; padding:5px; {(context.EventType.Contains("Flexible") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Remote") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Onsite") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Service Call") ? "background-color: var(--rz-primary-darker)" : "")}")" Orientation="Radzen.Orientation.Horizontal">
-                                            <RadzenStack>
-                                                <RadzenLabel Text="@context.Start.ToLocalTime().ToString("MM-dd-yyyy h:mm tt")" Style="color: var(--rz-primary)" />
-                                                <RadzenIcon Icon="confirmation_number" Visible="@(context.EventType.Contains("Flexible") || context.EventType.Contains("Remote") || context.EventType.Contains("Service Call"))" />
-                                                <RadzenIcon Icon="local_shipping" Visible="@(context.EventType.Contains("Onsite"))" />
-                                            </RadzenStack>
-                                            <RadzenStack>
-                                                <RadzenLabel Text="@($"{context.Title}")" style="white-space: break-spaces;" />
-                                                <RadzenLabel Text="@($"{context.DurationFormatted} - {context.EventType} ")" />
-
-                                            </RadzenStack>
-                                        </RadzenStack>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                            </Columns>
-                        </RadzenDataGrid>
-
-
-                    </ChildContent>
-                </RadzenPanel>
-                
-                
-            </ChildContent>
-
-        </RadzenPanel>
     <RadzenPanel Style="margin-bottom: 10px" AllowCollapse="true">
             <HeaderTemplate>
                 <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
@@ -409,7 +358,7 @@
                             <RadzenStack Orientation="Radzen.Orientation.Horizontal">
                             <RadzenIcon Icon="calendar_month" />
                             <RadzenText Text="Next 3 Days" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
-                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@CalendarGridRefreshButton1Click" MouseEnter="CalendarRefreshButtonMouseEnter" MouseLeave="CalendarRefreshButtonMouseLeave"></RadzenButton>
+                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@CalendarGridRefreshButton1Click" MouseEnter="CalendarRefreshButtonMouseEnter" MouseLeave="CalendarRefreshButtonMouseLeave" Visible="true" IsBusy="@calendarGridLoading" Shade="Radzen.Shade.Light"></RadzenButton>
 
                             </RadzenStack>
                             <RadzenText Text="Calendar + scheduled ticket commitments" TextStyle="Radzen.Blazor.TextStyle.Caption" TagName="Radzen.Blazor.TagName.Auto" />
@@ -418,7 +367,7 @@
                     </RadzenColumn>
                     <RadzenColumn SizeLG="4">
                         <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.End">
-                            <RadzenChip Text="Open Calendar" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
+                            <RadzenChip Text="Open Calendar" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Click="@CalendarChip9Click"></RadzenChip>
     
                         </RadzenStack>
                     </RadzenColumn>
@@ -441,7 +390,7 @@
                 </HeaderTemplate>
             
                 <ChildContent>
-                        <RadzenDataGrid IsLoading="calendarGridLoading" LoadData="CalendarDataGrid1LoadData" @ref="todaysEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today && x.Start <= DateTime.Today.AddDays(1)))" RowSelect="@TodayDataGrid1RowSelect" RowDeselect="@TodayDataGrid2RowDeselect">
+                        <RadzenDataGrid LoadData="CalendarDataGrid1LoadData" @ref="todaysEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today && x.Start <= DateTime.Today.AddDays(1)))" RowSelect="@TodayDataGrid1RowSelect" RowDeselect="@TodayDataGrid2RowDeselect" RowRender="@TodayDataGridRowRender" CellRender="@TodayDataGridCellRender" >
                         <Columns>
                                 <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
                                 <Template>
@@ -465,7 +414,7 @@
                 
                 </ChildContent>
             </RadzenPanel>
-            <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
+            <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false" Visible="false">
                 <HeaderTemplate>
                     <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
                         <RadzenColumn Size="12">
@@ -478,7 +427,7 @@
                         </RadzenRow>
                 </HeaderTemplate>
                 <ChildContent>
-                        <RadzenDataGrid IsLoading="calendarGridLoading" @ref="tomorrowsEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today.AddDays(1) && x.Start <= DateTime.Today.AddDays(2)))" RowClick="@TomorrowDataGrid2RowClick" RowSelect="@TomorrowDataGrid3RowSelect">
+                        <RadzenDataGrid @ref="tomorrowsEventsGrid" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start > DateTime.Today.AddDays(1) && x.Start <= DateTime.Today.AddDays(2)))" RowClick="@TomorrowDataGrid2RowClick" RowSelect="@TomorrowDataGrid3RowSelect">
                         <Columns>
                                 <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
                                 <Template>
@@ -500,7 +449,7 @@
                     </RadzenDataGrid>        
                 </ChildContent>
             </RadzenPanel>
-                <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
+                <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false" Visible="false">
                     <HeaderTemplate>
                         <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
                             <RadzenColumn Size="12">
@@ -538,6 +487,57 @@
             </ChildContent>
 
         </RadzenPanel>
+    <RadzenPanel Style="margin-bottom: 10px" AllowCollapse="true">
+        <HeaderTemplate>
+            <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 10px; width: 100%">
+                <RadzenColumn >
+                    <RadzenStack>
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal">
+                            <RadzenIcon Icon="calendar_month" />
+                            <RadzenText Text="Overdue" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
+                            <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@CalendarGridRefreshButton1Click" MouseEnter="CalendarRefreshButtonMouseEnter" MouseLeave="CalendarRefreshButtonMouseLeave" IsBusy="@calendarGridLoading" Shade="Radzen.Shade.Light"></RadzenButton>
+    
+                        </RadzenStack>
+    
+                    </RadzenStack>
+                </RadzenColumn>
+                
+            </RadzenRow>
+        </HeaderTemplate>
+    
+        <ChildContent>
+            <RadzenPanel Style="margin-bottom: 10px; background-color: rgba(45, 48, 52, 0.51)" AllowCollapse="false">
+    
+                <ChildContent>
+                    <RadzenDataGrid @ref="overdueEventsGrid" LoadData="CalendarDataGrid1LoadData" Responsive="true" TItem="Server.Models.CalendarEvent" Data="@(calendarEvents.Where(x => x.Start < DateTime.Today))" RowSelect="@OverdueDataGrid2RowSelect" Style="max-height: 302px;">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.CalendarEvent">
+                                <Template>
+                                    <RadzenStack Style="@($"border-radius: 4px; width: 100%; padding:5px; {(context.EventType.Contains("Flexible") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Remote") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Onsite") ? "background-color: var(--rz-primary-darker)" : context.EventType.Contains("Service Call") ? "background-color: var(--rz-primary-darker)" : "")}")" Orientation="Radzen.Orientation.Horizontal">
+                                        <RadzenStack>
+                                            <RadzenLabel Text="@context.Start.ToLocalTime().ToString("MM-dd-yyyy h:mm tt")" Style="color: var(--rz-primary)" />
+                                            <RadzenIcon Icon="confirmation_number" Visible="@(context.EventType.Contains("Flexible") || context.EventType.Contains("Remote") || context.EventType.Contains("Service Call"))" />
+                                            <RadzenIcon Icon="local_shipping" Visible="@(context.EventType.Contains("Onsite"))" />
+                                        </RadzenStack>
+                                        <RadzenStack>
+                                            <RadzenLabel Text="@($"{context.Title}")" style="white-space: break-spaces;" />
+                                            <RadzenLabel Text="@($"{context.DurationFormatted} - {context.EventType} ")" />
+    
+                                        </RadzenStack>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+    
+    
+                </ChildContent>
+            </RadzenPanel>
+            
+            
+        </ChildContent>
+    
+    </RadzenPanel>
     </RadzenColumn>
 </RadzenRow>
 

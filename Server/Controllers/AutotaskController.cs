@@ -185,6 +185,68 @@ namespace CrownATTime.Server.Controllers
             }
 
         }
+        // POST api/autotask/timeentries
+        [HttpPost("companyToDos")]
+        public async Task<IActionResult> CreateTicket([FromBody] CompanyTodoDto todo)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(todo, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync("v1.0/CompanyToDos", content);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating ticket: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("companyToDos")]
+        public async Task<IActionResult> UpdateCompanyTodo([FromBody] CompanyToDoCreate todo)
+        {
+            try
+            {
+                if (todo.id <= 0)
+                {
+                    return BadRequest("Missing or invalid ticket ID.");
+                }
+
+                var json = JsonSerializer.Serialize(todo, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PatchAsync($"v1.0/Companies/{todo.companyID}/ToDos", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error updating todo: {ex.Message}");
+            }
+        }
 
         [HttpGet("companyToDos/query")]
         public async Task<IActionResult> GetCompanyToDos([FromQuery] string search)
@@ -208,6 +270,128 @@ namespace CrownATTime.Server.Controllers
                 return StatusCode(500, $"Error fetching entries: {ex.Message}");
             }
 
+        }
+
+        // POST api/autotask/timeentries
+        [HttpPost("servicecalls")]
+        public async Task<IActionResult> CreateServiceCall([FromBody] ServiceCallCreateDto serviceCall)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(serviceCall, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync("v1.0/ServiceCalls", content);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating ticket: {ex.Message}");
+            }
+        }
+
+        [HttpPost("servicecallTicket")]
+        public async Task<IActionResult> CreateServiceCallTicket([FromBody] ServiceCallTicketCreate item)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(item, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync($"v1.0/ServiceCalls/{item.serviceCallID}/Tickets", content);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating ticket: {ex.Message}");
+            }
+        }
+
+        [HttpPost("servicecallTicketResource")]
+        public async Task<IActionResult> CreateServiceCallResource([FromBody] ServiceCallTicketResourceCreate item)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(item, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync($"v1.0/ServiceCalls/{item.serviceCallTicketID}/Resources", content);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating service call resource: {ex.Message}");
+            }
+        }
+
+        [HttpPatch("servicecalls")]
+        public async Task<IActionResult> UpdateServiceCall([FromBody] ServiceCallCreateDto serviceCall)
+        {
+            try
+            {
+                if (serviceCall.id <= 0)
+                {
+                    return BadRequest("Missing or invalid ticket ID.");
+                }
+                //serviceCall.startDateTime.ToDateTimeTimeZone();
+                //serviceCall.endDateTime.ToDateTimeTimeZone();
+                var json = JsonSerializer.Serialize(serviceCall, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PatchAsync("v1.0/ServiceCalls", content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error updating service call: {ex.Message}");
+            }
         }
 
         [HttpGet("servicecalls/query")]

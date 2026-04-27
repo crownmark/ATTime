@@ -4,17 +4,22 @@
 @attribute [Authorize]
 
 <PageTitle>My Calendar</PageTitle>
-<RadzenRow>
-    <RadzenColumn Size="12">
-        <RadzenText Text="@($"{resource.FullName} Calendar")" TextStyle="TextStyle.H3" TagName="TagName.H1" />
-    </RadzenColumn>
-</RadzenRow>
-<RadzenScheduler TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 80vh;" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect">
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap">
+    <RadzenText Text="@($"{resource.FullName} Calendar")" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="Radzen.AlignItems.Center" Gap="5">
+        <RadzenLabel Text="Number of days to view (Multi-Day View):" />
+        <RadzenSlider @bind-Value=@sliderNumberOfDays TValue="int" Min="1" Max="14" Style="margin-left:1.5rem;margin-right:1.5rem;" Change="NumberOfDaysChange" />
+        <RadzenLabel Text="@($"{sliderNumberOfDays}")" />
+    </RadzenStack>
+</RadzenStack>
+
+<RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 88vh" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
     <ChildContent>
         <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
             
         </RadzenDayView>
-        <RadzenMultiDayView NumberOfDays="7" AdvanceDays="1" MinutesPerSlot="15"/>
+        <RadzenMultiDayView NumberOfDays="@sliderNumberOfDays" AdvanceDays="1" MinutesPerSlot="15" StartTime="@(new TimeSpan(6, 0, 0))" />
         <RadzenWeekView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))"></RadzenWeekView>
         <RadzenMonthView />
         
@@ -22,7 +27,9 @@
     <Template Context="calendarEvent">
         <RadzenStack Gap="5">
             <RadzenStack Orientation="Orientation.Horizontal" Gap="5">
-                <RadzenIcon Icon="confirmation_number" Visible="@(calendarEvent.TicketId.HasValue)"/>
+                <RadzenIcon Icon="confirmation_number" Visible="@(calendarEvent.TicketId.HasValue)" />
+                <RadzenIcon Icon="local_shipping" Visible="false" />
+                <RadzenIcon Icon="person" Visible="false" />
                 <RadzenText Text="@calendarEvent.Title"/>
             </RadzenStack>
             <RadzenText Text="@($"{calendarEvent.Start:t} - {calendarEvent.End:t}")" />

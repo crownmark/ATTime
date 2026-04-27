@@ -85,15 +85,95 @@ namespace CrownATTime.Client
 
             var response = await httpClient.SendAsync(httpRequestMessage);
             var content = await response.Content.ReadAsStringAsync();
+            var convert = JsonSerializer.Deserialize<TicketDtoResult>(content);
+
             try
             {
-                var convert = JsonSerializer.Deserialize<TicketDtoResult>(content);
+
+                //Get lookup fields
+                var resourcesResult = await _atTimeService.GetResourceCaches();
+                var resources = resourcesResult.Value.ToList();
+
+                var ticketlookupFieldsResult = await _atTimeService.GetTicketEntityPicklistValueCaches();
+                var ticketLookupFields = ticketlookupFieldsResult.Value.ToList();
+                var companiesResult = await _atTimeService.GetCompanyCaches();
+                var companies = companiesResult.Value.ToList();
+                try
+                {
+
+                    if (convert.item.assignedResourceID.HasValue)
+                    {
+                        convert.item.primaryResourceName = resources.FirstOrDefault(x => x.Id == convert.item.assignedResourceID).FirstName + " " + resources.FirstOrDefault(x => x.Id == convert.item.assignedResourceID).LastName;
+                    }
+                    else
+                    {
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                try
+                {
+
+                    if (!string.IsNullOrEmpty(convert.item.secondaryResources))
+                    {
+                        var resourceList = convert.item.secondaryResources?
+                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => int.TryParse(x, out var id) ? id : (int?)null)
+                            .Where(x => x.HasValue)
+                            .Select(x => x.Value)
+                            .ToList() ?? new List<int>();
+
+                        var secondaryResources = resourcesResult.Value.Where(x => resourceList.Contains(x.Id)).ToList();
+
+                        var secondaryResourceNames = secondaryResources
+                            .Select(x => $"{x.FirstName} {x.LastName}");
+
+                        convert.item.secondaryResources = string.Join(",", secondaryResourceNames);
+                    }
+                    else
+                    {
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                // ----------------------------------------------------
+                // 🔥 Map back onto DTO
+                // ----------------------------------------------------
+                try
+                {
+
+                    convert.item.priorityName = ticketLookupFields.Where(x => x.PicklistName == "priority" && x.ValueInt == convert.item.priority).Any() ?
+                        ticketLookupFields.Where(x => x.PicklistName == "priority" && x.ValueInt == convert.item.priority).FirstOrDefault().Label :
+                        "";
+                    convert.item.statusName = ticketLookupFields.Where(x => x.PicklistName == "status" && x.ValueInt == convert.item.status).Any() ?
+                        ticketLookupFields.Where(x => x.PicklistName == "status" && x.ValueInt == convert.item.status).FirstOrDefault().Label :
+                        "";
+                    convert.item.queueName = ticketLookupFields.Where(x => x.PicklistName == "queueID" && x.ValueInt == convert.item.queueID).Any() ?
+                        ticketLookupFields.Where(x => x.PicklistName == "queueID" && x.ValueInt == convert.item.queueID).FirstOrDefault().Label :
+                        "";
+                    convert.item.companyName = companies.Where(x => x.Id == convert.item.companyID).Any() ?
+                        companies.Where(x => x.Id == convert.item.companyID).FirstOrDefault().CompanyName :
+                        "";
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+
             }
             catch (Exception ex)
             {
 
             }
-            return JsonSerializer.Deserialize<TicketDtoResult>(content);
+            return JsonSerializer.Deserialize<TicketDtoResult>(JsonSerializer.Serialize(convert));
+
         }
 
         public async Task<CrownATTime.Server.Models.TicketUpdateDto> UpdateTicket(CrownATTime.Server.Models.TicketUpdateDto ticket)
@@ -1054,6 +1134,68 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
+        public async Task<CrownATTime.Server.Models.ServiceCallCreatedDto>CreateServiceCall(CrownATTime.Server.Models.ServiceCallDto serviceCall)
+        {
+            var uri = new Uri(baseUri, $"servicecalls");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(serviceCall, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.ServiceCallCreatedDto>(response);
+        }
+
+        public async Task<CrownATTime.Server.Models.ServiceCallTicketCreated> CreateServiceCallTicket(CrownATTime.Server.Models.ServiceCallTicket item)
+        {
+            var uri = new Uri(baseUri, $"servicecallTicket");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(item, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.ServiceCallTicketCreated>(response);
+        }
+
+        public async Task<CrownATTime.Server.Models.ServiceCallTicketResourceCreated> CreateServiceCallTicketResource(CrownATTime.Server.Models.ServiceCallTicketResourceCreate item)
+        {
+            var uri = new Uri(baseUri, $"servicecallTicket");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(item, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.ServiceCallTicketResourceCreated>(response);
+        }
+        public async Task<CrownATTime.Server.Models.ServiceCallCreatedDto> UpdateServiceCall(CrownATTime.Server.Models.ServiceCallCreateDto serviceCall)
+        {
+            var uri = new Uri(baseUri, $"servicecalls");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+            var json = JsonSerializer.Serialize(serviceCall, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.ServiceCallCreatedDto>(response);
+        }
         public async Task<AutotaskItemsResponse<ServiceCallTicket>> GetServiceCallsForServiceCallTickets(List<int> serviceCallIds)
         {
             var filters = new List<object>
@@ -1175,7 +1317,8 @@ namespace CrownATTime.Client
                         }
                         calendarEvents.Add(new CalendarEvent
                         {
-                            AppointmentId = item.id,
+                            AppointmentId = 0,
+                            CompanyToDoId = item.id,
                             Title = eventTitle,
                             Start = item.startDateTime.ToLocalTime(),
                             End = item.endDateTime.ToLocalTime(),
@@ -1216,6 +1359,7 @@ namespace CrownATTime.Client
                         calendarEvents.Add(new CalendarEvent
                         {
                             AppointmentId = 0,
+                            CompanyId = item.companyID,
                             ServiceCallId = item.id,
                             Title = eventTitle,
                             Start = item.startDateTime.ToLocalTime(),
@@ -1385,6 +1529,37 @@ namespace CrownATTime.Client
             var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<CompanyTodoDtoResult>>(content);
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<CompanyTodoDtoResult>>(response);
+        }
+
+        public async Task<CrownATTime.Server.Models.CompanyToDoCreatedDto> CreateCompanyTodol(CrownATTime.Server.Models.CompanyTodoDto serviceCall)
+        {
+            var uri = new Uri(baseUri, $"companyToDos");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(serviceCall, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.CompanyToDoCreatedDto>(response);
+        }
+        public async Task<CrownATTime.Server.Models.CompanyToDoCreatedDto> UpdateCompanyTodo(CrownATTime.Server.Models.CompanyToDoCreate serviceCall)
+        {
+            var uri = new Uri(baseUri, $"companyToDos");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+            var json = JsonSerializer.Serialize(serviceCall, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.CompanyToDoCreatedDto>(response);
         }
         public async Task<AutotaskItemsResponse<CompanyTodoDtoResult>> GetOpenCompanyTodosForResource(int resourceId)
         {

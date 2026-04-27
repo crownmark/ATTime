@@ -83,7 +83,7 @@
                                            
 <RadzenStack Orientation="Radzen.Orientation.Vertical">
         <RadzenLabel Text="Description:" Style="font-weight: bold">
-            <RadzenFieldset Text="Description" AllowCollapse="false" Icon="description">
+            <RadzenFieldset Text="Description" AllowCollapse="true" Icon="description">
                 @* <RadzenText Text="@Ticket.item.description" style="white-space: break-spaces;" /> *@
                 <div class="rz-text-body1" style=white-space: pre-line">
                     @((MarkupString)TextHelpers.Linkify(Ticket.item.description))
@@ -146,12 +146,12 @@
                                             <HeaderTemplate>
                                                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
                                                     <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Click="@RefreshTimeEntriesButtonClick"></RadzenButton>
-                                                    <RadzenLabel Text="Time Entries?" />
                                                     <RadzenCheckBox TValue="bool" @bind-Value="@filterTimeEntries" Change="@TimeEntriesSearchCheckBoxChange"></RadzenCheckBox>
-                                                    <RadzenLabel Text="Notes?" />
+                                                    <RadzenLabel Text="Time Entries?" />
                                                     <RadzenCheckBox TValue="bool" @bind-Value="@filterNotes" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
-                                                    <RadzenLabel Text="Communication?" />
+                                                    <RadzenLabel Text="Notes?" />
                                                     <RadzenCheckBox TValue="bool" @bind-Value="@filterCommunication" Change="@NotesSearchCheckBoxChange" ></RadzenCheckBox>
+                                                    <RadzenLabel Text="Communication?" />
                                     <RadzenTextBox Placeholder="Search ..." style="display: block" aria-label="Search by all string columns" @bind-Value="@search" Change="@SearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @onkeydown:stopPropagation />
                                                     <RadzenButton Icon="search" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Text="Search" Click="@SearchTimeEntriesButtonClick" Visible="false"></RadzenButton>
                                                         

@@ -40,6 +40,8 @@ namespace CrownATTime.Client.Pages
 
         [Inject]
         public ATTimeService ATTimeService { get; set; }
+
+        protected RadzenScheduler<CalendarEvent> scheduler0;
         protected ResourceCache resource { get; set; }
         protected IEnumerable<CalendarEvent> calendarEvents = new List<CalendarEvent>();
 
@@ -47,13 +49,18 @@ namespace CrownATTime.Client.Pages
 
         protected bool calendarLoading = false;
 
+        protected int sliderNumberOfDays { get; set; } = 3;
+        protected bool showSlider { get; set; } = true;
 
+        [Parameter]
+        public int SelectedCalendarViewIndex { get; set; }
         protected override async Task OnInitializedAsync()
         {
             try
             {
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
                 resource = resourceResult.Value.FirstOrDefault();
+                SelectedCalendarViewIndex = 1;
                 await LoadCalendarData();
             }
             catch (Exception ex)
@@ -152,8 +159,41 @@ namespace CrownATTime.Client.Pages
 
                 if (draggedAppointment != null)
                 {
-                    draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
-                    draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
+                    
+                    if(draggedAppointment.CompanyToDoId.HasValue)
+                    {
+                        
+                        await AutotaskService.UpdateCompanyTodo(new CompanyToDoCreate()
+                        {
+                            id = draggedAppointment.CompanyToDoId.Value,
+                            startDateTime = draggedAppointment.Start + args.TimeSpan,
+                            endDateTime = draggedAppointment.End + args.TimeSpan,
+                            completedDate = draggedAppointment.IsComplete == true ? DateTime.UtcNow : (DateTime?)null,
+                            ticketID = draggedAppointment.TicketId,
+                            assignedToResourceID = draggedAppointment.ResourceId,
+                            companyID = draggedAppointment.CompanyId,
+                        });
+                        draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
+                        draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
+                    }
+                    else if (draggedAppointment.ServiceCallId.HasValue)
+                    {
+                        await AutotaskService.UpdateServiceCall(new ServiceCallCreateDto()
+                        {
+                            id = draggedAppointment.ServiceCallId.Value,
+                            startDateTime = draggedAppointment.Start + args.TimeSpan,
+                            endDateTime = draggedAppointment.End + args.TimeSpan,
+                            isComplete = draggedAppointment.IsComplete == true ? 1 : 0,
+                            companyID = draggedAppointment.CompanyId,
+                            description = draggedAppointment.Description,
+                        });
+                        draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
+                        draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
+                    }
+                    else
+                    {
+
+                    }
 
                     //await scheduler0.Reload();
                 }
@@ -177,10 +217,112 @@ namespace CrownATTime.Client.Pages
             //{
             //    JSRuntime.InvokeVoidAsync("eval", $"document.querySelector('.my-class').classList.remove('my-class')");
             //}));
+            // Highlight working hours (9-18)
+            if ((args.View.Text == "Multi-Day" || args.View.Text == "Week" || args.View.Text == "Day") && args.Start.Hour > 7 && args.Start.Hour < 17)
+            {
+                args.Attributes["style"] = "background: var(--rz-scheduler-event-color);";
+            }
         }
 
         protected async System.Threading.Tasks.Task Scheduler0SlotSelect(Radzen.SchedulerSlotSelectEventArgs args)
         {
+        }
+
+
+
+        protected async System.Threading.Tasks.Task Scheduler0ContextMenu(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            //ContextMenuService.Open(args,
+            //    new List<ContextMenuItem> {
+            //        new ContextMenuItem(){ Text = "Cell Menu - Edit", Value = 1, Icon = "edit" },
+            //        new ContextMenuItem(){ Text = "Cell Menu - Delete", Value = 2, Icon = "delete" },
+            //        new ContextMenuItem(){ Text = "Cell Menu - Copy", Value = 3, Icon = "content_copy" },
+            //    },
+            //    (e) => {
+            //        //console.Log($"Cell context menu item clicked. Value={e.Value}, Column: {args.Column.Property}, EmployeeID: {args.Data.EmployeeID}");
+            //    }
+            //);
+        }
+
+        protected async System.Threading.Tasks.Task Scheduler0AppointmentMouseEnter(Radzen.Blazor.SchedulerAppointmentMouseEventArgs<Server.Models.CalendarEvent> args)
+        {
+            TooltipService.Open(args.Element, $"Title: {args.Data.Title}\nStart: {args.Data.Start}\nEnd: {args.Data.End}");
+        }
+
+        protected async System.Threading.Tasks.Task Scheduler0AppointmentMouseLeave(Radzen.Blazor.SchedulerAppointmentMouseEventArgs<Server.Models.CalendarEvent> args)
+        {
+            TooltipService.Close();
+        }
+
+        protected async System.Threading.Tasks.Task Scheduler0AppointmentSelect(Radzen.SchedulerAppointmentSelectEventArgs<Server.Models.CalendarEvent> args)
+        {
+            //ContextMenuService.Open(new MouseEventArgs(),
+            //    new List<ContextMenuItem> {
+            //        new ContextMenuItem(){ Text = "Cell Menu - Edit", Value = 1, Icon = "edit" },
+            //        new ContextMenuItem(){ Text = "Cell Menu - Delete", Value = 2, Icon = "delete" },
+            //        new ContextMenuItem(){ Text = "Cell Menu - Copy", Value = 3, Icon = "content_copy" },
+            //    },
+            //    (e) => {
+            //        //console.Log($"Cell context menu item clicked. Value={e.Value}, Column: {args.Column.Property}, EmployeeID: {args.Data.EmployeeID}");
+            //    }
+            //);
+            try
+            {
+                if (args.Data.TicketId.HasValue)
+                {
+                    BusyDialog($"Loading Ticket {args.Data.Title}...");
+
+                    var ticket = await AutotaskService.GetTicket(args.Data.TicketId.Value);
+                    var primaryResource = await AutotaskService.GetResourceById(args.Data.ResourceId);
+                    DialogService.Close();
+                    await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                }
+
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        protected async System.Threading.Tasks.Task Scheduler0MoreSelect(Radzen.SchedulerMoreSelectEventArgs args)
+        {
+        }
+
+        void NumberOfDaysChange()
+        {
+            StateHasChanged();
+        }
+
+        protected async System.Threading.Tasks.Task Scheduler0DaySelect(Radzen.SchedulerDaySelectEventArgs args)
+        {
+        }
+
+        protected void Scheduler0AppointmentRender(Radzen.SchedulerAppointmentRenderEventArgs<Server.Models.CalendarEvent> args)
+        {
+            if (args.Data.EventType == "Flexible")
+            {
+                args.Attributes["style"] = "background: var(--rz-primary-dark);";
+            }
+            else if (args.Data.Description.Contains("Remote"))
+            {
+                args.Attributes["style"] = "background: var(--rz-warning-dark);";
+
+            }
+            else if (args.Data.Description.Contains("Onsite"))
+            {
+                args.Attributes["style"] = "background: var(--rz-warning-dark);";
+
+            }
+            else if (args.Data.EventType == "Service Call")
+            {
+                args.Attributes["style"] = "background: var(--rz-warning-dark);";
+
+            }
+            else
+            {
+                args.Attributes["style"] = "background: var(--rz-secondary-dark);";
+
+            }
         }
     }
 }
