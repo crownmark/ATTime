@@ -770,6 +770,7 @@ namespace CrownATTime.Client
             var companies = companiesResult.Value.ToList();
             var openTicketIds = converted.Items.Select(x => x.id).ToList();
             var serviceCalls = await GetServiceCallsForTickets(openTicketIds);
+            var todos = await GetOpenCompanyTodosForTickets(openTicketIds);
 
 
             // ----------------------------------------------------
@@ -793,9 +794,13 @@ namespace CrownATTime.Client
                         companies.Where(x => x.Id == item.companyID).FirstOrDefault().CompanyName :
                         "";
 
-                    var serviceCallDate = serviceCalls.Items.Where(x => x.ticketId == item.id);
-                    item.ServiceCallScheduledDate = serviceCalls.Items.Where(x => x.assignedToResourceId == item.assignedResourceID && x.ticketId == item.id && x.isComplete == 0).Any() ? serviceCalls.Items.Where(x => x.assignedToResourceId == item.assignedResourceID && x.ticketId == item.id && x.isComplete == 0).OrderByDescending(x => x.startDateTime).FirstOrDefault().startDateTime : null;
-                    item.ServiceCallAssignedTo = serviceCalls.Items.Where(x => x.assignedToResourceId == item.assignedResourceID && x.ticketId == item.id && x.isComplete == 0).Any() ? serviceCalls.Items.Where(x => x.assignedToResourceId == item.assignedResourceID && x.ticketId == item.id && x.isComplete == 0).OrderByDescending(x => x.startDateTime).FirstOrDefault().assignedToResourceId : null;
+                    var serviceCallDates = serviceCalls.Items.Where(x => x.ticketId == item.id && x.assignedToResourceId == item.assignedResourceID && x.isComplete == 0);
+                    var todosDates = todos.Items.Where(x => x.ticketID == item.id && x.assignedToResourceID == item.assignedResourceID && !x.completedDate.HasValue);
+                    
+                    item.ServiceCallScheduledDate = serviceCallDates.Any() ? serviceCallDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().startDateTime : null;
+                    item.ServiceCallAssignedTo = serviceCallDates.Any() ? serviceCallDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().assignedToResourceId : null;
+                    item.CompanyToDoScheduledDate = todosDates.Any() ? todosDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().startDateTime : null;
+                    item.CompanyToDoAssignedTo = todosDates.Any() ? todosDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().assignedToResourceID : null;
                 }
                 catch (Exception ex)
                 {
@@ -850,6 +855,9 @@ namespace CrownATTime.Client
             var resourceLookup = resources
                 .ToDictionary(r => r.Id);
 
+            //Get open Ticket Ids
+            var openTicketIds = converted.Items.Select(x=> x.id).ToList();
+
             // ----------------------------------------------------
             // 🔥 Map back onto DTO
             // ----------------------------------------------------
@@ -879,6 +887,7 @@ namespace CrownATTime.Client
             var companiesResult = await _atTimeService.GetCompanyCaches();
             var companies = companiesResult.Value.ToList();
             var serviceCalls = await GetServiceCallsForTickets(converted.Items.Select(x => x.id).ToList());
+            var todos = await GetOpenCompanyTodosForTickets(openTicketIds);
 
 
             // ----------------------------------------------------
@@ -889,7 +898,7 @@ namespace CrownATTime.Client
                 try
                 {
 
-                    item.priorityName = ticketLookupFields.Where(x => x.PicklistName == "priority" && x.ValueInt == item.priority).Any() ? 
+                    item.priorityName = ticketLookupFields.Where(x => x.PicklistName == "priority" && x.ValueInt == item.priority).Any() ?
                         ticketLookupFields.Where(x => x.PicklistName == "priority" && x.ValueInt == item.priority).FirstOrDefault().Label :
                         "";
                     item.statusName = ticketLookupFields.Where(x => x.PicklistName == "status" && x.ValueInt == item.status).Any() ?
@@ -901,10 +910,18 @@ namespace CrownATTime.Client
                     item.companyName = companies.Where(x => x.Id == item.companyID).Any() ?
                         companies.Where(x => x.Id == item.companyID).FirstOrDefault().CompanyName :
                         "";
-                    
-                    var serviceCallDate = serviceCalls.Items.Where(x => x.ticketId == item.id);
-                    item.ServiceCallScheduledDate = serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).Any() ? serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).OrderByDescending(x => x.startDateTime).FirstOrDefault().startDateTime : null;
-                    item.ServiceCallAssignedTo = serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).Any() ? serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).OrderByDescending(x => x.startDateTime).FirstOrDefault().assignedToResourceId : null;
+
+                    //var serviceCallDate = serviceCalls.Items.Where(x => x.ticketId == item.id);
+                    //item.ServiceCallScheduledDate = serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).Any() ? serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).OrderByDescending(x => x.startDateTime).FirstOrDefault().startDateTime : null;
+                    //item.ServiceCallAssignedTo = serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).Any() ? serviceCalls.Items.Where(x => x.assignedToResourceId == resourceId && x.ticketId == item.id && x.isComplete == 0).OrderByDescending(x => x.startDateTime).FirstOrDefault().assignedToResourceId : null;
+
+                    var serviceCallDates = serviceCalls.Items.Where(x => x.ticketId == item.id && x.assignedToResourceId == item.assignedResourceID && x.isComplete == 0);
+                    var todosDates = todos.Items.Where(x => x.ticketID == item.id && x.assignedToResourceID == item.assignedResourceID && !x.completedDate.HasValue);
+
+                    item.ServiceCallScheduledDate = serviceCallDates.Any() ? serviceCallDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().startDateTime : null;
+                    item.ServiceCallAssignedTo = serviceCallDates.Any() ? serviceCallDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().assignedToResourceId : null;
+                    item.CompanyToDoScheduledDate = todosDates.Any() ? todosDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().startDateTime : null;
+                    item.CompanyToDoAssignedTo = todosDates.Any() ? todosDates.OrderByDescending(x => x.startDateTime).FirstOrDefault().assignedToResourceID : null;
                 }
                 catch (Exception ex)
                 {
@@ -1319,7 +1336,56 @@ namespace CrownATTime.Client
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<AppointmentDtoResult>>(response);
         }
+        public async Task<AutotaskItemsResponse<CompanyTodoDtoResult>> GetOpenCompanyTodosForTicket(int ticketId)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "eq", field = "ticketID", value = ticketId },
+                    new { op = "notExist", field = "completedDate" },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
 
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"companyToDos/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<CompanyTodoDtoResult>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<CompanyTodoDtoResult>>(response);
+        }
+        public async Task<AutotaskItemsResponse<CompanyTodoDtoResult>> GetOpenCompanyTodosForTickets(List<int> ticketIds)
+        {
+            var filters = new List<object>
+                {
+                    new { op = "in", field = "ticketID", value = ticketIds.ToArray() },
+                    new { op = "notExist", field = "completedDate" },
+                };
+            var searchObj = new
+            {
+                filter = filters,
+                MaxRecords = 500
+            };
+
+            var currentSearch = JsonSerializer.Serialize(searchObj);
+            var encodedSearch = Uri.EscapeDataString(currentSearch);
+            var uri = new Uri(baseUri, $"companyToDos/query?search={encodedSearch}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<CompanyTodoDtoResult>>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<AutotaskItemsResponse<CompanyTodoDtoResult>>(response);
+        }
         public async Task<AutotaskItemsResponse<CompanyTodoDtoResult>> GetOpenCompanyTodosForResource(int resourceId)
         {
             var filters = new List<object>

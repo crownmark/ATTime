@@ -18,5 +18,20 @@ namespace CrownATTime.Server.Models
         public int? opportunityID { get; set; }
         public DateTime startDateTime { get; set; }
         public int? ticketID { get; set; }
+
+        //Custom Properties
+        public TimeSpan Duration => endDateTime - startDateTime;
+        public string DurationFormatted
+        {
+            get
+            {
+                var duration = endDateTime - startDateTime;
+
+                if (duration.TotalHours >= 1)
+                    return $"{(int)duration.TotalHours}h {duration.Minutes}m";
+
+                return $"{duration.Minutes}m";
+            }
+        }
     }
 }

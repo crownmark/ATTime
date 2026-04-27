@@ -193,7 +193,21 @@ namespace CrownATTime.Client.Pages
             openTicketsCount = ticketResults.Count(x => x.status != 5);
             newTicketsCount = ticketResults.Count(x => x.status != 5 && x.userDefinedFields.Where(x => x.name == "New Ticket" && x.value == "Yes").Any());
             overdueTicketsCount = ticketResults.Count(x => x.ServiceCallScheduledDate < DateTime.Now);
-            scheduledTodayTicketsCount = ticketResults.Count(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1));
+            //scheduledTodayTicketsCount = ticketResults.Count(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1));
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(1);
+
+            scheduledTodayTicketsCount = ticketResults.Count(x =>
+            {
+                var effectiveDate =
+                    (x.ServiceCallScheduledDate >= today && x.ServiceCallScheduledDate < tomorrow)
+                        ? x.ServiceCallScheduledDate
+                        : (x.CompanyToDoScheduledDate >= today && x.CompanyToDoScheduledDate < tomorrow)
+                            ? x.CompanyToDoScheduledDate
+                            : (DateTime?)null;
+
+                return effectiveDate != null;
+            });
             waitingTicketsCount = ticketResults.Count(x =>
             {
                 var waitingStatuses = new HashSet<int>
@@ -221,7 +235,7 @@ namespace CrownATTime.Client.Pages
                 };
                 return !waitingStatuses.Contains(x.status);
             });
-            unscheduledTicketsCount = ticketResults.Count(x => !x.ServiceCallScheduledDate.HasValue);
+            unscheduledTicketsCount = ticketResults.Count(x => !x.OldestScheduledDate.HasValue);
 
         }
         protected async System.Threading.Tasks.Task TicketsDataGrid1LoadData(Radzen.LoadDataArgs args)
@@ -244,17 +258,17 @@ namespace CrownATTime.Client.Pages
                 }
                 else if (overdueTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.ServiceCallScheduledDate < DateTime.Now);
+                    var filteredTickets = ticketResults.Where(x => x.OldestScheduledDate < DateTime.Now);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (scheduledTodayTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1)).OrderBy(x => x.ServiceCallScheduledDate);
+                    var filteredTickets = ticketResults.Where(x => x.OldestScheduledDate >= DateTime.Today && x.OldestScheduledDate < DateTime.Today.AddDays(1)).OrderBy(x => x.OldestScheduledDate);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if(unscheduledTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => !x.ServiceCallScheduledDate.HasValue);
+                    var filteredTickets = ticketResults.Where(x => !x.OldestScheduledDate.HasValue);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (waitingTickets)

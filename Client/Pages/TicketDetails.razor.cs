@@ -69,6 +69,11 @@ namespace CrownATTime.Client.Pages
         protected bool serviceCallsLoading { get; set; }
 
         protected RadzenDataGrid<ServiceCall> serviceCallsGrid;
+
+        protected RadzenDataGrid<CompanyTodoDtoResult> todosGrid;
+        protected List<CompanyTodoDtoResult> todos { get; set; } = new List<CompanyTodoDtoResult>();
+        protected int todosCount { get; set; }
+        protected bool todosLoading { get; set; }
         protected List<AttachmentDtoResult> attachments { get; set; } = new List<AttachmentDtoResult>();
         protected int attachmentsCount { get; set; }
         protected bool attachmentsLoading { get; set; }
@@ -255,6 +260,11 @@ namespace CrownATTime.Client.Pages
             await serviceCallsGrid.Reload();
         }
 
+        protected async System.Threading.Tasks.Task RefreshTodosButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await todosGrid.Reload();
+        }
+
         protected async System.Threading.Tasks.Task RefreshAttachmentsButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             await attachmentsGrid.Reload();
@@ -325,6 +335,23 @@ namespace CrownATTime.Client.Pages
             catch (Exception ex)
             {
                 serviceCallsLoading = false;
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task todosGridLoadData(Radzen.LoadDataArgs args)
+        {
+            try
+            {
+                todosLoading = true;
+                var results = await AutotaskService.GetOpenCompanyTodosForTicket(Ticket.item.id);
+                todos = results.Items.OrderByDescending(x => x.startDateTime).ToList();
+                todosCount = serviceCalls.Count();
+                todosLoading = false;
+            }
+            catch (Exception ex)
+            {
+                todosLoading = false;
 
             }
         }

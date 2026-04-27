@@ -96,6 +96,17 @@ namespace CrownATTime.Server.Models
             public DateTime? ServiceCallScheduledDate { get; set; }
 
             public int? ServiceCallAssignedTo { get; set; }
+
+            public DateTime? CompanyToDoScheduledDate { get; set; }
+
+            public int? CompanyToDoAssignedTo { get; set; }
+
+            public DateTime? OldestScheduledDate =>
+                ServiceCallScheduledDate == null ? CompanyToDoScheduledDate :
+                CompanyToDoScheduledDate == null ? ServiceCallScheduledDate :
+                ServiceCallScheduledDate < CompanyToDoScheduledDate
+                    ? ServiceCallScheduledDate
+                    : CompanyToDoScheduledDate;
         }
 
         public class Userdefinedfield

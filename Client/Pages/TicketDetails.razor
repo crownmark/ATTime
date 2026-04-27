@@ -223,6 +223,38 @@
                             </HeaderTemplate>
                     </RadzenDataGrid>
                 </RadzenTabsItem>
+                <RadzenTabsItem Text="To Do's" Icon="assignment" Selected="false">
+                    <RadzenDataGrid @ref="@todosGrid" TItem="Server.Models.CompanyTodoDtoResult" Data="@todos" IsLoading="@todosLoading" LoadData="@todosGridLoadData" >
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.CompanyTodoDtoResult" Property="description" Title="Description" Width="150px">
+                                <Template>
+                                    <RadzenLabel Text="@context.activityDescription" style="white-space: pre-line;" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.CompanyTodoDtoResult" Property="DurationFormatted" Title="Duration" Width="70px"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.CompanyTodoDtoResult" Property="startDateTime" Title="Start" Width="155px">
+                                <Template>
+                                    <RadzenLabel Text="@(context.startDateTime.ToLocalTime().ToString("MM/dd/yyyy h:mm tt"))" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.CompanyTodoDtoResult" Property="endDateTime" Title="End" Width="155px">
+                                <Template>
+                                    <RadzenLabel Text="@(context.endDateTime.ToLocalTime().ToString("MM/dd/yyyy h:mm tt"))" />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.CompanyTodoDtoResult" Property="completedDate" Title="Completed" Width="100px">
+                                <Template>
+                                    <RadzenBadge Text="Complete" BadgeStyle="Radzen.BadgeStyle.Success" Variant="Radzen.Variant.Outlined" IsPill="true" Visible="@(context.completedDate.HasValue)"></RadzenBadge>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                        <HeaderTemplate>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Click="@RefreshTodosButtonClick"></RadzenButton>
+                            </RadzenStack>
+                        </HeaderTemplate>
+                    </RadzenDataGrid>
+                </RadzenTabsItem>
             </Tabs>
         </RadzenTabs>
     </RadzenStack>
