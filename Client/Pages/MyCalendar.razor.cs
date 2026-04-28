@@ -303,12 +303,27 @@ namespace CrownATTime.Client.Pages
             {
                 args.Attributes["style"] = "background: var(--rz-primary-dark);";
             }
+            else if (args.Data.Description.Contains("Remote Support (With Client)"))
+            {
+                args.Attributes["style"] = "background: var(--rz-warning-dark);";
+
+            }
             else if (args.Data.Description.Contains("Remote"))
             {
                 args.Attributes["style"] = "background: var(--rz-warning-dark);";
 
             }
+            else if (args.Data.Description.Contains("Onsite Support (With Client)"))
+            {
+                args.Attributes["style"] = "background: var(--rz-warning-dark);";
+
+            }
             else if (args.Data.Description.Contains("Onsite"))
+            {
+                args.Attributes["style"] = "background: var(--rz-warning-dark);";
+
+            }
+            else if (args.Data.EventType == "Fixed")
             {
                 args.Attributes["style"] = "background: var(--rz-warning-dark);";
 

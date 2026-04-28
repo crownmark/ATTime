@@ -20,6 +20,8 @@
         //Company Todo Specific
         public int? CompanyToDoId { get; set; }
 
+        public int? ActionType { get; set; }
+
         // ServiceCall-specific
         public int? ServiceCallId { get; set; }
         public int? TicketId { get; set; }
