@@ -1323,7 +1323,7 @@ namespace CrownATTime.Client
                             Start = item.startDateTime.ToLocalTime(),
                             End = item.endDateTime.ToLocalTime(),
                             Description = item.activityDescription,
-                            EventType = item.actionType == 29683371 ? "Flexible" : item.actionType == 29683373 ? "Remote Support (With Client)" : item.actionType == 29683373 ? "Onsite Support (With Client)" : "Fixed",
+                            EventType = item.actionType == 29683371 ? "Flexible" : item.actionType == 29683373 ? "Remote Support (With Client)" : item.actionType == 29683374 ? "Onsite Support (With Client)" : "Fixed",
                             ActionType = item.actionType,
                             ResourceId = item.assignedToResourceID,
                             CreatedDate = item.createDateTime,
@@ -1461,7 +1461,7 @@ namespace CrownATTime.Client
                 {
                     new { op = "eq", field = "resourceID", value = resourceId },
                     new { op = "gt", field = "startDateTime", value = DateTime.Today },
-                    new { op = "lt", field = "endDateTime", value = DateTime.Today.AddDays(7) },
+                    new { op = "lt", field = "endDateTime", value = DateTime.Today.AddDays(30) },
                 };
             var searchObj = new
             {

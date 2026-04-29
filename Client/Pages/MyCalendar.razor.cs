@@ -172,6 +172,7 @@ namespace CrownATTime.Client.Pages
                             ticketID = draggedAppointment.TicketId,
                             assignedToResourceID = draggedAppointment.ResourceId,
                             companyID = draggedAppointment.CompanyId,
+                            actionType = draggedAppointment.ActionType.Value
                         });
                         draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
                         draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
@@ -186,6 +187,7 @@ namespace CrownATTime.Client.Pages
                             isComplete = draggedAppointment.IsComplete == true ? 1 : 0,
                             companyID = draggedAppointment.CompanyId,
                             description = draggedAppointment.Description,
+                            status = draggedAppointment.Status.Value
                         });
                         draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
                         draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
@@ -303,26 +305,17 @@ namespace CrownATTime.Client.Pages
             {
                 args.Attributes["style"] = "background: var(--rz-primary-dark);";
             }
-            else if (args.Data.Description.Contains("Remote Support (With Client)"))
+            //(calendarEvent.ActionType.HasValue && calendarEvent.ActionType.Value == 29683373)
+            else if ((args.Data.ActionType.HasValue && args.Data.ActionType.Value == 29683373) || (args.Data.Status.HasValue && args.Data.Status.Value == 105))
             {
                 args.Attributes["style"] = "background: var(--rz-warning-dark);";
 
             }
-            else if (args.Data.Description.Contains("Remote"))
+            else if ((args.Data.ActionType.HasValue && args.Data.ActionType.Value == 29683374) || (args.Data.Status.HasValue && args.Data.Status.Value == 106))
             {
                 args.Attributes["style"] = "background: var(--rz-warning-dark);";
 
-            }
-            else if (args.Data.Description.Contains("Onsite Support (With Client)"))
-            {
-                args.Attributes["style"] = "background: var(--rz-warning-dark);";
-
-            }
-            else if (args.Data.Description.Contains("Onsite"))
-            {
-                args.Attributes["style"] = "background: var(--rz-warning-dark);";
-
-            }
+            }           
             else if (args.Data.EventType == "Fixed")
             {
                 args.Attributes["style"] = "background: var(--rz-warning-dark);";
@@ -338,6 +331,11 @@ namespace CrownATTime.Client.Pages
                 args.Attributes["style"] = "background: var(--rz-secondary-dark);";
 
             }
+        }
+
+        protected async System.Threading.Tasks.Task RefreshCalendarDataButton0Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await LoadCalendarData();
         }
     }
 }

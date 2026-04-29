@@ -9,7 +9,8 @@
         public DateTime startDateTime { get; set; }
         public DateTime endDateTime { get; set; }
         public int isComplete { get; set; }
-        //public int status { get; set; }
+        
+        public int status { get; set; }
         
     }
 }

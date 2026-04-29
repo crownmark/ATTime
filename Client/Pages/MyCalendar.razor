@@ -8,13 +8,14 @@
     <RadzenText Text="@($"{resource.FullName} Calendar")" TextStyle="TextStyle.H3" TagName="TagName.H1" />
 
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="Radzen.AlignItems.Center" Gap="5">
+        <RadzenButton Icon="refresh" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Light" Size="Radzen.ButtonSize.Small" Style="width: 28px; height: 28px" Click="@RefreshCalendarDataButton0Click"></RadzenButton>
         <RadzenLabel Text="Number of days to view (Multi-Day View):" />
-        <RadzenSlider @bind-Value=@sliderNumberOfDays TValue="int" Min="1" Max="14" Style="margin-left:1.5rem;margin-right:1.5rem;" Change="NumberOfDaysChange" />
+        <RadzenSlider @bind-Value=@sliderNumberOfDays TValue="int" Min="1" Max="30" Style="margin-left:1.5rem;margin-right:1.5rem;" Change="NumberOfDaysChange" />
         <RadzenLabel Text="@($"{sliderNumberOfDays}")" />
     </RadzenStack>
 </RadzenStack>
 
-<RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 88vh" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
+<RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
     <ChildContent>
         <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
             
@@ -28,8 +29,8 @@
         <RadzenStack Gap="5">
             <RadzenStack Orientation="Orientation.Horizontal" Gap="5">
                 <RadzenIcon Icon="confirmation_number" Visible="@(calendarEvent.TicketId.HasValue)" />
-                <RadzenIcon Icon="local_shipping" Visible="false" />
-                <RadzenIcon Icon="person" Visible="false" />
+                <RadzenIcon Icon="local_shipping" Visible="@((calendarEvent.ActionType.HasValue && calendarEvent.ActionType.Value == 29683374) || (calendarEvent.Status.HasValue && calendarEvent.Status.Value == 106))" />
+                <RadzenIcon Icon="person" Visible="@((calendarEvent.ActionType.HasValue && calendarEvent.ActionType.Value == 29683373) || (calendarEvent.Status.HasValue && calendarEvent.Status.Value == 105))" />
                 <RadzenText Text="@calendarEvent.Title"/>
             </RadzenStack>
             <RadzenText Text="@($"{calendarEvent.Start:t} - {calendarEvent.End:t}")" />

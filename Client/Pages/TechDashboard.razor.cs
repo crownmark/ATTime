@@ -236,7 +236,16 @@ namespace CrownATTime.Client.Pages
                 };
                 return !waitingStatuses.Contains(x.status);
             });
-            unscheduledTicketsCount = ticketResults.Count(x => !x.OldestScheduledDate.HasValue);
+            var waitingStatuses = new HashSet<int>
+                    {
+                        7,
+                        9,
+                        12,
+                        33,
+                        34,
+                        39
+                    };
+            unscheduledTicketsCount = ticketResults.Count(x => !x.OldestScheduledDate.HasValue && !waitingStatuses.Contains(x.status));
 
         }
         protected async System.Threading.Tasks.Task TicketsDataGrid1LoadData(Radzen.LoadDataArgs args)
@@ -269,7 +278,16 @@ namespace CrownATTime.Client.Pages
                 }
                 else if(unscheduledTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => !x.OldestScheduledDate.HasValue);
+                    var waitingStatuses = new HashSet<int>
+                    {
+                        7,
+                        9,
+                        12,
+                        33,
+                        34,
+                        39
+                    };
+                    var filteredTickets = ticketResults.Where(x => !x.OldestScheduledDate.HasValue && !waitingStatuses.Contains(x.status));
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (waitingTickets)
