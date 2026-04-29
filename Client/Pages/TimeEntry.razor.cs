@@ -74,6 +74,7 @@ namespace CrownATTime.Client.Pages
         [Parameter]
         public string TicketId { get; set; } 
         public string rocketshipUrl { get; set; }
+        public string timeZestUrl { get; set; }
 
         protected List<RoleCache> mappedRoles { get; set; } = new List<RoleCache>();
         protected List<BillingCodeCache> billingCodes { get; set; } = new List<BillingCodeCache>();
@@ -123,6 +124,7 @@ namespace CrownATTime.Client.Pages
         protected bool CompanyDetailsCollapsed { get; set; } = true;
         protected bool ContactDetailsCollapsed { get; set; } = true;
         protected bool RocketshipCollapsed { get; set; } = true;
+        protected bool TimeZestCollapsed { get; set; } = true;
         protected bool DeviceDetailsCollapsed { get; set; } = true;
         protected bool ItgluePasswordsCollapsed { get; set; } = true;
         protected bool ItglueDocumentsCollapsed { get; set; } = true;
@@ -230,6 +232,7 @@ namespace CrownATTime.Client.Pages
                 else
                 {
                     rocketshipUrl = $"https://r.giantrocketship.net/autotask-insight?isdarktheme=True&psaversion=2025.5.4.114022&resourceid={resource.Id}&vendorid=417&vendorsuppliedid=3d0ee874b9cf11f0bd9b0afe532016f9&entityid={ticket.item.id}&signature=4jO7Fi0PbtnaZtJpdF/xhD5Q92M=";
+                    timeZestUrl = $"https://app.timezest.com/autotask/mVqTqmIINIgQJ7W9o5kbdPXC/insight?isdarktheme=True&psaversion=2026.2.1.128101&resourceid={resource.Id}&insightkey=FYFDIULJT76KWXXBHSSHIJECPQ&vendorid=340&vendorsuppliedid=4638&entityid={ticket.item.id}&signature=BVo5Gr+c0+b31qkIH/pXMF7Ttu4=";
 
 
                     var timeOpenTimeEntries = await ATTimeService.GetTimeEntries(filter: $@"TicketId eq {TicketId} and ResourceID eq {resource.Id} and IsCompleted eq false", orderby: null, top: 1);

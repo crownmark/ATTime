@@ -46,3 +46,49 @@
     background-color: var(--rz-info-light);
 }
 </style>
+
+<script>
+    window.scrollSchedulerToTime = function (isoDateString) {
+
+        // Use passed-in date OR fallback to now
+        const now = isoDateString ? new Date(isoDateString) : new Date();
+
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        const slots = document.querySelectorAll('.rz-slot-header');
+
+        if (!slots || slots.length === 0) return;
+
+        let closestSlot = null;
+        let smallestDiff = Number.MAX_VALUE;
+
+        slots.forEach(slot => {
+            const text = slot.innerText.trim(); // "8 AM"
+
+            const match = text.match(/(\d+)\s*(AM|PM)/i);
+            if (!match) return;
+
+            let hour = parseInt(match[1]);
+            const period = match[2].toUpperCase();
+
+            if (period === "PM" && hour !== 12) hour += 12;
+            if (period === "AM" && hour === 12) hour = 0;
+
+            const slotMinutes = hour * 60;
+
+            const diff = Math.abs(currentMinutes - slotMinutes);
+
+            if (diff < smallestDiff) {
+                smallestDiff = diff;
+                closestSlot = slot;
+            }
+        });
+
+        if (closestSlot) {
+            closestSlot.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    };
+</script>

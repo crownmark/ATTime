@@ -71,6 +71,19 @@ namespace CrownATTime.Client.Pages
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            if (firstRender)
+            {
+                await Task.Delay(300);
+
+                // 🔥 Set any test time you want here
+                //var testDate = new DateTime(2026, 4, 28, 14, 30, 0); // 2:30 PM
+                var now = DateTime.Now; // 2:30 PM
+
+                await JSRuntime.InvokeVoidAsync(
+                    "scrollSchedulerToTime",
+                    now.ToString("o") // ISO format
+                );
+            }
         }
 
 
