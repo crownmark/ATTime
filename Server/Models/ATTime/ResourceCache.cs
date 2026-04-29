@@ -53,6 +53,8 @@ namespace CrownATTime.Server.Models.ATTime
 
         public bool ContactDetailsCollapsed { get; set; }
 
+        public bool TimeZestCollapsed { get; set; }
+
         public bool RocketshipCollapsed { get; set; }
 
         public bool DeviceDetailsCollapsed { get; set; }
@@ -93,5 +95,11 @@ namespace CrownATTime.Server.Models.ATTime
         public bool ItglueConfigurationsCollapsed { get; set; }
 
         public bool LiveLinksCollapsed { get; set; }
+
+        public int? TicketRowClickEventActionId { get; set; }
+
+        public int? CalendarSlotClickEventActionId { get; set; }
+
+        public int? CalendarAgendaRowClickEventActionId { get; set; }
     }
 }

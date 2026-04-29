@@ -340,5 +340,19 @@ namespace CrownATTime.Server.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
         }
+
+        [HttpGet("/export/ATTime/clickeventactions/csv")]
+        [HttpGet("/export/ATTime/clickeventactions/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportClickEventActionsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetClickEventActions(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/clickeventactions/excel")]
+        [HttpGet("/export/ATTime/clickeventactions/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportClickEventActionsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetClickEventActions(), Request.Query, false), fileName);
+        }
     }
 }

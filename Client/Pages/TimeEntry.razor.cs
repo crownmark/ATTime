@@ -200,6 +200,7 @@ namespace CrownATTime.Client.Pages
                     DeviceDetailsCollapsed = resource.DeviceDetailsCollapsed;
                     EmailNotesCollapsed = resource.EmailNotesCollapsed;
                     RocketshipCollapsed = resource.RocketshipCollapsed;
+                    TimeZestCollapsed = resource.TimeZestCollapsed;
                     ItglueDocumentsCollapsed = resource.ItglueDocumentsCollapsed;
                     ItgluePasswordsCollapsed = resource.ItgluePasswordsCollapsed;
                     ItglueFlexibleAssetsCollapsed = resource.ItglueFlexibleAssetsCollapsed;

@@ -531,6 +531,25 @@ namespace CrownATTime.Server.Controllers
 
         }
 
+        public static IEnumerable<List<int>> BatchIds(IEnumerable<int> ids, int batchSize = 100)
+        {
+            var batch = new List<int>(batchSize);
+
+            foreach (var id in ids)
+            {
+                batch.Add(id);
+
+                if (batch.Count >= batchSize)
+                {
+                    yield return batch;
+                    batch = new List<int>(batchSize);
+                }
+            }
+
+            if (batch.Any())
+                yield return batch;
+        }
+
         [HttpGet("serviceCallTickets/query")]
         public async Task<IActionResult> GetServiceCallTickets([FromQuery] string search)
         {
@@ -561,25 +580,70 @@ namespace CrownATTime.Server.Controllers
 
                 //Get ServiceCallTicketResources
                 
-                var serviceCallTicketIds = ticketServiceCalls.Items.Select(x => x.id).ToArray();
+                //var serviceCallTicketIds = ticketServiceCalls.Items.Select(x => x.id).ToArray();
 
                 
-                var ServiceCallTicketResourceFilter = new List<object>
-                {
-                    new { op = "in", field = "serviceCallTicketID", value = serviceCallTicketIds },
-                };
-                var scTicketResourceObject = new
-                {
-                    filter = ServiceCallTicketResourceFilter,
-                    MaxRecords = 500
-                };
-                //Errors Here
-                var serviceCallTicketResourcecurrentSearch = JsonSerializer.Serialize(scTicketResourceObject);
-                var serviceCallTicketResourceencodedSearch = Uri.EscapeDataString(serviceCallTicketResourcecurrentSearch);
-                var serviceCallTicketResourceresponse = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={serviceCallTicketResourceencodedSearch}");
+                //var ServiceCallTicketResourceFilter = new List<object>
+                //{
+                //    new { op = "in", field = "serviceCallTicketID", value = serviceCallTicketIds },
+                //};
 
-                var serviceCallTicketResourcecontent = await serviceCallTicketResourceresponse.Content.ReadAsStringAsync();
-                var serviceCallTicketResources = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicketResource>>(serviceCallTicketResourcecontent);
+                var serviceCallTicketIds = ticketServiceCalls.Items.Select(x => x.id).ToList();
+
+                var allServiceCallTicketResources = new List<ServiceCallTicketResource>();
+
+                foreach (var batch in BatchIds(serviceCallTicketIds, 100))
+                {
+                    var filter = new List<object>
+                    {
+                        new { op = "in", field = "serviceCallTicketID", value = batch }
+                    };
+
+                    var searchObjBatch = new
+                    {
+                        filter,
+                        MaxRecords = 500
+                    };
+
+                    var searchJson = JsonSerializer.Serialize(searchObjBatch);
+                    var encodedSearchBatch = Uri.EscapeDataString(searchJson);
+
+                    var responseBatch = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={encodedSearchBatch}");
+
+                    var contentBatch = await responseBatch.Content.ReadAsStringAsync();
+
+                    // 🔥 Debug protection (VERY important)
+                    if (!responseBatch.IsSuccessStatusCode || content.StartsWith("<"))
+                    {
+                        throw new Exception($"Autotask error: {contentBatch}");
+                    }
+
+                    var resultBatch = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicketResource>>(contentBatch);
+
+                    if (resultBatch?.Items != null)
+                    {
+                        allServiceCallTicketResources.AddRange(resultBatch.Items);
+                    }
+                }
+                var serviceCallTicketResources = new AutotaskItemsResponse<ServiceCallTicketResource>
+                {
+                    Items = allServiceCallTicketResources
+                };
+
+                //var scTicketResourceObject = new
+                //{
+                //    filter = ServiceCallTicketResourceFilter,
+                //    MaxRecords = 500
+                //};
+
+                
+                //Errors Here
+                //var serviceCallTicketResourcecurrentSearch = JsonSerializer.Serialize(scTicketResourceObject);
+                //var serviceCallTicketResourceencodedSearch = Uri.EscapeDataString(serviceCallTicketResourcecurrentSearch);
+                //var serviceCallTicketResourceresponse = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={serviceCallTicketResourceencodedSearch}");
+
+                //var serviceCallTicketResourcecontent = await serviceCallTicketResourceresponse.Content.ReadAsStringAsync();
+                //var serviceCallTicketResources = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicketResource>>(serviceCallTicketResourcecontent);
 
                 // ----------------------------------------------------
                 // Build lookup: serviceCallTicketId > ServiceCallId

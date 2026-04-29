@@ -3,6 +3,7 @@ using CrownATTime.Server.Models;
 using CrownATTime.Server.Models.ATTime;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
@@ -96,9 +97,12 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                
-                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
-                resource = resourceResult.Value.FirstOrDefault();
+                // FOR TESTING
+                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'philip@ce-technology.com'");
+                // PRODUCTION
+                await GetLoggedInResource();
+                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
+                //resource = resourceResult.Value.FirstOrDefault();
                 var queueResult = await ATTimeService.GetTicketEntityPicklistValueCaches(filter: $"PicklistName eq 'queueID'", orderby: "Label");
                 queues = queueResult.Value.ToList();
                 //myTimeEntriesGridLoading = true;
@@ -113,6 +117,19 @@ namespace CrownATTime.Client.Pages
                 DialogManager.OnChange += StateHasChanged;
 
 
+            }
+            catch (Exception ex)
+            {
+
+            }
+            
+        }
+        protected async Task GetLoggedInResource()
+        {
+            try
+            {
+                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
+                resource = resourceResult.Value.FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -257,18 +274,18 @@ namespace CrownATTime.Client.Pages
                 
                 if (openTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.status != 5);
+                    var filteredTickets = ticketResults.Where(x => x.status != 5).OrderBy(x => x.OldestScheduledDate);
                     myTickets.AddRange(filteredTickets);
 
                 }
                 else if (newTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.status != 5 && x.userDefinedFields.Where(x => x.name == "New Ticket" && x.value == "Yes").Any());
+                    var filteredTickets = ticketResults.Where(x => x.status != 5 && x.userDefinedFields.Where(x => x.name == "New Ticket" && x.value == "Yes").Any()).OrderBy(x => x.OldestScheduledDate);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (overdueTickets)
                 {
-                    var filteredTickets = ticketResults.Where(x => x.OldestScheduledDate < DateTime.Now);
+                    var filteredTickets = ticketResults.Where(x => x.OldestScheduledDate < DateTime.Now).OrderBy(x => x.OldestScheduledDate);
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (scheduledTodayTickets)
@@ -316,7 +333,7 @@ namespace CrownATTime.Client.Pages
                         34,
                         39
                     };
-                    var filteredTickets = ticketResults.Where(x => !waitingStatuses.Contains(x.status));
+                    var filteredTickets = ticketResults.Where(x => !waitingStatuses.Contains(x.status)).OrderBy(x => x.OldestScheduledDate);
                     myTickets.AddRange(filteredTickets);
                 }
                 else
@@ -356,12 +373,82 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var ticket = new TicketDtoResult()
+                await GetLoggedInResource();
+                if (resource.TicketRowClickEventActionId.Value == 1)
                 {
-                    item = args
-                };
-                var primaryResource = await AutotaskService.GetResourceById(args.assignedResourceID.Value);
-                await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { {"ResourceId", resource.Id}, {"Ticket", ticket}, {"PriorityName", args.priorityName.ToString()}, {"StatusName", args.statusName.ToString()}, {"PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                    // Open Time Entry Dialog
+                    await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                    DialogManager.OpenOrFocus<TimeEntry>(
+                        id: args.id,
+                        title: $"{args.title}",
+                        type: "TimeEntry",
+                        parameters: new Dictionary<string, object>
+                        {
+                                { "TicketId", args.id.ToString() }
+                        }
+                    );
+
+                }
+                else if (resource.TicketRowClickEventActionId.Value == 2)
+                {
+                    // Open Ticket Details
+                    DialogService.OpenAsync("", ds =>
+                    {
+                        RenderFragment content = b =>
+                        {
+                            b.OpenElement(0, "div");
+                            b.AddAttribute(1, "class", "row");
+
+                            b.OpenElement(2, "div");
+                            b.AddAttribute(3, "class", "col-md-12");
+
+                            b.AddContent(4, $"Loading Ticket {args.title}...");
+
+                            b.CloseElement();
+                            b.CloseElement();
+                        };
+                        return content;
+                    }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                    var ticket = await AutotaskService.GetTicket(args.id);
+                    var primaryResource = await AutotaskService.GetResourceById(args.assignedResourceID.Value);
+                    DialogService.Close();
+                    await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                }
+                else if (resource.TicketRowClickEventActionId.Value == 3)
+                {
+                    // Open Autotask Ticket in new tab
+                    DialogService.OpenAsync("", ds =>
+                    {
+                        RenderFragment content = b =>
+                        {
+                            b.OpenElement(0, "div");
+                            b.AddAttribute(1, "class", "row");
+
+                            b.OpenElement(2, "div");
+                            b.AddAttribute(3, "class", "col-md-12");
+
+                            b.AddContent(4, $"Loading Ticket {args.title}...");
+
+                            b.CloseElement();
+                            b.CloseElement();
+                        };
+                        return content;
+                    }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                    await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.id}");
+                    DialogService.Close();
+
+                }
+                else
+                {
+                    var ticket = new TicketDtoResult()
+                    {
+                        item = args
+                    };
+                    var primaryResource = await AutotaskService.GetResourceById(args.assignedResourceID.Value);
+                    await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", args.priorityName.ToString() }, { "StatusName", args.statusName.ToString() }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                }
+                
             }
             catch (Exception ex)
             {
@@ -410,19 +497,92 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                if(args.TicketId != null)
+                if (args.TicketId != null)
                 {
-                    DialogManager.OpenOrFocus<TimeEntry>(
-                    id: args.TicketId.Value,
-                    title: $"{args.Title}",
-                    type: "TimeEntry",
-                    parameters: new Dictionary<string, object>
+                    await GetLoggedInResource();
+
+                    if (resource.CalendarAgendaRowClickEventActionId.Value == 1)
                     {
-                        { "TicketId", args.TicketId.ToString() }
+                        // Open Time Entry Dialog
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+
                     }
-                );
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 2)
+                    {
+                        // Open Ticket Details
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        var ticket = await AutotaskService.GetTicket(args.TicketId.Value);
+                        var primaryResource = await AutotaskService.GetResourceById(args.ResourceId);
+                        DialogService.Close();
+                        await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                    }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 3)
+                    {
+                        // Open Autotask Ticket in new tab
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else
+                    {
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+                    }
+
+
                 }
-                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
 
 
             }
@@ -439,17 +599,90 @@ namespace CrownATTime.Client.Pages
             {
                 if (args.TicketId != null)
                 {
-                    DialogManager.OpenOrFocus<TimeEntry>(
-                    id: args.TicketId.Value,
-                    title: $"{args.Title}",
-                    type: "TimeEntry",
-                    parameters: new Dictionary<string, object>
+                    await GetLoggedInResource();
+
+                    if (resource.CalendarAgendaRowClickEventActionId.Value == 1)
                     {
-                        { "TicketId", args.TicketId.ToString() }
+                        // Open Time Entry Dialog
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+
                     }
-                );
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 2)
+                    {
+                        // Open Ticket Details
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        var ticket = await AutotaskService.GetTicket(args.TicketId.Value);
+                        var primaryResource = await AutotaskService.GetResourceById(args.ResourceId);
+                        DialogService.Close();
+                        await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                    }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 3)
+                    {
+                        // Open Autotask Ticket in new tab
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else
+                    {
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+                    }
+
+
                 }
-                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
 
 
             }
@@ -465,18 +698,90 @@ namespace CrownATTime.Client.Pages
             {
                 if (args.TicketId != null)
                 {
-                    DialogManager.OpenOrFocus<TimeEntry>(
-                    id: args.TicketId.Value,
-                    title: $"{args.Title}",
-                    type: "TimeEntry",
-                    parameters: new Dictionary<string, object>
-                    {
-                        { "TicketId", args.TicketId.ToString() }
-                    }
-                );
-                }
-                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+                    await GetLoggedInResource();
 
+                    if (resource.CalendarAgendaRowClickEventActionId.Value == 1)
+                    {
+                        // Open Time Entry Dialog
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+
+                    }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 2)
+                    {
+                        // Open Ticket Details
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        var ticket = await AutotaskService.GetTicket(args.TicketId.Value);
+                        var primaryResource = await AutotaskService.GetResourceById(args.ResourceId);
+                        DialogService.Close();
+                        await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                    }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 3)
+                    {
+                        // Open Autotask Ticket in new tab
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else
+                    {
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+                    }
+
+                    
+                }
 
             }
             catch (Exception ex)
@@ -497,17 +802,90 @@ namespace CrownATTime.Client.Pages
             {
                 if (args.TicketId != null)
                 {
-                    DialogManager.OpenOrFocus<TimeEntry>(
-                    id: args.TicketId.Value,
-                    title: $"{args.Title}",
-                    type: "TimeEntry",
-                    parameters: new Dictionary<string, object>
+                    await GetLoggedInResource();
+
+                    if (resource.CalendarAgendaRowClickEventActionId.Value == 1)
                     {
-                        { "TicketId", args.TicketId.ToString() }
+                        // Open Time Entry Dialog
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+
                     }
-                );
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 2)
+                    {
+                        // Open Ticket Details
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        var ticket = await AutotaskService.GetTicket(args.TicketId.Value);
+                        var primaryResource = await AutotaskService.GetResourceById(args.ResourceId);
+                        DialogService.Close();
+                        await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                    }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 3)
+                    {
+                        // Open Autotask Ticket in new tab
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Ticket {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else
+                    {
+                        await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
+
+                        DialogManager.OpenOrFocus<TimeEntry>(
+                            id: args.TicketId.Value,
+                            title: $"{args.Title}",
+                            type: "TimeEntry",
+                            parameters: new Dictionary<string, object>
+                            {
+                                { "TicketId", args.TicketId.ToString() }
+                            }
+                        );
+                    }
+
+
                 }
-                await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
 
 
             }
@@ -719,7 +1097,7 @@ namespace CrownATTime.Client.Pages
             {
 
             }
-
+            
         }
 
 

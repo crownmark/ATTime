@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
+using CrownATTime.Server.Models.ATTime;
 
 namespace CrownATTime.Client.Pages
 {
@@ -32,11 +33,28 @@ namespace CrownATTime.Client.Pages
         [Inject]
         public ATTimeService ATTimeService { get; set; }
 
+        public List<ClickEventAction> ticketGridClickEventActionsList { get; set; } = new List<ClickEventAction>();
+        public List<ClickEventAction> calendarAgendaClickEventActionsList { get; set; } = new List<ClickEventAction>();
+        public List<ClickEventAction> calendarSlotClickEventActionsList { get; set; } = new List<ClickEventAction>();
+
 
         protected override async Task OnInitializedAsync()
         {
-            var result = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
-            resourceCache = result.Value.FirstOrDefault();
+            try
+            {
+                var result = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
+                resourceCache = result.Value.FirstOrDefault();
+
+                var clickEventActionsResult = await ATTimeService.GetClickEventActions(new Query {Filter = $"Active eq true", OrderBy = "Title" });
+                ticketGridClickEventActionsList = clickEventActionsResult.Value.ToList();
+                calendarAgendaClickEventActionsList = clickEventActionsResult.Value.ToList();
+                calendarSlotClickEventActionsList = clickEventActionsResult.Value.ToList();
+            }
+            catch (Exception ex)
+            {
+
+            }
+            
         }
         protected bool errorVisible;
         protected CrownATTime.Server.Models.ATTime.ResourceCache resourceCache;
@@ -63,6 +81,10 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.AiPromptConfiguration> aiPromptConfigurations;
 
         protected int aiPromptConfigurationsCount;
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.ClickEventAction> clickEventActions;
+
+        protected int clickEventActionsCount;
 
 
 

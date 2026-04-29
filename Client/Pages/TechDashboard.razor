@@ -20,8 +20,8 @@
     </RadzenColumn>
 <RadzenColumn SizeLG="6">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
-        <RadzenChip Text="Tech: Mark Williams" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined"></RadzenChip>
-<RadzenChip Text="Status: Available" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined">
+        <RadzenChip Text="Tech: Mark Williams" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Visible="false"></RadzenChip>
+<RadzenChip Text="Status: Available" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Visible="false">
    
 </RadzenChip>
 <RadzenButton Text="New Ticket" Icon="add" Variant="Radzen.Variant.Filled" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@NewTicketButtonClick"></RadzenButton>
@@ -318,9 +318,9 @@
                                         <span>@dialog.Title</span>
 
                                         <div>
-                                            <RadzenButton @onclick:stopPropagation Click="@((args) => PopoutWindowButtonClick(args, dialog))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="open_in_browser" Style="width: 24px" MouseEnter="PopoutTimeEntryButtonMouseEnter" MouseLeave="PopoutTimeEntryButtonMouseLeave"/>
-                                            <RadzenButton @onclick:stopPropagation Click="@((args) => MinimizeWindowButtonClick(args, dialog))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="minimize" Style="width: 24px" />
-                                            <RadzenButton @onclick:stopPropagation Click="@((args) => CloseWindowButtonClick(args, dialog))" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="close" Style="width: 24px" />
+                                            <RadzenButton @onclick:stopPropagation Click="@((args) => PopoutWindowButtonClick(args, dialog))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="open_in_browser" Style="width: 24px" MouseEnter="PopoutTimeEntryButtonMouseEnter" MouseLeave="PopoutTimeEntryButtonMouseLeave"/>
+                                            <RadzenButton @onclick:stopPropagation Click="@((args) => MinimizeWindowButtonClick(args, dialog))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="minimize" Style="width: 24px" />
+                                            <RadzenButton @onclick:stopPropagation Click="@((args) => CloseWindowButtonClick(args, dialog))" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="close" Style="width: 24px" />
                                             
                                         </div>
                                     </div>

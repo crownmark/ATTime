@@ -69,6 +69,14 @@
             </RadzenRow>
             <RadzenRow style="margin-bottom: 1rem">
                 <RadzenColumn SizeMD="10">
+                    <RadzenLabel Text="TimeZest Collapsed" Component="TimeZestCollapsed" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="2">
+                    <RadzenCheckBox @bind-Value="@(resourceCache.TimeZestCollapsed)" Name="TimeZestCollapsed" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="10">
                     <RadzenLabel Text="Device Details Collapsed" Component="DeviceDetailsCollapsed" style="width: 100%" />
                 </RadzenColumn>
                 <RadzenColumn SizeMD="2">
@@ -115,6 +123,15 @@
             
             
             <RadzenStack>
+                <RadzenFormField Text="Ticket Row Click Action" Component="TicketRowClickEventActionId">
+                    <RadzenDropDown TValue="int?" ValueProperty="ClickEventActionId" TextProperty="Title" @bind-Value="@(resourceCache.TicketRowClickEventActionId)" Data="@ticketGridClickEventActionsList" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="TicketRowClickEventActionId"></RadzenDropDown> 
+                </RadzenFormField>
+                <RadzenFormField Text="Calendar Agenda Row Click Action" Component="CalendarAgendaRowClickEventActionId">
+                    <RadzenDropDown TValue="int?" ValueProperty="ClickEventActionId" TextProperty="Title" Data="@calendarAgendaClickEventActionsList" @bind-Value="@resourceCache.CalendarAgendaRowClickEventActionId" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="CalendarAgendaRowClickEventActionId" /> 
+                </RadzenFormField>
+                <RadzenFormField Text="Calendar Appointment Click Action" Component="CalendarSlotClickEventActionId">
+                    <RadzenDropDown TValue="int?" ValueProperty="ClickEventActionId" TextProperty="Title" Data="@calendarSlotClickEventActionsList" @bind-Value="@resourceCache.CalendarSlotClickEventActionId" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="CalendarSlotClickEventActionId" /> 
+                </RadzenFormField>
                 <RadzenFormField Text="Default Email Template" Component="DefaultEmailTemplate">
                     <RadzenDropDown TValue="int?" @bind-Value="@(resourceCache.DefaultEmailTemplate)" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultEmailTemplate" Data="@emailTemplates" ValueProperty="EmailTemplateId" TextProperty="Title" LoadData="@emailTemplatesLoadData"></RadzenDropDown> 
                 </RadzenFormField>

@@ -2192,5 +2192,99 @@ namespace CrownATTime.Client
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
+
+        public async System.Threading.Tasks.Task ExportClickEventActionsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/clickeventactions/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/clickeventactions/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportClickEventActionsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/clickeventactions/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/clickeventactions/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetClickEventActions(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ClickEventAction>> GetClickEventActions(Query query)
+        {
+            return await GetClickEventActions(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ClickEventAction>> GetClickEventActions(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"ClickEventActions");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetClickEventActions(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.ClickEventAction>>(response);
+        }
+
+        partial void OnCreateClickEventAction(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ClickEventAction> CreateClickEventAction(CrownATTime.Server.Models.ATTime.ClickEventAction clickEventAction = default(CrownATTime.Server.Models.ATTime.ClickEventAction))
+        {
+            var uri = new Uri(baseUri, $"ClickEventActions");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(clickEventAction), Encoding.UTF8, "application/json");
+
+            OnCreateClickEventAction(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ClickEventAction>(response);
+        }
+
+        partial void OnDeleteClickEventAction(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteClickEventAction(int clickEventActionId = default(int))
+        {
+            var uri = new Uri(baseUri, $"ClickEventActions({clickEventActionId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteClickEventAction(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetClickEventActionByClickEventActionId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ClickEventAction> GetClickEventActionByClickEventActionId(string expand = default(string), int clickEventActionId = default(int))
+        {
+            var uri = new Uri(baseUri, $"ClickEventActions({clickEventActionId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetClickEventActionByClickEventActionId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.ClickEventAction>(response);
+        }
+
+        partial void OnUpdateClickEventAction(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateClickEventAction(int clickEventActionId = default(int), CrownATTime.Server.Models.ATTime.ClickEventAction clickEventAction = default(CrownATTime.Server.Models.ATTime.ClickEventAction))
+        {
+            var uri = new Uri(baseUri, $"ClickEventActions({clickEventActionId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(clickEventAction), Encoding.UTF8, "application/json");
+
+            OnUpdateClickEventAction(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
     }
 }

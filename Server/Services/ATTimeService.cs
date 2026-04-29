@@ -3848,5 +3848,167 @@ namespace CrownATTime.Server
 
             return itemToDelete;
         }
+    
+        public async Task ExportClickEventActionsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/clickeventactions/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/clickeventactions/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportClickEventActionsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/clickeventactions/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/clickeventactions/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnClickEventActionsRead(ref IQueryable<CrownATTime.Server.Models.ATTime.ClickEventAction> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.ClickEventAction>> GetClickEventActions(Query query = null)
+        {
+            var items = Context.ClickEventActions.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnClickEventActionsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnClickEventActionGet(CrownATTime.Server.Models.ATTime.ClickEventAction item);
+        partial void OnGetClickEventActionByClickEventActionId(ref IQueryable<CrownATTime.Server.Models.ATTime.ClickEventAction> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.ClickEventAction> GetClickEventActionByClickEventActionId(int clickeventactionid)
+        {
+            var items = Context.ClickEventActions
+                              .AsNoTracking()
+                              .Where(i => i.ClickEventActionId == clickeventactionid);
+
+ 
+            OnGetClickEventActionByClickEventActionId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnClickEventActionGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnClickEventActionCreated(CrownATTime.Server.Models.ATTime.ClickEventAction item);
+        partial void OnAfterClickEventActionCreated(CrownATTime.Server.Models.ATTime.ClickEventAction item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ClickEventAction> CreateClickEventAction(CrownATTime.Server.Models.ATTime.ClickEventAction clickeventaction)
+        {
+            OnClickEventActionCreated(clickeventaction);
+
+            var existingItem = Context.ClickEventActions
+                              .Where(i => i.ClickEventActionId == clickeventaction.ClickEventActionId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.ClickEventActions.Add(clickeventaction);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(clickeventaction).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterClickEventActionCreated(clickeventaction);
+
+            return clickeventaction;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.ClickEventAction> CancelClickEventActionChanges(CrownATTime.Server.Models.ATTime.ClickEventAction item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnClickEventActionUpdated(CrownATTime.Server.Models.ATTime.ClickEventAction item);
+        partial void OnAfterClickEventActionUpdated(CrownATTime.Server.Models.ATTime.ClickEventAction item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ClickEventAction> UpdateClickEventAction(int clickeventactionid, CrownATTime.Server.Models.ATTime.ClickEventAction clickeventaction)
+        {
+            OnClickEventActionUpdated(clickeventaction);
+
+            var itemToUpdate = Context.ClickEventActions
+                              .Where(i => i.ClickEventActionId == clickeventaction.ClickEventActionId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(clickeventaction).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterClickEventActionUpdated(clickeventaction);
+
+            return clickeventaction;
+        }
+
+        partial void OnClickEventActionDeleted(CrownATTime.Server.Models.ATTime.ClickEventAction item);
+        partial void OnAfterClickEventActionDeleted(CrownATTime.Server.Models.ATTime.ClickEventAction item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.ClickEventAction> DeleteClickEventAction(int clickeventactionid)
+        {
+            var itemToDelete = Context.ClickEventActions
+                              .Where(i => i.ClickEventActionId == clickeventactionid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnClickEventActionDeleted(itemToDelete);
+
+            Reset();
+
+            Context.ClickEventActions.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterClickEventActionDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
         }
 }

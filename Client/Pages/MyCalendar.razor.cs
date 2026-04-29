@@ -58,6 +58,9 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                // FOR TESTING
+                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'philip@ce-technology.com'");
+                // PRODUCTION
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
                 resource = resourceResult.Value.FirstOrDefault();
                 SelectedCalendarViewIndex = 1;
@@ -75,8 +78,6 @@ namespace CrownATTime.Client.Pages
             {
                 await Task.Delay(300);
 
-                // 🔥 Set any test time you want here
-                //var testDate = new DateTime(2026, 4, 28, 14, 30, 0); // 2:30 PM
                 var now = DateTime.Now; // 2:30 PM
 
                 await JSRuntime.InvokeVoidAsync(
@@ -106,7 +107,26 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                BusyDialog($"Loading calendar for {resource.FullName}...");
+                DialogService.OpenAsync("", ds =>
+                {
+                    RenderFragment content = dialogContent =>
+                    {
+                        dialogContent.OpenComponent<RadzenRow>(0);
+                        dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+                        {
+                            rowContent.OpenComponent<RadzenColumn>(0);
+                            rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+                            rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+                            {
+                                columnContent.AddContent(0, $"Loading calendar for {resource.FullName}...");
+                            }));
+                            rowContent.CloseComponent();
+                        }));
+
+                        dialogContent.CloseComponent();
+                    };
+                    return content;
+                }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
 
                 // calendarLoading = true;
                 calendarEvents = await AutotaskService.GetCalendarEventsForResource(resource.Id);
@@ -123,29 +143,29 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        async Task BusyDialog(string message)
-        {
-            await DialogService.OpenAsync("", ds =>
-            {
-                RenderFragment content = dialogContent =>
-                {
-                    dialogContent.OpenComponent<RadzenRow>(0);
-                    dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
-                    {
-                        rowContent.OpenComponent<RadzenColumn>(0);
-                        rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
-                        rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
-                        {
-                            columnContent.AddContent(0, message);
-                        }));
-                        rowContent.CloseComponent();
-                    }));
+        //public async Task BusyDialog(string message)
+        //{
+        //    DialogService.OpenAsync("", ds =>
+        //    {
+        //        RenderFragment content = dialogContent =>
+        //        {
+        //            dialogContent.OpenComponent<RadzenRow>(0);
+        //            dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+        //            {
+        //                rowContent.OpenComponent<RadzenColumn>(0);
+        //                rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+        //                rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+        //                {
+        //                    columnContent.AddContent(0, message);
+        //                }));
+        //                rowContent.CloseComponent();
+        //            }));
 
-                    dialogContent.CloseComponent();
-                };
-                return content;
-            }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
-        }
+        //            dialogContent.CloseComponent();
+        //        };
+        //        return content;
+        //    }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+        //}
 
         protected async System.Threading.Tasks.Task Scheduler0AppointmentMove(Radzen.SchedulerAppointmentMoveEventArgs args)
         {
@@ -285,12 +305,56 @@ namespace CrownATTime.Client.Pages
             {
                 if (args.Data.TicketId.HasValue)
                 {
-                    BusyDialog($"Loading Ticket {args.Data.Title}...");
+                    //BusyDialog($"Loading Ticket {args.Data.Title}...");
+                    DialogService.OpenAsync("", ds =>
+                    {
+                        RenderFragment content = b =>
+                        {
+                            b.OpenElement(0, "div");
+                            b.AddAttribute(1, "class", "row");
 
-                    var ticket = await AutotaskService.GetTicket(args.Data.TicketId.Value);
-                    var primaryResource = await AutotaskService.GetResourceById(args.Data.ResourceId);
-                    DialogService.Close();
-                    await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                            b.OpenElement(2, "div");
+                            b.AddAttribute(3, "class", "col-md-12");
+
+                            b.AddContent(4, $"Loading Ticket {args.Data.Title}...");
+
+                            b.CloseElement();
+                            b.CloseElement();
+                        };
+                        return content;
+                    }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+
+                    if (resource.CalendarSlotClickEventActionId.Value == 1)
+                    {
+                        // Open Time Entry Dialog
+                        
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{NavigationManager.BaseUri}TimeEntry/{args.Data.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else if (resource.CalendarSlotClickEventActionId.Value == 2)
+                    {
+                        // Open Ticket Details
+                        var ticket = await AutotaskService.GetTicket(args.Data.TicketId.Value);
+                        var primaryResource = await AutotaskService.GetResourceById(args.Data.ResourceId);
+                        DialogService.Close();
+                        await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                    }
+                    else if (resource.CalendarSlotClickEventActionId.Value == 3)
+                    {
+                        // Open Autotask Ticket in new tab
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.Data.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else
+                    {
+                        var ticket = await AutotaskService.GetTicket(args.Data.TicketId.Value);
+                        var primaryResource = await AutotaskService.GetResourceById(args.Data.ResourceId);
+                        DialogService.Close();
+                        await DialogService.OpenAsync<TicketDetails>("Ticket Details", new Dictionary<string, object>() { { "ResourceId", resource.Id }, { "Ticket", ticket }, { "PriorityName", ticket.item.priorityName }, { "StatusName", ticket.item.statusName }, { "PrimaryResource", $"{primaryResource.item.firstName} {primaryResource.item.lastName}" } }, new DialogOptions { Width = "1200px", CloseDialogOnOverlayClick = true });
+                    }
+                        
                 }
 
             }
