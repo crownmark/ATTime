@@ -75,6 +75,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetBillingCodeCaches(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/clickeventactions/csv")]
+        [HttpGet("/export/ATTime/clickeventactions/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportClickEventActionsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetClickEventActions(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/clickeventactions/excel")]
+        [HttpGet("/export/ATTime/clickeventactions/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportClickEventActionsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetClickEventActions(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/companycaches/csv")]
         [HttpGet("/export/ATTime/companycaches/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportCompanyCachesToCSV(string fileName = null)
@@ -285,6 +299,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetTimeGuardSections(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/waitingstatuses/csv")]
+        [HttpGet("/export/ATTime/waitingstatuses/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWaitingStatusesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetWaitingStatuses(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/waitingstatuses/excel")]
+        [HttpGet("/export/ATTime/waitingstatuses/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportWaitingStatusesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetWaitingStatuses(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/workflowrules/csv")]
         [HttpGet("/export/ATTime/workflowrules/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportWorkflowRulesToCSV(string fileName = null)
@@ -339,20 +367,6 @@ namespace CrownATTime.Server.Controllers
         public async Task<FileStreamResult> ExportWorkflowTriggerTypesToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/clickeventactions/csv")]
-        [HttpGet("/export/ATTime/clickeventactions/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportClickEventActionsToCSV(string fileName = null)
-        {
-            return ToCSV(ApplyQuery(await service.GetClickEventActions(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/clickeventactions/excel")]
-        [HttpGet("/export/ATTime/clickeventactions/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportClickEventActionsToExcel(string fileName = null)
-        {
-            return ToExcel(ApplyQuery(await service.GetClickEventActions(), Request.Query, false), fileName);
         }
     }
 }

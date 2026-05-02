@@ -125,6 +125,7 @@ namespace CrownATTime.Client.Pages
         protected bool ContactDetailsCollapsed { get; set; } = true;
         protected bool RocketshipCollapsed { get; set; } = true;
         protected bool TimeZestCollapsed { get; set; } = true;
+        protected bool NextActionsCollapsed { get; set; } = true;
         protected bool DeviceDetailsCollapsed { get; set; } = true;
         protected bool ItgluePasswordsCollapsed { get; set; } = true;
         protected bool ItglueDocumentsCollapsed { get; set; } = true;
@@ -201,6 +202,7 @@ namespace CrownATTime.Client.Pages
                     EmailNotesCollapsed = resource.EmailNotesCollapsed;
                     RocketshipCollapsed = resource.RocketshipCollapsed;
                     TimeZestCollapsed = resource.TimeZestCollapsed;
+                    NextActionsCollapsed = resource.NextActionsCollapsed;
                     ItglueDocumentsCollapsed = resource.ItglueDocumentsCollapsed;
                     ItgluePasswordsCollapsed = resource.ItgluePasswordsCollapsed;
                     ItglueFlexibleAssetsCollapsed = resource.ItglueFlexibleAssetsCollapsed;
@@ -2318,7 +2320,121 @@ namespace CrownATTime.Client.Pages
             TooltipService.Close();
         }
 
+        protected async System.Threading.Tasks.Task NextActionButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LiveLink data)
+        {
+            try
+            {
+                var liveLink = data;  //await ATTimeService.GetLiveLinkByLiveLinkId("", Convert.ToInt32(args.Value));
+                if(liveLink != null)
+                {
+                    // Load picklists
+                    var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
+                    var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
 
+                    var picklists = EmailService.BuildPicklistMaps(picklistRows);
+
+                    var ctx = new TemplateContext
+                    {
+                        Contact = contact?.item,
+                        Ticket = ticket?.item,
+                        Resource = resource,
+                        TicketResource = ticketResource,
+                        Company = company,
+                        Picklists = picklists
+                    };
+                    liveLink.Url = EmailService.Render(liveLink.Url ?? string.Empty, ctx);
+
+                    //await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{liveLink.Url}");
+                    // Example: perform an HTTP GET to the rendered URL (replace with RequestMode.BrowserOpen or RequestMode.HttpPostJson as needed)
+                    if(liveLink.HttpMethod == "GET")
+                    {
+                        var json = JsonSerializer.Serialize(new
+                        {
+                            Ticket = ticket,
+                            TimeEntry = timeEntryRecord
+                        });
+                        if (liveLink.RequiresConfirmationToRun)
+                        {
+                            if(await DialogService.Confirm("Are you sure you want to run this live link?", $"Confirmation: {liveLink.Title}", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            {
+                                //var json = JsonSerializer.Serialize(ticket);
+                                await RequestUrl(liveLink.Url, RequestMode.HttpGet, json, null, liveLink);
+
+                            }
+
+                        }
+                        else
+                        {
+                            //var json = JsonSerializer.Serialize(ticket);
+                            await RequestUrl(liveLink.Url, RequestMode.HttpGet, json, null, liveLink);
+
+                        }
+                    }
+                    else if(liveLink.HttpMethod == "POST")
+                    {
+                        var json = JsonSerializer.Serialize(new
+                        {
+                            Ticket = ticket,
+                            TimeEntry = timeEntryRecord
+                        });
+                        if (liveLink.RequiresConfirmationToRun)
+                        {
+                            if (await DialogService.Confirm("Are you sure you want to run this live link?", $"Confirmation: {liveLink.Title}", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            {
+                                //var json = JsonSerializer.Serialize(ticket);
+                                await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json, null, liveLink);
+
+                            }
+                        }
+                        else
+                        {
+                            //var json = JsonSerializer.Serialize(ticket);
+                            await RequestUrl(liveLink.Url, RequestMode.HttpPostJson, json, null, liveLink);
+                        }
+                            
+
+                    }
+                    else if (liveLink.HttpMethod == "OPENURL")
+                    {
+                        if (liveLink.RequiresConfirmationToRun)
+                        {
+                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen, null);
+
+                            }
+                        }
+                        else
+                        {
+                            await RequestUrl(liveLink.Url, RequestMode.BrowserOpen, null);
+
+                        }
+
+                    }
+                    else 
+                    {
+                        if (liveLink.RequiresConfirmationToRun)
+                        {
+                            if (await DialogService.Confirm("Are you sure you want to run this live link?", "Live Link Confirmation", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = false }, null) == true)
+                            {
+                                await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
+
+                            }
+                        }                                
+                        else
+                        {
+                            await RequestUrl(liveLink.Url, RequestMode.BrowserOpen);
+
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
         protected async System.Threading.Tasks.Task LiveLinkSplitButtonClick(Radzen.Blazor.RadzenSplitButtonItem args)
         {
             try

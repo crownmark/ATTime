@@ -80,6 +80,14 @@
                     <RadzenCheckBox @bind-Value="@(liveLink.ShareWithOthers)" Name="ShareWithOthers" />
                 </RadzenColumn>
             </RadzenRow>
+<RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Show in Next Actions Section" Component="ShareWithOthers" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@liveLink.ShowInNextActions" Name="ShowInNextActions" />
+                </RadzenColumn>
+            </RadzenRow>
           </RadzenStack>
           <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                     <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />

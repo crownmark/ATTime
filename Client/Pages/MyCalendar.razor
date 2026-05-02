@@ -15,6 +15,23 @@
     </RadzenStack>
 </RadzenStack>
 
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Visible="@(resources.Any())" JustifyContent="Radzen.JustifyContent.Center" AlignItems="Radzen.AlignItems.Center">
+    
+    @foreach(var item in resources.Where(x => x.IsActive == true && x.LicenseType == 1))
+    {
+        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Secondary" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Light" Size="Radzen.ButtonSize.Small" Style="width: 100px; height: 100px" >
+            <ChildContent>
+                <RadzenStack Gap="5" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
+                    <RadzenImage Path="@($"images/{item.Id}.png")" class="avatar"></RadzenImage>
+                    <RadzenLabel Text="@item.FullName" />
+                </RadzenStack>
+            </ChildContent>
+            
+        </RadzenButton>
+    }
+    
+</RadzenStack>
+
 <RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
     <ChildContent>
         <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
@@ -44,6 +61,12 @@
 <style>
 .my-class {
     background-color: var(--rz-info-light);
+}
+.avatar {
+    width: 50px;
+    height: 50px;
+    object-fit: scale-down;
+    border-radius: 50%;
 }
 </style>
 
@@ -91,4 +114,5 @@
             });
         }
     };
+    
 </script>

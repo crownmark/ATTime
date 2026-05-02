@@ -156,6 +156,10 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.ClickEventAction>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
@@ -194,6 +198,10 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.LiveLink>()
               .Property(p => p.RequiresConfirmationToRun)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.LiveLink>()
+              .Property(p => p.ShowInNextActions)
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.NoteTemplate>()
@@ -254,6 +262,10 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
               .Property(p => p.LiveLinksCollapsed)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.NextActionsCollapsed)
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
@@ -324,10 +336,6 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
-            builder.Entity<CrownATTime.Server.Models.ATTime.ClickEventAction>()
-              .Property(p => p.Active)
-              .HasDefaultValueSql(@"((1))");
-
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
               .HasColumnType("datetimeoffset");
@@ -366,6 +374,8 @@ namespace CrownATTime.Server.Data
 
         public DbSet<CrownATTime.Server.Models.ATTime.BillingCodeCache> BillingCodeCaches { get; set; }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.ClickEventAction> ClickEventActions { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.CompanyCache> CompanyCaches { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.ContractCache> ContractCaches { get; set; }
@@ -396,6 +406,8 @@ namespace CrownATTime.Server.Data
 
         public DbSet<CrownATTime.Server.Models.ATTime.TimeGuardSection> TimeGuardSections { get; set; }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.WaitingStatus> WaitingStatuses { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowRule> WorkflowRules { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStep> WorkflowSteps { get; set; }
@@ -403,8 +415,6 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStepType> WorkflowStepTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> WorkflowTriggerTypes { get; set; }
-
-        public DbSet<CrownATTime.Server.Models.ATTime.ClickEventAction> ClickEventActions { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

@@ -5,6 +5,7 @@ namespace CrownATTime.Client
     using global::CrownATTime.Server.Models;
     using Microsoft.AspNetCore.Components;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Options;
     using Radzen;
     using Radzen.Blazor.Rendering;
     using System;
@@ -15,6 +16,7 @@ namespace CrownATTime.Client
     using System.Text.Json;
     using System.Threading.Tasks;
     using static CrownATTime.Server.Models.ThreeCxMakeCallResult;
+    using static System.Net.WebRequestMethods;
 
     public partial class AutotaskService
     {
@@ -1220,30 +1222,86 @@ namespace CrownATTime.Client
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<AutotaskItemsResponse<ServiceCallTicket>>(response);
         }
+        public static IEnumerable<List<int>> BatchIds(IEnumerable<int> ids, int batchSize = 100)
+        {
+            var batch = new List<int>(batchSize);
+
+            foreach (var id in ids)
+            {
+                batch.Add(id);
+
+                if (batch.Count >= batchSize)
+                {
+                    yield return batch;
+                    batch = new List<int>(batchSize);
+                }
+            }
+
+            if (batch.Any())
+                yield return batch;
+        }
 
         public async Task<AutotaskItemsResponse<ServiceCall>> GetServiceCallsForTickets(List<int> ticketIds)
         {
-            var filters = new List<object>
-                {
-                    new { op = "in", field = "ticketID", value = ticketIds.ToArray() },
-                };
-            var searchObj = new
+            // BATCH ServiceCall Ticket Resources
+            var allServiceCallsList = new AutotaskItemsResponse<ServiceCall>();
+            foreach (var batch in BatchIds(ticketIds, 100))
             {
-                filter = filters,
-                MaxRecords = 500
-            };
+                var filter = new List<object>
+                    {
+                        new { op = "in", field = "ticketID", value = batch }
+                    };
 
-            var currentSearch = JsonSerializer.Serialize(searchObj);
-            var encodedSearch = Uri.EscapeDataString(currentSearch);
-            var uri = new Uri(baseUri, $"serviceCallTickets/query?search={encodedSearch}");
+                var searchObjBatch = new
+                {
+                    filter,
+                    MaxRecords = 500
+                };
 
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+                var searchJson = JsonSerializer.Serialize(searchObjBatch);
+                var encodedSearchBatch = Uri.EscapeDataString(searchJson);
+                var uri = new Uri(baseUri, $"serviceCallTickets/query?search={encodedSearchBatch}");
+                var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+                var responseBatch = await httpClient.SendAsync(httpRequestMessage);
 
-            var response = await httpClient.SendAsync(httpRequestMessage);
-            var content = await response.Content.ReadAsStringAsync();
-            var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(content);
-            return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<AutotaskItemsResponse<ServiceCall>>(response);
+
+                var contentBatch = await responseBatch.Content.ReadAsStringAsync();
+
+                // 🔥 Debug protection (VERY important)
+                if (!responseBatch.IsSuccessStatusCode || contentBatch.StartsWith("<"))
+                {
+                    throw new Exception($"Autotask error: {contentBatch}");
+                }
+
+                var resultBatch = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(contentBatch);
+
+                if (resultBatch?.Items != null)
+                {
+                    allServiceCallsList.Items.AddRange(resultBatch.Items);
+                }
+            }
+            //var filters = new List<object>
+            //    {
+            //        new { op = "in", field = "ticketID", value = ticketIds.ToArray() },
+            //    };
+            //var searchObj = new
+            //{
+            //    filter = filters,
+            //    MaxRecords = 500
+            //};
+
+            //var currentSearch = JsonSerializer.Serialize(searchObj);
+            //var encodedSearch = Uri.EscapeDataString(currentSearch);
+            //var uri = new Uri(baseUri, $"serviceCallTickets/query?search={encodedSearch}");
+
+            //var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            //var response = await httpClient.SendAsync(httpRequestMessage);
+            //var content = await response.Content.ReadAsStringAsync();
+            //var converted = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(content);
+            //return await Radzen.HttpResponseMessageExtensions
+            //.ReadAsync<AutotaskItemsResponse<ServiceCall>>(response);
+            return allServiceCallsList;
         }
 
         public async Task<AutotaskItemsResponse<ServiceCall>> GetServiceCallsForTicket(long ticketId)

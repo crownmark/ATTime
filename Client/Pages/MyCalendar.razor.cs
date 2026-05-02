@@ -44,6 +44,7 @@ namespace CrownATTime.Client.Pages
         protected RadzenScheduler<CalendarEvent> scheduler0;
         protected ResourceCache resource { get; set; }
         protected IEnumerable<CalendarEvent> calendarEvents = new List<CalendarEvent>();
+        protected IEnumerable<ResourceCache> resources = new List<ResourceCache>();
 
         protected int calendarEventsCount;
 
@@ -54,15 +55,15 @@ namespace CrownATTime.Client.Pages
 
         [Parameter]
         public int SelectedCalendarViewIndex { get; set; }
+
+        [Parameter]
+        public string SelectedResourceEmail { get; set; }
         protected override async Task OnInitializedAsync()
         {
             try
             {
-                // FOR TESTING
-                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'philip@ce-technology.com'");
-                // PRODUCTION
-                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
-                resource = resourceResult.Value.FirstOrDefault();
+                await GetResources();
+                await GetLoggedInResource();
                 SelectedCalendarViewIndex = 1;
                 await LoadCalendarData();
             }
@@ -70,6 +71,38 @@ namespace CrownATTime.Client.Pages
             {
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load calendar: {ex.Message}" });
             }
+        }
+
+        protected async Task GetLoggedInResource()
+        {
+            try
+            {
+                //TESTING
+                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'philip@ce-technology.com'");
+                //PRODUCTION
+                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{SelectedResourceEmail}'");
+                resource = resourceResult.Value.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
+
+        protected async Task GetResources()
+        {
+            try
+            {
+                
+                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"IsActive eq true");
+                resources = resourceResult.Value.ToList();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)

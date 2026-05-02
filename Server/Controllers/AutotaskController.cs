@@ -555,6 +555,8 @@ namespace CrownATTime.Server.Controllers
         {
             try
             {
+                // BATCH Service Call Tickets in the future
+                
                 // Provide a default valid search if none is provided
                 if (string.IsNullOrWhiteSpace(search))
                 {
@@ -565,6 +567,8 @@ namespace CrownATTime.Server.Controllers
                 var response = await _http.GetAsync($"v1.0/ServiceCallTickets/query?search={encodedSearch}");
                 var content = await response.Content.ReadAsStringAsync();
                 var ticketServiceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicket>>(content);
+
+
 
                 // ----------------------------------------------------
                 // Build lookup: serviceCallID → ticketID
@@ -578,16 +582,7 @@ namespace CrownATTime.Server.Controllers
 
                 var serviceCallIds = ticketServiceCalls.Items.Select(x => x.serviceCallID).ToArray();
 
-                //Get ServiceCallTicketResources
-                
-                //var serviceCallTicketIds = ticketServiceCalls.Items.Select(x => x.id).ToArray();
-
-                
-                //var ServiceCallTicketResourceFilter = new List<object>
-                //{
-                //    new { op = "in", field = "serviceCallTicketID", value = serviceCallTicketIds },
-                //};
-
+                // BATCH ServiceCall Ticket Resources
                 var serviceCallTicketIds = ticketServiceCalls.Items.Select(x => x.id).ToList();
 
                 var allServiceCallTicketResources = new List<ServiceCallTicketResource>();
@@ -686,25 +681,64 @@ namespace CrownATTime.Server.Controllers
                      })
                     .ToList();
 
-                
 
-                //Get Service Calls
-                var filters = new List<object>
+
+                //Get Service Calls in batches
+
+
+                var allServiceCalls = new List<ServiceCall>();
+
+                foreach (var batch in BatchIds(serviceCallIds, 100))
                 {
-                    new { op = "in", field = "id", value = serviceCallIds },
-                };
-                var searchObj = new
+                    var serviceCallFilter = new List<object>
+                    {
+                        new { op = "in", field = "id", value = batch },
+                    };
+                    var serviceCallSearchObj = new
+                    {
+                        filter = serviceCallFilter,
+                        MaxRecords = 500
+                    };
+
+                    var serviceCallcurrentSearch = JsonSerializer.Serialize(serviceCallSearchObj);
+                    var serviceCallencodedSearch = Uri.EscapeDataString(serviceCallcurrentSearch);
+                    var serviceCallBatch = await _http.GetAsync($"v1.0/ServiceCalls/query?search={serviceCallcurrentSearch}");
+                    var contentBatch = await serviceCallBatch.Content.ReadAsStringAsync();
+
+                    // 🔥 Debug protection (VERY important)
+                    if (!serviceCallBatch.IsSuccessStatusCode || content.StartsWith("<"))
+                    {
+                        throw new Exception($"Autotask error: {contentBatch}");
+                    }
+
+                    var resultBatch = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(contentBatch);
+
+                    if (resultBatch?.Items != null)
+                    {
+                        allServiceCalls.AddRange(resultBatch.Items);
+                    }
+                }
+                var serviceCalls = new AutotaskItemsResponse<ServiceCall>
                 {
-                    filter = filters,
-                    MaxRecords = 500
+                    Items = allServiceCalls
                 };
 
-                var serviceCallcurrentSearch = JsonSerializer.Serialize(searchObj);
-                var serviceCallencodedSearch = Uri.EscapeDataString(serviceCallcurrentSearch);
-                var serviceCallresponse = await _http.GetAsync($"v1.0/ServiceCalls/query?search={serviceCallcurrentSearch}");
+                //var filters = new List<object>
+                //{
+                //    new { op = "in", field = "id", value = serviceCallIds },
+                //};
+                //var searchObj = new
+                //{
+                //    filter = filters,
+                //    MaxRecords = 500
+                //};
 
-                var serviceCallcontent = await serviceCallresponse.Content.ReadAsStringAsync();
-                var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
+                //var serviceCallcurrentSearch = JsonSerializer.Serialize(searchObj);
+                //var serviceCallencodedSearch = Uri.EscapeDataString(serviceCallcurrentSearch);
+                //var serviceCallresponse = await _http.GetAsync($"v1.0/ServiceCalls/query?search={serviceCallcurrentSearch}");
+
+                //var serviceCallcontent = await serviceCallresponse.Content.ReadAsStringAsync();
+                //var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
 
                 // ----------------------------------------------------
                 // Merge TicketId into ServiceCalls

@@ -107,7 +107,7 @@ namespace CrownATTime.Client.Pages
                 queues = queueResult.Value.ToList();
                 //myTimeEntriesGridLoading = true;
                 //myTicketsGridLoading = true;
-                myTimeEntriesGrid.Reload();
+                //myTimeEntriesGrid.Reload();
 
                 ReloadTicketsFromAutotask();
                 
@@ -128,6 +128,9 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                //TESTING
+                //var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq 'philip@ce-technology.com'");
+                //PRODUCTION
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Email eq '{Security.User.Email}'");
                 resource = resourceResult.Value.FirstOrDefault();
             }
@@ -142,7 +145,7 @@ namespace CrownATTime.Client.Pages
             if (firstRender)
             {
                 myTimeEntriesGridLoading = true;
-                myTicketsGridLoading = true;
+                //myTicketsGridLoading = true;
 
             }
         }
@@ -192,8 +195,8 @@ namespace CrownATTime.Client.Pages
                 {
                     ticketResults.Add(item);
                 }
-                UpdateTicketCounts();
                 await myTicketsGrid.Reload();
+                UpdateTicketCounts();
                 myTicketsGridLoading = false;
 
 
@@ -204,7 +207,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        protected void UpdateTicketCounts()
+        protected async void UpdateTicketCounts()
         {
             // This method can be used to update any ticket count indicators on the UI based on the current filters
             // For example, you could set properties like OpenTicketsCount, NewTicketsCount, etc. here by applying the same filters to ticketResults
@@ -214,7 +217,8 @@ namespace CrownATTime.Client.Pages
             //scheduledTodayTicketsCount = ticketResults.Count(x => x.ServiceCallScheduledDate >= DateTime.Today && x.ServiceCallScheduledDate < DateTime.Today.AddDays(1));
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
-
+            var waitingStatusResults = await ATTimeService.GetWaitingStatuses();
+            var waitingStatuses = new HashSet<int>(waitingStatusResults.Value.Select(x => x.TicketStatusId));
             scheduledTodayTicketsCount = ticketResults.Count(x =>
             {
                 var effectiveDate =
@@ -228,40 +232,40 @@ namespace CrownATTime.Client.Pages
             });
             waitingTicketsCount = ticketResults.Count(x =>
             {
-                var waitingStatuses = new HashSet<int>
-                {
-                    7,
-                    9,
-                    12,
-                    33,
-                    34,
-                    39
-                };
+                //var waitingStatuses = new HashSet<int>
+                //{
+                //    7,
+                //    9,
+                //    12,
+                //    33,
+                //    34,
+                //    39
+                //};
                 return waitingStatuses.Contains(x.status);
             });
             inMyCourtTicketsCount = ticketResults.Count(x =>
             {
-                var waitingStatuses = new HashSet<int>
-                {
-                    5,
-                    7,
-                    9,
-                    12,
-                    33,
-                    34,
-                    39
-                };
+                //var waitingStatuses = new HashSet<int>
+                //{
+                //    5,
+                //    7,
+                //    9,
+                //    12,
+                //    33,
+                //    34,
+                //    39
+                //};
                 return !waitingStatuses.Contains(x.status);
             });
-            var waitingStatuses = new HashSet<int>
-                    {
-                        7,
-                        9,
-                        12,
-                        33,
-                        34,
-                        39
-                    };
+            //var waitingStatuses = new HashSet<int>
+            //        {
+            //            7,
+            //            9,
+            //            12,
+            //            33,
+            //            34,
+            //            39
+            //        };
             unscheduledTicketsCount = ticketResults.Count(x => !x.OldestScheduledDate.HasValue && !waitingStatuses.Contains(x.status));
 
         }
@@ -270,8 +274,9 @@ namespace CrownATTime.Client.Pages
             try
             {
                 myTickets = new List<TicketDtoResult.Item>();
-                
-                
+                var waitingStatusResults = await ATTimeService.GetWaitingStatuses();
+                var waitingStatuses = new HashSet<int>(waitingStatusResults.Value.Select(x => x.TicketStatusId));
+
                 if (openTickets)
                 {
                     var filteredTickets = ticketResults.Where(x => x.status != 5).OrderBy(x => x.OldestScheduledDate);
@@ -295,44 +300,44 @@ namespace CrownATTime.Client.Pages
                 }
                 else if(unscheduledTickets)
                 {
-                    var waitingStatuses = new HashSet<int>
-                    {
-                        7,
-                        9,
-                        12,
-                        33,
-                        34,
-                        39
-                    };
+                    //var waitingStatuses = new HashSet<int>
+                    //{
+                    //    7,
+                    //    9,
+                    //    12,
+                    //    33,
+                    //    34,
+                    //    39
+                    //};
                     var filteredTickets = ticketResults.Where(x => !x.OldestScheduledDate.HasValue && !waitingStatuses.Contains(x.status));
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (waitingTickets)
                 {
-                    var waitingStatuses = new HashSet<int>
-                    {
-                        7,
-                        9,
-                        12,
-                        33,
-                        34,
-                        39
-                    };
+                    //var waitingStatuses = new HashSet<int>
+                    //{
+                    //    7,
+                    //    9,
+                    //    12,
+                    //    33,
+                    //    34,
+                    //    39
+                    //};
                     var filteredTickets = ticketResults.Where(x => waitingStatuses.Contains(x.status));
                     myTickets.AddRange(filteredTickets);
                 }
                 else if (inMyCourtTickets)
                 {
-                    var waitingStatuses = new HashSet<int>
-                    {
-                        5,
-                        7,
-                        9,
-                        12,
-                        33,
-                        34,
-                        39
-                    };
+                    //var waitingStatuses = new HashSet<int>
+                    //{
+                    //    5,
+                    //    7,
+                    //    9,
+                    //    12,
+                    //    33,
+                    //    34,
+                    //    39
+                    //};
                     var filteredTickets = ticketResults.Where(x => !waitingStatuses.Contains(x.status)).OrderBy(x => x.OldestScheduledDate);
                     myTickets.AddRange(filteredTickets);
                 }
@@ -1181,7 +1186,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await DialogService.OpenAsync<MyCalendar>("My Calendar", new Dictionary<string, object>() { {"SelectedCalendarViewIndex", 1} }, new DialogOptions { Width = "90%", AutoFocusFirstElement = false });
+                await DialogService.OpenAsync<MyCalendar>("My Calendar", new Dictionary<string, object>() { {"SelectedCalendarViewIndex", 1 }, {"SelectedResourceEmail", Security.User.Email } }, new DialogOptions { Width = "90%", AutoFocusFirstElement = false });
             }
             catch (Exception ex)
             {

@@ -143,8 +143,8 @@
                                             </RadzenStack>
                                         </RadzenStack>
                                         <RadzenStack Orientation="Radzen.Orientation.Horizontal">
-                                            <RadzenIcon Visible="@(context.TimeStampStatus)" Icon="pause" Style="color: var(--rz-danger)" />
-                                            <RadzenIcon Visible="@(!context.TimeStampStatus)" Icon="play_arrow" IconColor="green" Style="color: var(--rz-success-dark)" />
+                                            <RadzenIcon Visible="@(!context.TimeStampStatus)" Icon="pause" Style="color: var(--rz-danger)" />
+                                            <RadzenIcon Visible="@(context.TimeStampStatus)" Icon="play_arrow" IconColor="green" Style="color: var(--rz-success-dark)" />
                                             <RadzenText Text="@(TimeSpan.FromMilliseconds(context.DurationMs.Value).ToString(@"hh\:mm\:ss"))" Style="color: var(--rz-success-dark)" />
                                         </RadzenStack>
                                     </RadzenStack>

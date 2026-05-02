@@ -101,5 +101,7 @@ namespace CrownATTime.Server.Models.ATTime
         public int? CalendarSlotClickEventActionId { get; set; }
 
         public int? CalendarAgendaRowClickEventActionId { get; set; }
+
+        public bool NextActionsCollapsed { get; set; }
     }
 }
