@@ -689,6 +689,194 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
+        public async System.Threading.Tasks.Task ExportDurationsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportDurationsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetDurations(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.Duration>> GetDurations(Query query)
+        {
+            return await GetDurations(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.Duration>> GetDurations(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"Durations");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetDurations(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.Duration>>(response);
+        }
+
+        partial void OnCreateDuration(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Duration> CreateDuration(CrownATTime.Server.Models.ATTime.Duration duration = default(CrownATTime.Server.Models.ATTime.Duration))
+        {
+            var uri = new Uri(baseUri, $"Durations");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(duration), Encoding.UTF8, "application/json");
+
+            OnCreateDuration(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.Duration>(response);
+        }
+
+        partial void OnDeleteDuration(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteDuration(int durationId = default(int))
+        {
+            var uri = new Uri(baseUri, $"Durations({durationId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteDuration(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetDurationByDurationId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Duration> GetDurationByDurationId(string expand = default(string), int durationId = default(int))
+        {
+            var uri = new Uri(baseUri, $"Durations({durationId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetDurationByDurationId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.Duration>(response);
+        }
+
+        partial void OnUpdateDuration(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateDuration(int durationId = default(int), CrownATTime.Server.Models.ATTime.Duration duration = default(CrownATTime.Server.Models.ATTime.Duration))
+        {
+            var uri = new Uri(baseUri, $"Durations({durationId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(duration), Encoding.UTF8, "application/json");
+
+            OnUpdateDuration(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        public async System.Threading.Tasks.Task ExportDurationTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durationtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durationtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportDurationTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durationtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durationtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetDurationTypes(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.DurationType>> GetDurationTypes(Query query)
+        {
+            return await GetDurationTypes(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.DurationType>> GetDurationTypes(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"DurationTypes");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetDurationTypes(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.DurationType>>(response);
+        }
+
+        partial void OnCreateDurationType(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.DurationType> CreateDurationType(CrownATTime.Server.Models.ATTime.DurationType durationType = default(CrownATTime.Server.Models.ATTime.DurationType))
+        {
+            var uri = new Uri(baseUri, $"DurationTypes");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(durationType), Encoding.UTF8, "application/json");
+
+            OnCreateDurationType(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.DurationType>(response);
+        }
+
+        partial void OnDeleteDurationType(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteDurationType(int durationTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"DurationTypes({durationTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteDurationType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetDurationTypeByDurationTypeId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.DurationType> GetDurationTypeByDurationTypeId(string expand = default(string), int durationTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"DurationTypes({durationTypeId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetDurationTypeByDurationTypeId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.DurationType>(response);
+        }
+
+        partial void OnUpdateDurationType(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateDurationType(int durationTypeId = default(int), CrownATTime.Server.Models.ATTime.DurationType durationType = default(CrownATTime.Server.Models.ATTime.DurationType))
+        {
+            var uri = new Uri(baseUri, $"DurationTypes({durationTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(durationType), Encoding.UTF8, "application/json");
+
+            OnUpdateDurationType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async System.Threading.Tasks.Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);

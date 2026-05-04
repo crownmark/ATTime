@@ -107,7 +107,7 @@ namespace CrownATTime.Client.Pages
                 queues = queueResult.Value.ToList();
                 //myTimeEntriesGridLoading = true;
                 //myTicketsGridLoading = true;
-                //myTimeEntriesGrid.Reload();
+                myTimeEntriesGrid.Reload();
 
                 ReloadTicketsFromAutotask();
                 
@@ -1186,7 +1186,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await DialogService.OpenAsync<MyCalendar>("My Calendar", new Dictionary<string, object>() { {"SelectedCalendarViewIndex", 1 }, {"SelectedResourceEmail", Security.User.Email } }, new DialogOptions { Width = "90%", AutoFocusFirstElement = false });
+                await DialogService.OpenAsync<MyCalendar>("Calendar", new Dictionary<string, object>() { {"SelectedCalendarViewIndex", 1 }, {"SelectedResourceEmail", $"{Security.User.Email}" }, { "TicketId", 0 }}, new DialogOptions { Width = "90%", AutoFocusFirstElement = false });
             }
             catch (Exception ex)
             {

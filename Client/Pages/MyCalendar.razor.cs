@@ -7,9 +7,12 @@ using Radzen;
 using Radzen.Blazor;
 using Radzen.Blazor.Rendering;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
+using static CrownATTime.Server.Models.ITGlueDocumentsResult;
 
 namespace CrownATTime.Client.Pages
 {
@@ -43,7 +46,7 @@ namespace CrownATTime.Client.Pages
 
         protected RadzenScheduler<CalendarEvent> scheduler0;
         protected ResourceCache resource { get; set; }
-        protected IEnumerable<CalendarEvent> calendarEvents = new List<CalendarEvent>();
+        protected List<CalendarEvent> calendarEvents = new List<CalendarEvent>();
         protected IEnumerable<ResourceCache> resources = new List<ResourceCache>();
 
         protected int calendarEventsCount;
@@ -52,20 +55,60 @@ namespace CrownATTime.Client.Pages
 
         protected int sliderNumberOfDays { get; set; } = 3;
         protected bool showSlider { get; set; } = true;
+        protected CalendarEvent calendarEvent { get; set; } = new CalendarEvent() { ServiceCallId = 999999999 };
 
         [Parameter]
         public int SelectedCalendarViewIndex { get; set; }
 
         [Parameter]
         public string SelectedResourceEmail { get; set; }
+
+        [Parameter]
+        public int TicketId { get; set; }
+
+        protected int selectedMinutes { get; set; }
+        protected string selectedActivity { get; set; }
+
+        protected TicketDtoResult ticket { get; set; }
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.Duration> durations = new List<Duration>();
+
         protected override async Task OnInitializedAsync()
         {
             try
             {
+                DialogService.OpenAsync("", ds =>
+                {
+                    RenderFragment content = dialogContent =>
+                    {
+                        dialogContent.OpenComponent<RadzenRow>(0);
+                        dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+                        {
+                            rowContent.OpenComponent<RadzenColumn>(0);
+                            rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+                            rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+                            {
+                                columnContent.AddContent(0, $"Loading...");
+                            }));
+                            rowContent.CloseComponent();
+                        }));
+
+                        dialogContent.CloseComponent();
+                    };
+                    return content;
+                }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+
                 await GetResources();
                 await GetLoggedInResource();
-                SelectedCalendarViewIndex = 1;
+
+                if (TicketId > 0)
+                {
+                    ticket = await AutotaskService.GetTicket(TicketId);
+
+                }
+                DialogService.Close();
                 await LoadCalendarData();
+
             }
             catch (Exception ex)
             {
@@ -94,9 +137,9 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                
+
                 var resourceResult = await ATTimeService.GetResourceCaches(filter: $"IsActive eq true");
-                resources = resourceResult.Value.ToList();
+                resources = resourceResult.Value.Where(x => x.IsActive == true && (x.LicenseType == 1 || x.LicenseType == 3) && !x.FirstName.Contains("Autotask") && !x.FirstName.Contains("Bassem")).OrderBy(x => x.FirstName).ToList();
             }
             catch (Exception ex)
             {
@@ -109,7 +152,8 @@ namespace CrownATTime.Client.Pages
         {
             if (firstRender)
             {
-                await Task.Delay(300);
+                calendarLoading = true;
+                //await Task.Delay(300);
 
                 var now = DateTime.Now; // 2:30 PM
 
@@ -214,7 +258,7 @@ namespace CrownATTime.Client.Pages
                         b.OpenElement(2, "div");
                         b.AddAttribute(3, "class", "col-md-12");
 
-                        b.AddContent(4, "Updating Task.  Please wait...");
+                        b.AddContent(4, "Updating Record.  Please wait...");
 
                         b.CloseElement();
                         b.CloseElement();
@@ -243,7 +287,7 @@ namespace CrownATTime.Client.Pages
                         draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
                         draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
                     }
-                    else if (draggedAppointment.ServiceCallId.HasValue)
+                    else if (draggedAppointment.ServiceCallId.HasValue && draggedAppointment.ServiceCallId != 999999999)
                     {
                         await AutotaskService.UpdateServiceCall(new ServiceCallCreateDto()
                         {
@@ -255,6 +299,11 @@ namespace CrownATTime.Client.Pages
                             description = draggedAppointment.Description,
                             status = draggedAppointment.Status.Value
                         });
+                        draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
+                        draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
+                    }
+                    else if (draggedAppointment.ServiceCallId.HasValue && draggedAppointment.ServiceCallId == 999999999)
+                    {
                         draggedAppointment.Start = draggedAppointment.Start + args.TimeSpan;
                         draggedAppointment.End = draggedAppointment.End + args.TimeSpan;
                     }
@@ -294,6 +343,43 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task Scheduler0SlotSelect(Radzen.SchedulerSlotSelectEventArgs args)
         {
+            try
+            {
+                if(TicketId > 0)
+                {
+                    var existingEvent = calendarEvents.Where(x => x.ServiceCallId == 999999999);
+                    if (existingEvent.Any())
+                    {
+                        
+                        var selectedEvent = existingEvent.First();
+                        selectedEvent = calendarEvent;
+                        selectedEvent.Start = args.Start;
+                        selectedEvent.End = selectedEvent.Start.AddMinutes(selectedMinutes);
+                    }
+                    else
+                    {
+                        if(!string.IsNullOrEmpty(selectedActivity) && selectedMinutes > 0)
+                        {
+                            calendarEvent.TicketId = ticket.item.id;
+                            calendarEvent.CompanyId = ticket.item.companyID;
+                            calendarEvent.DurationMinutes = selectedMinutes;
+                            calendarEvent.EventType = "";
+                            calendarEvent.Start = args.Start;
+                            calendarEvent.End = args.Start.AddMinutes(selectedMinutes);
+                            calendarEvent.Status = selectedActivity == "Remote" ? 105 : selectedActivity == "Onsite" ? 106 : 1;
+                            calendarEvent.ResourceId = resource.Id;
+                            calendarEvent.Title = $"{ticket.item.ticketNumber} - {ticket.item.title}";
+                            calendarEvents.Add(calendarEvent);
+                        }
+                        
+                    }
+                    await scheduler0.Reload();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
 
@@ -446,6 +532,205 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task RefreshCalendarDataButton0Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
             await LoadCalendarData();
+        }
+
+        protected async System.Threading.Tasks.Task resourceSelectBarChange(string args)
+        {
+            SelectedResourceEmail = args;
+            await GetLoggedInResource();
+            await LoadCalendarData();
+        }
+
+        protected async System.Threading.Tasks.Task TemplateForm0Submit(Server.Models.CalendarEvent args)
+        {
+            DialogService.OpenAsync("", ds =>
+            {
+                RenderFragment content = b =>
+                {
+                    b.OpenElement(0, "div");
+                    b.AddAttribute(1, "class", "row");
+
+                    b.OpenElement(2, "div");
+                    b.AddAttribute(3, "class", "col-md-12");
+
+                    b.AddContent(4, "Creating Service Call.  Please wait...");
+
+                    b.CloseElement();
+                    b.CloseElement();
+                };
+                return content;
+            }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto.;min-width:auto;width:auto", CloseDialogOnEsc = false });
+            
+            
+            try
+            {
+
+                if (ticket.item.assignedResourceID == resource.Id || (!string.IsNullOrEmpty(ticket.item.secondaryResources) && ticket.item.secondaryResources.Contains($"{resource.FullName}")))
+                {
+                    calendarEvent.Description = selectedActivity == "Remote" ? $"Remote Service Call{Environment.NewLine}Notes:{Environment.NewLine}{calendarEvent.Description}" : selectedActivity == "Onsite" ? $"Onsite Service Call{Environment.NewLine}Notes:{Environment.NewLine}{calendarEvent.Description}" : $"{calendarEvent.Description}";
+
+                    var newServiceCall = await AutotaskService.CreateServiceCall(new ServiceCallDto()
+                    {
+                        startDateTime = calendarEvent.Start,
+                        endDateTime = calendarEvent.End,
+                        companyID = calendarEvent.CompanyId,
+                        description = calendarEvent.Description,
+                        status = calendarEvent.Status.Value,
+                        impersonatorCreatorResourceID = calendarEvent.ResourceId,
+                    });
+                    var newServiceCallTicket = await AutotaskService.CreateServiceCallTicket(new ServiceCallTicket()
+                    {
+                        serviceCallID = newServiceCall.itemId,
+                        ticketID = calendarEvent.TicketId.Value
+                    });
+                    var newServiceCallTicketResource = await AutotaskService.CreateServiceCallTicketResource(new ServiceCallTicketResourceCreate()
+                    {
+                        resourceID = resource.Id,
+                        serviceCallTicketID = newServiceCallTicket.itemId,
+                    });
+                    DialogService.Close();
+                    DialogService.Close();
+                }
+                else
+                {
+                    //ADD USER AS A SECONDARY ON THE TICKET
+                    try
+                    {
+                        var resourceServiceDeskRoles = await ATTimeService.GetServiceDeskRoleCaches(filter: $"ResourceId eq {resource.Id}");
+                        var resourceServiceDeskRolesList = resourceServiceDeskRoles.Value.ToList();
+                        var selectedRole = new ServiceDeskRoleCache();
+
+                        if (resourceServiceDeskRolesList.Any())
+                        {
+                            if (resourceServiceDeskRolesList.Count() > 1)
+                            {
+                                selectedRole = resourceServiceDeskRolesList.FirstOrDefault(x => x.IsDefault == true) != null ?
+                                    resourceServiceDeskRolesList.FirstOrDefault(x => x.IsDefault == true) : resourceServiceDeskRolesList.FirstOrDefault();
+                            }
+                            else
+                            {
+                                selectedRole = resourceServiceDeskRolesList.FirstOrDefault();
+                            }
+                            if (selectedRole != null)
+                            {
+
+                                //Add user as secondary
+                                var secondaryResource = new TicketSecondaryResourcesCreate()
+                                {
+                                    resourceID = selectedRole.ResourceId,
+                                    roleID = selectedRole.RoleId,
+                                    ticketID = ticket.item.id
+                                };
+
+                                await AutotaskService.CreateSecondaryResource(secondaryResource);
+
+                                calendarEvent.Description = selectedActivity == "Remote" ? $"Remote Service Call{Environment.NewLine}Notes:{Environment.NewLine}{calendarEvent.Description}" : selectedActivity == "Onsite" ? $"Onsite Service Call{Environment.NewLine}Notes:{Environment.NewLine}{calendarEvent.Description}" : $"{calendarEvent.Description}";
+
+                                var newServiceCall = await AutotaskService.CreateServiceCall(new ServiceCallDto()
+                                {
+                                    startDateTime = calendarEvent.Start,
+                                    endDateTime = calendarEvent.End,
+                                    companyID = calendarEvent.CompanyId,
+                                    description = calendarEvent.Description,
+                                    status = calendarEvent.Status.Value,
+                                    impersonatorCreatorResourceID = calendarEvent.ResourceId,
+                                });
+                                var newServiceCallTicket = await AutotaskService.CreateServiceCallTicket(new ServiceCallTicket()
+                                {
+                                    serviceCallID = newServiceCall.itemId,
+                                    ticketID = calendarEvent.TicketId.Value
+                                });
+                                var newServiceCallTicketResource = await AutotaskService.CreateServiceCallTicketResource(new ServiceCallTicketResourceCreate()
+                                {
+                                    resourceID = resource.Id,
+                                    serviceCallTicketID = newServiceCallTicket.itemId,
+                                });
+                                DialogService.Close();
+                                DialogService.Close();
+                            }
+                            else
+                            {
+                                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Selected User MUST be added as a Secondary Resource on the Ticket" });
+
+                            }
+                        }
+                        DialogService.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Error Scheduling Secondary Resource: {ex.Message}" });
+
+                        DialogService.Close();
+
+                    }
+
+
+
+                }
+
+            }            
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}" });
+                DialogService.Close();
+            }
+        }
+
+        protected async System.Threading.Tasks.Task ActivityTypeChange(int args)
+        {
+            selectedActivity = args == 1 ? "Remote" : args == 2 ? "Onsite" : "";
+            selectedMinutes = 0;
+
+            if (args == 1) 
+            {
+                durations = (await ATTimeService.GetDurations(filter: $"DurationTypeId eq {2}")).Value;
+
+            }
+            else if (args == 2)
+            {
+                durations = (await ATTimeService.GetDurations(filter: $"DurationTypeId eq {3}")).Value;
+
+            }
+            else if(args == 3)
+            {
+                durations = (await ATTimeService.GetDurations(filter: $"DurationTypeId eq {1}")).Value;
+
+            }
+            else
+            {
+                durations = new List<Duration>();
+            }
+            var existingEvent = calendarEvents.Where(x => x.ServiceCallId == 999999999);
+            if (existingEvent.Any())
+            {
+                var selectedEvent = existingEvent.First();
+                selectedEvent = calendarEvent;
+                selectedEvent.ResourceId = resource.Id;
+                selectedEvent.End = selectedEvent.Start.AddMinutes(selectedMinutes);
+                selectedEvent.Status = selectedActivity == "Remote" ? 105 : selectedActivity == "Onsite" ? 106 : 1;
+
+                await scheduler0.Reload();
+            }
+            StateHasChanged();
+        }
+
+        protected async System.Threading.Tasks.Task DurationChange(int args)
+        {
+            selectedMinutes = args;
+            var existingEvent = calendarEvents.Where(x => x.ServiceCallId == 999999999);
+            if (existingEvent.Any())
+            {
+                var selectedEvent = existingEvent.First();
+                selectedEvent = calendarEvent;
+
+                selectedEvent.ResourceId = resource.Id;
+                selectedEvent.End = selectedEvent.Start.AddMinutes(selectedMinutes);
+                selectedEvent.Status = selectedActivity == "Remote" ? 105 : selectedActivity == "Onsite" ? 106 : 1;
+                await scheduler0.Reload();
+
+            }
+            StateHasChanged();
+
         }
     }
 }

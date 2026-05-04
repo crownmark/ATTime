@@ -4,10 +4,9 @@
 @attribute [Authorize]
 
 <PageTitle>My Calendar</PageTitle>
-<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap">
-    <RadzenText Text="@($"{resource.FullName} Calendar")" TextStyle="TextStyle.H3" TagName="TagName.H1" />
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Right" Wrap="Radzen.FlexWrap.Wrap" Style="margin-bottom: 5px">
 
-    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Start" AlignItems="Radzen.AlignItems.Center" Gap="5">
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="Radzen.AlignItems.Center" Gap="5" Style="width: 100%">
         <RadzenButton Icon="refresh" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Light" Size="Radzen.ButtonSize.Small" Style="width: 28px; height: 28px" Click="@RefreshCalendarDataButton0Click"></RadzenButton>
         <RadzenLabel Text="Number of days to view (Multi-Day View):" />
         <RadzenSlider @bind-Value=@sliderNumberOfDays TValue="int" Min="1" Max="30" Style="margin-left:1.5rem;margin-right:1.5rem;" Change="NumberOfDaysChange" />
@@ -15,48 +14,105 @@
     </RadzenStack>
 </RadzenStack>
 
-<RadzenStack Orientation="Radzen.Orientation.Horizontal" Visible="@(resources.Any())" JustifyContent="Radzen.JustifyContent.Center" AlignItems="Radzen.AlignItems.Center">
-    
-    @foreach(var item in resources.Where(x => x.IsActive == true && x.LicenseType == 1))
-    {
-        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Secondary" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Light" Size="Radzen.ButtonSize.Small" Style="width: 100px; height: 100px" >
-            <ChildContent>
-                <RadzenStack Gap="5" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
-                    <RadzenImage Path="@($"images/{item.Id}.png")" class="avatar"></RadzenImage>
-                    <RadzenLabel Text="@item.FullName" />
-                </RadzenStack>
-            </ChildContent>
-            
-        </RadzenButton>
-    }
-    
-</RadzenStack>
 
-<RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
-    <ChildContent>
-        <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
-            
-        </RadzenDayView>
-        <RadzenMultiDayView NumberOfDays="@sliderNumberOfDays" AdvanceDays="1" MinutesPerSlot="15" StartTime="@(new TimeSpan(6, 0, 0))" />
-        <RadzenWeekView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))"></RadzenWeekView>
-        <RadzenMonthView />
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Style="width: 100%">
+    <RadzenSelectBar TValue="string" @bind-Value="@SelectedResourceEmail" Name="resourceSelectBar" Size="Radzen.ButtonSize.Small" Change="@resourceSelectBarChange" Orientation="Radzen.Orientation.Vertical">
+            <Items>
+                @foreach(var item in resources)
+                {
+                    <RadzenSelectBarItem Text="@item.FullName" Value="@item.Email">
+                        <Template>
+                            <RadzenStack Style="width: 100%" JustifyContent="Radzen.JustifyContent.Center" AlignItems="Radzen.AlignItems.Center" Gap="1">
+                                <RadzenImage Path="@($"images/{item.Id}.png")" class="avatar"></RadzenImage>
+                                <RadzenLabel Text="@item.FullName" />
+                            </RadzenStack>
+                        </Template>
+                    </RadzenSelectBarItem>
+                }
+            </Items>
+        </RadzenSelectBar>
         
-    </ChildContent>
-    <Template Context="calendarEvent">
-        <RadzenStack Gap="5">
-            <RadzenStack Orientation="Orientation.Horizontal" Gap="5">
-                <RadzenIcon Icon="confirmation_number" Visible="@(calendarEvent.TicketId.HasValue)" />
-                <RadzenIcon Icon="local_shipping" Visible="@((calendarEvent.ActionType.HasValue && calendarEvent.ActionType.Value == 29683374) || (calendarEvent.Status.HasValue && calendarEvent.Status.Value == 106))" />
-                <RadzenIcon Icon="person" Visible="@((calendarEvent.ActionType.HasValue && calendarEvent.ActionType.Value == 29683373) || (calendarEvent.Status.HasValue && calendarEvent.Status.Value == 105))" />
-                <RadzenText Text="@calendarEvent.Title"/>
+        <RadzenFieldset Text="Schedule Service Call" Style="width: 50%" Visible="@(TicketId > 0)">
+            <RadzenTemplateForm TItem="Server.Models.CalendarEvent"  Style="padding: 1rem; width: 100%" Data="@calendarEvent" Submit="@TemplateForm0Submit">
+                <RadzenStack>
+                    <RadzenFormField Text="Activity Type">
+                        <ChildContent>
+                        <RadzenRadioButtonList Name="ActivityType" TValue="int" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.Stretch" Style="margin: 5px" Change="@ActivityTypeChange">
+                                <Items>
+                                    <RadzenRadioButtonListItem TValue="int" Text="Remote Service Call" Value="1"></RadzenRadioButtonListItem>
+                                <RadzenRadioButtonListItem TValue="int" Text="Onsite Service Call (Include Travel Time)" Value="2"></RadzenRadioButtonListItem>
+                            </Items>
+                            </RadzenRadioButtonList>
+                        </ChildContent>
+                        
+                        <Helper>
+                        <RadzenRequiredValidator Component="ActivityType" Text="Activity is required" />
+                        </Helper>
+                    </RadzenFormField>
+                    <RadzenFormField Text="Duration" Visible="@(!string.IsNullOrEmpty(selectedActivity))">
+                        @* <ChildContent>
+                        <RadzenRadioButtonList Name="Duration" TValue="int" Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Left" Style="margin: 5px" Change="@DurationChange">
+                                <Items>
+                                    <RadzenRadioButtonListItem TValue="int" Text="10 Minutes" Value="10"></RadzenRadioButtonListItem>
+                                    <RadzenRadioButtonListItem TValue="int" Text="15 Minutes" Value="15"></RadzenRadioButtonListItem>
+                                    <RadzenRadioButtonListItem TValue="int" Text="30 Minutes" Value="30"></RadzenRadioButtonListItem>
+                                    <RadzenRadioButtonListItem TValue="int" Text="45 Minutes" Value="45"></RadzenRadioButtonListItem>
+                                    <RadzenRadioButtonListItem TValue="int" Text="1 Hour" Value="60"></RadzenRadioButtonListItem>
+                                    <RadzenRadioButtonListItem TValue="int" Text="1.5 Hours" Value="90"></RadzenRadioButtonListItem>
+                                    <RadzenRadioButtonListItem TValue="int" Text="2 Hours" Value="120"></RadzenRadioButtonListItem>
+                                </Items>
+                            </RadzenRadioButtonList>
+                        </ChildContent>  
+                        *@
+                        <ChildContent>
+                            <RadzenRadioButtonList TValue="int" ValueProperty="ValueInMinutes" TextProperty="Title" Data="@durations" Name="Duration" Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Left" Style="margin: 5px" Change="@DurationChange" />
+                        </ChildContent>
+                        <Helper>
+                            <RadzenNumericRangeValidator Min="1" Component="Duration" Text="Duration is required" />
+                        </Helper>
+                        
+                    </RadzenFormField>
+                    <RadzenFormField Text="Work to perform" Variant="Variant.Outlined" Component="Description">
+                        <ChildContent>
+                            <RadzenTextArea Name="Description" @bind-Value="@calendarEvent.Description" Rows="4"></RadzenTextArea>
+                        </ChildContent>
+                        <Helper>
+                            <RadzenRequiredValidator Component="Description" Text="Description is required" />
+                        </Helper>
+                    </RadzenFormField>
+                    <RadzenStack AlignItems="Radzen.AlignItems.End">
+                    <RadzenButton Visible="@(!string.IsNullOrEmpty(selectedActivity) && selectedMinutes > 0 && calendarEvent.ResourceId > 0 && calendarEvent.TicketId.HasValue)" Text="Create Service Call" ButtonType="Radzen.ButtonType.Submit" Variant="Radzen.Variant.Outlined" Icon="calendar_add_on"></RadzenButton>
+                    </RadzenStack>
+                </RadzenStack>            
+            </RadzenTemplateForm>
+        </RadzenFieldset>
+    
+    <RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh; width: 100%" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
+        <ChildContent>
+            <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
+                
+            </RadzenDayView>
+            <RadzenMultiDayView NumberOfDays="@sliderNumberOfDays" AdvanceDays="1" MinutesPerSlot="15" StartTime="@(new TimeSpan(6, 0, 0))" />
+            <RadzenWeekView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))"></RadzenWeekView>
+            <RadzenMonthView />
+            
+        </ChildContent>
+        <Template Context="calendarEvent">
+            <RadzenStack Gap="5">
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="5">
+                    <RadzenIcon Icon="confirmation_number" Visible="@(calendarEvent.TicketId.HasValue)" />
+                    <RadzenIcon Icon="local_shipping" Visible="@((calendarEvent.ActionType.HasValue && calendarEvent.ActionType.Value == 29683374) || (calendarEvent.Status.HasValue && calendarEvent.Status.Value == 106))" />
+                    <RadzenIcon Icon="person" Visible="@((calendarEvent.ActionType.HasValue && calendarEvent.ActionType.Value == 29683373) || (calendarEvent.Status.HasValue && calendarEvent.Status.Value == 105))" />
+                    <RadzenText Text="@calendarEvent.Title"/>
+                </RadzenStack>
+                <RadzenText Text="@($"{calendarEvent.Start:t} - {calendarEvent.End:t}")" />
             </RadzenStack>
-            <RadzenText Text="@($"{calendarEvent.Start:t} - {calendarEvent.End:t}")" />
-        </RadzenStack>
-    </Template>
-    
-    
-    
-</RadzenScheduler>
+        </Template>
+        
+        
+        
+    </RadzenScheduler>
+    </RadzenStack>
 
 <style>
 .my-class {

@@ -48,7 +48,7 @@ namespace CrownATTime.Client.Pages
 
         [Inject]
         protected AutotaskService AutotaskService { get; set; }
-        
+
 
         [Inject]
         public ATTimeService ATTimeService { get; set; }
@@ -62,17 +62,17 @@ namespace CrownATTime.Client.Pages
         public AiScenarioRunnerService AiScenarioRunnerService { get; set; }
 
         protected CrownATTime.Server.Models.ATTime.TimeEntry timeEntryRecord { get; set; }
-        protected TicketDtoResult ticket {  get; set; }
-        protected ConfigurationItemResult configurationItem {  get; set; }
-        protected ContactDtoResult contact {  get; set; }
-        protected CompanyCache company {  get; set; }
-        protected CompanyLocationDto companyLocation {  get; set; }
-        protected ContractCache contract {  get; set; }
-        protected ResourceCache resource {  get; set; }
-        protected ResourceCache ticketResource {  get; set; }
+        protected TicketDtoResult ticket { get; set; }
+        protected ConfigurationItemResult configurationItem { get; set; }
+        protected ContactDtoResult contact { get; set; }
+        protected CompanyCache company { get; set; }
+        protected CompanyLocationDto companyLocation { get; set; }
+        protected ContractCache contract { get; set; }
+        protected ResourceCache resource { get; set; }
+        protected ResourceCache ticketResource { get; set; }
         protected bool pageLoading { get; set; }
         [Parameter]
-        public string TicketId { get; set; } 
+        public string TicketId { get; set; }
         public string rocketshipUrl { get; set; }
         public string timeZestUrl { get; set; }
 
@@ -95,11 +95,11 @@ namespace CrownATTime.Client.Pages
 
         protected int accordionSelectedIndex { get; set; }
         private bool _openedAccordionOnce;
-        protected bool isSaving {  get; set; }
-        protected bool appendToResolution {  get; set; }
+        protected bool isSaving { get; set; }
+        protected bool appendToResolution { get; set; }
 
-        protected string accountAlertTimeEntry {  get; set; }
-        protected string accountAlertTicket {  get; set; }
+        protected string accountAlertTimeEntry { get; set; }
+        protected string accountAlertTicket { get; set; }
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TimeEntryTemplate> timeEntryTemplates;
 
@@ -109,7 +109,7 @@ namespace CrownATTime.Client.Pages
         protected int checklistItemsCount { get; set; }
         protected RadzenDataGrid<TicketChecklistItemResult> grid0 { get; set; }
         protected bool gridLoading { get; set; }
-        protected IEnumerable<AiPromptConfiguration> promptConfigurations {  get; set; }
+        protected IEnumerable<AiPromptConfiguration> promptConfigurations { get; set; }
 
         protected AiPromptConfiguration generalAiPromptConfiguration { get; set; } = new AiPromptConfiguration();
 
@@ -146,6 +146,8 @@ namespace CrownATTime.Client.Pages
         protected RadzenDataGrid<ITGlueDocumentAttributesResults> documentsGrid { get; set; }
 
         protected List<LiveLink> liveLinks { get; set; } = new List<LiveLink>();
+        protected IEnumerable<ResourceCache> resources = new List<ResourceCache>();
+
 
         protected string documentsSearch = "";
 
@@ -170,7 +172,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 pageLoading = true;
-
+                await GetResources();
                 var aiPrompts = await ATTimeService.GetAiPromptConfigurations(filter: $"Active eq true and (SharedWithEveryone eq true or contains(SharedWithUsers, '{Security.User.Email}'))", orderby: $"MenuName", expand: $"TimeGuardSection");
                 promptConfigurations = aiPrompts.Value.ToList();
                 try
@@ -217,12 +219,12 @@ namespace CrownATTime.Client.Pages
                 var serviceDeskRoles = await ATTimeService.GetServiceDeskRoleCaches(filter: $"ResourceId eq {resource.Id} and IsActive eq true");// await AutotaskService.GetServiceDeskRoles(resource.id);
                 mappedRoles = AutotaskService.MapToServiceDeskRoles(roles.Value.ToList(), serviceDeskRoles.Value.ToList(), true); //get from db
                 var fields = await AutotaskService.GetTicketFields(); //cache in db
-                //ticketEntityFields = fields.Fields;
-                
+                                                                      //ticketEntityFields = fields.Fields;
+
                 ticket = await AutotaskService.GetTicket(Convert.ToInt32(TicketId));
                 var contractsResult = await ATTimeService.GetContractCaches(filter: $"CompanyId eq {ticket.item.companyID} and Status eq 1");// await AutotaskService.GetTicketContracts(ticket.item.companyID); //cache in db
                 contracts = contractsResult.Value.ToList();
-                if(ticket.item.contractID != null)
+                if (ticket.item.contractID != null)
                 {
                     contract = await ATTimeService.GetContractCacheById("", Convert.ToInt32(ticket.item.contractID));// await AutotaskService.GetContract(ticket.item.contractID?? 0); //get from db
                 }
@@ -239,7 +241,7 @@ namespace CrownATTime.Client.Pages
 
 
                     var timeOpenTimeEntries = await ATTimeService.GetTimeEntries(filter: $@"TicketId eq {TicketId} and ResourceID eq {resource.Id} and IsCompleted eq false", orderby: null, top: 1);
-                    if(timeOpenTimeEntries.Value.Count() > 0)
+                    if (timeOpenTimeEntries.Value.Count() > 0)
                     {
                         timeEntryRecord = timeOpenTimeEntries.Value.FirstOrDefault();
                         // If it's null, treat it as 0
@@ -247,7 +249,7 @@ namespace CrownATTime.Client.Pages
                     }
                     else
                     {
-                        
+
                         //Create a time entry record
                         var newTimeEntry = new Server.Models.ATTime.TimeEntry()
                         {
@@ -263,14 +265,14 @@ namespace CrownATTime.Client.Pages
                             TimeStampStatus = true,
                             DurationMs = 0,
                             TicketTitle = ticket.item.title,
-                            
+
 
                         };
                         var selectedBillingCode = billingCodes.Where(x => x.Id == ticket.item.billingCodeID).FirstOrDefault();
 
                         if (selectedBillingCode != null)
                         {
-                            
+
                             if (selectedBillingCode.BillingCodeType == 2)
                             {
                                 newTimeEntry.IsNonBillable = true;
@@ -328,7 +330,7 @@ namespace CrownATTime.Client.Pages
                         _lastTickUtc = DateTime.UtcNow;
                         _stopwatchTimer?.Start();
                     }
-                    
+
                     StateHasChanged();
 
                 }
@@ -343,9 +345,22 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        
+        protected async Task GetResources()
+        {
+            try
+            {
 
-        protected async System.Threading.Tasks.Task ProcessWorkflows(int workflowTriggerTypeId) 
+                var resourceResult = await ATTimeService.GetResourceCaches(filter: $"IsActive eq true");
+                resources = resourceResult.Value.Where(x => x.IsActive == true && (x.LicenseType == 1 || x.LicenseType == 3) && !x.FirstName.Contains("Autotask") && !x.FirstName.Contains("Bassem")).OrderBy(x => x.FirstName).ToList();
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+        }
+
+        protected async System.Threading.Tasks.Task ProcessWorkflows(int workflowTriggerTypeId)
         {
             try
             {
@@ -536,7 +551,7 @@ namespace CrownATTime.Client.Pages
                                 {
                                     udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName2, value = step.TicketUdfValue2 });
                                 }
-                                if(!string.IsNullOrEmpty(step.TicketUdfName3))
+                                if (!string.IsNullOrEmpty(step.TicketUdfName3))
                                 {
                                     udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName3, value = step.TicketUdfValue3 });
                                 }
@@ -548,11 +563,11 @@ namespace CrownATTime.Client.Pages
                                 };
 
                                 await AutotaskService.UpdateTicket(updateTicket);
-                                
+
                             }
                             catch (Exception ex)
                             {
-                                
+
                             }
                         }
                         else
@@ -569,17 +584,17 @@ namespace CrownATTime.Client.Pages
 
             }
         }
-        
+
         protected async System.Threading.Tasks.Task UpdateTicketValues()
         {
             try
             {
 
-                
+
                 timeEntryRecord.HoursWorked =
                   Math.Max(
                       Math.Round((timeEntryRecord.DurationMs.GetValueOrDefault() / 3_600_000m), 2), 0);
-                
+
                 await ProcessWorkflows(1); //time entry update
 
                 timeEntryRecord.StartDateTime = CalculateStartFromDuration(DateTimeOffset.Now, timeEntryRecord.DurationMs.Value); //DateTimeOffset.Now;
@@ -589,7 +604,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);
-                if(ticket.item.assignedResourceID != null)
+                if (ticket.item.assignedResourceID != null)
                 {
                     var resourceResult = await ATTimeService.GetResourceCaches(filter: $"Id eq {ticket.item.assignedResourceID}");
                     if (resourceResult.Value.Any())
@@ -597,7 +612,7 @@ namespace CrownATTime.Client.Pages
                         ticketResource = resourceResult.Value.FirstOrDefault();
                     }
                 }
-                
+
                 var accountAlerts = await AutotaskService.GetAccountAlertsByCompanyId(company.Id);
                 if (accountAlerts != null && accountAlerts.Items.Where(x => x.alertTypeID == 3).Any())
                 {
@@ -608,7 +623,7 @@ namespace CrownATTime.Client.Pages
                 var picklistValuesList = picklistValues.Value.ToList();
                 var statuses = picklistValuesList.Where(x => x.PicklistName == "status");
                 //move to db for easier maintenance
-               // var allowedIds = new HashSet<int> { 1, 7, 8, 10, 12, 23, 29, 27, 30, 32, 33, 34, 46, 47, 57 }; // example status IDs
+                // var allowedIds = new HashSet<int> { 1, 7, 8, 10, 12, 23, 29, 27, 30, 32, 33, 34, 46, 47, 57 }; // example status IDs
                 var allowedIdsResult = await ATTimeService.GetAllowedTicketStatuses();
                 var allowedIds = allowedIdsResult.Value.Select(x => x.TicketStatusId).ToHashSet();
                 var filtered = statuses
@@ -633,14 +648,14 @@ namespace CrownATTime.Client.Pages
                 //       + (timeEntryRecord.OffsetHours ?? 0),
                 //       0
                 //   );
-               
+
                 await ATTimeService.UpdateTimeEntry(timeEntryRecord.TimeEntryId, timeEntryRecord);
                 //NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Time Entry Saved", Style = $"position: fixed; top: 20px;  left: 50%; transform: translateX(-50%);"  });
                 if (ticket.item.companyLocationID.HasValue)
                 {
                     companyLocation = await AutotaskService.GetCompanyLocationByLocationId(Convert.ToInt32(ticket.item.companyLocationID.Value));
                 }
-                
+
                 StateHasChanged();
             }
             catch (Exception ex)
@@ -656,7 +671,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 isSaving = true;
-                if(timeEntryRecord.TimeStampStatus == true)
+                if (timeEntryRecord.TimeStampStatus == true)
                 {
                     //timer is still running
                     NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"The Timer is still running.  Please pause the timer before saving so it can calculate the hours worked." });
@@ -664,7 +679,7 @@ namespace CrownATTime.Client.Pages
                 }
                 else
                 {
-                    if(saveAndCloseTicket)
+                    if (saveAndCloseTicket)
                     {
 
                     }
@@ -721,7 +736,7 @@ namespace CrownATTime.Client.Pages
                         {
                             await ProcessWorkflows(3); //ticket completing
 
-                            await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId }, {"Ticket", ticket } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
+                            await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId }, { "Ticket", ticket } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
                             DialogService.Close();
 
                             await JSRuntime.InvokeVoidAsync(
@@ -754,8 +769,8 @@ namespace CrownATTime.Client.Pages
 
                     }
                 }
-                isSaving = false;    
-                    
+                isSaving = false;
+
             }
             catch (Exception ex)
             {
@@ -764,7 +779,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        
+
 
         protected async System.Threading.Tasks.Task SummaryNotesChange(System.String args)
         {
@@ -815,7 +830,7 @@ namespace CrownATTime.Client.Pages
             {
                 var calls = await ThreeCxClientService.MakeCall(contact.item.mobilePhone, resource.OfficeExtension);
                 MonitorCallStatus(calls, contact.item.mobilePhone);
-                
+
 
 
             }
@@ -984,7 +999,7 @@ namespace CrownATTime.Client.Pages
 
                             if (contractExclusion != null && contractExclusion.Items.Any())
                             {
-                                
+
 
                                 timeEntryRecord.IsNonBillable = false;
                                 timeEntryRecord.ShowOnInvoice = true;
@@ -1018,7 +1033,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        
+
         protected async System.Threading.Tasks.Task RoleIdChange(System.Object args)
         {
             try
@@ -1033,7 +1048,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        
+
 
         protected async System.Threading.Tasks.Task StartDateTimeChange(System.DateTime? args)
         {
@@ -1146,7 +1161,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        
+
 
         protected async System.Threading.Tasks.Task HoursWorkedChange(decimal? args)
         {
@@ -1216,7 +1231,7 @@ namespace CrownATTime.Client.Pages
                 var m = TotalMinutes - (h * 60);
                 return ClampInt(m, -59, 59);
             }
-            
+
         }
         protected bool isAiExpanded { get; set; }
 
@@ -1259,7 +1274,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                
+
                 //timeEntryRecord.HoursWorked = CalculateHoursWorked(
                 //    timeEntryRecord.DurationMs.Value,
                 //    timeEntryRecord.OffsetHours.Value
@@ -1401,7 +1416,7 @@ namespace CrownATTime.Client.Pages
             {
                 StateHasChanged();
                 _isRunning = false;
-                if(timeEntryRecord.DurationMs < 108000)
+                if (timeEntryRecord.DurationMs < 108000)
                 {
                     timeEntryRecord.DurationMs = 108000;
                 }
@@ -1562,15 +1577,15 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task SaveAndCloseTicketButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            try 
+            try
             {
                 saveAndCloseTicket = true;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
-            
+
         }
 
 
@@ -1648,15 +1663,15 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task SendEmailButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", null } } , new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", null } }, new DialogOptions { Width = "800px", Draggable = true });
             await UpdateTicketValues();
             StateHasChanged();
-            
+
         }
 
         protected async System.Threading.Tasks.Task AddNoteButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, {"Company", company}, { "NoteTemplateId", null } }, new DialogOptions { Width = "800px", Draggable = true });
+            await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "NoteTemplateId", null } }, new DialogOptions { Width = "800px", Draggable = true });
         }
 
 
@@ -1680,7 +1695,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                if (Convert.ToInt32(args) != 0) 
+                if (Convert.ToInt32(args) != 0)
                 {
                     var template = await ATTimeService.GetTimeEntryTemplateByTimeEntryTemplateId("", Convert.ToInt32(args));
                     if (template != null)
@@ -1702,9 +1717,9 @@ namespace CrownATTime.Client.Pages
                             Id = ticket.item.id,
                             Status = ticket.item.status,
                         });
-                        if(template.EmailTemplateId.HasValue)
+                        if (template.EmailTemplateId.HasValue)
                         {
-                            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { {"Ticket", ticket}, {"Contact", contact}, {"Resource", resource}, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", template.EmailTemplateId } } , new DialogOptions { Width = "800px", Draggable = true });
+                            await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", template.EmailTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
                         }
                         if (template.TeamsMessageTemplateId.HasValue)
                         {
@@ -1713,10 +1728,10 @@ namespace CrownATTime.Client.Pages
                         StateHasChanged();
 
                         UpdateTicketValues();
-                        
+
                     }
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -1729,7 +1744,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                if(await DialogService.Confirm("Are you sure you want to delete this Time Entry?", "Delete Time Entry", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = true }, null) == true)
+                if (await DialogService.Confirm("Are you sure you want to delete this Time Entry?", "Delete Time Entry", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No", ShowTitle = true, ShowClose = true }, null) == true)
                 {
                     await ATTimeService.DeleteTimeEntry(timeEntryRecord.TimeEntryId);
                     timeEntryRecord.IsCompleted = true;
@@ -1748,9 +1763,9 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        
 
-        
+
+
 
         protected async System.Threading.Tasks.Task PlayButton0MouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
         {
@@ -1896,7 +1911,7 @@ namespace CrownATTime.Client.Pages
 
         }
 
-        
+
 
         protected async System.Threading.Tasks.Task ViewTicketDescriptionButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
@@ -1908,14 +1923,14 @@ namespace CrownATTime.Client.Pages
         protected async System.Threading.Tasks.Task TicketDetailsButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
         {
             TooltipService.Open(args, "Open Ticket Details in Side Panel", new TooltipOptions() { Duration = null });
-            
+
         }
 
         protected async System.Threading.Tasks.Task TicketDetailsButtonMouseLeave(Microsoft.AspNetCore.Components.ElementReference args)
         {
             TooltipService.Close();
         }
-        
+
 
         protected async System.Threading.Tasks.Task DataGrid0LoadData(Radzen.LoadDataArgs args)
         {
@@ -2012,7 +2027,7 @@ namespace CrownATTime.Client.Pages
                 var prompt = await ATTimeService.GetAiPromptConfigurations();
 
                 var aiResponse = await AiScenarioRunnerService.RunAsync(prompt.Value.FirstOrDefault(), timeEntryRecord.SummaryNotes);
-                if (!string.IsNullOrEmpty(aiResponse)) 
+                if (!string.IsNullOrEmpty(aiResponse))
                 {
                     timeEntryRecord.SummaryNotes = aiResponse;
                 }
@@ -2068,9 +2083,9 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                if(args != null)
+                if (args != null)
                 {
-                    interalNotesAiBusy = true;  
+                    interalNotesAiBusy = true;
                     var prompt = await ATTimeService.GetAiPromptConfigurationByAiPromptConfigurationId("TimeGuardSection", Convert.ToInt32(args.Value));
 
                     var aiResponse = await AiScenarioRunnerService.RunAsync(prompt, timeEntryRecord.InternalNotes);
@@ -2091,7 +2106,7 @@ namespace CrownATTime.Client.Pages
             }
         }
 
-        
+
 
         protected async System.Threading.Tasks.Task AddTeamsMessageButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
@@ -2100,7 +2115,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task AiPopoutButtonMouseEnter(Microsoft.AspNetCore.Components.ElementReference args)
         {
-            if(IsAiExpanded)
+            if (IsAiExpanded)
             {
                 TooltipService.Open(args, "Restore AI assistant", new TooltipOptions() { Duration = null });
 
@@ -2319,12 +2334,13 @@ namespace CrownATTime.Client.Pages
         {
             TooltipService.Close();
         }
+        
 
         protected async System.Threading.Tasks.Task NextActionButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, LiveLink data)
         {
             try
             {
-                var liveLink = data;  //await ATTimeService.GetLiveLinkByLiveLinkId("", Convert.ToInt32(args.Value));
+                var liveLink = await ATTimeService.GetLiveLinkByLiveLinkId("", data.LiveLinkId);
                 if(liveLink != null)
                 {
                     // Load picklists
@@ -2343,15 +2359,18 @@ namespace CrownATTime.Client.Pages
                         Picklists = picklists
                     };
                     liveLink.Url = EmailService.Render(liveLink.Url ?? string.Empty, ctx);
+                    liveLink.IframeUrl = EmailService.Render(liveLink.IframeUrl ?? string.Empty, ctx);
 
                     //await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{liveLink.Url}");
                     // Example: perform an HTTP GET to the rendered URL (replace with RequestMode.BrowserOpen or RequestMode.HttpPostJson as needed)
-                    if(liveLink.HttpMethod == "GET")
+                    if (liveLink.HttpMethod == "GET")
                     {
                         var json = JsonSerializer.Serialize(new
                         {
                             Ticket = ticket,
-                            TimeEntry = timeEntryRecord
+                            TimeEntry = timeEntryRecord,
+                            LinkUrl = liveLink.Url,
+                            IframeUrl = liveLink.IframeUrl
                         });
                         if (liveLink.RequiresConfirmationToRun)
                         {
@@ -2375,7 +2394,9 @@ namespace CrownATTime.Client.Pages
                         var json = JsonSerializer.Serialize(new
                         {
                             Ticket = ticket,
-                            TimeEntry = timeEntryRecord
+                            TimeEntry = timeEntryRecord,
+                            LinkUrl = liveLink.Url,
+                            IframeUrl = liveLink.IframeUrl
                         });
                         if (liveLink.RequiresConfirmationToRun)
                         {
@@ -2460,15 +2481,18 @@ namespace CrownATTime.Client.Pages
                             Picklists = picklists
                         };
                         liveLink.Url = EmailService.Render(liveLink.Url ?? string.Empty, ctx);
+                        liveLink.IframeUrl = EmailService.Render(liveLink.IframeUrl ?? string.Empty, ctx);
 
                         //await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"{liveLink.Url}");
                         // Example: perform an HTTP GET to the rendered URL (replace with RequestMode.BrowserOpen or RequestMode.HttpPostJson as needed)
-                        if(liveLink.HttpMethod == "GET")
+                        if (liveLink.HttpMethod == "GET")
                         {
                             var json = JsonSerializer.Serialize(new
                             {
                                 Ticket = ticket,
-                                TimeEntry = timeEntryRecord
+                                TimeEntry = timeEntryRecord,
+                                LinkUrl = liveLink.Url,
+                                IframeUrl = liveLink.IframeUrl
                             });
                             if (liveLink.RequiresConfirmationToRun)
                             {
@@ -2492,7 +2516,9 @@ namespace CrownATTime.Client.Pages
                             var json = JsonSerializer.Serialize(new
                             {
                                 Ticket = ticket,
-                                TimeEntry = timeEntryRecord
+                                TimeEntry = timeEntryRecord,
+                                LinkUrl = liveLink.Url,
+                                IframeUrl = liveLink.IframeUrl
                             });
                             if (liveLink.RequiresConfirmationToRun)
                             {
@@ -2758,6 +2784,26 @@ namespace CrownATTime.Client.Pages
                 };
                 return content;
             }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+        }
+        protected async System.Threading.Tasks.Task ScheduleServiceCallButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await DialogService.OpenAsync<MyCalendar>("Schedule Service Call", new Dictionary<string, object>() { { "SelectedCalendarViewIndex", 0 }, { "SelectedResourceEmail", Security.User.Email }, { "TicketId", ticket.item.id } }, new DialogOptions { Width = "90%" });
+
+        }
+        protected async System.Threading.Tasks.Task ScheduleServiceCallSplitButton0Click(Radzen.Blazor.RadzenSplitButtonItem args)
+        {
+            try
+            {
+                if (args.Value != null)
+                {
+                    await DialogService.OpenAsync<MyCalendar>("Schedule Service Call", new Dictionary<string, object>() { { "SelectedCalendarViewIndex", 0 }, { "SelectedResourceEmail", args.Value }, { "TicketId", ticket.item.id } }, new DialogOptions { Width = "90%" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
     }
 }

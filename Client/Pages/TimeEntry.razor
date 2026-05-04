@@ -303,7 +303,7 @@
                     </RadzenRow>
                     
                 </RadzenTemplateForm>
-            <RadzenFieldset Text="Ticket Details" AllowCollapse="true" Icon="confirmation_number" Style="width: 100%">
+            <RadzenFieldset Text="Ticket Details" AllowCollapse="true" Icon="confirmation_number" Style="width: 100%" Collapsed="true">
                             <TicketDetails PrimaryResource="@(ticketResource?.FullName)" PriorityName="PriorityName" ResourceId="@resource.Id" StatusName="@StatusName" Ticket="@ticket"/>
 
                         </RadzenFieldset>
@@ -434,13 +434,24 @@
                         </RadzenStack>
                     </RadzenStack>
                     </RadzenFieldset>
-                    <RadzenFieldset Text="Next Actions" AllowCollapse="true" Icon="play_circle" Collapsed="@RocketshipCollapsed">
+                    <RadzenFieldset Text="Next Actions" AllowCollapse="true" Icon="play_circle" Collapsed="@NextActionsCollapsed">
                         <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
-                        @foreach(var item in liveLinks.Where(x => x.ShowInNextActions && x.Active == true).OrderBy(x => x.Title))
-                        {
-                            <RadzenButton ButtonStyle="ButtonStyle.Success" Shade="Shade.Light" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "play_circle")" Text="@item.Title" Click="@((args) => NextActionButtonClick(args, item))"></RadzenButton>
+                            
 
-                        }
+                            @foreach(var item in liveLinks.Where(x => x.ShowInNextActions && x.Active == true).OrderBy(x => x.Title))
+                            {
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "play_circle")" Text="@item.Title" Click="@((args) => NextActionButtonClick(args, item))"></RadzenButton>
+
+                            }
+                            <RadzenSplitButton Text="Schedule Service Call" ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Icon="calendar_clock" Click="@ScheduleServiceCallSplitButton0Click" AlwaysOpenPopup="true">
+                                @foreach(var item in resources)
+                                {
+                                    <RadzenSplitButtonItem Text="@(item.FullName)" Value="@(item.Email)" Icon="person"></RadzenSplitButtonItem>
+                                }
+                                
+                            </RadzenSplitButton>
+                            @* <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Text="Schedule Service Call" Icon="calendar_clock" Click="ScheduleServiceCallButtonClick"></RadzenButton> *@
+                
                         </RadzenStack>
                     </RadzenFieldset>
                     <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch" Collapsed="@RocketshipCollapsed">

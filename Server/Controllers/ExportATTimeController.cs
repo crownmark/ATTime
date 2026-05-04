@@ -117,6 +117,34 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetContractCaches(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/durations/csv")]
+        [HttpGet("/export/ATTime/durations/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportDurationsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetDurations(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/durations/excel")]
+        [HttpGet("/export/ATTime/durations/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportDurationsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetDurations(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/durationtypes/csv")]
+        [HttpGet("/export/ATTime/durationtypes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportDurationTypesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetDurationTypes(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/durationtypes/excel")]
+        [HttpGet("/export/ATTime/durationtypes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportDurationTypesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetDurationTypes(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/emailtemplates/csv")]
         [HttpGet("/export/ATTime/emailtemplates/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportEmailTemplatesToCSV(string fileName = null)

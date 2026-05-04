@@ -259,6 +259,27 @@ namespace CrownATTime.Client
             return JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(content);
         }
 
+        public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult> CreateSecondaryResource(CrownATTime.Server.Models.TicketSecondaryResourcesCreate resource)
+        {
+            Console.WriteLine($"Autotask Service (CreateSecondaryResource) Received Resource: {resource.resourceID}");
+            Console.WriteLine($"Autotask Service (CreateSecondaryResource) Received Ticket: {resource.ticketID}");
+
+            var uri = new Uri(baseUri, $"Tickets/SecondaryResources");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            var json = JsonSerializer.Serialize(resource, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            OnCreateTimeEntry(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var result = await response.Content.ReadAsStringAsync();
+
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<CrownATTime.Server.Models.AutotaskItemCreatedResult>(response);
+        }
+
         public async Task<CompanyLocationDto> GetCompanyLocationByLocationId(int locationId)
         {
             var uri = new Uri(baseUri, $"companylocations/{locationId}");
@@ -1136,7 +1157,7 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
-        public async Task<CrownATTime.Server.Models.ServiceCallCreatedDto>CreateServiceCall(CrownATTime.Server.Models.ServiceCallDto serviceCall)
+        public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult>CreateServiceCall(CrownATTime.Server.Models.ServiceCallDto serviceCall)
         {
             var uri = new Uri(baseUri, $"servicecalls");
 
@@ -1149,10 +1170,10 @@ namespace CrownATTime.Client
             var response = await httpClient.SendAsync(httpRequestMessage);
 
             return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<CrownATTime.Server.Models.ServiceCallCreatedDto>(response);
+                .ReadAsync<CrownATTime.Server.Models.AutotaskItemCreatedResult>(response);
         }
 
-        public async Task<CrownATTime.Server.Models.ServiceCallTicketCreated> CreateServiceCallTicket(CrownATTime.Server.Models.ServiceCallTicket item)
+        public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult> CreateServiceCallTicket(CrownATTime.Server.Models.ServiceCallTicket item)
         {
             var uri = new Uri(baseUri, $"servicecallTicket");
 
@@ -1165,12 +1186,12 @@ namespace CrownATTime.Client
             var response = await httpClient.SendAsync(httpRequestMessage);
 
             return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<CrownATTime.Server.Models.ServiceCallTicketCreated>(response);
+                .ReadAsync<CrownATTime.Server.Models.AutotaskItemCreatedResult>(response);
         }
 
-        public async Task<CrownATTime.Server.Models.ServiceCallTicketResourceCreated> CreateServiceCallTicketResource(CrownATTime.Server.Models.ServiceCallTicketResourceCreate item)
+        public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult> CreateServiceCallTicketResource(CrownATTime.Server.Models.ServiceCallTicketResourceCreate item)
         {
-            var uri = new Uri(baseUri, $"servicecallTicket");
+            var uri = new Uri(baseUri, $"servicecallTicketResource");
 
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
 
@@ -1181,7 +1202,7 @@ namespace CrownATTime.Client
             var response = await httpClient.SendAsync(httpRequestMessage);
 
             return await Radzen.HttpResponseMessageExtensions
-                .ReadAsync<CrownATTime.Server.Models.ServiceCallTicketResourceCreated>(response);
+                .ReadAsync<CrownATTime.Server.Models.AutotaskItemCreatedResult>(response);
         }
         public async Task<CrownATTime.Server.Models.ServiceCallCreatedDto> UpdateServiceCall(CrownATTime.Server.Models.ServiceCallCreateDto serviceCall)
         {
@@ -2132,6 +2153,19 @@ namespace CrownATTime.Client
             var converted = JsonSerializer.Deserialize<ResourceDtoResultSingle>(content);
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<ResourceDtoResultSingle>(response);
+        }
+        public async Task<ResourceRoleDtoResult> GetResourceRoles(int resourceId)
+        {
+
+            var uri = new Uri(baseUri, $"resourceRoles/{resourceId}");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+            var content = await response.Content.ReadAsStringAsync();
+            var converted = JsonSerializer.Deserialize<ResourceRoleDtoResult>(content);
+            return await Radzen.HttpResponseMessageExtensions
+                .ReadAsync<ResourceRoleDtoResult>(response);
         }
         public async Task<AutotaskItemsResponse<ResourceDtoResult>> GetLoggedInResource(string email)
         {

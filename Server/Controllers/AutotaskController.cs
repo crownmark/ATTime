@@ -343,7 +343,7 @@ namespace CrownATTime.Server.Controllers
                 });
 
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await _http.PostAsync($"v1.0/ServiceCalls/{item.serviceCallTicketID}/Resources", content);
+                var response = await _http.PostAsync($"v1.0/ServiceCallTickets/{item.serviceCallTicketID}/Resources", content);
 
                 var responseContent = await response.Content.ReadAsStringAsync();
 
@@ -1384,6 +1384,40 @@ namespace CrownATTime.Server.Controllers
             }
 
         }
+
+        // POST api/autotask/timeentries
+        [HttpPost("tickets/secondaryresources")]
+        public async Task<IActionResult> CreateTicketSecondaryResource([FromBody] TicketSecondaryResourcesCreate resource)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(resource, new JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+                Console.WriteLine($"Controller CreateTicketSecondaryResource Event");
+                Console.WriteLine($"Controller Resource: {resource.resourceID}");
+                Console.WriteLine($"Controller TicketId: {resource.ticketID}");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _http.PostAsync($"v1.0/Tickets/{resource.ticketID}/SecondaryResources", content);
+
+                var responseContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Controller Response: {responseContent}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating secondary resource: {ex.Message}");
+            }
+        }
+
         [HttpGet("tickets/secondaryresources/query")]
         public async Task<IActionResult> GetTicketSecondaryResources([FromQuery] string search)
         {
@@ -1433,6 +1467,23 @@ namespace CrownATTime.Server.Controllers
             }
 
             return StatusCode((int)response.StatusCode, content);
+        }
+
+        [HttpGet("resourceRoles/{resourceId}")]
+        public async Task<IActionResult> GetResourceRoles(int resourceId)
+        {
+            try
+            {
+                var response = await _http.GetAsync($"v1.0/Resources/{resourceId}/Roles");
+                var content = await response.Content.ReadAsStringAsync();
+
+                return Content(content, "application/json");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error fetching resource roles: {ex.Message}");
+            }
+
         }
 
         [HttpGet("resources/sync")]

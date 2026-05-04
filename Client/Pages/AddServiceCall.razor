@@ -1,0 +1,24 @@
+@page "/add-service-call"
+
+@attribute [Authorize]
+
+<RadzenRow>
+    <RadzenColumn Size="12">
+        <RadzenTemplateForm TItem="Server.Models.CalendarEvent" Data="@calendarEvent">
+            <RadzenStack>
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="3">
+                        <RadzenLabel Component="TextBox1" style="width: 100%" Text="Label"></RadzenLabel>
+                    </RadzenColumn>
+                    <RadzenColumn Size="12" SizeMD="9">
+                        <RadzenTextBox style="display: block; width: 100%" Name="TextBox1"></RadzenTextBox>
+                        <RadzenRequiredValidator Component="TextBox1" style="position: absolute"></RadzenRequiredValidator>
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+</RadzenRow>

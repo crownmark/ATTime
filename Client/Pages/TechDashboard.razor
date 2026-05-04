@@ -134,7 +134,7 @@
                         <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.TimeEntry">
                             <Template>
                                 <RadzenCard Style="width: 100%">
-                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center" Gap="2">
+                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.SpaceBetween" AlignItems="Radzen.AlignItems.Center" Gap="2">
                                         <RadzenStack>
                                             <RadzenStack Style="width: 100%;white-space: break-spaces;" Gap="2">
                                                 <RadzenText Text="@($"{context.TicketNumber} - {context.TicketTitle}")" TextStyle="Radzen.Blazor.TextStyle.Body1" Style="font-weight: bold" />
@@ -357,11 +357,10 @@
                         <RadzenStack>
                             <RadzenStack Orientation="Radzen.Orientation.Horizontal">
                             <RadzenIcon Icon="calendar_month" />
-                            <RadzenText Text="Next 3 Days" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
+                            <RadzenText Text="Agenda" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
                                 <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Style="width: 40px" Click="@CalendarGridRefreshButton1Click" MouseEnter="CalendarRefreshButtonMouseEnter" MouseLeave="CalendarRefreshButtonMouseLeave" Visible="true" IsBusy="@calendarGridLoading" Shade="Radzen.Shade.Light"></RadzenButton>
 
                             </RadzenStack>
-                            <RadzenText Text="Calendar + scheduled ticket commitments" TextStyle="Radzen.Blazor.TextStyle.Caption" TagName="Radzen.Blazor.TagName.Auto" />
                         
                         </RadzenStack>
                     </RadzenColumn>

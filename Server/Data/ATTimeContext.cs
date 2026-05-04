@@ -29,6 +29,13 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.TimeGuardSectionsId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.Duration>()
+              .HasOne(i => i.DurationType)
+              .WithMany(i => i.Durations)
+              .HasForeignKey(i => i.DurationTypeId)
+              .HasPrincipalKey(i => i.DurationTypeId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
               .HasOne(i => i.AiPromptConfiguration)
               .WithMany(i => i.ResourceCaches)
@@ -160,6 +167,18 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.Duration>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.Duration>()
+              .Property(p => p.SortOrder)
+              .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.DurationType>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
@@ -202,6 +221,10 @@ namespace CrownATTime.Server.Data
 
             builder.Entity<CrownATTime.Server.Models.ATTime.LiveLink>()
               .Property(p => p.ShowInNextActions)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.LiveLink>()
+              .Property(p => p.ShowInIframe)
               .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.NoteTemplate>()
@@ -379,6 +402,10 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.CompanyCache> CompanyCaches { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.ContractCache> ContractCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.Duration> Durations { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.DurationType> DurationTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.EmailTemplate> EmailTemplates { get; set; }
 

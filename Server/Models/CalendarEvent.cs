@@ -31,7 +31,7 @@
         // UI helpers
         public string Color { get; set; }
         public bool IsAllDay { get; set; }
-        //public string DurationFormatted => (End - Start).ToString(@"hh\:mm\:ss");
+        public int DurationMinutes { get; set; }
         public string DurationFormatted
         {
             get

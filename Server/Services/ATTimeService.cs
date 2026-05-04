@@ -1206,6 +1206,333 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportDurationsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durations/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportDurationsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durations/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnDurationsRead(ref IQueryable<CrownATTime.Server.Models.ATTime.Duration> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.Duration>> GetDurations(Query query = null)
+        {
+            var items = Context.Durations.AsQueryable();
+
+            items = items.Include(i => i.DurationType);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnDurationsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnDurationGet(CrownATTime.Server.Models.ATTime.Duration item);
+        partial void OnGetDurationByDurationId(ref IQueryable<CrownATTime.Server.Models.ATTime.Duration> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.Duration> GetDurationByDurationId(int durationid)
+        {
+            var items = Context.Durations
+                              .AsNoTracking()
+                              .Where(i => i.DurationId == durationid);
+
+            items = items.Include(i => i.DurationType);
+ 
+            OnGetDurationByDurationId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnDurationGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnDurationCreated(CrownATTime.Server.Models.ATTime.Duration item);
+        partial void OnAfterDurationCreated(CrownATTime.Server.Models.ATTime.Duration item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Duration> CreateDuration(CrownATTime.Server.Models.ATTime.Duration duration)
+        {
+            OnDurationCreated(duration);
+
+            var existingItem = Context.Durations
+                              .Where(i => i.DurationId == duration.DurationId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.Durations.Add(duration);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(duration).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterDurationCreated(duration);
+
+            return duration;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.Duration> CancelDurationChanges(CrownATTime.Server.Models.ATTime.Duration item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnDurationUpdated(CrownATTime.Server.Models.ATTime.Duration item);
+        partial void OnAfterDurationUpdated(CrownATTime.Server.Models.ATTime.Duration item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Duration> UpdateDuration(int durationid, CrownATTime.Server.Models.ATTime.Duration duration)
+        {
+            OnDurationUpdated(duration);
+
+            var itemToUpdate = Context.Durations
+                              .Where(i => i.DurationId == duration.DurationId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            duration.DurationType = null;
+
+            Context.Attach(duration).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterDurationUpdated(duration);
+
+            return duration;
+        }
+
+        partial void OnDurationDeleted(CrownATTime.Server.Models.ATTime.Duration item);
+        partial void OnAfterDurationDeleted(CrownATTime.Server.Models.ATTime.Duration item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Duration> DeleteDuration(int durationid)
+        {
+            var itemToDelete = Context.Durations
+                              .Where(i => i.DurationId == durationid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnDurationDeleted(itemToDelete);
+
+            Reset();
+
+            Context.Durations.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterDurationDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportDurationTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durationtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durationtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportDurationTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/durationtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/durationtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnDurationTypesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.DurationType> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.DurationType>> GetDurationTypes(Query query = null)
+        {
+            var items = Context.DurationTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnDurationTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnDurationTypeGet(CrownATTime.Server.Models.ATTime.DurationType item);
+        partial void OnGetDurationTypeByDurationTypeId(ref IQueryable<CrownATTime.Server.Models.ATTime.DurationType> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.DurationType> GetDurationTypeByDurationTypeId(int durationtypeid)
+        {
+            var items = Context.DurationTypes
+                              .AsNoTracking()
+                              .Where(i => i.DurationTypeId == durationtypeid);
+
+ 
+            OnGetDurationTypeByDurationTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnDurationTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnDurationTypeCreated(CrownATTime.Server.Models.ATTime.DurationType item);
+        partial void OnAfterDurationTypeCreated(CrownATTime.Server.Models.ATTime.DurationType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.DurationType> CreateDurationType(CrownATTime.Server.Models.ATTime.DurationType durationtype)
+        {
+            OnDurationTypeCreated(durationtype);
+
+            var existingItem = Context.DurationTypes
+                              .Where(i => i.DurationTypeId == durationtype.DurationTypeId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.DurationTypes.Add(durationtype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(durationtype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterDurationTypeCreated(durationtype);
+
+            return durationtype;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.DurationType> CancelDurationTypeChanges(CrownATTime.Server.Models.ATTime.DurationType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnDurationTypeUpdated(CrownATTime.Server.Models.ATTime.DurationType item);
+        partial void OnAfterDurationTypeUpdated(CrownATTime.Server.Models.ATTime.DurationType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.DurationType> UpdateDurationType(int durationtypeid, CrownATTime.Server.Models.ATTime.DurationType durationtype)
+        {
+            OnDurationTypeUpdated(durationtype);
+
+            var itemToUpdate = Context.DurationTypes
+                              .Where(i => i.DurationTypeId == durationtype.DurationTypeId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(durationtype).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterDurationTypeUpdated(durationtype);
+
+            return durationtype;
+        }
+
+        partial void OnDurationTypeDeleted(CrownATTime.Server.Models.ATTime.DurationType item);
+        partial void OnAfterDurationTypeDeleted(CrownATTime.Server.Models.ATTime.DurationType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.DurationType> DeleteDurationType(int durationtypeid)
+        {
+            var itemToDelete = Context.DurationTypes
+                              .Where(i => i.DurationTypeId == durationtypeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnDurationTypeDeleted(itemToDelete);
+
+            Reset();
+
+            Context.DurationTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterDurationTypeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportEmailTemplatesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/emailtemplates/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);

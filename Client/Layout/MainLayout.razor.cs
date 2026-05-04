@@ -57,7 +57,11 @@ namespace CrownATTime.Client.Layout
 
         protected async System.Threading.Tasks.Task PanelMenu0Click(Radzen.MenuItemEventArgs args)
         {
-            //sidebarExpanded = !sidebarExpanded;
+            if(args.Text.Contains("My Dashboard"))
+            {
+                sidebarExpanded = !sidebarExpanded;              
+
+            }
         }
     }
 }

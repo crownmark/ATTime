@@ -42,5 +42,10 @@ namespace CrownATTime.Server.Models.ATTime
         public string DialogWindowWidth { get; set; }
 
         public bool ShowInNextActions { get; set; }
+
+        public bool ShowInIframe { get; set; }
+
+        [MaxLength(500)]
+        public string IframeUrl { get; set; }
     }
 }
