@@ -18,7 +18,7 @@
 </RadzenRow>
 <RadzenRow Visible="@(timeEntryRecord != null)">
     <RadzenColumn SizeLG="3" OrderMD="3" OrderXS="3" OrderLG="1" SizeXL="3" OrderSM="3">
-        <RadzenCard Style="margin-bottom: 10px">
+        <RadzenCard Style="margin-bottom: 10px; background-color: var(--rz-base-600)">
             <RadzenStack>
                 <RadzenStack Style="width: 100%">
                     <RadzenText Text="@($"{ticket?.item?.ticketNumber} - {ticket?.item?.title}")" TextStyle="Radzen.Blazor.TextStyle.H4" />
@@ -137,7 +137,7 @@
                 </RadzenStack>
             </RadzenStack>
         </RadzenCard>
-        <RadzenCard Style="margin-bottom: 10px" Variant="Radzen.Variant.Filled">
+        <RadzenCard Style="margin-bottom: 10px; background-color: var(--rz-base-600)" Variant="Radzen.Variant.Filled">
             <RadzenFieldset Text="Contact Details" AllowCollapse="true" Icon="person" Collapsed="@ContactDetailsCollapsed" Visible="@ticket.item.contactID.HasValue">
                 <RadzenStack Gap="10">
                     
@@ -173,7 +173,7 @@
                 </RadzenStack>
             </RadzenFieldset>
         </RadzenCard>
-<RadzenCard Style="margin-bottom: 10px" Variant="Radzen.Variant.Filled">
+<RadzenCard Style="margin-bottom: 10px; background-color: var(--rz-base-600)" Variant="Radzen.Variant.Filled">
     <RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="@CompanyDetailsCollapsed">
         <RadzenStack Gap="10">
             
@@ -217,7 +217,7 @@
         </RadzenCard>
     </RadzenColumn>
     <RadzenColumn SizeLG="6" SizeMD="8" OrderMD="1" OrderXS="1" OrderLG="2" OrderSM="1">
-    <RadzenCard Style="margin-bottom: 10px">
+    <RadzenCard Style="margin-bottom: 10px; background-color: var(--rz-base-600)">
     <RadzenStack>
                                     
                                     
@@ -231,7 +231,7 @@
                                     
                                     </RadzenStack>
                             </RadzenStack>
-        <RadzenCard Variant="Radzen.Variant.Outlined" Style="background-color: var(--rz-base-800); margin-bottom: 10px">
+        <RadzenCard Variant="Radzen.Variant.Outlined" Style="margin-bottom: 10px; background-color: var(--rz-base-800)">
             <div class="floating-timer" style="padding: 5px; width: 100%">
                 
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="padding-top: 4px; padding: 10px; margin-bottom: 5px; border-radius: 14px; border: 1px solid var(--rz-primary)" AlignItems="Radzen.AlignItems.Center">
@@ -357,54 +357,55 @@
                 </RadzenRow>
         
         
-        
-                <RadzenRow style="margin-bottom: 1rem">
-                    <RadzenColumn SizeMD="6">
-                        <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                            <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
-                            </RadzenLabel>
-                            <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
-                            <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AISummaryNotesSplitButtonClick" Text="AI Actions" IsBusy="@summaryNotesAiBusy">
-                                @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes").Any())
-                                {
-                                    foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes"))
+                
+                <RadzenSplitter>
+                    <RadzenSplitterPane>
+                        <RadzenColumn>
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
+                                </RadzenLabel>
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
+                                <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AISummaryNotesSplitButtonClick" Text="AI Actions" IsBusy="@summaryNotesAiBusy">
+                                    @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes").Any())
                                     {
-                                        <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes"))
+                                        {
+                                            <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        }
                                     }
-                                }
-        
-                            </RadzenSplitButton>
-                        </RadzenRow>
-                        <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                            <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
-                            <RadzenRequiredValidator Component="SummaryNotes"></RadzenRequiredValidator>
-        
-                        </RadzenRow>
-                    </RadzenColumn>
-                    <RadzenColumn SizeMD="6">
-                        <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                            <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="color: var(--rz-danger)" />
-                            <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick" MouseEnter="@InternalNotesButton5MouseEnter" MouseLeave="@InternalNotesButton5MouseLeave"></RadzenButton>
-                            <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AIInternalNotesSplitButtonClick" Text="AI Actions" IsBusy="@interalNotesAiBusy">
-                                @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes").Any())
-                                {
-                                    foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes"))
+                                
+                                </RadzenSplitButton>
+                            </RadzenRow>
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
+                                <RadzenRequiredValidator Component="SummaryNotes"></RadzenRequiredValidator>
+                                
+                            </RadzenRow>
+                        </RadzenColumn>
+                    </RadzenSplitterPane>
+                    <RadzenSplitterPane Collapsed="false" Resizable="true">
+                        <RadzenColumn>
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="color: var(--rz-danger)" />
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick" MouseEnter="@InternalNotesButton5MouseEnter" MouseLeave="@InternalNotesButton5MouseLeave"></RadzenButton>
+                                <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AIInternalNotesSplitButtonClick" Text="AI Actions" IsBusy="@interalNotesAiBusy">
+                                    @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes").Any())
                                     {
-                                        <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes"))
+                                        {
+                                            <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        }
                                     }
-                                }
-        
-                            </RadzenSplitButton>
-                        </RadzenRow>
-                        <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                            <RadzenTextArea @bind-Value="@timeEntryRecord.InternalNotes" Name="InternalNotes" Style="width: 100%" Rows="10" Change="InternalNotesChange"></RadzenTextArea>
-                        </RadzenRow>
-                    </RadzenColumn>
-        
-        
-        
-        
-                </RadzenRow>
+                                
+                                </RadzenSplitButton>
+                            </RadzenRow>
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenTextArea @bind-Value="@timeEntryRecord.InternalNotes" Name="InternalNotes" Style="width: 100%" Rows="10" Change="InternalNotesChange"></RadzenTextArea>
+                            </RadzenRow>
+                        </RadzenColumn>
+                    </RadzenSplitterPane>
+                
+                </RadzenSplitter>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap" Gap="">
                     <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
                         <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
@@ -459,7 +460,7 @@
         
         </RadzenTemplateForm>
     </RadzenCard>
-    <RadzenCard>
+    <RadzenCard Style="background-color: var(--rz-base-600)">
         <RadzenFieldset Text="Ticket Description and Activity" AllowCollapse="true" Icon="confirmation_number" Style="width: 100%" Collapsed="true">
             <TicketDetails PrimaryResource="@(ticketResource?.FullName)" PriorityName="PriorityName" ResourceId="@resource.Id" StatusName="@StatusName" Ticket="@ticket" />
         
@@ -467,8 +468,8 @@
     </RadzenCard>
     </RadzenColumn>
     <RadzenColumn SizeLG="3" SizeMD="4" OrderMD="2" OrderXS="2" OrderLG="3" SizeXL="3" OrderSM="2">
-    <RadzenCard>
-        <RadzenStack>
+    <RadzenCard Style="background-color: var(--rz-base-600)">
+        <RadzenStack Visible="true">
             <RadzenFieldset Text="Communication & Live Links" AllowCollapse="true" Icon="email" Collapsed="@EmailNotesCollapsed">
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                     <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="email" Text="Send Email" Click="@SendEmailButtonClick"></RadzenButton>
@@ -507,16 +508,16 @@
             </RadzenFieldset>
         
             
-            <RadzenFieldset Text="Next Actions" AllowCollapse="true" Icon="play_circle" Collapsed="@NextActionsCollapsed">
+            <RadzenFieldset Text="Next Actions" AllowCollapse="true" Icon="play_circle" Collapsed="false">
                 <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                     
                     
                     @foreach (var item in liveLinks.Where(x => x.ShowInNextActions && x.Active == true).OrderBy(x => x.Title))
                     {
-                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "play_circle")" Text="@item.Title" Click="@((args) => NextActionButtonClick(args, item))"></RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Filled" Size="Radzen.ButtonSize.Medium" Shade="Radzen.Shade.Darker" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "play_circle")" Text="@item.Title" Click="@((args) => NextActionButtonClick(args, item))"></RadzenButton>
                     
                     }
-                    <RadzenSplitButton Text="Schedule Service Call" ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Icon="calendar_clock" Click="@ScheduleServiceCallSplitButton0Click" AlwaysOpenPopup="true">
+                    <RadzenSplitButton Text="Schedule Service Call" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Filled" Size="Radzen.ButtonSize.Medium" Icon="calendar_clock" Click="@ScheduleServiceCallSplitButton0Click" AlwaysOpenPopup="true" Shade="Radzen.Shade.Darker">
                         @foreach (var item in resources)
                         {
                             <RadzenSplitButtonItem Text="@(item.FullName)" Value="@(item.Email)" Icon="person"></RadzenSplitButtonItem>
@@ -531,7 +532,7 @@
                 <iframe class="responsive-iframe" src="@(timeZestUrl)"></iframe>
                     
             </RadzenFieldset>
-            <div class="@(IsAiExpanded ? "ai-expanded" : "")">
+            @* <div class="@(IsAiExpanded ? "ai-expanded" : "")">
         
                 <RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat" Collapsed="@AIChatCollapsed">
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
@@ -540,7 +541,7 @@
                     </RadzenStack>
 
                 </RadzenFieldset>
-            </div>
+            </div> *@
         
             <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch" Collapsed="@RocketshipCollapsed" Visible="false">
                 <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>

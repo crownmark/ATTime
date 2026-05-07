@@ -80,7 +80,7 @@ namespace CrownATTime.Client.Pages
 
         protected RadzenDataGrid<AttachmentDtoResult> attachmentsGrid;
         protected bool filterTimeEntries {  get; set; } = true;
-        protected bool filterNotes { get; set; } = true;
+        protected bool filterNotes { get; set; } = false;
         protected bool filterCommunication { get; set; } = true;
         protected string search = "";
         protected string QueueName { get; set; }
