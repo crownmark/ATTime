@@ -83,7 +83,7 @@
                                            
 </RadzenStack>
 <RadzenStack>
-    <RadzenTabs RenderMode="Radzen.TabRenderMode.Client" Change="@Tabs0Change">
+    <RadzenTabs RenderMode="Radzen.TabRenderMode.Client" Change="@Tabs0Change" TabPosition="Radzen.TabPosition.Top">
         <Tabs>
             <RadzenTabsItem Text="Activity" Icon="history">
                                 <ChildContent>
@@ -184,10 +184,10 @@
                 </ChildContent>
                 
             </RadzenTabsItem>
-            <RadzenTabsItem Text="Service Calls" Icon="assignment" Selected="false">
+            <RadzenTabsItem Text="Open Service Calls" Icon="assignment" Selected="false">
                 <RadzenDataGrid @ref="@serviceCallsGrid" TItem="Server.Models.ServiceCall" Data="@serviceCalls" IsLoading="@serviceCallsLoading" LoadData="@DataGrid1LoadData">
                     <Columns>
-                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Width="70px" Frozen="true">
+                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Width="80px" Frozen="true">
                             <Template>
                                 <RadzenStack>
                                     <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Text="" Click="@((args) => ServiceCallsSplitButton0Click(args, context))" Icon="tv_options_edit_channels" Style="width: 60px" AlwaysOpenPopup="true">
@@ -197,23 +197,23 @@
                                 </RadzenStack>
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="description" Title="Description" Width="150px">
+                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="description" Title="Description" Width="150px" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap">
                             <Template>
                                 <RadzenLabel Text="@context.description" style="white-space: pre-line;" />
                             </Template>
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="duration" Title="Duration" Width="70px"></RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="startDateTime" Title="Start" Width="155px">
+                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="startDateTime" Title="Start" Width="125px" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap">
                             <Template>
                                 <RadzenLabel Text="@(context.startDateTime.ToLocalTime().ToString("MM/dd/yyyy h:mm tt"))" />
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="endDateTime" Title="End" Width="155px">
+                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="endDateTime" Title="End" Width="125px" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap">
                             <Template>
                                 <RadzenLabel Text="@(context.endDateTime.ToLocalTime().ToString("MM/dd/yyyy h:mm tt"))" />
                             </Template>
                         </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="isComplete" Title="Completed" Width="100px">
+                        <RadzenDataGridColumn TItem="Server.Models.ServiceCall" Property="isComplete" Title="Completed" Width="90px" Visible="false">
                             <Template>
                                 <RadzenBadge Text="Complete" BadgeStyle="Radzen.BadgeStyle.Success" Variant="Radzen.Variant.Outlined" IsPill="true" Visible="@(context.isComplete == 1)"></RadzenBadge>
                             </Template>

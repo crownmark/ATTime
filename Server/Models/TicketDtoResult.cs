@@ -1,4 +1,4 @@
-﻿
+
 namespace CrownATTime.Server.Models
 {
     public class TicketDtoResult
@@ -40,15 +40,15 @@ namespace CrownATTime.Server.Models
             //public object estimatedHours { get; set; }
             //public string externalID { get; set; }
             //public int? firstResponseAssignedResourceID { get; set; }
-            //public DateTime? firstResponseDateTime { get; set; }
-            //public DateTime? firstResponseDueDateTime { get; set; }
-            //public int firstResponseInitiatingResourceID { get; set; }
-            //public object hoursToBeScheduled { get; set; }
+            public DateTime? firstResponseDateTime { get; set; }
+            public DateTime? firstResponseDueDateTime { get; set; }
+            //public int? firstResponseInitiatingResourceID { get; set; }
+            // public object hoursToBeScheduled { get; set; }
             //public object impersonatorCreatorResourceID { get; set; }
             //public bool isAssignedToComanaged { get; set; }
             public int? issueType { get; set; }
             //public bool isVisibleToComanaged { get; set; }
-            //public DateTime? lastActivityDate { get; set; }
+            public DateTime? lastActivityDate { get; set; }
             //public int? lastActivityPersonType { get; set; }
             //public int? lastActivityResourceID { get; set; }
             //public DateTime? lastCustomerNotificationDateTime { get; set; }
@@ -65,14 +65,14 @@ namespace CrownATTime.Server.Models
             //public string purchaseOrderNumber { get; set; }
             public int? queueID { get; set; }
             public string resolution { get; set; }
-            //public DateTime? resolutionPlanDateTime { get; set; }
-            //public DateTime? resolutionPlanDueDateTime { get; set; }
-            //public DateTime? resolvedDateTime { get; set; }
-            //public DateTime? resolvedDueDateTime { get; set; }
+            public DateTime? resolutionPlanDateTime { get; set; }
+            public DateTime? resolutionPlanDueDateTime { get; set; }
+            public DateTime? resolvedDateTime { get; set; }
+            public DateTime? resolvedDueDateTime { get; set; }
             //public object rmaStatus { get; set; }
             //public object rmaType { get; set; }
             //public object rmmAlertID { get; set; }
-            //public bool? serviceLevelAgreementHasBeenMet { get; set; }
+            public bool? serviceLevelAgreementHasBeenMet { get; set; }
             public int? serviceLevelAgreementID { get; set; }
             //public object serviceLevelAgreementPausedNextEventHours { get; set; }
             //public object serviceThermometerTemperature { get; set; }

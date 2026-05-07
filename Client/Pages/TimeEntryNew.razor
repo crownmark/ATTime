@@ -89,6 +89,11 @@
                     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5" JustifyContent="Radzen.JustifyContent.SpaceBetween">
 
                         <RadzenLabel Text="Secondary" />
+                        <RadzenBadge Text="@ticketResource?.FullName" BadgeStyle="Radzen.BadgeStyle.Base" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+                            <RadzenStack Style="width: 100%">
+                                <RadzenText Text="@ticket?.item?.secondaryResources" />
+                            </RadzenStack>
+                        </RadzenBadge>
                         @* <RadzenStack Style="width: 100%">
                                 <RadzenStack Orientation="Radzen.Orientation.Horizontal">   
                                         @foreach (var item in SecondaryResources)
@@ -118,10 +123,15 @@
                         <RadzenLabel Text="@contract?.ContractName" Style="font-weight: bold" />
 
                     </RadzenStack>
-                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5" JustifyContent="Radzen.JustifyContent.SpaceBetween">
-                        <RadzenLabel Text="SLA" />
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(!ticket.item.firstResponseDateTime.HasValue)" Gap="5" JustifyContent="Radzen.JustifyContent.SpaceBetween">
+                        <RadzenLabel Text="SLA First Response Due" />
 
-                        <RadzenText Text="@ticket?.item?.dueDateTime?.ToString()" Style="font-weight: bold; color: var(--rz-warning)" />
+                        <RadzenText Text="@ticket?.item?.firstResponseDueDateTime?.ToLocalTime().ToString()"  Style="font-weight: bold; color: var(--rz-warning)" />
+                    </RadzenStack>
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Visible="@(ticket.item.firstResponseDateTime.HasValue)" Gap="5" JustifyContent="Radzen.JustifyContent.SpaceBetween">
+                        <RadzenLabel Text="SLA Resolution Due" />
+
+                        <RadzenText Text="@ticket?.item?.resolvedDueDateTime?.ToLocalTime().ToString()" Style="font-weight: bold; color: var(--rz-warning)" />
                     </RadzenStack>
 
                 </RadzenStack>
@@ -215,9 +225,6 @@
                                         <RadzenAlert Variant="Radzen.Variant.Outlined" AlertStyle="Radzen.AlertStyle.Warning" Text="@accountAlertTimeEntry" Visible="@(!string.IsNullOrEmpty(accountAlertTimeEntry))" AllowClose="false" Size="Radzen.AlertSize.ExtraSmall" Title="Account Alert"></RadzenAlert>
                                     <RadzenStack Style="width: 100%; margin-bottom: 5px" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween">
                                         <RadzenText Text="Time Entry" Style="font-weight: bold; margin-bottom: 5px" />
-                                        <RadzenFormField Text="Time Entry Template">
-                                        <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange" />
-                                    </RadzenFormField>
                                     </RadzenStack>
                                     
                                     
@@ -228,6 +235,9 @@
             <div class="floating-timer" style="padding: 5px; width: 100%">
                 
                 <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="padding-top: 4px; padding: 10px; margin-bottom: 5px; border-radius: 14px; border: 1px solid var(--rz-primary)" AlignItems="Radzen.AlignItems.Center">
+                    <RadzenFormField Text="Time Entry Template" Style="width: 100%">
+                        <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange" />
+                    </RadzenFormField>
                     <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; font-weight: bold" />
                                 
                     <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)" MouseEnter="@PlayButton0MouseEnter" MouseLeave="@PlayButton0MouseLeave"></RadzenButton>
@@ -332,12 +342,13 @@
                             <ChildContent>
                             <RadzenStack Gap="5">
                             <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.BillingCodeId" ValueProperty="Id" TextProperty="Name" Name="BillingCodeId" Style="width: 100%" Change="@(() => BillingCodeIdChange(timeEntryRecord.BillingCodeId.Value))" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Data="@billingCodes" ClearSearchAfterSelection="true"></RadzenDropDown>
-                                <RadzenBadge Text="Billable" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Danger" Visible="@(!timeEntryRecord.IsNonBillable)" Style="width: 100px"></RadzenBadge>
 
                             </RadzenStack>
                                 
                             </ChildContent>
                             <Helper>
+                                <RadzenBadge Text="Billable" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Danger" Visible="@(!timeEntryRecord.IsNonBillable)" Style="width: 100px"></RadzenBadge>
+
                                 <RadzenNumericRangeValidator Component="BillingCodeId" Text="Billing Code is required" Min="1"></RadzenNumericRangeValidator>
 
                             </Helper>
@@ -394,7 +405,7 @@
         
         
                 </RadzenRow>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap" Gap="">
                     <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
                         <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
                         <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
@@ -495,17 +506,7 @@
         
             </RadzenFieldset>
         
-            @*                         <div class="@(IsAiExpanded ? "ai-expanded" : "")">
-        
-        <RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat" Collapsed="@AIChatCollapsed">
-                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
-                                <RadzenButton Icon="open_in_full" Click="@(() => IsAiExpanded = !IsAiExpanded)" Size="Radzen.ButtonSize.ExtraSmall" Variant="Radzen.Variant.Outlined" MouseEnter="@AiPopoutButtonMouseEnter" MouseLeave="@AiPopoutButtonMouseLeave" Text="" />
-                                <AIGeneralAssistant Prompt="@generalAiPromptConfiguration" />
-                            </RadzenStack>
-        
-                        </RadzenFieldset>
-                            </div> *@
-        
+            
             <RadzenFieldset Text="Next Actions" AllowCollapse="true" Icon="play_circle" Collapsed="@NextActionsCollapsed">
                 <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
                     
@@ -530,7 +531,18 @@
                 <iframe class="responsive-iframe" src="@(timeZestUrl)"></iframe>
                     
             </RadzenFieldset>
-            <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch" Collapsed="@RocketshipCollapsed">
+            <div class="@(IsAiExpanded ? "ai-expanded" : "")">
+        
+                <RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat" Collapsed="@AIChatCollapsed">
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                        <RadzenButton Icon="open_in_full" Click="@(() => IsAiExpanded = !IsAiExpanded)" Size="Radzen.ButtonSize.ExtraSmall" Variant="Radzen.Variant.Outlined" MouseEnter="@AiPopoutButtonMouseEnter" MouseLeave="@AiPopoutButtonMouseLeave" Text="" />
+                        <AIGeneralAssistant Prompt="@generalAiPromptConfiguration" />
+                    </RadzenStack>
+
+                </RadzenFieldset>
+            </div>
+        
+            <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch" Collapsed="@RocketshipCollapsed" Visible="false">
                 <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
         
             </RadzenFieldset>
@@ -540,7 +552,7 @@
         
                     <RadzenDataGrid @ref="@passwordsGrid" Data="@passwords" TItem=Server.Models.ITGluePasswordAttributeResults LoadData="@PasswordsDataGridLoadData" AllowFiltering="false" IsLoading="@passwordsGridLoading" Count="@passwordsCount" Style="max-height: 300px">
                         <Columns>
-                            <RadzenDataGridColumn TItem="Server.Models.ITGluePasswordAttributeResults" Property="name" Title="Name"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGluePasswordAttributeResults" Property="name" Title="Name" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap"></RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="Server.Models.ITGluePasswordAttributeResults" Width="130px">
                                 <Template>
                                     <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" Gap="5" JustifyContent="Radzen.JustifyContent.Left">
@@ -567,7 +579,7 @@
         
                     <RadzenDataGrid @ref="@documentsGrid" Data="@documents" TItem=Server.Models.ITGlueDocumentAttributesResults LoadData="@DocumentsDataGridLoadData" AllowFiltering="false" IsLoading="@documentsGridLoading" Count="@documentsCount" Style="max-height: 300px">
                         <Columns>
-                            <RadzenDataGridColumn TItem="Server.Models.ITGlueDocumentAttributesResults" Property="Name" Title="Name"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGlueDocumentAttributesResults" Property="Name" Title="Name" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap"></RadzenDataGridColumn>
                             <RadzenDataGridColumn TItem="Server.Models.ITGlueDocumentAttributesResults" Width="50px">
                                 <Template>
                                     <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" Gap="5" JustifyContent="Radzen.JustifyContent.Left">

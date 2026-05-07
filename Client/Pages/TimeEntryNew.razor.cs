@@ -336,7 +336,7 @@ namespace CrownATTime.Client.Pages
                     {
                         TimeEntryTemplateChange(resource.DefaultTimeEntryTemplate.Value);
                     }
-                    UpdateTicketValues();
+                    await UpdateTicketValues();
                     accordionSelectedIndex = 0;
 
                     pageLoading = false;
@@ -622,7 +622,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
                 ticket = await AutotaskService.GetTicket(ticket.item.id);
-                GetSecondaryResources();
+                //GetSecondaryResources();
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);

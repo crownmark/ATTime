@@ -435,9 +435,9 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                if (args.Value.ToString() == "Complete")
+                if (args.Text.ToString() == "Complete")
                 {
-                    await AutotaskService.UpdateServiceCall(new ServiceCallCreateDto()
+                    var updatedServiceCall = await AutotaskService.UpdateServiceCall(new ServiceCallCreateDto()
                     {
                         id = data.id,
                         isComplete = 1,
@@ -449,21 +449,35 @@ namespace CrownATTime.Client.Pages
 
                     });
                     await serviceCallsGrid.Reload();
-
-                }
-                if (args.Value.ToString() == "Delete")
-                {
-                    await AutotaskService.DeleteServiceCall(new ServiceCallCreateDto()
+                    if (updatedServiceCall.id > 0)
                     {
-                        id = data.id,
-                        isComplete = data.id,
-                        companyID = data.companyID,
-                        description = data.description,
-                        endDateTime = data.endDateTime,
-                        startDateTime = data.startDateTime,
-                        status = data.status
-                    });
-                    await serviceCallsGrid.Reload();
+                        NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Updated Service Call", Duration = 5000 });
+                    }
+                }
+                if (args.Text.ToString() == "Delete")
+                {
+                    if (await DialogService.Confirm("Are you sure you want to delete this service call?", "Delete Service Call", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" }) == true)
+                    {
+                        var deletedServiceCall = await AutotaskService.DeleteServiceCall(new ServiceCallCreateDto()
+                        {
+                            id = data.id,
+                            isComplete = data.id,
+                            companyID = data.companyID,
+                            description = data.description,
+                            endDateTime = data.endDateTime,
+                            startDateTime = data.startDateTime,
+                            status = data.status
+                        });
+                        await serviceCallsGrid.Reload();
+
+                        if (deletedServiceCall.IsSuccessStatusCode)
+                        {
+                            NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Deleted Service Call", Duration = 5000 });
+
+                        }
+
+                    }
+                    
                 }
             }
             catch (Exception ex)
