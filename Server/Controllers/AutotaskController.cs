@@ -272,6 +272,33 @@ namespace CrownATTime.Server.Controllers
 
         }
 
+        [HttpDelete("servicecalls")]
+        public async Task<IActionResult> DeleteServiceCall([FromBody] ServiceCallCreateDto item)
+        {
+            try
+            {
+                if (item.id <= 0)
+                {
+                    return BadRequest("Missing or invalid ID.");
+                }
+
+
+                var response = await _http.DeleteAsync($"v1.0/ServiceCalls/{item.id}");
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return Content(responseContent, "application/json");
+                }
+
+                return StatusCode((int)response.StatusCode, responseContent);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error deleting service call: {ex.Message}");
+            }
+        }
+
         // POST api/autotask/timeentries
         [HttpPost("servicecalls")]
         public async Task<IActionResult> CreateServiceCall([FromBody] ServiceCallCreateDto serviceCall)

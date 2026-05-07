@@ -1,0 +1,186 @@
+# site.css
+
+```css
+/* ========================================
+   TIMEGUARD APPLICATION LAYOUTS
+   ======================================== */
+
+body {
+    background:
+        radial-gradient(circle at top left, #172554 0%, #0b1020 35%, #070b14 100%);
+}
+
+.rz-row,
+.rz-stack {
+    gap: 14px;
+}
+
+.rz-card,
+.rz-panel,
+.rz-fieldset-content,
+.rz-dialog,
+.rz-tabview-panels,
+.rz-sidebar,
+.rz-datatable,
+.rz-tree,
+.rz-calendar,
+.rz-scheduler {
+    background:
+        linear-gradient(180deg, rgba(31,41,55,.96), rgba(17,24,39,.96));
+    border: 1px solid #2f3b52;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.28);
+}
+
+.rz-card {
+    padding: 14px;
+}
+
+.rz-dialog {
+    border-radius: 22px;
+    overflow: hidden;
+}
+
+.rz-dialog-titlebar {
+    background: #0f172a;
+    border-bottom: 1px solid #2f3b52;
+    padding: 14px 18px;
+}
+
+.rz-dialog-content {
+    background: transparent;
+}
+
+.rz-button {
+    border-radius: 12px !important;
+    font-weight: 700;
+    letter-spacing: .01em;
+    min-height: 40px;
+    transition: all .18s ease;
+}
+
+.rz-button:hover {
+    transform: translateY(-1px);
+}
+
+.rz-button.rz-primary {
+    background:
+        linear-gradient(180deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: 1px solid #2563eb !important;
+    color: white !important;
+}
+
+.rz-button.rz-secondary,
+.rz-button.rz-light {
+    background: rgba(255,255,255,.04) !important;
+    border: 1px solid #2f3b52 !important;
+    color: #e5e7eb !important;
+}
+
+.rz-textbox,
+.rz-textarea,
+.rz-dropdown,
+.rz-multiselect,
+.rz-datepicker input,
+.rz-numeric input,
+.rz-inputtext {
+    background: #0f172a !important;
+    border: 1px solid #2f3b52 !important;
+    color: #f3f4f6 !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+.rz-textarea {
+    min-height: 140px;
+}
+
+.rz-textbox:focus,
+.rz-textarea:focus,
+.rz-dropdown:focus-within,
+.rz-inputtext:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.18) !important;
+}
+
+.rz-dropdown-panel,
+.rz-multiselect-panel,
+.rz-datepicker-calendar,
+.rz-popup,
+.rz-overlaypanel {
+    background: #111827 !important;
+    border: 1px solid #2f3b52 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,.38);
+}
+
+.rz-state-highlight,
+.rz-dropdown-item:hover,
+.rz-multiselect-item:hover {
+    background: rgba(59,130,246,.18) !important;
+    color: #dbeafe !important;
+}
+
+.rz-tabview-nav {
+    background: transparent;
+    border-bottom: 1px solid #2f3b52;
+}
+
+.rz-tabview-nav li a {
+    border-radius: 12px 12px 0 0;
+    color: #9ca3af;
+}
+
+.rz-tabview-selected a {
+    background: rgba(59,130,246,.14);
+    color: white !important;
+}
+
+.rz-grid-table tbody tr:hover,
+.rz-datatable-tablewrapper tbody tr:hover {
+    background: rgba(59,130,246,.08);
+}
+
+.rz-navigation-menu,
+.rz-panel-menu,
+.rz-sidebar {
+    background:
+        linear-gradient(180deg, rgba(15,23,42,.98), rgba(11,16,32,.98));
+    border-right: 1px solid #2f3b52;
+}
+
+.rz-navigation-item-link {
+    border-radius: 12px;
+    margin: 2px 8px;
+}
+
+.rz-navigation-item-wrapper-active > .rz-navigation-item-link {
+    background: rgba(59,130,246,.18);
+    color: white;
+}
+
+.rz-checkbox-box.rz-state-active,
+.rz-radiobutton-box.rz-state-active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.rz-event {
+    border-radius: 12px;
+    border: none !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}

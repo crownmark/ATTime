@@ -1,0 +1,137 @@
+```json
+{
+  "--rz-white": "#ffffff",
+  "--rz-black": "#000000",
+
+  "--rz-base": "#334155",
+
+  "--rz-base-50": "#f8fafc",
+  "--rz-base-100": "#cbd5e1",
+  "--rz-base-200": "#94a3b8",
+  "--rz-base-300": "#64748b",
+  "--rz-base-400": "#475569",
+  "--rz-base-500": "#334155",
+  "--rz-base-600": "#1e293b",
+  "--rz-base-700": "#172033",
+  "--rz-base-800": "#111827",
+  "--rz-base-900": "#0b1020",
+
+  "--rz-base-light": "#94a3b8",
+  "--rz-base-lighter": "#f8fafc",
+  "--rz-base-dark": "#0f172a",
+  "--rz-base-darker": "#020617",
+
+  "--rz-primary": "#3b82f6",
+  "--rz-primary-light": "#93c5fd",
+  "--rz-primary-lighter": "rgba(59, 130, 246, 0.24)",
+  "--rz-primary-dark": "#2563eb",
+  "--rz-primary-darker": "#1d4ed8",
+
+  "--rz-secondary": "#64748b",
+  "--rz-secondary-light": "#94a3b8",
+  "--rz-secondary-lighter": "rgba(148, 163, 184, 0.24)",
+  "--rz-secondary-dark": "#334155",
+  "--rz-secondary-darker": "#1e293b",
+
+  "--rz-info": "#0ea5e9",
+  "--rz-info-light": "#bae6fd",
+  "--rz-info-lighter": "rgba(14, 165, 233, 0.24)",
+  "--rz-info-dark": "#0284c7",
+  "--rz-info-darker": "#082f49",
+
+  "--rz-success": "#22c55e",
+  "--rz-success-light": "#bbf7d0",
+  "--rz-success-lighter": "rgba(34, 197, 94, 0.24)",
+  "--rz-success-dark": "#16a34a",
+  "--rz-success-darker": "#052e16",
+
+  "--rz-warning": "#f59e0b",
+  "--rz-warning-light": "#fde68a",
+  "--rz-warning-lighter": "rgba(245, 158, 11, 0.24)",
+  "--rz-warning-dark": "#d97706",
+  "--rz-warning-darker": "#451a03",
+
+  "--rz-danger": "#ef4444",
+  "--rz-danger-light": "#fecaca",
+  "--rz-danger-lighter": "rgba(239, 68, 68, 0.24)",
+  "--rz-danger-dark": "#dc2626",
+  "--rz-danger-darker": "#450a0a",
+
+  "--rz-on-base": "#ffffff",
+  "--rz-on-base-light": "#0f172a",
+  "--rz-on-base-lighter": "#0f172a",
+  "--rz-on-base-dark": "#ffffff",
+  "--rz-on-base-darker": "#ffffff",
+
+  "--rz-on-primary": "#ffffff",
+  "--rz-on-primary-light": "#0b1020",
+  "--rz-on-primary-lighter": "#0b1020",
+  "--rz-on-primary-dark": "#dbeafe",
+  "--rz-on-primary-darker": "#dbeafe",
+
+  "--rz-on-secondary": "#ffffff",
+  "--rz-on-secondary-light": "#0f172a",
+  "--rz-on-secondary-lighter": "#0f172a",
+  "--rz-on-secondary-dark": "#e2e8f0",
+  "--rz-on-secondary-darker": "#e2e8f0",
+
+  "--rz-on-info": "#ffffff",
+  "--rz-on-info-light": "#082f49",
+  "--rz-on-info-lighter": "#082f49",
+  "--rz-on-info-dark": "#e0f2fe",
+  "--rz-on-info-darker": "#e0f2fe",
+
+  "--rz-on-success": "#ffffff",
+  "--rz-on-success-light": "#052e16",
+  "--rz-on-success-lighter": "#052e16",
+  "--rz-on-success-dark": "#dcfce7",
+  "--rz-on-success-darker": "#dcfce7",
+
+  "--rz-on-warning": "#0f172a",
+  "--rz-on-warning-light": "#451a03",
+  "--rz-on-warning-lighter": "#451a03",
+  "--rz-on-warning-dark": "#fef3c7",
+  "--rz-on-warning-darker": "#fef3c7",
+
+  "--rz-on-danger": "#ffffff",
+  "--rz-on-danger-light": "#450a0a",
+  "--rz-on-danger-lighter": "#450a0a",
+  "--rz-on-danger-dark": "#fee2e2",
+  "--rz-on-danger-darker": "#fee2e2",
+
+  "--rz-series-1": "#3b82f6",
+  "--rz-series-2": "#8b5cf6",
+  "--rz-series-3": "#ec4899",
+  "--rz-series-4": "#ef4444",
+  "--rz-series-5": "#f59e0b",
+  "--rz-series-6": "#84cc16",
+  "--rz-series-7": "#22c55e",
+  "--rz-series-8": "#14b8a6",
+
+  "--rz-series-9": "#60a5fa",
+  "--rz-series-10": "#a78bfa",
+  "--rz-series-11": "#f472b6",
+  "--rz-series-12": "#f87171",
+  "--rz-series-13": "#fbbf24",
+  "--rz-series-14": "#a3e635",
+  "--rz-series-15": "#4ade80",
+  "--rz-series-16": "#2dd4bf",
+
+  "--rz-series-17": "#bfdbfe",
+  "--rz-series-18": "#ddd6fe",
+  "--rz-series-19": "#fbcfe8",
+  "--rz-series-20": "#fecaca",
+  "--rz-series-21": "#fde68a",
+  "--rz-series-22": "#d9f99d",
+  "--rz-series-23": "#bbf7d0",
+  "--rz-series-24": "#99f6e4",
+
+  "--rz-link-color": "#93c5fd",
+  "--rz-link-hover-color": "#bfdbfe",
+
+  "--rz-toc-link-selected-color": "#93c5fd",
+  "--rz-toc-horizontal-link-selected-color": "#93c5fd",
+  "--rz-toc-link-selected-indicator-color": "#3b82f6",
+  "--rz-toc-link-hover-color": "#bfdbfe"
+}
+```

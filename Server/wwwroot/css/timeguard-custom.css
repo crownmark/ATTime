@@ -1,0 +1,318 @@
+# material3-dark-base-custom.css
+
+```css
+/* ========================================
+   TIMEGUARD MATERIAL 3 DARK BASE CUSTOM
+   ======================================== */
+
+:root {
+    --tg-bg: #0b1020;
+    --tg-panel: #111827;
+    --tg-panel-alt: #172033;
+    --tg-panel-soft: #1f2937;
+    --tg-border: #2f3b52;
+    --tg-text: #e5e7eb;
+    --tg-muted: #9ca3af;
+
+    --tg-blue: #3b82f6;
+    --tg-blue-dark: #2563eb;
+    --tg-blue-soft: rgba(59,130,246,.18);
+
+    --tg-green: #22c55e;
+    --tg-orange: #f59e0b;
+    --tg-red: #ef4444;
+    --tg-purple: #8b5cf6;
+
+    --tg-radius-sm: 10px;
+    --tg-radius: 14px;
+    --tg-radius-lg: 20px;
+
+    --tg-shadow-sm: 0 4px 16px rgba(0,0,0,.18);
+    --tg-shadow: 0 10px 30px rgba(0,0,0,.28);
+    --tg-shadow-lg: 0 20px 50px rgba(0,0,0,.38);
+
+    --rz-primary: #3b82f6;
+    --rz-primary-light: #93c5fd;
+    --rz-primary-lighter: rgba(59,130,246,.24);
+    --rz-primary-dark: #2563eb;
+    --rz-primary-darker: #1d4ed8;
+
+    --rz-base-50: #e5e7eb;
+    --rz-base-100: #cbd5e1;
+    --rz-base-200: #94a3b8;
+    --rz-base-300: #64748b;
+    --rz-base-400: #334155;
+    --rz-base-500: #1e293b;
+    --rz-base-600: #172033;
+    --rz-base-700: #111827;
+    --rz-base-800: #0f172a;
+    --rz-base-900: #020617;
+
+    --rz-body-background-color: #0b1020;
+    --rz-text-color: #e5e7eb;
+}
+
+html,
+body {
+    background:
+        radial-gradient(circle at top left, #172554 0%, #0b1020 35%, #070b14 100%);
+    color: var(--tg-text);
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.rz-body {
+    background: transparent;
+}
+
+.rz-card,
+.rz-panel,
+.rz-dialog,
+.rz-datatable,
+.rz-tree,
+.rz-scheduler,
+.rz-tabview-panels,
+.rz-fieldset-content {
+    background:
+        linear-gradient(180deg, rgba(31,41,55,.96), rgba(17,24,39,.96));
+    border: 1px solid var(--tg-border);
+    border-radius: var(--tg-radius);
+    box-shadow: var(--tg-shadow);
+}
+
+.rz-dialog {
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.rz-dialog-titlebar {
+    background: #0f172a;
+    border-bottom: 1px solid var(--tg-border);
+    padding: 14px 18px;
+}
+
+.rz-dialog-content {
+    background: transparent;
+}
+
+.rz-button {
+    border-radius: 12px !important;
+    font-weight: 700;
+    letter-spacing: .01em;
+    transition: all .18s ease;
+}
+
+.rz-button:hover {
+    transform: translateY(-1px);
+}
+
+.rz-button.rz-primary,
+.rz-button-primary {
+    background:
+        linear-gradient(180deg, var(--tg-blue) 0%, var(--tg-blue-dark) 100%) !important;
+    border: 1px solid var(--tg-blue-dark) !important;
+    color: white !important;
+}
+
+.rz-button.rz-secondary {
+    background: rgba(255,255,255,.04) !important;
+    border: 1px solid var(--tg-border) !important;
+    color: var(--tg-text) !important;
+}
+
+.rz-textbox,
+.rz-textarea,
+.rz-dropdown,
+.rz-multiselect,
+.rz-datepicker input,
+.rz-numeric input,
+.rz-inputtext {
+    background: #0f172a !important;
+    border: 1px solid var(--tg-border) !important;
+    color: var(--tg-text) !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+.rz-textbox:hover,
+.rz-textarea:hover,
+.rz-dropdown:hover,
+.rz-inputtext:hover {
+    border-color: #475569 !important;
+}
+
+.rz-textbox:focus,
+.rz-textarea:focus,
+.rz-dropdown:focus-within,
+.rz-inputtext:focus {
+    border-color: var(--tg-blue) !important;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.18) !important;
+}
+
+.rz-dropdown-label,
+.rz-inputtext,
+.rz-textarea {
+    color: var(--tg-text) !important;
+}
+
+.rz-grid-table tr,
+.rz-datatable-tablewrapper table tr {
+    background: transparent;
+}
+
+.rz-grid-table tbody tr:hover,
+.rz-datatable-tablewrapper tbody tr:hover {
+    background: rgba(59,130,246,.08);
+}
+
+.rz-cell-data,
+.rz-column-title,
+.rz-sortable-column {
+    color: var(--tg-text);
+}
+
+.rz-datatable-data td,
+.rz-grid-table td {
+    border-color: rgba(255,255,255,.04);
+}
+
+.rz-tabview-nav {
+    background: transparent;
+    border-bottom: 1px solid var(--tg-border);
+}
+
+.rz-tabview-nav li a {
+    border-radius: 12px 12px 0 0;
+    color: var(--tg-muted);
+}
+
+.rz-tabview-selected a {
+    color: white !important;
+    background: rgba(59,130,246,.14);
+}
+
+.rz-checkbox-box,
+.rz-radiobutton-box {
+    border-radius: 8px;
+}
+
+.rz-checkbox-box.rz-state-active,
+.rz-radiobutton-box.rz-state-active {
+    background: var(--tg-blue);
+    border-color: var(--tg-blue);
+}
+
+.rz-sidebar,
+.rz-panel-menu,
+.rz-navigation-menu {
+    background:
+        linear-gradient(180deg, rgba(15,23,42,.98), rgba(11,16,32,.98));
+    border-right: 1px solid var(--tg-border);
+}
+
+.rz-navigation-item-link {
+    border-radius: 12px;
+    margin: 2px 8px;
+}
+
+.rz-navigation-item-link:hover {
+    background: rgba(59,130,246,.12);
+}
+
+.rz-navigation-item-wrapper-active > .rz-navigation-item-link {
+    background: rgba(59,130,246,.2);
+    color: white;
+}
+
+.rz-scheduler {
+    overflow: hidden;
+}
+
+.rz-slot {
+    border-color: rgba(255,255,255,.05) !important;
+}
+
+.rz-event {
+    border-radius: 12px;
+    border: none !important;
+    box-shadow: var(--tg-shadow-sm);
+}
+
+.rz-overlaypanel,
+.rz-popup {
+    background: #111827;
+    border: 1px solid var(--tg-border);
+    border-radius: 14px;
+    box-shadow: var(--tg-shadow-lg);
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+```
+
+---
+
+
+
+/* ========================================
+   SUGGESTED STRUCTURE
+   ========================================
+
+<div class="timeguard-shell">
+
+    <div class="timeguard-header">
+        <div>
+            <div class="timeguard-title">
+                T20260501.0318 - TimeGuard Request
+            </div>
+
+            <div class="timeguard-subtitle">
+                Customer summary or quick SLA context
+            </div>
+
+            <div class="timeguard-meta">
+                <div class="timeguard-pill priority-high">High</div>
+                <div class="timeguard-pill status">Scheduled Follow-Up</div>
+            </div>
+        </div>
+
+        <div class="timeguard-floating-timer">
+            <div class="timeguard-timer">
+                <div class="timeguard-timer-value">00:40:53</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timeguard-layout">
+
+        <div class="timeguard-left">
+            LEFT SIDEBAR
+        </div>
+
+        <div class="timeguard-center">
+            MAIN EDIT AREA
+        </div>
+
+        <div class="timeguard-right">
+            HISTORY / ACTIONS
+        </div>
+
+    </div>
+
+</div>
+
+*/
+```

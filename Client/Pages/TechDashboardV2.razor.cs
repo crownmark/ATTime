@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace CrownATTime.Client.Pages
 {
-    public partial class TechDashboard
+    public partial class TechDashboardV2
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }

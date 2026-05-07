@@ -1157,6 +1157,18 @@ namespace CrownATTime.Client
             return await httpClient.SendAsync(httpRequestMessage);
         }
 
+        public async Task<HttpResponseMessage> DeleteServiceCall(ServiceCallCreateDto serviceCall)
+        {
+            var uri = new Uri(baseUri, $"servicecalls");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            var json = JsonSerializer.Serialize(serviceCall, jsonOptions);
+            httpRequestMessage.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
         public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult>CreateServiceCall(CrownATTime.Server.Models.ServiceCallDto serviceCall)
         {
             var uri = new Uri(baseUri, $"servicecalls");
@@ -1172,6 +1184,7 @@ namespace CrownATTime.Client
             return await Radzen.HttpResponseMessageExtensions
                 .ReadAsync<CrownATTime.Server.Models.AutotaskItemCreatedResult>(response);
         }
+
 
         public async Task<CrownATTime.Server.Models.AutotaskItemCreatedResult> CreateServiceCallTicket(CrownATTime.Server.Models.ServiceCallTicket item)
         {

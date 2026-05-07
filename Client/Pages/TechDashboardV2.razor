@@ -1,4 +1,4 @@
-@page "/tech-dashboard"
+@page "/tech-dashboard-v2"
 @using CrownATTime.Client.CustomComponents.DialogManager
 @using CrownATTime.Server.Models;
 
@@ -13,98 +13,15 @@
     <RadzenColumn SizeLG="6">
         <RadzenStack>
             
-            <RadzenText Text="Tech Dashboard" TextStyle="TextStyle.H3" TagName="TagName.H1" />
-            <RadzenText Text="Your single pane of glass for tickets, priorities, and the next 3 days of scheduling." TextStyle="Radzen.Blazor.TextStyle.Caption" TagName="Radzen.Blazor.TagName.Auto" />
+            <RadzenText Text="Tech Dashboard V2" TextStyle="TextStyle.H3" TagName="TagName.H1" />
         
         </RadzenStack>
     </RadzenColumn>
 <RadzenColumn SizeLG="6">
     <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Normal" JustifyContent="Radzen.JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
-        <RadzenChip Text="Tech: Mark Williams" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Visible="false"></RadzenChip>
-<RadzenChip Text="Status: Available" ChipStyle="Radzen.BadgeStyle.Primary" Variant="Radzen.Variant.Outlined" Visible="false">
-   
-</RadzenChip>
 <RadzenButton Text="New Ticket" Icon="add" Variant="Radzen.Variant.Filled" ButtonStyle="Radzen.ButtonStyle.Primary" Click="@NewTicketButtonClick"></RadzenButton>
     
     </RadzenStack>
-    </RadzenColumn>
-</RadzenRow>
-<RadzenRow Style="margin-bottom: 10px" Visible="false">
-    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
-        <RadzenPanel>
-            <HeaderTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="All Open Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" />
-                </RadzenStack>
-            </HeaderTemplate>
-            <FooterTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="All Queues" TextStyle="Radzen.Blazor.TextStyle.Body2" />
-                </RadzenStack>
-            </FooterTemplate>
-            <ChildContent>
-                <RadzenStack Style="width: 100%">
-                    <RadzenText Text="25" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-primary); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
-                </RadzenStack>
-            </ChildContent>
-        </RadzenPanel>
-    </RadzenColumn>
-    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
-    <RadzenPanel>
-            <HeaderTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="Scheduled Today" TextStyle="Radzen.Blazor.TextStyle.H5" />
-                </RadzenStack>
-            </HeaderTemplate>
-            <FooterTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="3 Onsite, 3 Remote, 2 Internal" TextStyle="Radzen.Blazor.TextStyle.Body2" />
-                </RadzenStack>
-            </FooterTemplate>
-            <ChildContent>
-                <RadzenStack Style="width: 100%">
-                    <RadzenText Text="8" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-success-dark); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
-                </RadzenStack>
-            </ChildContent>
-        </RadzenPanel>
-    </RadzenColumn>
-    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
-    <RadzenPanel>
-            <HeaderTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="New Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" />
-                </RadzenStack>
-            </HeaderTemplate>
-            <FooterTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="Unworked or Newly Assigned" TextStyle="Radzen.Blazor.TextStyle.Body2" />
-                </RadzenStack>
-            </FooterTemplate>
-            <ChildContent>
-                <RadzenStack Style="width: 100%">
-                    <RadzenText Text="2" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-primary); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
-                </RadzenStack>
-            </ChildContent>
-        </RadzenPanel>
-    </RadzenColumn>
-    <RadzenColumn Size="12" SizeXS="6" SizeLG="3">
-    <RadzenPanel>
-            <HeaderTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="All Open Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" />
-                </RadzenStack>
-            </HeaderTemplate>
-            <FooterTemplate>
-                <RadzenStack Style="width: 100%" AlignItems="Radzen.AlignItems.Center">
-                <RadzenText Text="All Queues" TextStyle="Radzen.Blazor.TextStyle.Body2" />
-                </RadzenStack>
-            </FooterTemplate>
-            <ChildContent>
-                <RadzenStack Style="width: 100%">
-                    <RadzenText Text="10" TextAlign="Radzen.TextAlign.Center" Style="color: var(--rz-warning); font-weight: bold; margin-top: 10px; margin-bottom: 10px" TextStyle="Radzen.Blazor.TextStyle.H4" />
-                </RadzenStack>
-            </ChildContent>
-        </RadzenPanel>
     </RadzenColumn>
 </RadzenRow>
 <RadzenRow>

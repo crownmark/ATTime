@@ -430,5 +430,47 @@ namespace CrownATTime.Client.Pages
 
             }
         }
+
+        protected async System.Threading.Tasks.Task ServiceCallsSplitButton0Click(Radzen.Blazor.RadzenSplitButtonItem args, ServiceCall data)
+        {
+            try
+            {
+                if (args.Value.ToString() == "Complete")
+                {
+                    await AutotaskService.UpdateServiceCall(new ServiceCallCreateDto()
+                    {
+                        id = data.id,
+                        isComplete = 1,
+                        companyID = data.companyID,
+                        description = data.description,
+                        endDateTime = data.endDateTime,
+                        startDateTime = data.startDateTime,
+                        status = 2
+
+                    });
+                    await serviceCallsGrid.Reload();
+
+                }
+                if (args.Value.ToString() == "Delete")
+                {
+                    await AutotaskService.DeleteServiceCall(new ServiceCallCreateDto()
+                    {
+                        id = data.id,
+                        isComplete = data.id,
+                        companyID = data.companyID,
+                        description = data.description,
+                        endDateTime = data.endDateTime,
+                        startDateTime = data.startDateTime,
+                        status = data.status
+                    });
+                    await serviceCallsGrid.Reload();
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}", Duration = 5000 });
+
+            }
+        }
     }
 }
