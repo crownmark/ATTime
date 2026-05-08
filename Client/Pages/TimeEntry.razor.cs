@@ -147,6 +147,8 @@ namespace CrownATTime.Client.Pages
 
         protected List<LiveLink> liveLinks { get; set; } = new List<LiveLink>();
         protected IEnumerable<ResourceCache> resources = new List<ResourceCache>();
+        protected List<string> SecondaryResources { get; set; } = new List<string>();
+
 
 
         protected string documentsSearch = "";
@@ -165,7 +167,26 @@ namespace CrownATTime.Client.Pages
                 await InvokeAsync(StateHasChanged);
             }
         }
+        protected async void GetSecondaryResources()
+        {
+            try
+            {
+                var ticketSecondaryResources = await AutotaskService.GetSecondaryResources(ticket.item.id);
+                if (ticketSecondaryResources != null)
+                {
+                    foreach (var secondaryResource in ticketSecondaryResources.Items)
+                    {
+                        var ticketSecondaryResource = await ATTimeService.GetResourceCacheById("", secondaryResource.resourceID);
+                        SecondaryResources.Add(ticketSecondaryResource.FullName);
 
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
 
         protected override async Task OnInitializedAsync()
         {
@@ -601,6 +622,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
                 ticket = await AutotaskService.GetTicket(ticket.item.id);
+                //GetSecondaryResources();
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);

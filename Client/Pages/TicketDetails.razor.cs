@@ -130,7 +130,7 @@ namespace CrownATTime.Client.Pages
                 var timeResult = await AutotaskService.GetTimeEntriesForTicket(Ticket.item.id);
                 timeEntriesResults = timeResult.Items.OrderByDescending(x => x.StartDateTime).ToList();
                 var noteresult = await AutotaskService.GetNotesForTicket(Ticket.item.id);
-                noteResults = noteresult.Items.OrderByDescending(x => x.createDateTime).ToList();
+                noteResults = noteresult.Items.Where(x => x.creatorResourceID != 4).OrderByDescending(x => x.createDateTime).ToList();
                 gridLoading = false;
                 await timeEntriesGrid.Reload();
 

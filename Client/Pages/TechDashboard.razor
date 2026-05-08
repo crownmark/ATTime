@@ -1,3 +1,4 @@
+@page "/"
 @page "/tech-dashboard"
 @using CrownATTime.Client.CustomComponents.DialogManager
 @using CrownATTime.Server.Models;
@@ -164,7 +165,7 @@
                             <RadzenStack Orientation="Radzen.Orientation.Horizontal">
                                 <RadzenIcon Icon="confirmation_number" />
                                 <RadzenText Text="Tickets" TextStyle="Radzen.Blazor.TextStyle.H5" TagName="TagName.H1" />
-                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click" MouseEnter="RefreshTicketsButtonMouseEnter" MouseLeave="RefreshTicketsButtonMouseLeave" Shade="Radzen.Shade.Light"></RadzenButton>
+                                <RadzenButton Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Icon="refresh" Click="@ReloadTicketsButton1Click" MouseEnter="RefreshTicketsButtonMouseEnter" MouseLeave="RefreshTicketsButtonMouseLeave" Shade="Radzen.Shade.Light" IsBusy="@myTicketsGridLoading"></RadzenButton>
 
                             </RadzenStack>
 
@@ -225,7 +226,7 @@
                     </RadzenStack>
 
                 </RadzenStack>
-                <RadzenDataGrid @ref="@myTicketsGrid" IsLoading="@myTicketsGridLoading" TItem="TicketDtoResult.Item" Data="@myTickets" Responsive="true" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowSorting="false" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" RowSelect="@TicketsDataGrid0RowSelect" LoadData="@TicketsDataGrid1LoadData">
+                <RadzenDataGrid @ref="@myTicketsGrid" IsLoading="false" TItem="TicketDtoResult.Item" Data="@myTickets" Responsive="true" AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced" AllowSorting="false" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" RowSelect="@TicketsDataGrid0RowSelect" LoadData="@TicketsDataGrid1LoadData">
                     
                     <Columns>
                         <RadzenDataGridColumn TItem="TicketDtoResult.Item" Title="Ticket" Width="450px" Property="title">

@@ -488,7 +488,7 @@ namespace CrownATTime.Client.Pages
                         { "TicketId", args.TicketId.ToString() }
                     }
                 );
-
+                
                 await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
             }
             catch (Exception ex)
@@ -1087,6 +1087,9 @@ namespace CrownATTime.Client.Pages
         {
             DialogManager.Close(dialog.Id, dialog.Type);
             await myTimeEntriesGrid.Reload();
+            ReloadTicketsFromAutotask();
+            overdueEventsGrid.Reload();
+
 
         }
 

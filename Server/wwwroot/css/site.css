@@ -30,7 +30,7 @@
     --rz-white: #ffffff;
     --rz-black: #000000;
     --rz-base: #45494f;
-    --rz-base-50: #e0e0e9;
+    --rz-base-50: #e0e3e9;
     --rz-base-100: #c4c9d0;
     --rz-base-200: #8f9399;
     --rz-base-300: #45494f;
@@ -41,12 +41,12 @@
     --rz-base-800: #1b1d20;
     --rz-base-900: #121418;
     --rz-base-light: #8f9399;
-    --rz-base-lighter: #ffffff;
+    --rz-base-lighter: #fff;
     --rz-base-dark: #121418;
-    --rz-base-darker: #000000;
-    --rz-primary: #4f86dd;
-    --rz-primary-light: #bcd5ff;
-    --rz-primary-lighter: rgba(79, 134, 221, 0.24);
+    --rz-base-darker: #000;
+    --rz-primary: #3b82f6;
+    --rz-primary-light: #bcd4ff;
+    --rz-primary-lighter: rgba(0,97,255,0.24);
     --rz-primary-dark: #37568b;
     --rz-primary-darker: #001c5d;
     --rz-secondary: #c2cadc;
@@ -74,16 +74,15 @@
     --rz-danger-lighter: rgba(255, 180, 170, 0.24);
     --rz-danger-dark: #91080a;
     --rz-danger-darker: #410001;
-    --rz-on-base: #ffffff;
+    --rz-on-base: #fff;
     --rz-on-base-light: #121418;
     --rz-on-base-lighter: #121418;
-    --rz-on-base-dark: #ffffff;
-    --rz-on-base-darker: #ffffff;
-    --rz-on-primary: #001c5d;
+    --rz-on-base-dark: #fff;
+    --rz-on-base-darker: #fff;
     --rz-on-primary-light: #001c5d;
-    --rz-on-primary-lighter: #bcd5ff;
-    --rz-on-primary-dark: #bcd5ff;
-    --rz-on-primary-darker: #bcd5ff;
+    --rz-on-primary-lighter: #bcd4ff;
+    --rz-on-primary-dark: #bcd4ff;
+    --rz-on-primary-darker: #bcd4ff;
     --rz-on-secondary: #191e2b;
     --rz-on-secondary-light: #191e2b;
     --rz-on-secondary-lighter: #c2cadc;
@@ -133,12 +132,8 @@
     --rz-series-22: #d7f5a3;
     --rz-series-23: #a3f5ac;
     --rz-series-24: #a3f5ea;
-    --rz-link-color: #73bce2;
-    --rz-link-hover-color: #58abd8;
-    --rz-toc-link-selected-color: #73bce2;
-    --rz-toc-horizontal-link-selected-color: #73bce2;
-    --rz-toc-link-selected-indicator-color: #73bce2;
-    --rz-toc-link-hover-color: #58abd8;
+    --rz-on-primary: #fff;
+    --rz-scheduler-event-color: var(--rz-primary-darker);
 }
 
 body {
@@ -203,4 +198,14 @@ a:focus {
 
 .loading-progress-text:after {
     content: var(--blazor-load-percentage-text, "Loading");
+}
+
+.rz-splitter-horizontal>.rz-splitter-bar {
+    /* flex-direction: column; */
+    width: 10px;
+}
+
+.rz-splitter-horizontal>.rz-splitter-bar>.rz-resize {
+    height: 30px;
+    /* margin: 2px 0; */
 }

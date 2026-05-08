@@ -1,0 +1,561 @@
+@layout WindowLayoutLayout
+@page "/timeentryold/{TicketId}"
+
+@attribute [Authorize]
+
+<PageTitle>Time Entry @ticket?.item?.ticketNumber | @company?.CompanyName | @ticket?.item?.title</PageTitle>
+<RadzenRow Visible="@(pageLoading)" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
+    <RadzenStack>
+        <RadzenProgressBarCircular Mode="Radzen.ProgressBarMode.Indeterminate" ShowValue="false" Visible="@(pageLoading)" Size="Radzen.ProgressBarCircularSize.Large">
+
+        </RadzenProgressBarCircular>
+    </RadzenStack>
+</RadzenRow>
+<RadzenRow Visible="@(!pageLoading && timeEntryRecord.IsCompleted)" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Center">
+    <RadzenStack Style="width: 100%" JustifyContent="Radzen.JustifyContent.Center" AlignItems="Radzen.AlignItems.Center" Visible="@timeEntryRecord.IsCompleted">
+        <RadzenText Text="Time Entry has been completed.  You may close this window." TextStyle="Radzen.Blazor.TextStyle.H2" />
+    </RadzenStack>
+</RadzenRow>
+<RadzenRow Visible="@(!pageLoading && !timeEntryRecord.IsCompleted)">
+    <RadzenColumn SizeXL="9" SizeLG="9" SizeMD="9" SizeSM="8">
+       <RadzenStack>
+       <RadzenRow AlignItems="Radzen.AlignItems.Center">
+            <RadzenColumn>
+                    <RadzenAlert Variant="Radzen.Variant.Outlined" AlertStyle="Radzen.AlertStyle.Warning" Text="@accountAlertTimeEntry" Visible="@(!string.IsNullOrEmpty(accountAlertTimeEntry))" AllowClose="false" Size="Radzen.AlertSize.ExtraSmall" Title="Account Alert"></RadzenAlert>
+            </RadzenColumn>
+       </RadzenRow>
+           
+            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.SpaceBetween" Wrap="Radzen.FlexWrap.Wrap">
+                <RadzenText Text="@($"{ticket?.item?.ticketNumber} - {ticket?.item?.title}")" TextStyle="Radzen.Blazor.TextStyle.H4" />
+                <div class="floating-timer">
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="border: 2px solid var(--rz-primary-lighter); padding-top: 4px; padding: 4px" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; background-color: #000000" />
+                        
+                        <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)" MouseEnter="@PlayButton0MouseEnter" MouseLeave="@PlayButton0MouseLeave"></RadzenButton>
+                        <RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)" MouseEnter="@PauseButton1MouseEnter" MouseLeave="@PauseButton1MouseLeave"></RadzenButton>
+                        <RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick" MouseEnter="@ClearButton2MouseEnter" MouseLeave="@ClearButton2MouseLeave"></RadzenButton>
+                    </RadzenStack>
+                </div>
+                
+            </RadzenStack>
+            
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
+        <strong>Ticket: </strong>
+                <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Text="Ticket Details" Icon="visibility" Click="@ViewTicketDescriptionButtonClick" MouseEnter="@TicketDetailsButtonMouseEnter" MouseLeave="@TicketDetailsButtonMouseLeave" Visible="false"></RadzenButton>
+
+                <RadzenLink Text="@($"  {timeEntryRecord.TicketNumber}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={ticket.item.id}")" Target="_blank" Icon="captive_portal" MouseEnter="@TicketLink0MouseEnter" MouseLeave="@TicketLink0MouseLeave"></RadzenLink>
+                
+    </RadzenStack>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
+        <strong>Priority: </strong><RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Danger" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Critical")" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge> 
+                                           <RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Warning" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "High")" Style="background-color: darkorange; padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold; color: #000000" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+<RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Success" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Medium")" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold; color: #000000" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+<RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Low")" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+<RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Light" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Very Low")" Shade="Radzen.Shade.Lighter" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+                                           <RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Light" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Information")" Shade="Radzen.Shade.Lighter" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+                                           <RadzenBadge Text="@PriorityName" BadgeStyle="Radzen.BadgeStyle.Danger" IsPill="true" Variant="Radzen.Variant.Filled" Visible="@(PriorityName == "Undetermined")" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@PriorityName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+    </RadzenStack>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
+        <strong>Status: </strong>
+                <RadzenBadge Text="@StatusName" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+                                               <RadzenStack Style="width: 100%">
+                                                   <RadzenText Text="@StatusName" Style="font-weight: bold" />
+                                               </RadzenStack>
+                                           </RadzenBadge>
+    </RadzenStack>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" Gap="5">
+        <strong>Primary Resource: </strong>
+        <RadzenBadge Text="@ticketResource?.FullName" BadgeStyle="Radzen.BadgeStyle.Info" IsPill="true" Variant="Radzen.Variant.Filled" Shade="Radzen.Shade.Dark" Style="padding-left: 10px; padding-right: 10px">
+            <RadzenStack Style="width: 100%">
+                <RadzenText Text="@ticketResource?.FullName" Style="font-weight: bold" />
+            </RadzenStack>
+        </RadzenBadge>
+    </RadzenStack>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" AlignItems="Radzen.AlignItems.Center">
+        <RadzenText Text="Time Entry Template:" TextStyle="Radzen.Blazor.TextStyle.H4" />
+        <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange"/>
+    </RadzenStack>
+
+                
+                
+                                           
+            </RadzenStack>
+            <RadzenStack>
+                <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.TimeEntry" Data="@timeEntryRecord" Visible="@(timeEntryRecord != null)" Submit="@TemplateForm0Submit" Style="border: 2px solid var(--rz-base); padding: 5px">
+                    <RadzenRow style="margin-bottom: 1rem" Visible="@(timeEntryRecord != null)" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="Contract" Component="ContractId" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                            <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.ContractId" ValueProperty="Id" TextProperty="ContractName" Name="ContractId" Style="width: 100%" Change="@(ContractIdChange)" Data="@contracts"></RadzenDropDown>
+                            @if(contracts.Any())
+                            {
+                                <RadzenNumericRangeValidator Component="ContractId" Text="Contract is required" Min="1"></RadzenNumericRangeValidator>
+
+                            }
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="Ticket Status" Component="Status" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                            <RadzenDropDown @bind-Value="@ticket.item.status" Style="width: 100%" TValue="int" Name="status" ValueProperty="ValueInt" TextProperty="Label" Data="@ticketStatuses" Change="@statusChange" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true"></RadzenDropDown>
+                            <RadzenNumericRangeValidator Component="status" Text="Ticket Status is required" Min="1"></RadzenNumericRangeValidator>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="Role" Component="RoleId" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                          <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.RoleId" ValueProperty="Id" TextProperty="Name" Name="RoleId" Style="width: 100%" Change="@RoleIdChange" Data="@mappedRoles"></RadzenDropDown>
+                          <RadzenNumericRangeValidator Component="RoleId" Text="Role is required" Min="1"></RadzenNumericRangeValidator>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="Billing Code" Component="BillingCodeId" style="width: 100%" />
+                            <RadzenBadge Text="Billable" IsPill="true" BadgeStyle="Radzen.BadgeStyle.Danger" Visible="@(!timeEntryRecord.IsNonBillable)"></RadzenBadge>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                            <RadzenDropDown TValue="int?" @bind-Value="timeEntryRecord.BillingCodeId" ValueProperty="Id" TextProperty="Name" Name="BillingCodeId" Style="width: 100%" Change="@(() => BillingCodeIdChange(timeEntryRecord.BillingCodeId.Value))" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Data="@billingCodes" ClearSearchAfterSelection="true"></RadzenDropDown>
+                          <RadzenNumericRangeValidator Component="BillingCodeId" Text="Billing Code is required" Min="1"></RadzenNumericRangeValidator>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    
+                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center" Visible="@(!timeEntryRecord.TimeStampStatus)">
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="Start Date Time" Component="StartDateTime" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                          <RadzenDatePicker style="display: block; width: 100%" @bind-Value="timeEntryRecord.StartDateTime" Name="StartDateTime" ShowTime="true" Kind="System.DateTimeKind.Local" HourFormat="12" Change="@StartDateTimeChange" ReadOnly="true" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3" SizeLG="2">
+                            <RadzenLabel Text="End Date Time" Component="EndDateTime" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4">
+                          <RadzenDatePicker style="display: block; width: 100%" @bind-Value="timeEntryRecord.EndDateTime" Name="EndDateTime" ShowTime="true" Kind="System.DateTimeKind.Local" HourFormat="12" Change="@EndDateTimeChange" ReadOnly="true" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    
+                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center" Visible="@(!timeEntryRecord.TimeStampStatus)">
+                        <RadzenColumn SizeMD="3" SizeLG="2" SizeSM="3">
+                            <RadzenLabel Text="Hours Worked" Component="HoursWorked" style="width: 100%" />
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4" SizeSM="9">
+                          <RadzenNumeric style="display: block; width: 100%" TValue="decimal?" @bind-Value="timeEntryRecord.HoursWorked" Name="HoursWorked" Step=".25" Change="@HoursWorkedChange" Min="0" Format="0.00" ReadOnly="true" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" ShowUpDown="false" />
+                          <RadzenNumericRangeValidator Text="Hours must be greater than 0.02" Min="0.03" Max="24" Component="HoursWorked"></RadzenNumericRangeValidator>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="3" SizeLG="2" SizeSM="3" Style="text-align: left">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Start">
+                                <RadzenLabel Text="Timer Offset" Component="OffsetHours" style="width: 100%" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="9" SizeLG="4" SizeSM="9">
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenFormField Text="Hours" Style="width: 100px">
+                                    <RadzenNumeric style="display: block" TValue="int" Name="Hours" Value="@Hours" Step="1" Change="@OnHoursChanged" Format="0" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" Disabled="@(timeEntryRecord.TimeStampStatus)" Min="-24" Max="24" ShowUpDown="true" />
+                                </RadzenFormField>
+                                <RadzenFormField Text="Minutes" Style="width: 100px">
+                                    <RadzenNumeric style="display: block" TValue="int" Name="Minutes" Value="@Minutes" Step="1" Change="@OnMinutesChanged" Format="0" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" Disabled="@(timeEntryRecord.TimeStampStatus)" Min="-59" Max="59" />
+                                </RadzenFormField>
+                                <RadzenButton ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Disabled="@(timeEntryRecord.TimeStampStatus)" Click="@TimerOffsetButtonClick" Text="Save" Style="width: 80px" Icon="timer" MouseEnter="@UpdateTimerButton6MouseEnter" MouseLeave="@UpdateTimerButton6MouseLeave"></RadzenButton>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center" Visible="@(!timeEntryRecord.TimeStampStatus)">
+                    
+                        <RadzenColumn SizeMD="3">
+                            <RadzenLabel Text="Is Non Billable?" Component="IsNonBillable" style="width: 100%" />
+                            <RadzenCheckBox @bind-Value="timeEntryRecord.IsNonBillable" Name="IsNonBillable" TValue="bool" Change="@IsNonBillableChange" />
+
+                        </RadzenColumn>
+                        
+                        <RadzenColumn SizeMD="3">
+                            <RadzenLabel Text="Show On Invoice?" Component="ShowOnInvoice" style="width: 100%" />
+                            <RadzenCheckBox @bind-Value="timeEntryRecord.ShowOnInvoice" Name="ShowOnInvoice" TValue="bool" Change="@ShowOnInvoiceChange" />
+
+                        </RadzenColumn>
+                       
+                    </RadzenRow>
+                    
+                    <RadzenRow style="margin-bottom: 1rem">
+                        <RadzenColumn SizeMD="6">
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
+                                </RadzenLabel>
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
+                                <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AISummaryNotesSplitButtonClick" Text="AI Actions" IsBusy="@summaryNotesAiBusy">
+                                    @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes").Any())
+                                    {
+                                        foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes"))
+                                        {
+                                            <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        }
+                                    }
+                                    
+                                </RadzenSplitButton>
+                            </RadzenRow>
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
+                            <RadzenRequiredValidator Component="SummaryNotes"></RadzenRequiredValidator>
+
+                            </RadzenRow>
+                        </RadzenColumn>
+                        <RadzenColumn SizeMD="6">
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                    <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="color: var(--rz-danger)" />
+                                    <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick" MouseEnter="@InternalNotesButton5MouseEnter" MouseLeave="@InternalNotesButton5MouseLeave"></RadzenButton>
+                                    <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AIInternalNotesSplitButtonClick" Text="AI Actions" IsBusy="@interalNotesAiBusy">
+                                    @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes").Any())
+                                    {
+                                        foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Internal Notes"))
+                                        {
+                                            <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
+                                        }
+                                    }
+                                    
+                                    </RadzenSplitButton>
+                            </RadzenRow>
+                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenTextArea @bind-Value="@timeEntryRecord.InternalNotes" Name="InternalNotes" Style="width: 100%" Rows="10" Change="InternalNotesChange"></RadzenTextArea>
+                            </RadzenRow>
+                        </RadzenColumn>
+
+                        
+                        
+                        
+                    </RadzenRow>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap">
+                        <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                            <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
+                            <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
+                        </RadzenStack>
+                            <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Outlined" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default" MouseEnter="@CompleteTimeEntryButton6MouseEnter" MouseLeave="@CompleteTimeEntryButton6MouseLeave"/>
+                        <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" MouseEnter="@CloseTicketButton7MouseEnter" MouseLeave="@CloseTicketButton7MouseLeave" />
+                        <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" MouseEnter="@DeleteTimeEntryButton8MouseEnter" MouseLeave="@DeleteTimeEntryButton8MouseLeave" />
+                    </RadzenStack>
+                    <RadzenRow Gap="">
+                        <RadzenFieldset Text="Checklist Items" AllowCollapse="true" Icon="playlist_add_check" Style="width: 100%" Collapsed="@(ChecklistItemsCollapsed && checklistItemsCount == 0)">
+                                    @* <ChecklistItems TicketId="@(Convert.ToInt32(ticket.item.id))" ResourceId="@(Convert.ToInt32(resource.Id))" /> *@
+                                    <RadzenRow>
+                                        <RadzenColumn>
+                                            <RadzenDataGrid @ref="grid0" TItem="Server.Models.TicketChecklistItemResult" Data="@TicketChecklistItemResult" LoadData="@DataGrid0LoadData" IsLoading="@gridLoading" RowSelect="@DataGrid0RowSelect" Density="Radzen.Density.Compact" Style="max-height: 300px" Responsive="true" AllowFiltering="false">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="isCompleted" Title="Completed?" Width="100px" Frozen="true" TextAlign="Radzen.TextAlign.Center" Filterable="false">
+                                                        <Template Context="data">
+                                                            <RadzenButton IsBusy="@(data.isBusy)" ButtonStyle="Radzen.ButtonStyle.Primary" Icon="check" Click="@((args) => CompleteChecklistItemButtonClick(args, data))" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" @onclick:stopPropagation="true"></RadzenButton>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="itemName" Title="Item" MinWidth="300px" WhiteSpace="Radzen.Blazor.WhiteSpace.Wrap">
+                                                        <Template Context="data">
+                                                            <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal">
+                                                                <RadzenIcon Icon="priority_high" IconStyle="Radzen.IconStyle.Danger" Visible="@(data.isImportant)"></RadzenIcon>
+                                                                <RadzenText Text="@data.itemName" />
+                                                            </RadzenStack>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="knowledgebaseArticleID" Title="KB" Width="100px" Visible="false"></RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Property="position" Title="Order" Width="60px"></RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="Server.Models.TicketChecklistItemResult" Frozen="true" FrozenPosition="Radzen.FrozenColumnPosition.Right" Width="50px">
+                                                        <Template Context="data">
+                                                            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" Variant="Radzen.Variant.Outlined" Icon="delete" Size="Radzen.ButtonSize.Small" IsBusy="@data.isBusy" Click="@((args) => DeleteButtonClick(args, data))" @onclick:stopPropagation="true"></RadzenButton>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                                <HeaderTemplate>
+                                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Right">
+                                                        <RadzenButton Icon="add" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@AddChecklistItemButtonClick"></RadzenButton>
+                                                        <RadzenButton Icon="refresh" Variant="Radzen.Variant.Outlined" Click="@GridRefreshButtonClick" Size="Radzen.ButtonSize.ExtraSmall"></RadzenButton>
+                                                    </RadzenStack>
+                                                </HeaderTemplate>
+                                            </RadzenDataGrid>
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                        </RadzenFieldset>
+                        
+                    </RadzenRow>
+                    
+                </RadzenTemplateForm>
+            <RadzenFieldset Text="Ticket Details" AllowCollapse="true" Icon="confirmation_number" Style="width: 100%" Collapsed="true">
+                            <TicketDetails PrimaryResource="@(ticketResource?.FullName)" PriorityName="PriorityName" ResourceId="@resource.Id" StatusName="@StatusName" Ticket="@ticket"/>
+
+                        </RadzenFieldset>
+            </RadzenStack>
+       </RadzenStack>
+    </RadzenColumn>
+    <RadzenColumn SizeXL="3" SizeLG="3" SizeMD="3" SizeSM="4">
+    <RadzenStack>
+        <RadzenFieldset Text="Email, Note, Teams, & Live Link Actions" AllowCollapse="true" Icon="email" Collapsed="@EmailNotesCollapsed">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="email" Text="Send Email" Click="@SendEmailButtonClick"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="note" Text="Add Note" Click="@AddNoteButtonClick" Visible="true"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="chat" Text="Send Teams Message" Visible="true" Click="@AddTeamsMessageButtonClick"></RadzenButton>
+                            <RadzenSplitButton AlwaysOpenPopup=true Text="Live Links" Click="@LiveLinkSplitButtonClick" Icon="link" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall">
+                                @foreach(var item in liveLinks.Where(x => x.Active == true && x.ShowInNextActions == false).OrderBy(x => x.Title))
+                                {
+                                    <RadzenSplitButtonItem Text="@item.Title" Value="@item.LiveLinkId.ToString()" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "link")"></RadzenSplitButtonItem>
+                                }
+                            </RadzenSplitButton>
+                        </RadzenStack>
+
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="Live Links" AllowCollapse="true" Icon="link" Collapsed="@LiveLinksCollapsed" Visible="false">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenSplitButton AlwaysOpenPopup=true Text="Live Links" Click="@LiveLinkSplitButtonClick" Icon="link" ButtonStyle="Radzen.ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall">
+                                @foreach(var item in liveLinks.Where(x => x.Active == true && x.ShowInNextActions == true).OrderBy(x => x.Title))
+                                {
+                                    <RadzenSplitButtonItem Text="@item.Title" Value="@item.LiveLinkId.ToString()" Icon="link"></RadzenSplitButtonItem>
+                                }
+                            </RadzenSplitButton>
+                        </RadzenStack>
+
+                    </RadzenFieldset>
+        <RadzenFieldset Text="@($"RMM Device {configurationItem?.item?.referenceTitle}")" AllowCollapse="true" Icon="computer" Visible="@ticket.item.configurationItemID.HasValue" Collapsed="@DeviceDetailsCollapsed">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="computer" Text="Device" Click="@DeviceButtonClick"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Web Remote" Click="@WebRemoteButtonClick"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Agent Browser" Click="@AgentBrowserButtonClick"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="Splashtop" Click="@SplashtopButtonClick"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="ScreenConnect Console" Click="@ScreenConnectButtonClick"></RadzenButton>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="connected_tv" Text="ScreenConnect Backstage" Click="@ScreenConnectButtonBackstageClick"></RadzenButton>
+                        </RadzenStack>
+
+                    </RadzenFieldset>
+            
+                        <div class="@(IsAiExpanded ? "ai-expanded" : "")">
+
+<RadzenFieldset AllowCollapse="true" Icon="cognition_2" Visible="@(generalAiPromptConfiguration != null)" Text=" AI Chat" Collapsed="@AIChatCollapsed">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenButton Icon="open_in_full" Click="@(() => IsAiExpanded = !IsAiExpanded)" Size="Radzen.ButtonSize.ExtraSmall" Variant="Radzen.Variant.Outlined" MouseEnter="@AiPopoutButtonMouseEnter" MouseLeave="@AiPopoutButtonMouseLeave" Text="" />
+                            <AIGeneralAssistant Prompt="@generalAiPromptConfiguration" />
+                        </RadzenStack>
+
+                    </RadzenFieldset>
+                        </div>
+
+                    <RadzenFieldset Text="Contact Details" AllowCollapse="true" Icon="person" Collapsed="@ContactDetailsCollapsed" Visible="@ticket.item.contactID.HasValue">
+                    <RadzenStack Gap="10">
+
+                        <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                                <RadzenLink Text="@($"  {contact?.item.fullName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenContact&ContactID={ticket?.item?.contactID}")" Target="_blank" Style="font-weight: bold" Icon="captive_portal" MouseEnter="@ContactLink1MouseEnter" MouseLeave="@ContactLink1MouseLeave"></RadzenLink>
+
+                        </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenText Text="Phone Numbers:" Style="font-weight: bold; color: var(--rz-info-light)" />
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallContactPhoneButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenText Text="@($"{contact?.item.phone} Ext: {contact?.item.extension}")" Visible="@(company != null)" />
+
+                            </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="phonelink_ring" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallContactMobileButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenText Text="@($"{contact?.item.mobilePhone}")" Visible="@(company != null)" />
+
+                            </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+    <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+    <RadzenFormField Component="OtherNumber" Text="Other Number">
+        <RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call" Change="@OtherNumberChange" Style="width: 155px"></RadzenTextBox>
+    </RadzenFormField>
+
+</RadzenStack>
+                        </RadzenStack>
+                        <RadzenStack>
+                                <RadzenLink Text="  All Open Tickets" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccountContact&filterType=AllOpen&recurringType=All&entityId={ticket.item.contactID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
+                                <RadzenLink Text="  Last 30 Days" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccountContact&filterType=CreatedInLastThirtyDays&recurringType=All&entityId={ticket.item.contactID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
+
+                        </RadzenStack>
+                    </RadzenStack>
+                    </RadzenFieldset>
+<RadzenFieldset Text="Company Details" AllowCollapse="true" Icon="domain" Collapsed="@CompanyDetailsCollapsed">
+                    <RadzenStack Gap="10">
+
+                        <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                                <RadzenLink Text="@($"  {company?.CompanyName}")" Path="@($"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenAccount&AccountID={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" MouseEnter="@CompanyLink2MouseEnter" MouseLeave="@CompanyLink2MouseLeave"></RadzenLink>
+
+                        </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="1" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenText Text="Phone Numbers:" Style="font-weight: bold; color: var(--rz-info-light)" />
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Visible="@(!string.IsNullOrEmpty(company?.Phone))" Click="@CallCompanyPhoneButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenText Text="@($"{company?.Phone}")" Visible="@(company != null)" />
+
+                            </RadzenStack>
+                            <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap" AlignItems="Radzen.AlignItems.Center">
+                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="call" Click="@CallOtherNumberButtonClick" Variant="Radzen.Variant.Outlined" Style="width: 24px; height: 24px"></RadzenButton>
+                                <RadzenFormField Component="OtherNumber" Text="Other Number">
+                                    <RadzenTextBox AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" @bind-Value="@OtherNumber" Name="OtherNumber" Placeholder="Enter any other number to call" Change="@OtherNumberChange" Style="width: 155px"></RadzenTextBox>
+                                </RadzenFormField>
+                            
+                            </RadzenStack>
+                        </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="1" Wrap="Radzen.FlexWrap.Wrap">
+                            <RadzenText Text="Company Address:" Style="font-weight: bold; color: var(--rz-info-light)" />
+
+                            <RadzenText Text="@($"{company?.Address1}, {(!string.IsNullOrEmpty(company?.Address2) ? company?.Address2 + ", " : "")}{company?.City}, {company?.State} {company?.PostalCode}")" Visible="@(company != null)" />
+                        </RadzenStack>
+<RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="1" Wrap="Radzen.FlexWrap.Wrap" Visible="@(companyLocation != null)">
+                            <RadzenText Text="Ticket Location:" Style="font-weight: bold; color: var(--rz-info-light)" />
+<RadzenText Text="@companyLocation?.item?.name" Style="font-weight: bold" />
+
+                            <RadzenText Text="@($"{companyLocation?.item?.address1}, {(!string.IsNullOrEmpty(companyLocation?.item?.address2) ? companyLocation?.item?.address2 + ", " : "")}{companyLocation?.item?.city}, {companyLocation?.item?.state} {companyLocation?.item?.postalCode}")" Visible="@(company != null)" />
+                        </RadzenStack>
+                        <RadzenStack>
+                                <RadzenLink Text="  All Open Tickets" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccount&filterType=AllOpen&recurringType=All&entityId={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
+                                <RadzenLink Text="  Last 30 Days" Path="@($"https://ww5.autotask.net/Mvc/ServiceDesk/TicketGridInsightDrilldown.mvc?drilldownType=ByAccount&filterType=CreatedInLastThirtyDays&recurringType=All&entityId={ticket.item.companyID}")" Target="_blank" Style="font-weight: bold; text-align: left" Icon="captive_portal" ></RadzenLink>
+
+                        </RadzenStack>
+                    </RadzenStack>
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="Next Actions" AllowCollapse="true" Icon="play_circle" Collapsed="@NextActionsCollapsed">
+                        <RadzenStack Orientation="Radzen.Orientation.Vertical" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                            
+
+                            @foreach(var item in liveLinks.Where(x => x.ShowInNextActions && x.Active == true).OrderBy(x => x.Title))
+                            {
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "play_circle")" Text="@item.Title" Click="@((args) => NextActionButtonClick(args, item))"></RadzenButton>
+
+                            }
+                            <RadzenSplitButton Text="Schedule Service Call" ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Icon="calendar_clock" Click="@ScheduleServiceCallSplitButton0Click" AlwaysOpenPopup="true">
+                                @foreach(var item in resources)
+                                {
+                                    <RadzenSplitButtonItem Text="@(item.FullName)" Value="@(item.Email)" Icon="person"></RadzenSplitButtonItem>
+                                }
+                                
+                            </RadzenSplitButton>
+                            @* <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Medium" Text="Schedule Service Call" Icon="calendar_clock" Click="ScheduleServiceCallButtonClick"></RadzenButton> *@
+                
+                        </RadzenStack>
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch" Collapsed="@RocketshipCollapsed">
+                    <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
+
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="TimeZest Booking" AllowCollapse="true" Icon="event_upcoming" Collapsed="@TimeZestCollapsed">
+                    <iframe class="responsive-iframe" src="@(timeZestUrl)"></iframe>
+
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="@($" ITGlue Passwords")" Collapsed="ItgluePasswordsCollapsed" AllowCollapse="true" Icon="password">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" aria-label="Search by all string columns" @bind-Value="@passwordSearch" Change="@PasswordSearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+
+                    <RadzenDataGrid @ref="@passwordsGrid" Data="@passwords" TItem=Server.Models.ITGluePasswordAttributeResults LoadData="@PasswordsDataGridLoadData" AllowFiltering="false" IsLoading="@passwordsGridLoading" Count="@passwordsCount" Style="max-height: 300px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGluePasswordAttributeResults" Property="name" Title="Name"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGluePasswordAttributeResults" Width="130px">
+                                <Template>
+                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" Gap="5" JustifyContent="Radzen.JustifyContent.Left">
+                                        <RadzenButton Icon="open_in_browser" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => OpenITGluePasswordButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px; min-height: 24px" MouseEnter="@ViewInITGlueButtonMouseEnter" MouseLeave="@ViewInITGlueButtonMouseLeave"></RadzenButton>
+                                        <RadzenButton Disabled="@(string.IsNullOrEmpty(context.username))" Icon="account_circle" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => CopyUserNameButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px" MouseEnter="@CopyUsernameButtonMouseEnter" MouseLeave="@CopyUsernameButtonMouseLeave"></RadzenButton>
+                                        <RadzenButton Icon="key" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => CopyPasswordButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px" MouseEnter="@CopyPasswordButtonMouseEnter" MouseLeave="@CopyPasswordButtonMouseLeave"></RadzenButton>
+                                        <RadzenButton Disabled="@(string.IsNullOrEmpty(context.url))" Icon="open_in_new" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => OpenPasswordButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px; min-height: 24px" MouseEnter="@OpenURLButtonMouseEnter" MouseLeave="@OpenURLButtonMouseLeave"></RadzenButton>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <HeaderTemplate>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="refresh" Click="@RefreshPasswordsDataGridButtonClick"></RadzenButton>
+                        </HeaderTemplate>
+
+                    </RadzenDataGrid>
+                </RadzenStack>
+
+            </RadzenFieldset>
+            <RadzenFieldset Text="@($" ITGlue Documents")" Collapsed="ItglueDocumentsCollapsed" AllowCollapse="true" Icon="book_4">
+                <RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="5" Wrap="Radzen.FlexWrap.Wrap">
+                    <RadzenTextBox Placeholder="Search ..." style="display: block; width: 100%" aria-label="Search by all string columns" @bind-Value="@documentsSearch" Change="@DocumentsSearchTextBoxChange" AutoCompleteType="Radzen.Blazor.AutoCompleteType.Off" />
+
+                    <RadzenDataGrid @ref="@documentsGrid" Data="@documents" TItem=Server.Models.ITGlueDocumentAttributesResults LoadData="@DocumentsDataGridLoadData" AllowFiltering="false" IsLoading="@documentsGridLoading" Count="@documentsCount" Style="max-height: 300px">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGlueDocumentAttributesResults" Property="Name" Title="Name"></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="Server.Models.ITGlueDocumentAttributesResults" Width="50px">
+                                <Template>
+                                    <RadzenStack Style="width: 100%" Orientation="Radzen.Orientation.Horizontal" Gap="5" JustifyContent="Radzen.JustifyContent.Left">
+                                        <RadzenButton Icon="open_in_browser" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Click="@((args) => OpenITGlueDocumentButtonClick(args, context))" Style="width: 24px; height: 24px; min-width: 24px; min-height: 24px" MouseEnter="@ViewDocumentInITGlueButtonMouseEnter" MouseLeave="@ViewDocumentInITGlueButtonMouseLeave"></RadzenButton>
+                                    </RadzenStack>
+                                </Template>
+                            </RadzenDataGridColumn>
+
+                        </Columns>
+                        <HeaderTemplate>
+                            <RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.ExtraSmall" Icon="refresh" Click="@RefreshDocumentsDataGridButtonClick"></RadzenButton>
+                        </HeaderTemplate>
+
+                    </RadzenDataGrid>
+                </RadzenStack>
+
+            </RadzenFieldset>
+    </RadzenStack>
+        @* <RadzenAccordion Style="width: 100%" Multiple="true" @bind-SelectedIndex="@accordionSelectedIndex">
+            <Items>
+                <RadzenAccordionItem Text="Insights"  Icon="visibility" Selected="true" >
+                    
+                
+                </RadzenAccordionItem>
+                <RadzenAccordionItem Text="Rocketship" Icon="rocket_launch" >
+                </RadzenAccordionItem>
+            </Items>
+
+        </RadzenAccordion> *@
+        
+    </RadzenColumn>
+</RadzenRow>
+<style><RadzenButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="computer" Text="Device"></RadzenButton>
+
+    .responsive-iframe {
+      /* position: absolute; */
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 65vh;
+      border: none;
+    }
+    .ai-expanded {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 77vw;
+    height: 100vh;
+    background: black;
+    z-index: 2000;
+    padding: 20px;
+    }
+    .floating-timer {
+    /* position: fixed;
+    top: 2%;
+    right: 27%;
+    background: #202226;
+    z-index: 1000; */
+    }
+
+</style>
