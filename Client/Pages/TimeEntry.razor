@@ -353,38 +353,35 @@
 
                             </Helper>
                         </RadzenFormField>
+                        
                     </RadzenColumn>
                 </RadzenRow>
         
         
-                
-                <RadzenSplitter>
-                    <RadzenSplitterPane>
-                        <RadzenColumn>
-                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                                <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
-                                </RadzenLabel>
-                                <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
-                                <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AISummaryNotesSplitButtonClick" Text="AI Actions" IsBusy="@summaryNotesAiBusy" AlwaysOpenPopup="true">
-                                    @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes").Any())
+                <RadzenRow>
+                    <RadzenColumn>
+                        <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                            <RadzenLabel Text="Summary Notes" Component="SummaryNotes">
+                            </RadzenLabel>
+                            <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeSummaryNotesButtonClick" MouseEnter="@SummaryNoteButton4MouseEnter" MouseLeave="@SummaryNoteButton4MouseLeave"></RadzenButton>
+                            <RadzenSplitButton Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Icon="cognition_2" Click="@AISummaryNotesSplitButtonClick" Text="AI Actions" IsBusy="@summaryNotesAiBusy" AlwaysOpenPopup="true">
+                                @if (promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes").Any())
+                                {
+                                    foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes"))
                                     {
-                                        foreach (var item in promptConfigurations.Where(x => x.TimeGuardSection.SectionName == "Time Entry Summary Notes"))
-                                        {
-                                            <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
-                                        }
+                                        <RadzenSplitButtonItem Text="@item.MenuName" Value="@item.AiPromptConfigurationId.ToString()" Icon="cognition_2"></RadzenSplitButtonItem>
                                     }
-                                
-                                </RadzenSplitButton>
-                            </RadzenRow>
-                            <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
-                                <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
-                                <RadzenRequiredValidator Component="SummaryNotes"></RadzenRequiredValidator>
-                                
-                            </RadzenRow>
-                        </RadzenColumn>
-                    </RadzenSplitterPane>
-                    <RadzenSplitterPane Collapsed="false" Resizable="true">
-                        <RadzenColumn>
+                                }
+                            
+                            </RadzenSplitButton>
+                        </RadzenRow>
+                        <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
+                            <RadzenTextArea @bind-Value="timeEntryRecord.SummaryNotes" Name="SummaryNotes" Style="width: 100%" Rows="10" Change="SummaryNotesChange"></RadzenTextArea>
+                            <RadzenRequiredValidator Component="SummaryNotes"></RadzenRequiredValidator>
+                            
+                        </RadzenRow>
+                    </RadzenColumn>
+                    <RadzenColumn>
                             <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Center">
                                 <RadzenLabel Text="Internal Notes" Component="InternalNotes" style="color: var(--rz-danger)" />
                                 <RadzenButton Size="Radzen.ButtonSize.ExtraSmall" Icon="more_time" Variant="Radzen.Variant.Outlined" Click="@InsertTimeInternalNotesButtonClick" MouseEnter="@InternalNotesButton5MouseEnter" MouseLeave="@InternalNotesButton5MouseLeave"></RadzenButton>
@@ -403,17 +400,17 @@
                                 <RadzenTextArea @bind-Value="@timeEntryRecord.InternalNotes" Name="InternalNotes" Style="width: 100%" Rows="10" Change="InternalNotesChange"></RadzenTextArea>
                             </RadzenRow>
                         </RadzenColumn>
-                    </RadzenSplitterPane>
+                </RadzenRow>
                 
-                </RadzenSplitter>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap" Gap="">
-                    <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
-                        <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" style="width: 100%" />
+                    <RadzenStack SizeMD="3" Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Right">
+                        <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" />
                         <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
                     </RadzenStack>
-                    <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Filled" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default" MouseEnter="@CompleteTimeEntryButton6MouseEnter" MouseLeave="@CompleteTimeEntryButton6MouseLeave" />
+                    <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Filled" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default" MouseEnter="@CompleteTimeEntryButton6MouseEnter" MouseLeave="@CompleteTimeEntryButton6MouseLeave" Size="Radzen.ButtonSize.Small" />
                     <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" MouseEnter="@CloseTicketButton7MouseEnter" MouseLeave="@CloseTicketButton7MouseLeave" />
                     <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" MouseEnter="@DeleteTimeEntryButton8MouseEnter" MouseLeave="@DeleteTimeEntryButton8MouseLeave" />
+                    
                 </RadzenStack>
                 <RadzenRow Gap="">
                     <RadzenFieldset Text="Checklist Items" AllowCollapse="true" Icon="playlist_add_check" Style="width: 100%" Collapsed="@(ChecklistItemsCollapsed && checklistItemsCount == 0)">
