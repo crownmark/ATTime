@@ -761,20 +761,36 @@ namespace CrownATTime.Client.Pages
                             await DialogService.OpenAsync<CloseTicketDialog>($"Close Ticket Dialog | {ticket.item.title}", new Dictionary<string, object>() { { "TicketId", timeEntryRecord.TicketId }, { "TimeEntryId", timeEntryRecord.TimeEntryId }, { "Ticket", ticket } }, new DialogOptions { Width = "800px", Resizable = true, Draggable = true });
                             DialogService.Close();
 
-                            await JSRuntime.InvokeVoidAsync(
+                            try
+                            {
+                                await JSRuntime.InvokeAsync<object>("Helpers.closeTimeEntryWindowPanel", ticket.item.id);
+                            }
+                            catch (Exception ex)
+                            {
+                                await JSRuntime.InvokeVoidAsync(
                                 "eval",
                                 "window.open('', '_self'); window.close();"
                             );
+                            }
+                            
                         }
                         else
                         {
                             await ProcessWorkflows(2); //time entry completing
                             DialogService.Close();
 
-                            await JSRuntime.InvokeVoidAsync(
+                            try
+                            {
+                                await JSRuntime.InvokeAsync<object>("Helpers.closeTimeEntryWindowPanel", ticket.item.id);
+                            }
+                            catch (Exception ex)
+                            {
+                                await JSRuntime.InvokeVoidAsync(
                                 "eval",
                                 "window.open('', '_self'); window.close();"
                             );
+                            }
+                            
 
                         }
 
@@ -783,11 +799,18 @@ namespace CrownATTime.Client.Pages
                     else
                     {
                         DialogService.Close();
-
-                        await JSRuntime.InvokeVoidAsync(
+                        try
+                        {
+                            await JSRuntime.InvokeAsync<object>("Helpers.closeTimeEntryWindowPanel", ticket.item.id);
+                        }
+                        catch (Exception ex)
+                        {
+                            await JSRuntime.InvokeVoidAsync(
                                                 "eval",
                                                 "window.open('', '_self'); window.close();"
                                             );
+                        }
+                        
 
                     }
                 }

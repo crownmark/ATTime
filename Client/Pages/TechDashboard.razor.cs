@@ -92,7 +92,7 @@ namespace CrownATTime.Client.Pages
         protected RadzenDataGrid<CalendarEvent> thirdDayEventsGrid;
         protected bool calendarGridLoading { get; set; }
 
-        
+        private DotNetObjectReference<TechDashboard> _componentReference;        
         protected override async Task OnInitializedAsync()
         {
             try
@@ -115,6 +115,9 @@ namespace CrownATTime.Client.Pages
                 //myTicketsGridLoading = false;
                 overdueEventsGrid.Reload();
                 DialogManager.OnChange += StateHasChanged;
+
+                _componentReference = DotNetObjectReference.Create(this);
+                await JSRuntime.InvokeVoidAsync("Helpers.setDotNetHelper", _componentReference);
 
 
             }
@@ -444,6 +447,31 @@ namespace CrownATTime.Client.Pages
                     DialogService.Close();
 
                 }
+                else if (resource.TicketRowClickEventActionId.Value == 4)
+                {
+                    // Open Autotask Ticket in new tab
+                    DialogService.OpenAsync("", ds =>
+                    {
+                        RenderFragment content = b =>
+                        {
+                            b.OpenElement(0, "div");
+                            b.AddAttribute(1, "class", "row");
+
+                            b.OpenElement(2, "div");
+                            b.AddAttribute(3, "class", "col-md-12");
+
+                            b.AddContent(4, $"Loading Time Entry {args.title}...");
+
+                            b.CloseElement();
+                            b.CloseElement();
+                        };
+                        return content;
+                    }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                    await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"timeentry/{args.id.ToString()}");
+
+                    DialogService.Close();
+
+                }
                 else
                 {
                     var ticket = new TicketDtoResult()
@@ -571,6 +599,31 @@ namespace CrownATTime.Client.Pages
                         DialogService.Close();
 
                     }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 4)
+                    {
+                        // Open Autotask Ticket in new tab
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Time Entry {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"timeentry/{args.TicketId.Value.ToString()}");
+
+                        DialogService.Close();
+
+                    }
                     else
                     {
                         await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
@@ -671,6 +724,31 @@ namespace CrownATTime.Client.Pages
                         DialogService.Close();
 
                     }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 4)
+                    {
+                        // Open Autotask Ticket in new tab
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Time Entry {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"timeentry/{args.TicketId.Value.ToString()}");
+
+                        DialogService.Close();
+
+                    }
                     else
                     {
                         await JSRuntime.InvokeVoidAsync("scrollToTopBlazor");
@@ -767,6 +845,31 @@ namespace CrownATTime.Client.Pages
                             return content;
                         }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
                         await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else if (resource.CalendarAgendaRowClickEventActionId.Value == 4)
+                    {
+                        // Open Autotask Ticket in new tab
+                        DialogService.OpenAsync("", ds =>
+                        {
+                            RenderFragment content = b =>
+                            {
+                                b.OpenElement(0, "div");
+                                b.AddAttribute(1, "class", "row");
+
+                                b.OpenElement(2, "div");
+                                b.AddAttribute(3, "class", "col-md-12");
+
+                                b.AddContent(4, $"Loading Time Entry {args.Title}...");
+
+                                b.CloseElement();
+                                b.CloseElement();
+                            };
+                            return content;
+                        }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"timeentry/{args.TicketId.Value.ToString()}");
+
                         DialogService.Close();
 
                     }
@@ -1213,6 +1316,14 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task OpenCalendarSplitButton0Click(Radzen.Blazor.RadzenSplitButtonItem args)
         {
+        }
+
+        [JSInvokable]
+        public async System.Threading.Tasks.Task CloseDialogFromJS(int dialogId)
+        {
+            // await CloseWindow(new MouseEventArgs() { }, timeEntryId);
+            DialogManager.Close(dialogId, "TimeEntry");
+
         }
     }
 }

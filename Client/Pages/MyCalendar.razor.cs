@@ -425,23 +425,23 @@ namespace CrownATTime.Client.Pages
                 if (args.Data.TicketId.HasValue)
                 {
                     //BusyDialog($"Loading Ticket {args.Data.Title}...");
-                    DialogService.OpenAsync("", ds =>
-                    {
-                        RenderFragment content = b =>
-                        {
-                            b.OpenElement(0, "div");
-                            b.AddAttribute(1, "class", "row");
+                    //DialogService.OpenAsync("", ds =>
+                    //{
+                    //    RenderFragment content = b =>
+                    //    {
+                    //        b.OpenElement(0, "div");
+                    //        b.AddAttribute(1, "class", "row");
 
-                            b.OpenElement(2, "div");
-                            b.AddAttribute(3, "class", "col-md-12");
+                    //        b.OpenElement(2, "div");
+                    //        b.AddAttribute(3, "class", "col-md-12");
 
-                            b.AddContent(4, $"Loading Ticket {args.Data.Title}...");
+                    //        b.AddContent(4, $"Loading Ticket {args.Data.Title}...");
 
-                            b.CloseElement();
-                            b.CloseElement();
-                        };
-                        return content;
-                    }, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                    //        b.CloseElement();
+                    //        b.CloseElement();
+                    //    };
+                    //    return content;
+                    //}, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
 
                     if (resource.CalendarSlotClickEventActionId.Value == 1)
                     {
@@ -463,6 +463,31 @@ namespace CrownATTime.Client.Pages
                     {
                         // Open Autotask Ticket in new tab
                         await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"https://ww5.autotask.net/Autotask/AutotaskExtend/ExecuteCommand.aspx?Code=OpenTicketDetail&TicketID={args.Data.TicketId.Value}");
+                        DialogService.Close();
+
+                    }
+                    else if (resource.CalendarSlotClickEventActionId.Value == 4)
+                    {
+                        // Open Autotask Ticket in new tab
+                        //DialogService.OpenAsync("", ds =>
+                        //{
+                        //    RenderFragment content = b =>
+                        //    {
+                        //        b.OpenElement(0, "div");
+                        //        b.AddAttribute(1, "class", "row");
+
+                        //        b.OpenElement(2, "div");
+                        //        b.AddAttribute(3, "class", "col-md-12");
+
+                        //        b.AddContent(4, $"Loading Time Entry {args.Data.Title}...");
+
+                        //        b.CloseElement();
+                        //        b.CloseElement();
+                        //    };
+                        //    return content;
+                        //}, new Radzen.DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), $"timeentry/{args.Data.TicketId.Value.ToString()}");
+
                         DialogService.Close();
 
                     }
