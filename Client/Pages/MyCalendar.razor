@@ -1,5 +1,5 @@
-@layout WindowLayoutLayout
-@page "/my-calendar"
+
+@page "/my-calendar/{SelectedCalendarViewIndex}/{SelectedResourceEmail}/{TicketId}"
 
 @attribute [Authorize]
 
@@ -32,7 +32,7 @@
             </Items>
         </RadzenSelectBar>
         
-        <RadzenFieldset Text="Schedule Service Call" Style="width: 50%" Visible="@(TicketId > 0)">
+        <RadzenFieldset Text="Schedule Service Call" Style="width: 50%" Visible="@(ticketId > 0)">
             <RadzenTemplateForm TItem="Server.Models.CalendarEvent"  Style="padding: 1rem; width: 100%" Data="@calendarEvent" Submit="@TemplateForm0Submit">
                 <RadzenStack>
                     <RadzenFormField Text="Activity Type">
@@ -87,7 +87,7 @@
             </RadzenTemplateForm>
         </RadzenFieldset>
     
-    <RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh; width: 100%" SelectedIndex="1" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
+    <RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh; width: 100%" SelectedIndex="@(selectedCalendarViewIndex)" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
         <ChildContent>
             <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
                 

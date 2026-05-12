@@ -58,13 +58,15 @@ namespace CrownATTime.Client.Pages
         protected CalendarEvent calendarEvent { get; set; } = new CalendarEvent() { ServiceCallId = 999999999 };
 
         [Parameter]
-        public int SelectedCalendarViewIndex { get; set; }
+        public string SelectedCalendarViewIndex { get; set; }
+        protected int selectedCalendarViewIndex { get; set; }
 
         [Parameter]
         public string SelectedResourceEmail { get; set; }
 
         [Parameter]
-        public int TicketId { get; set; }
+        public string TicketId { get; set; }
+        protected int ticketId { get; set; }
 
         protected int selectedMinutes { get; set; }
         protected string selectedActivity { get; set; }
@@ -77,6 +79,8 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
+                ticketId = Convert.ToInt32(TicketId);
+                selectedCalendarViewIndex = Convert.ToInt32(SelectedCalendarViewIndex);
                 DialogService.OpenAsync("", ds =>
                 {
                     RenderFragment content = dialogContent =>
@@ -101,9 +105,9 @@ namespace CrownATTime.Client.Pages
                 await GetResources();
                 await GetLoggedInResource();
 
-                if (TicketId > 0)
+                if (ticketId > 0)
                 {
-                    ticket = await AutotaskService.GetTicket(TicketId);
+                    ticket = await AutotaskService.GetTicket(ticketId);
 
                 }
                 DialogService.Close();
@@ -345,7 +349,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                if(TicketId > 0)
+                if(ticketId > 0)
                 {
                     var existingEvent = calendarEvents.Where(x => x.ServiceCallId == 999999999);
                     if (existingEvent.Any())

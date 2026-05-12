@@ -1292,7 +1292,7 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                await DialogService.OpenAsync<MyCalendar>("Calendar", new Dictionary<string, object>() { {"SelectedCalendarViewIndex", 1 }, {"SelectedResourceEmail", $"{Security.User.Email}" }, { "TicketId", 0 }}, new DialogOptions { Width = "90%", AutoFocusFirstElement = false });
+                await DialogService.OpenAsync<MyCalendar>("Calendar", new Dictionary<string, object>() { {"SelectedCalendarViewIndex", 1.ToString() }, {"SelectedResourceEmail", $"{Security.User.Email}" }, { "TicketId", 0.ToString() }}, new DialogOptions { Width = "90%", AutoFocusFirstElement = false });
             }
             catch (Exception ex)
             {
