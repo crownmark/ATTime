@@ -617,6 +617,11 @@ namespace CrownATTime.Client.Pages
                         resourceID = resource.Id,
                         serviceCallTicketID = newServiceCallTicket.itemId,
                     });
+                    await AutotaskService.UpdateTicket(new TicketUpdateDto()
+                    {
+                        Id = ticket.item.id,
+                        Status = selectedActivity == "Remote" ? 23 : 30
+                    });
                     DialogService.Close();
                     DialogService.Close();
                 }
@@ -683,6 +688,11 @@ namespace CrownATTime.Client.Pages
 
                             }
                         }
+                        await AutotaskService.UpdateTicket(new TicketUpdateDto()
+                        {
+                            Id = ticket.item.id,
+                            Status = selectedActivity == "Remote" ? 23 : 30
+                        });
                         DialogService.Close();
                     }
                     catch (Exception ex)

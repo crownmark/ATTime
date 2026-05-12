@@ -1794,11 +1794,22 @@ namespace CrownATTime.Client.Pages
                     await ATTimeService.DeleteTimeEntry(timeEntryRecord.TimeEntryId);
                     timeEntryRecord.IsCompleted = true;
                     DialogService.Close();
-                    await JSRuntime.InvokeVoidAsync(
-                                "eval",
-                                "window.open('', '_self'); window.close();"
-                            );
-                    await DialogService.Alert("You can close this window now.", "Time Entry Deleted Successfully", null);
+                    try
+                    {
+                        await JSRuntime.InvokeAsync<object>("Helpers.closeTimeEntryWindowPanel", ticket.item.id);
+                    }
+                    catch (Exception ex)
+                    {
+                        await JSRuntime.InvokeVoidAsync(
+                            "eval",
+                            "window.open('', '_self'); window.close();"
+                        );
+                    }
+                    // await JSRuntime.InvokeVoidAsync(
+                    //             "eval",
+                    //             "window.open('', '_self'); window.close();"
+                    //         );
+                    // await DialogService.Alert("You can close this window now.", "Time Entry Deleted Successfully", null);
                 }
             }
             catch (Exception ex)
@@ -2832,7 +2843,7 @@ namespace CrownATTime.Client.Pages
         }
         protected async System.Threading.Tasks.Task ScheduleServiceCallButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
-            await DialogService.OpenAsync<MyCalendar>("Schedule Service Call", new Dictionary<string, object>() { { "SelectedCalendarViewIndex", 0 }, { "SelectedResourceEmail", Security.User.Email }, { "TicketId", ticket.item.id } }, new DialogOptions { Width = "90%" });
+            await DialogService.OpenAsync<MyCalendar>("Schedule Service Call", new Dictionary<string, object>() { { "SelectedCalendarViewIndex", 0.ToString() }, { "SelectedResourceEmail", Security.User.Email }, { "TicketId", ticket.item.id.ToString() } }, new DialogOptions { Width = "90%" });
 
         }
         protected async System.Threading.Tasks.Task ScheduleServiceCallSplitButton0Click(Radzen.Blazor.RadzenSplitButtonItem args)
@@ -2841,7 +2852,7 @@ namespace CrownATTime.Client.Pages
             {
                 if (args.Value != null)
                 {
-                    await DialogService.OpenAsync<MyCalendar>("Schedule Service Call", new Dictionary<string, object>() { { "SelectedCalendarViewIndex", 0 }, { "SelectedResourceEmail", args.Value }, { "TicketId", ticket.item.id } }, new DialogOptions { Width = "90%" });
+                    await DialogService.OpenAsync<MyCalendar>("Schedule Service Call", new Dictionary<string, object>() { { "SelectedCalendarViewIndex", 0.ToString() }, { "SelectedResourceEmail", args.Value }, { "TicketId", ticket.item.id.ToString() } }, new DialogOptions { Width = "90%" });
                 }
 
             }

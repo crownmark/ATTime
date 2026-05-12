@@ -2055,7 +2055,7 @@ namespace CrownATTime.Server.Controllers
                     item.secondaryResources = string.Join(",", resourceIds);
 
                 }
-                return Content(content, "application/json");
+                return Content(JsonSerializer.Serialize(ticketsResult), "application/json");
             }
             catch (Exception ex)
             {

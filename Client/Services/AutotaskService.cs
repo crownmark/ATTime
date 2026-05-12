@@ -1438,7 +1438,7 @@ namespace CrownATTime.Client
                     var openTickets = openTicketsWithoutServiceCalls.Items.Where(x => (x.secondaryResources != null && x.secondaryResources.Contains(resource.FullName)) || x.assignedResourceID == resourceId).ToList();
                     var ticketIds = openTickets.Select(x => x.id).ToList();
                     var serviceCallTickets = await GetServiceCallsForTickets(ticketIds.ToList());
-
+                    var secondaryTickets = openTickets.Where(x => x.secondaryResources != null).ToList();
                     foreach (var item in serviceCallTickets.Items.Where(x => x.assignedToResourceId == resourceId))
                     {
                         string eventTitle = "Service Call";
