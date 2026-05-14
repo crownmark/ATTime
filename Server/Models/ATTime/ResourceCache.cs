@@ -103,5 +103,21 @@ namespace CrownATTime.Server.Models.ATTime
         public int? CalendarAgendaRowClickEventActionId { get; set; }
 
         public bool NextActionsCollapsed { get; set; }
+
+        public bool AutoRefreshTicketGrid { get; set; }
+
+        public int AutoRefreshTicketGridMinutes { get; set; }
+
+        public bool AutoRefreshTimeEntryGrid { get; set; }
+
+        public int AutoRefreshTimeEntryGridMinutes { get; set; }
+
+        public bool AutoRefreshCalendar { get; set; }
+
+        public int AutoRefreshCalendarMinutes { get; set; }
+
+        public bool AutoRefreshAgendaGrid { get; set; }
+
+        public int AutoRefreshAgendaGridMinutes { get; set; }
     }
 }

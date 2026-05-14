@@ -7,129 +7,171 @@
     <RadzenColumn SizeMD=12>
         <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save ResourceCache</RadzenAlert>
         <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.ResourceCache" Data="@(resourceCache)" Visible="@(resourceCache != null)" Submit="@FormSubmit">
-          <RadzenRow>
-              <RadzenColumn SizeMD="6">
-                  <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Checklist Items Collapsed" Component="ChecklistItemsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.ChecklistItemsCollapsed)" Name="ChecklistItemsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Email Notes Collapsed" Component="EmailNotesCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.EmailNotesCollapsed)" Name="EmailNotesCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Company Details Collapsed" Component="CompanyDetailsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.CompanyDetailsCollapsed)" Name="CompanyDetailsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Ai Chat Collapsed" Component="AichatCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.AichatCollapsed)" Name="AichatCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Contact Details Collapsed" Component="ContactDetailsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.ContactDetailsCollapsed)" Name="ContactDetailsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-<RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Live Links Collapsed" Component="LiveLinksCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@resourceCache.LiveLinksCollapsed" Name="LiveLinksCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-<RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Next Actions Collapsed" Component="NextActionsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@resourceCache.NextActionsCollapsed" Name="NextActionsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-              </RadzenColumn>
-            <RadzenColumn SizeMD="6">
+          <RadzenFieldset Text="Collapsible Sections" Icon="bottom_panel_close" AllowCollapse="true" Style="margin-bottom: 5px">
+              <RadzenRow>
+                  <RadzenColumn SizeMD="6">
+                      <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Checklist Items Collapsed?" Component="ChecklistItemsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.ChecklistItemsCollapsed)" Name="ChecklistItemsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
                 <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Rocketship Collapsed" Component="RocketshipCollapsed" style="width: 100%" />
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Email Notes Collapsed?" Component="EmailNotesCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.EmailNotesCollapsed)" Name="EmailNotesCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Company Details Collapsed?" Component="CompanyDetailsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.CompanyDetailsCollapsed)" Name="CompanyDetailsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Ai Chat Collapsed?" Component="AichatCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.AichatCollapsed)" Name="AichatCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Contact Details Collapsed?" Component="ContactDetailsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.ContactDetailsCollapsed)" Name="ContactDetailsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+              <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Live Links Collapsed?" Component="LiveLinksCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@resourceCache.LiveLinksCollapsed" Name="LiveLinksCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+              <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Next Actions Collapsed?" Component="NextActionsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@resourceCache.NextActionsCollapsed" Name="NextActionsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                  </RadzenColumn>
+                <RadzenColumn SizeMD="6">
+                    <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Rocketship Collapsed?" Component="RocketshipCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.RocketshipCollapsed)" Name="RocketshipCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="TimeZest Collapsed?" Component="TimeZestCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.TimeZestCollapsed)" Name="TimeZestCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Device Details Collapsed?" Component="DeviceDetailsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.DeviceDetailsCollapsed)" Name="DeviceDetailsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="ITGlue Passwords Collapsed?" Component="ItgluePasswordsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.ItgluePasswordsCollapsed)" Name="ItgluePasswordsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="ITGlue Documents Collapsed?" Component="ItglueDocumentsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.ItglueDocumentsCollapsed)" Name="ItglueDocumentsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="ITGlue Flexible Assets Collapsed?" Component="ItglueFlexibleAssetsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.ItglueFlexibleAssetsCollapsed)" Name="ItglueFlexibleAssetsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="ITGlue Configurations Collapsed?" Component="ItglueConfigurationsCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="@(resourceCache.ItglueConfigurationsCollapsed)" Name="ItglueConfigurationsCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
                 </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.RocketshipCollapsed)" Name="RocketshipCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="TimeZest Collapsed" Component="TimeZestCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.TimeZestCollapsed)" Name="TimeZestCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="Device Details Collapsed" Component="DeviceDetailsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.DeviceDetailsCollapsed)" Name="DeviceDetailsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="ITGlue Passwords Collapsed" Component="ItgluePasswordsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.ItgluePasswordsCollapsed)" Name="ItgluePasswordsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="ITGlue Documents Collapsed" Component="ItglueDocumentsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.ItglueDocumentsCollapsed)" Name="ItglueDocumentsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="ITGlue Flexible Assets Collapsed" Component="ItglueFlexibleAssetsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.ItglueFlexibleAssetsCollapsed)" Name="ItglueFlexibleAssetsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            <RadzenRow style="margin-bottom: 1rem">
-                <RadzenColumn SizeMD="10">
-                    <RadzenLabel Text="ITGlue Configurations Collapsed" Component="ItglueConfigurationsCollapsed" style="width: 100%" />
-                </RadzenColumn>
-                <RadzenColumn SizeMD="2">
-                    <RadzenCheckBox @bind-Value="@(resourceCache.ItglueConfigurationsCollapsed)" Name="ItglueConfigurationsCollapsed" />
-                </RadzenColumn>
-            </RadzenRow>
-            </RadzenColumn>
-          </RadzenRow>
-            
-            <RadzenStack>
-            
-            
-            
+              </RadzenRow>
+          </RadzenFieldset>
+          <RadzenFieldset Text="Auto-Refresh / Timers" Icon="av_timer" AllowCollapse="true" Style="margin-bottom: 5px">
+              <RadzenColumn>
+                  <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 5px">
+                    <RadzenColumn>
+                        <RadzenLabel Text="Auto Refresh Tickets Grid?" Component="AutoRefreshTicketGrid" style="width: 100%" />
+                        <RadzenCheckBox @bind-Value="@resourceCache.AutoRefreshTicketGrid" Name="AutoRefreshTicketGrid" />
+
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenNumeric TValue="int" Style="width: 100%" Step="1" Min="0" @bind-Value="@resourceCache.AutoRefreshTicketGridMinutes" Name="AutoRefreshTicketGridMinutes"></RadzenNumeric>
+                    </RadzenColumn>
+                  </RadzenRow>
+                  <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 5px">
+                    <RadzenColumn>
+                        <RadzenLabel Text="Auto Refresh Time Entry Grid?" Component="AutoRefreshTimeEntryGrid" style="width: 100%" />
+                        <RadzenCheckBox @bind-Value="@resourceCache.AutoRefreshTimeEntryGrid" Name="AutoRefreshTimeEntryGrid" />
+
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenNumeric TValue="int" Style="width: 100%" Step="1" Min="0" @bind-Value="@resourceCache.AutoRefreshTimeEntryGridMinutes" Name="AutoRefreshTimeEntryGridMinutes"></RadzenNumeric>
+                    </RadzenColumn>
+                  </RadzenRow>
+                  <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 5px">
+                    <RadzenColumn>
+                        <RadzenLabel Text="Auto Refresh Agenda Grid?" Component="AutoRefreshAgendaGrid" style="width: 100%" />
+                        <RadzenCheckBox @bind-Value="@resourceCache.AutoRefreshAgendaGrid" Name="AutoRefreshAgendaGrid" />
+
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenNumeric TValue="int" Style="width: 100%" Step="1" Min="0" @bind-Value="@resourceCache.AutoRefreshAgendaGridMinutes" Name="AutoRefreshAgendaGridMinutes"></RadzenNumeric>
+                    </RadzenColumn>
+                  </RadzenRow>
+                  <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 5px">
+                    <RadzenColumn>
+                        <RadzenLabel Text="Auto Refresh Calendar?" Component="AutoRefreshCalendar" style="width: 100%" />
+                        <RadzenCheckBox @bind-Value="@resourceCache.AutoRefreshCalendar" Name="AutoRefreshTicketGrid" />
+
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenNumeric TValue="int" Style="width: 100%" Step="1" Min="0" @bind-Value="@resourceCache.AutoRefreshCalendarMinutes" Name="AutoRefreshCalendarMinutes"></RadzenNumeric>
+                    </RadzenColumn>
+                  </RadzenRow>
+              </RadzenColumn>
+          </RadzenFieldset>
+            <RadzenFieldset Text="Default Click Actions" Icon="ads_click" AllowCollapse="true" Style="margin-bottom: 5px">
             <RadzenStack>
                 <RadzenFormField Text="Ticket Row Click Action" Component="TicketRowClickEventActionId">
                     <RadzenDropDown TValue="int?" ValueProperty="ClickEventActionId" TextProperty="Title" @bind-Value="@(resourceCache.TicketRowClickEventActionId)" Data="@ticketGridClickEventActionsList" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="TicketRowClickEventActionId"></RadzenDropDown> 
@@ -140,6 +182,11 @@
                 <RadzenFormField Text="Calendar Appointment Click Action" Component="CalendarSlotClickEventActionId">
                     <RadzenDropDown TValue="int?" ValueProperty="ClickEventActionId" TextProperty="Title" Data="@calendarSlotClickEventActionsList" @bind-Value="@resourceCache.CalendarSlotClickEventActionId" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="CalendarSlotClickEventActionId" /> 
                 </RadzenFormField>
+            </RadzenStack>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Default Templates" AllowCollapse="true" Icon="format_image_left">
+                <RadzenStack>
+                
                 <RadzenFormField Text="Default Email Template" Component="DefaultEmailTemplate">
                     <RadzenDropDown TValue="int?" @bind-Value="@(resourceCache.DefaultEmailTemplate)" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultEmailTemplate" Data="@emailTemplates" ValueProperty="EmailTemplateId" TextProperty="Title" LoadData="@emailTemplatesLoadData"></RadzenDropDown> 
                 </RadzenFormField>
@@ -156,7 +203,8 @@
                     <RadzenDropDown TValue="int?" @bind-Value="@(resourceCache.DefaultAitemplate)" ValueProperty="AiPromptConfigurationId" TextProperty="Name" Data="@aiPromptConfigurations" LoadData="@aiPromptConfigurationsLoadData" Count="@aiPromptConfigurationsCount" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="DefaultAITemplate" /> 
                 </RadzenFormField>
             </RadzenStack>
-          </RadzenStack>
+            </RadzenFieldset>
+            
           <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
                     <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
                     <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />

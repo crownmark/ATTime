@@ -291,6 +291,38 @@ namespace CrownATTime.Server.Data
               .Property(p => p.NextActionsCollapsed)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshTicketGrid)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshTicketGridMinutes)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshTimeEntryGrid)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshTimeEntryGridMinutes)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshCalendar)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshCalendarMinutes)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshAgendaGrid)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshAgendaGridMinutes)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
               .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
