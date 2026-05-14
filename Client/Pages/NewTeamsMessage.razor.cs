@@ -108,7 +108,7 @@ namespace CrownATTime.Client.Pages
 
                 try
                 {
-                    var defaultFilter = $"IsActive eq true and (LicenseType eq 1 or LicenseType eq 3) and Email ne null and Email ne ''";
+                    var defaultFilter = $"IsActive eq true and (LicenseType eq 1 or LicenseType eq 3) and Email ne null and Email ne '' and Email ne 'bassem@ce-technology.com'";
 
                     var result = await ATTimeService.GetResourceCaches(filter: $"{defaultFilter}", orderby: $"Email asc");
 

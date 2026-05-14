@@ -87,7 +87,7 @@
             </RadzenTemplateForm>
         </RadzenFieldset>
     
-    <RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh; width: 100%" SelectedIndex="@(selectedCalendarViewIndex)" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" ContextMenu="@Scheduler0ContextMenu" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
+    <RadzenScheduler @ref="@scheduler0" TItem="Server.Models.CalendarEvent" Data="@calendarEvents" StartProperty="Start" EndProperty="End" TextProperty="Title" style="height: 84vh; width: 100%" SelectedIndex="@(selectedCalendarViewIndex)" AppointmentMove="@Scheduler0AppointmentMove" SlotRender="@Scheduler0SlotRender" SlotSelect="@Scheduler0SlotSelect" AppointmentSelect="@Scheduler0AppointmentSelect" MoreSelect="@Scheduler0MoreSelect" DaySelect="@Scheduler0DaySelect" AppointmentRender="@Scheduler0AppointmentRender">
         <ChildContent>
             <RadzenDayView MinutesPerSlot="15" StartTime="@(new TimeSpan(6,0,0))">
                 

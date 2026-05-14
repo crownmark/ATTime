@@ -233,17 +233,22 @@
                             </RadzenStack>
         <RadzenCard Variant="Radzen.Variant.Outlined" Style="margin-bottom: 10px; background-color: var(--rz-base-800)">
             <div class="floating-timer" style="padding: 5px; width: 100%">
-                
-                <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="padding-top: 4px; padding: 10px; margin-bottom: 5px; border-radius: 14px; border: 1px solid var(--rz-primary)" AlignItems="Radzen.AlignItems.Center">
-                    <RadzenFormField Text="Time Entry Template" Style="width: 100%">
-                        <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange" />
-                    </RadzenFormField>
-                    <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; font-weight: bold" />
-                                
-                    <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)" MouseEnter="@PlayButton0MouseEnter" MouseLeave="@PlayButton0MouseLeave"></RadzenButton>
-                    <RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)" MouseEnter="@PauseButton1MouseEnter" MouseLeave="@PauseButton1MouseLeave"></RadzenButton>
-                    <RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick" MouseEnter="@ClearButton2MouseEnter" MouseLeave="@ClearButton2MouseLeave"></RadzenButton>
-                </RadzenStack>
+                <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="border: 1px solid var(--rz-primary); border-radius: 14px; padding: 4px">
+                    <RadzenColumn Style="padding: 10px" SizeLG="7" SizeMD="7" SizeXL="8" SizeSM="12" SizeXS="12">
+                        <RadzenFormField Text="Time Entry Template" Style="width: 100%">
+                            <RadzenDropDown TValue="int" ValueProperty="TimeEntryTemplateId" TextProperty="Title" Data="@timeEntryTemplates" LoadData="@timeEntryTemplatesLoadData" Count="@timeEntryTemplatesCount" AllowClear="true" Name="TimeEntryTemplate" Change="@TimeEntryTemplateChange" />
+                        </RadzenFormField>
+                    </RadzenColumn>
+                    <RadzenColumn SizeLG="5" SizeMD="5" SizeXL="4" SizeXX="4" SizeSM="12">
+                        <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.Right" Style="padding-top: 4px; padding: 10px; margin-bottom: 5px" AlignItems="Radzen.AlignItems.Center" Wrap="Radzen.FlexWrap.Wrap" Gap="10">
+                            <RadzenText Text="@(ElapsedFormatted)" Style="padding: 4px; border: 2px none #874efe; font-weight: bold" />
+                                        
+                            <RadzenButton Icon="play_arrow" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Success" Click="@PlayButtonClick" Visible="@(!timeEntryRecord.TimeStampStatus)" MouseEnter="@PlayButton0MouseEnter" MouseLeave="@PlayButton0MouseLeave"></RadzenButton>
+                            <RadzenButton Icon="pause" Style="width: 40px" Variant="Radzen.Variant.Outlined" Click="@PauseButtonClick" Visible="@(timeEntryRecord.TimeStampStatus)" MouseEnter="@PauseButton1MouseEnter" MouseLeave="@PauseButton1MouseLeave"></RadzenButton>
+                            <RadzenButton Icon="clear" Style="width: 40px" Variant="Radzen.Variant.Outlined" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@ClearTimerButtonClick" MouseEnter="@ClearButton2MouseEnter" MouseLeave="@ClearButton2MouseLeave"></RadzenButton>
+                        </RadzenStack>
+                    </RadzenColumn>
+                </RadzenRow>
                 <RadzenRow style="margin-bottom: 1rem" AlignItems="Radzen.AlignItems.Normal" Visible="@(!timeEntryRecord.TimeStampStatus)">
                     <RadzenColumn SizeMD="6" SizeXS="6" SizeSM="6" SizeLG="6">
                         <RadzenFormField Text="Start Date Time" Style="width: 100%">
@@ -407,9 +412,9 @@
                         <RadzenLabel Text="Append To Resolution?" Component="AppendToResolution" />
                         <RadzenCheckBox @bind-Value="@appendToResolution" TValue="bool" Name="AppendToResolution" />
                     </RadzenStack>
-                    <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Filled" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default" MouseEnter="@CompleteTimeEntryButton6MouseEnter" MouseLeave="@CompleteTimeEntryButton6MouseLeave" Size="Radzen.ButtonSize.Small" />
-                    <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default" MouseEnter="@CloseTicketButton7MouseEnter" MouseLeave="@CloseTicketButton7MouseLeave" Size="Radzen.ButtonSize.Small" />
-                    <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" MouseEnter="@DeleteTimeEntryButton8MouseEnter" MouseLeave="@DeleteTimeEntryButton8MouseLeave" Size="Radzen.ButtonSize.Small" />
+                    <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Complete Time Entry" Variant="Radzen.Variant.Filled" IsBusy="isSaving" BusyText="Completing Time Entry" Shade="Radzen.Shade.Default"  Size="Radzen.ButtonSize.Small" />
+                    <RadzenButton Visible="@(!timeEntryRecord.TimeStampStatus)" ButtonStyle="Radzen.ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="confirmation_number" Text="Save & Close Ticket" Variant="Radzen.Variant.Outlined" Click="@SaveAndCloseTicketButtonClick" IsBusy="isSaving" BusyText="Completing & Closing Ticket" Shade="Radzen.Shade.Default"  Size="Radzen.ButtonSize.Small" />
+                    <RadzenButton ButtonStyle="Radzen.ButtonStyle.Danger" ButtonType="ButtonType.Button" Icon="delete" Text="Delete" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Default" Click="@DeleteTimeEntryButtonClick" Size="Radzen.ButtonSize.Small" />
                     
                 </RadzenStack>
                 <RadzenRow Gap="">
