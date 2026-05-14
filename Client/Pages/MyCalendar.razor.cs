@@ -16,7 +16,7 @@ using static CrownATTime.Server.Models.ITGlueDocumentsResult;
 
 namespace CrownATTime.Client.Pages
 {
-    public partial class MyCalendar
+    public partial class MyCalendar : IAsyncDisposable
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -75,32 +75,35 @@ namespace CrownATTime.Client.Pages
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.Duration> durations = new List<Duration>();
 
+        private CancellationTokenSource? _autoRefreshCts;
+        private readonly List<Task> _autoRefreshTasks = new();   
+
         protected override async Task OnInitializedAsync()
         {
             try
             {
                 ticketId = Convert.ToInt32(TicketId);
                 selectedCalendarViewIndex = Convert.ToInt32(SelectedCalendarViewIndex);
-                DialogService.OpenAsync("", ds =>
-                {
-                    RenderFragment content = dialogContent =>
-                    {
-                        dialogContent.OpenComponent<RadzenRow>(0);
-                        dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
-                        {
-                            rowContent.OpenComponent<RadzenColumn>(0);
-                            rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
-                            rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
-                            {
-                                columnContent.AddContent(0, $"Loading...");
-                            }));
-                            rowContent.CloseComponent();
-                        }));
+                // DialogService.OpenAsync("", ds =>
+                // {
+                //     RenderFragment content = dialogContent =>
+                //     {
+                //         dialogContent.OpenComponent<RadzenRow>(0);
+                //         dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+                //         {
+                //             rowContent.OpenComponent<RadzenColumn>(0);
+                //             rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+                //             rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+                //             {
+                //                 columnContent.AddContent(0, $"Loading...");
+                //             }));
+                //             rowContent.CloseComponent();
+                //         }));
 
-                        dialogContent.CloseComponent();
-                    };
-                    return content;
-                }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                //         dialogContent.CloseComponent();
+                //     };
+                //     return content;
+                // }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
 
                 await GetResources();
                 await GetLoggedInResource();
@@ -110,8 +113,16 @@ namespace CrownATTime.Client.Pages
                     ticket = await AutotaskService.GetTicket(ticketId);
 
                 }
-                DialogService.Close();
-                await LoadCalendarData();
+                // DialogService.Close();
+                LoadCalendarData();
+                EnableAutoRefreshTimers();
+                var now = DateTime.Now; // 2:30 PM
+
+                await JSRuntime.InvokeVoidAsync(
+                    "scrollSchedulerToTime",
+                    now.ToString("o") // ISO format
+                );
+
 
             }
             catch (Exception ex)
@@ -156,7 +167,7 @@ namespace CrownATTime.Client.Pages
         {
             if (firstRender)
             {
-                calendarLoading = true;
+                //calendarLoading = true;
                 //await Task.Delay(300);
 
                 var now = DateTime.Now; // 2:30 PM
@@ -169,18 +180,18 @@ namespace CrownATTime.Client.Pages
         }
 
 
-        protected async System.Threading.Tasks.Task ReloadCalendarData(Radzen.LoadDataArgs args)
+        protected async System.Threading.Tasks.Task ReloadCalendarData(Radzen.SchedulerLoadDataEventArgs args)
         {
             try
             {
-                //calendarLoading = true;
+                calendarLoading = true;
                 await LoadCalendarData();
-                //calendarLoading = false;
+                calendarLoading = false;
 
             }
             catch (Exception ex)
             {
-                //calendarLoading = false;
+                calendarLoading = false;
 
             }
         }
@@ -188,38 +199,42 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                DialogService.OpenAsync("", ds =>
-                {
-                    RenderFragment content = dialogContent =>
-                    {
-                        dialogContent.OpenComponent<RadzenRow>(0);
-                        dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
-                        {
-                            rowContent.OpenComponent<RadzenColumn>(0);
-                            rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
-                            rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
-                            {
-                                columnContent.AddContent(0, $"Loading calendar for {resource.FullName}...");
-                            }));
-                            rowContent.CloseComponent();
-                        }));
+                StateHasChanged();
+                calendarLoading = true;
+                // DialogService.OpenAsync("", ds =>
+                // {
+                //     RenderFragment content = dialogContent =>
+                //     {
+                //         dialogContent.OpenComponent<RadzenRow>(0);
+                //         dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+                //         {
+                //             rowContent.OpenComponent<RadzenColumn>(0);
+                //             rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+                //             rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+                //             {
+                //                 columnContent.AddContent(0, $"Loading calendar for {resource.FullName}...");
+                //             }));
+                //             rowContent.CloseComponent();
+                //         }));
 
-                        dialogContent.CloseComponent();
-                    };
-                    return content;
-                }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+                //         dialogContent.CloseComponent();
+                //     };
+                //     return content;
+                // }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
 
                 // calendarLoading = true;
                 calendarEvents = await AutotaskService.GetCalendarEventsForResource(resource.Id);
                 calendarEventsCount = calendarEvents.Count();
-                // calendarLoading = false;
-                DialogService.Close();
+                calendarLoading = false;
+                StateHasChanged();
+
+                // DialogService.Close();
 
             }
             catch (Exception ex)
             {
-                // calendarLoading = false;
-                DialogService.Close();
+                calendarLoading = false;
+                // DialogService.Close();
 
             }
         }
@@ -560,6 +575,7 @@ namespace CrownATTime.Client.Pages
 
         protected async System.Threading.Tasks.Task RefreshCalendarDataButton0Click(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
         {
+            //await scheduler0.Reload();
             await LoadCalendarData();
         }
 
@@ -567,7 +583,11 @@ namespace CrownATTime.Client.Pages
         {
             SelectedResourceEmail = args;
             await GetLoggedInResource();
+            calendarLoading = true;
+            //await scheduler0.Reload();
             await LoadCalendarData();
+            calendarLoading = false;
+
         }
 
         protected async System.Threading.Tasks.Task TemplateForm0Submit(Server.Models.CalendarEvent args)
@@ -770,6 +790,182 @@ namespace CrownATTime.Client.Pages
             }
             StateHasChanged();
 
+        }
+
+        // private async Task RefreshTicketGridAsync(CancellationToken token)
+        // {
+        //     if (token.IsCancellationRequested)
+        //         return;
+
+
+
+        //     await ReloadTicketsFromAutotask();
+                
+        //         //myTimeEntriesGridLoading = false;
+        //         //myTicketsGridLoading = false;
+
+        //     // Or if you have a Radzen grid reference:
+        //     // await ticketGrid.Reload();
+        // }
+
+        // private async Task RefreshTimeEntryGridAsync(CancellationToken token)
+        // {
+        //     if (token.IsCancellationRequested)
+        //         return;
+
+        //     await myTimeEntriesGrid.Reload();
+
+        //     // Or:
+        //     // await timeEntryGrid.Reload();
+        // }
+
+        private async Task RefreshCalendarAsync(CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            calendarLoading = true;
+            await LoadCalendarData();
+            calendarLoading = false;
+
+            // Or:
+            // await scheduler.Reload();
+        }
+
+        // private async Task RefreshAgendaGridAsync(CancellationToken token)
+        // {
+        //     if (token.IsCancellationRequested)
+        //         return;
+
+        //     await overdueEventsGrid.Reload();
+
+
+        //     // Or:
+        //     // await agendaGrid.Reload();
+        // }
+
+        private void EnableAutoRefreshTimers()
+        {
+            StopAutoRefreshTimers();
+
+            _autoRefreshCts = new CancellationTokenSource();
+            var token = _autoRefreshCts.Token;
+
+            // StartAutoRefreshTimer(
+            //     enabled: resource.AutoRefreshTicketGrid,
+            //     minutes: resource.AutoRefreshTicketGridMinutes,
+            //     refreshAction: RefreshTicketGridAsync,
+            //     token: token);
+
+            // StartAutoRefreshTimer(
+            //     enabled: resource.AutoRefreshTimeEntryGrid,
+            //     minutes: resource.AutoRefreshTimeEntryGridMinutes,
+            //     refreshAction: RefreshTimeEntryGridAsync,
+            //     token: token);
+
+            StartAutoRefreshTimer(
+                enabled: resource.AutoRefreshCalendar,
+                minutes: resource.AutoRefreshCalendarMinutes,
+                refreshAction: RefreshCalendarAsync,
+                token: token);
+
+            // StartAutoRefreshTimer(
+            //     enabled: resource.AutoRefreshAgendaGrid,
+            //     minutes: resource.AutoRefreshAgendaGridMinutes,
+            //     refreshAction: RefreshAgendaGridAsync,
+            //     token: token);
+        }
+
+        private void StartAutoRefreshTimer(
+            bool enabled,
+            int? minutes,
+            Func<CancellationToken, Task> refreshAction,
+            CancellationToken token)
+        {
+            if (!enabled)
+                return;
+
+            if (!minutes.HasValue || minutes.Value <= 0)
+                return;
+
+            var interval = TimeSpan.FromMinutes(minutes.Value);
+
+            var task = RunAutoRefreshTimerAsync(interval, refreshAction, token);
+
+            _autoRefreshTasks.Add(task);
+        }
+
+        private async Task RunAutoRefreshTimerAsync(
+            TimeSpan interval,
+            Func<CancellationToken, Task> refreshAction,
+            CancellationToken token)
+        {
+            try
+            {
+                using var timer = new PeriodicTimer(interval);
+
+                while (await timer.WaitForNextTickAsync(token))
+                {
+                    if (token.IsCancellationRequested)
+                        return;
+
+                    await InvokeAsync(async () =>
+                    {
+                        await refreshAction(token);
+                        StateHasChanged();
+                    });
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Normal when timers are stopped or the page is disposed.
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Auto Refresh Error",
+                    Detail = ex.Message,
+                    Duration = 5000
+                });
+            }
+        }
+
+        private void StopAutoRefreshTimers()
+        {
+            if (_autoRefreshCts == null)
+                return;
+
+            _autoRefreshCts.Cancel();
+            _autoRefreshCts.Dispose();
+            _autoRefreshCts = null;
+
+            _autoRefreshTasks.Clear();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_autoRefreshCts != null)
+            {
+                _autoRefreshCts.Cancel();
+                _autoRefreshCts.Dispose();
+                _autoRefreshCts = null;
+            }
+
+            if (_autoRefreshTasks.Count > 0)
+            {
+                try
+                {
+                    await Task.WhenAll(_autoRefreshTasks);
+                }
+                catch
+                {
+                    // Ignore cancellation errors during page disposal.
+                }
+
+                _autoRefreshTasks.Clear();
+            }
         }
     }
 }

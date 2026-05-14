@@ -4,9 +4,13 @@
 @attribute [Authorize]
 
 <PageTitle>My Calendar</PageTitle>
-<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.Right" Wrap="Radzen.FlexWrap.Wrap" Style="margin-bottom: 5px">
-
-    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="Radzen.AlignItems.Center" Gap="5" Style="width: 100%">
+<RadzenStack Orientation="Radzen.Orientation.Horizontal" Gap="" AlignItems="Radzen.AlignItems.Center" JustifyContent="Radzen.JustifyContent.End" Wrap="Radzen.FlexWrap.Wrap" Style="margin-bottom: 5px">
+    <RadzenProgressBar Mode="Radzen.ProgressBarMode.Indeterminate" Value="100" Style="width: 300px" Visible="@calendarLoading">
+        <Template>
+            <RadzenLabel Text="@($"Loading calendar for {resource.FullName}")" />
+        </Template>
+    </RadzenProgressBar>
+    <RadzenStack Orientation="Radzen.Orientation.Horizontal" JustifyContent="Radzen.JustifyContent.End" AlignItems="Radzen.AlignItems.Center" Gap="5">
         <RadzenButton Icon="refresh" ButtonStyle="Radzen.ButtonStyle.Success" Variant="Radzen.Variant.Outlined" Shade="Radzen.Shade.Light" Size="Radzen.ButtonSize.Small" Style="width: 28px; height: 28px" Click="@RefreshCalendarDataButton0Click"></RadzenButton>
         <RadzenLabel Text="Number of days to view (Multi-Day View):" />
         <RadzenSlider @bind-Value=@sliderNumberOfDays TValue="int" Min="1" Max="30" Style="margin-left:1.5rem;margin-right:1.5rem;" Change="NumberOfDaysChange" />

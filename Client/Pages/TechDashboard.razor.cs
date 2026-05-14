@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace CrownATTime.Client.Pages
 {
-    public partial class TechDashboard
+    public partial class TechDashboard : IAsyncDisposable
     {
         [Inject]
         protected IJSRuntime JSRuntime { get; set; }
@@ -92,7 +92,10 @@ namespace CrownATTime.Client.Pages
         protected RadzenDataGrid<CalendarEvent> thirdDayEventsGrid;
         protected bool calendarGridLoading { get; set; }
 
-        private DotNetObjectReference<TechDashboard> _componentReference;        
+        private DotNetObjectReference<TechDashboard> _componentReference;    
+
+        private CancellationTokenSource? _autoRefreshCts;
+        private readonly List<Task> _autoRefreshTasks = new();    
         protected override async Task OnInitializedAsync()
         {
             try
@@ -118,7 +121,7 @@ namespace CrownATTime.Client.Pages
 
                 _componentReference = DotNetObjectReference.Create(this);
                 await JSRuntime.InvokeVoidAsync("Helpers.setDotNetHelper", _componentReference);
-
+                EnableAutoRefreshTimers();
 
             }
             catch (Exception ex)
@@ -1324,6 +1327,180 @@ namespace CrownATTime.Client.Pages
             // await CloseWindow(new MouseEventArgs() { }, timeEntryId);
             DialogManager.Close(dialogId, "TimeEntry");
 
+        }
+
+        private async Task RefreshTicketGridAsync(CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+
+
+            await ReloadTicketsFromAutotask();
+                
+                //myTimeEntriesGridLoading = false;
+                //myTicketsGridLoading = false;
+
+            // Or if you have a Radzen grid reference:
+            // await ticketGrid.Reload();
+        }
+
+        private async Task RefreshTimeEntryGridAsync(CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            await myTimeEntriesGrid.Reload();
+
+            // Or:
+            // await timeEntryGrid.Reload();
+        }
+
+        private async Task RefreshCalendarAsync(CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            // await LoadCalendar();
+
+            // Or:
+            // await scheduler.Reload();
+        }
+
+        private async Task RefreshAgendaGridAsync(CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            await overdueEventsGrid.Reload();
+
+
+            // Or:
+            // await agendaGrid.Reload();
+        }
+
+        private void EnableAutoRefreshTimers()
+        {
+            StopAutoRefreshTimers();
+
+            _autoRefreshCts = new CancellationTokenSource();
+            var token = _autoRefreshCts.Token;
+
+            StartAutoRefreshTimer(
+                enabled: resource.AutoRefreshTicketGrid,
+                minutes: resource.AutoRefreshTicketGridMinutes,
+                refreshAction: RefreshTicketGridAsync,
+                token: token);
+
+            StartAutoRefreshTimer(
+                enabled: resource.AutoRefreshTimeEntryGrid,
+                minutes: resource.AutoRefreshTimeEntryGridMinutes,
+                refreshAction: RefreshTimeEntryGridAsync,
+                token: token);
+
+            StartAutoRefreshTimer(
+                enabled: resource.AutoRefreshCalendar,
+                minutes: resource.AutoRefreshCalendarMinutes,
+                refreshAction: RefreshCalendarAsync,
+                token: token);
+
+            StartAutoRefreshTimer(
+                enabled: resource.AutoRefreshAgendaGrid,
+                minutes: resource.AutoRefreshAgendaGridMinutes,
+                refreshAction: RefreshAgendaGridAsync,
+                token: token);
+        }
+
+        private void StartAutoRefreshTimer(
+            bool enabled,
+            int? minutes,
+            Func<CancellationToken, Task> refreshAction,
+            CancellationToken token)
+        {
+            if (!enabled)
+                return;
+
+            if (!minutes.HasValue || minutes.Value <= 0)
+                return;
+
+            var interval = TimeSpan.FromMinutes(minutes.Value);
+
+            var task = RunAutoRefreshTimerAsync(interval, refreshAction, token);
+
+            _autoRefreshTasks.Add(task);
+        }
+
+        private async Task RunAutoRefreshTimerAsync(
+            TimeSpan interval,
+            Func<CancellationToken, Task> refreshAction,
+            CancellationToken token)
+        {
+            try
+            {
+                using var timer = new PeriodicTimer(interval);
+
+                while (await timer.WaitForNextTickAsync(token))
+                {
+                    if (token.IsCancellationRequested)
+                        return;
+
+                    await InvokeAsync(async () =>
+                    {
+                        await refreshAction(token);
+                        StateHasChanged();
+                    });
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Normal when timers are stopped or the page is disposed.
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Auto Refresh Error",
+                    Detail = ex.Message,
+                    Duration = 5000
+                });
+            }
+        }
+
+        private void StopAutoRefreshTimers()
+        {
+            if (_autoRefreshCts == null)
+                return;
+
+            _autoRefreshCts.Cancel();
+            _autoRefreshCts.Dispose();
+            _autoRefreshCts = null;
+
+            _autoRefreshTasks.Clear();
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_autoRefreshCts != null)
+            {
+                _autoRefreshCts.Cancel();
+                _autoRefreshCts.Dispose();
+                _autoRefreshCts = null;
+            }
+
+            if (_autoRefreshTasks.Count > 0)
+            {
+                try
+                {
+                    await Task.WhenAll(_autoRefreshTasks);
+                }
+                catch
+                {
+                    // Ignore cancellation errors during page disposal.
+                }
+
+                _autoRefreshTasks.Clear();
+            }
         }
     }
 }
