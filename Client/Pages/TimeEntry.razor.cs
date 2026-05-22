@@ -406,7 +406,9 @@ namespace CrownATTime.Client.Pages
                 var udf1Filter = BuildUdfFilter("Udf1Name", "Udf1Value", ticket.item.userDefinedFields);
                 var udf2Filter = BuildUdfFilter("Udf2Name", "Udf2Value", ticket.item.userDefinedFields);
                 var udf3Filter = BuildUdfFilter("Udf3Name", "Udf3Value", ticket.item.userDefinedFields);
-
+                Console.WriteLine(udf1Filter);
+                Console.WriteLine(udf2Filter);
+                Console.WriteLine(udf3Filter);
                 var filter = string.Join(" and ", new[]
                 {
                     $"(TicketCreatedBy eq '{ticket.item.createdByContactID}' or TicketCreatedBy eq null)",
@@ -426,174 +428,200 @@ namespace CrownATTime.Client.Pages
                     udf1Filter,
                     udf2Filter,
                     udf3Filter,
-                    $"(TimeEntryCreatedBy eq '{timeEntryRecord.ResourceId}' or TimeEntryCreatedBy eq null)",
-                    $"(TicketAssignedTo eq '{ticket.item.assignedResourceID}' or TicketAssignedTo eq null)"
+                    $"(TimeEntryCreatedBy eq {timeEntryRecord.ResourceId} or TimeEntryCreatedBy eq null)",
+                    $"(TicketAssignedTo eq {ticket.item.assignedResourceID} or TicketAssignedTo eq null)"
                 });
                 var workflowResult = await ATTimeService.GetWorkflowRules(filter: $"Active eq true and WorkflowTriggerTypeId eq {workflowTriggerTypeId} and {filter}", expand: "WorkflowSteps", orderby: $"RuleOrder");
                 var workflowsList = workflowResult.Value.ToList();
+                Console.WriteLine(filter);
+
+                foreach (var item in workflowsList)
+                {
+                    Console.WriteLine(item.Title);
+
+                }
+                //foreach (var workflow in workflowsList)
+                //{
+                //    foreach (var step in workflow.WorkflowSteps.Where(x => x.Active == true).OrderBy(x => x.StepOrder))
+                //    {
+                //        if (step.WorkflowStepTypeId == 5 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //confirmation dialog
+                //        {
+                //            var confirmed = await DialogService.Confirm(step.ConfirmationDialogMessage, step.ConfirmationDialogTitle, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+                //            if (!confirmed.HasValue || !confirmed.Value)
+                //            {
+                //                //user cancelled, stop processing workflow steps
+                //                if (step.ConfirmationDialogContinueOnNo)
+                //                {
+
+                //                }
+                //                else
+                //                {
+                //                    break;
+                //                }
+                //            }
+                //        }
+                //        else if (step.WorkflowStepTypeId == 1 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //email
+                //        {
+                //            try
+                //            {
+                //                await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", step.EmailTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
+                //            }
+                //            catch (Exception ex)
+                //            {
+
+                //            }
+                //        }
+                //        else if (step.WorkflowStepTypeId == 2 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //note
+                //        {
+                //            try
+                //            {
+                //                await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "NoteTemplateId", step.NoteTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
+
+                //            }
+                //            catch (Exception ex)
+                //            {
+
+                //            }
+                //        }
+                //        else if (step.WorkflowStepTypeId == 3 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //teams message
+                //        {
+                //            try
+                //            {
+                //                await DialogService.OpenAsync<NewTeamsMessage>($"New Teams Message {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TeamsMessageTemplateId", step.TeamsMessageTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
+
+                //            }
+                //            catch (Exception ex)
+                //            {
+
+                //            }
+                //        }
+                //        else if (step.WorkflowStepTypeId == 4 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //time entry template
+                //        {
+                //            try
+                //            {
+                //                await TimeEntryTemplateChange(step.TimeEntryTemplateId.Value);
+                //            }
+                //            catch (Exception ex)
+                //            {
+                //            }
+                //        }
+
+                //        else if (step.WorkflowStepTypeId == 6 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //notification dialog
+                //        {
+                //            await DialogService.Alert(step.NotificationDialogMessage, step.NotificationDialogTitle, new AlertOptions() { OkButtonText = "OK" });
+                //        }
+                //        else if (step.WorkflowStepTypeId == 7 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //n8n workflow
+                //        {
+                //            try
+                //            {
+                //                // Load picklists
+                //                var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
+                //                var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
+
+                //                var picklists = EmailService.BuildPicklistMaps(picklistRows);
+
+                //                var ctx = new TemplateContext
+                //                {
+                //                    Contact = contact?.item,
+                //                    Ticket = ticket?.item,
+                //                    Resource = resource,
+                //                    TicketResource = ticketResource,
+                //                    Company = company,
+                //                    Picklists = picklists
+                //                };
+                //                step.N8nWorkflowUrl = EmailService.Render(step.N8nWorkflowUrl ?? string.Empty, ctx);
+
+                //                if (step.N8nWorkflowMethod == "GET")
+                //                {
+                //                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpGet, step);
+
+                //                }
+                //                else if (step.N8nWorkflowMethod == "POST")
+                //                {
+                //                    var json = JsonSerializer.Serialize(new
+                //                    {
+                //                        Ticket = ticket,
+                //                        TimeEntry = timeEntryRecord
+                //                    });
+                //                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpPostJson, json, step);
+
+                //                }
+                //                else if (step.N8nWorkflowMethod == "OPENURL")
+                //                {
+                //                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen, step);
+                //                }
+                //                else
+                //                {
+                //                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen, step);
+
+                //                }
+                //            }
+                //            catch (Exception ex)
+                //            {
+
+                //            }
+
+                //        }
+                //        else if (step.WorkflowStepTypeId == 8 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //Datto RMM Job
+                //        {
+                //        }
+                //        else if (step.WorkflowStepTypeId == 9 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //ticket update
+                //        {
+                //            try
+                //            {
+                //                var udfList = new List<TicketUpdateDto.Userdefinedfield>();
+                //                if (!string.IsNullOrEmpty(step.TicketUdfName))
+                //                {
+                //                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName, value = step.TicketUdfValue });
+                //                }
+                //                if (!string.IsNullOrEmpty(step.TicketUdfName1))
+                //                {
+                //                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName1, value = step.TicketUdfValue1 });
+                //                }
+                //                if (!string.IsNullOrEmpty(step.TicketUdfName2))
+                //                {
+                //                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName2, value = step.TicketUdfValue2 });
+                //                }
+                //                if (!string.IsNullOrEmpty(step.TicketUdfName3))
+                //                {
+                //                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName3, value = step.TicketUdfValue3 });
+                //                }
+                //                var updateTicket = new TicketUpdateDto()
+                //                {
+                //                    Id = ticket.item.id,
+                //                    Status = step.TicketStatusId.Value,
+                //                    userDefinedFields = udfList.ToArray(),
+                //                };
+
+                //                await AutotaskService.UpdateTicket(updateTicket);
+
+                //            }
+                //            catch (Exception ex)
+                //            {
+
+                //            }
+                //        }
+                //        else
+                //        {
+
+                //        }
+                //    }
+                //}
+
                 foreach (var workflow in workflowsList)
                 {
-                    foreach (var step in workflow.WorkflowSteps.Where(x => x.Active == true).OrderBy(x => x.StepOrder))
+                    var rootSteps = workflow.WorkflowSteps
+                        .Where(x => x.Active == true && x.ParentWorkflowStepId == null)
+                        .OrderBy(x => x.StepOrder)
+                        .ToList();
+
+                    foreach (var step in rootSteps)
                     {
-                        if (step.WorkflowStepTypeId == 1 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //email
+                        var continueWorkflow = await RunWorkflowStepTreeAsync(workflow, step, new HashSet<int>());
+
+                        if (!continueWorkflow)
                         {
-                            try
-                            {
-                                await DialogService.OpenAsync<NewEmail>($"New Email {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TimeEntry", timeEntryRecord }, { "EmailTemplateId", step.EmailTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-                        }
-                        else if (step.WorkflowStepTypeId == 2 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //note
-                        {
-                            try
-                            {
-                                await DialogService.OpenAsync<AddNote>($"New Note {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "NoteTemplateId", step.NoteTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
-
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-                        }
-                        else if (step.WorkflowStepTypeId == 3 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //teams message
-                        {
-                            try
-                            {
-                                await DialogService.OpenAsync<NewTeamsMessage>($"New Teams Message {ticket.item.ticketNumber} | {ticket.item.title}", new Dictionary<string, object>() { { "Ticket", ticket }, { "Contact", contact }, { "Resource", resource }, { "Company", company }, { "TicketResource", ticketResource }, { "TeamsMessageTemplateId", step.TeamsMessageTemplateId } }, new DialogOptions { Width = "800px", Draggable = true });
-
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-                        }
-                        else if (step.WorkflowStepTypeId == 4 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //time entry template
-                        {
-                            try
-                            {
-                                await TimeEntryTemplateChange(step.TimeEntryTemplateId.Value);
-                            }
-                            catch (Exception ex)
-                            {
-                            }
-                        }
-                        else if (step.WorkflowStepTypeId == 5 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //confirmation dialog
-                        {
-                            var confirmed = await DialogService.Confirm(step.ConfirmationDialogMessage, step.ConfirmationDialogTitle, new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
-                            if (!confirmed.HasValue || !confirmed.Value)
-                            {
-                                //user cancelled, stop processing workflow steps
-                                if (step.ConfirmationDialogContinueOnNo)
-                                {
-
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                        else if (step.WorkflowStepTypeId == 6 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //notification dialog
-                        {
-                            await DialogService.Alert(step.NotificationDialogMessage, step.NotificationDialogTitle, new AlertOptions() { OkButtonText = "OK" });
-                        }
-                        else if (step.WorkflowStepTypeId == 7 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //n8n workflow
-                        {
-                            try
-                            {
-                                // Load picklists
-                                var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
-                                var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
-
-                                var picklists = EmailService.BuildPicklistMaps(picklistRows);
-
-                                var ctx = new TemplateContext
-                                {
-                                    Contact = contact?.item,
-                                    Ticket = ticket?.item,
-                                    Resource = resource,
-                                    TicketResource = ticketResource,
-                                    Company = company,
-                                    Picklists = picklists
-                                };
-                                step.N8nWorkflowUrl = EmailService.Render(step.N8nWorkflowUrl ?? string.Empty, ctx);
-
-                                if (step.N8nWorkflowMethod == "GET")
-                                {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpGet, step);
-
-                                }
-                                else if (step.N8nWorkflowMethod == "POST")
-                                {
-                                    var json = JsonSerializer.Serialize(new
-                                    {
-                                        Ticket = ticket,
-                                        TimeEntry = timeEntryRecord
-                                    });
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.HttpPostJson, json, step);
-
-                                }
-                                else if (step.N8nWorkflowMethod == "OPENURL")
-                                {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen, step);
-                                }
-                                else
-                                {
-                                    await RequestUrl(step.N8nWorkflowUrl, RequestMode.BrowserOpen, step);
-
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-
-                        }
-                        else if (step.WorkflowStepTypeId == 8 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //Datto RMM Job
-                        {
-                        }
-                        else if (step.WorkflowStepTypeId == 9 && (string.IsNullOrEmpty(step.StepAssignedTo) || step.StepAssignedTo.Contains(Security.User.Email))) //ticket update
-                        {
-                            try
-                            {
-                                var udfList = new List<TicketUpdateDto.Userdefinedfield>();
-                                if (!string.IsNullOrEmpty(step.TicketUdfName))
-                                {
-                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName, value = step.TicketUdfValue });
-                                }
-                                if (!string.IsNullOrEmpty(step.TicketUdfName1))
-                                {
-                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName1, value = step.TicketUdfValue1 });
-                                }
-                                if (!string.IsNullOrEmpty(step.TicketUdfName2))
-                                {
-                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName2, value = step.TicketUdfValue2 });
-                                }
-                                if (!string.IsNullOrEmpty(step.TicketUdfName3))
-                                {
-                                    udfList.Add(new TicketUpdateDto.Userdefinedfield() { name = step.TicketUdfName3, value = step.TicketUdfValue3 });
-                                }
-                                var updateTicket = new TicketUpdateDto()
-                                {
-                                    Id = ticket.item.id,
-                                    Status = step.TicketStatusId.Value,
-                                    userDefinedFields = udfList.ToArray(),
-                                };
-
-                                await AutotaskService.UpdateTicket(updateTicket);
-
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-                        }
-                        else
-                        {
-
+                            break;
                         }
                     }
                 }
@@ -604,6 +632,483 @@ namespace CrownATTime.Client.Pages
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Workflow Error: {ex.Message} | {ex.StackTrace.ToString()}" });
 
             }
+        }
+
+        //private async Task<bool> RunWorkflowStepTreeAsync(WorkflowRule workflow, WorkflowStep step, HashSet<int> visitedStepIds)
+        //{
+        //    // Prevent accidental infinite loops if a step is incorrectly linked to itself
+        //    if (visitedStepIds.Contains(step.WorkflowStepId))
+        //    {
+        //        return true;
+        //    }
+
+        //    visitedStepIds.Add(step.WorkflowStepId);
+
+        //    // If the step is assigned to someone else, skip it and its children
+        //    if (!CanCurrentUserRunStep(step))
+        //    {
+        //        return true;
+        //    }
+
+        //    var result = await ExecuteWorkflowStepAsync(step);
+
+        //    if (!result.ContinueWorkflow)
+        //    {
+        //        return false;
+        //    }
+
+        //    // If this step is not a branch parent, there are no branch children to process
+        //    if (!step.IsBranch)
+        //    {
+        //        return true;
+        //    }
+
+        //    // If a branch step did not explicitly return a result, default to false
+        //    var branchResult = result.BranchResult ?? false;
+
+        //    var childSteps = workflow.WorkflowSteps
+        //        .Where(x =>
+        //            x.Active == true &&
+        //            x.ParentWorkflowStepId == step.WorkflowStepId &&
+        //            x.BranchResult == branchResult)
+        //        .OrderBy(x => x.StepOrder)
+        //        .ToList();
+
+        //    foreach (var childStep in childSteps)
+        //    {
+        //        var continueWorkflow = await RunWorkflowStepTreeAsync(workflow, childStep, visitedStepIds);
+
+        //        if (!continueWorkflow)
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    return true;
+        //}
+
+        private async Task<bool> RunWorkflowStepTreeAsync(
+            WorkflowRule workflow,
+            WorkflowStep step,
+            HashSet<int> visitedStepIds)
+        {
+            // Prevent circular parent/child loops
+            if (visitedStepIds.Contains(step.WorkflowStepId))
+            {
+                return true;
+            }
+
+            visitedStepIds.Add(step.WorkflowStepId);
+
+            // Skip steps not assigned to this user
+            if (!CanCurrentUserRunStep(step))
+            {
+                return true;
+            }
+
+            // Run the current step
+            var result = await ExecuteWorkflowStepAsync(step);
+
+            if (!result.ContinueWorkflow)
+            {
+                return false;
+            }
+
+            // If this step is NOT a branch, there are no branch children to evaluate
+            if (!step.IsBranch)
+            {
+                return true;
+            }
+
+            // This is the important part for branches and sub-branches.
+            // The current branch step returns true/false.
+            // Then we run only child steps matching that value.
+            var branchResult = result.BranchResult ?? false;
+
+            var childSteps = workflow.WorkflowSteps
+                .Where(x =>
+                    x.Active == true &&
+                    x.ParentWorkflowStepId == step.WorkflowStepId &&
+                    x.BranchResult == branchResult)
+                .OrderBy(x => x.StepOrder)
+                .ToList();
+
+            foreach (var childStep in childSteps)
+            {
+                var continueWorkflow = await RunWorkflowStepTreeAsync(
+                    workflow,
+                    childStep,
+                    visitedStepIds);
+
+                if (!continueWorkflow)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<WorkflowStepRunResult> ExecuteWorkflowStepAsync(WorkflowStep step)
+        {
+            try
+            {
+                switch (step.WorkflowStepTypeId)
+                {
+                    case 5: // confirmation dialog
+                        {
+                            var confirmed = await DialogService.Confirm(
+                                step.ConfirmationDialogMessage,
+                                step.ConfirmationDialogTitle,
+                                new ConfirmOptions()
+                                {
+                                    OkButtonText = "Yes",
+                                    CancelButtonText = "No"
+                                });
+
+                            var confirmedYes = confirmed.HasValue && confirmed.Value;
+
+                            if (step.IsBranch)
+                            {
+                                return new WorkflowStepRunResult
+                                {
+                                    ContinueWorkflow = true,
+                                    BranchResult = confirmedYes
+                                };
+                            }
+
+                            if (!confirmedYes && !step.ConfirmationDialogContinueOnNo)
+                            {
+                                return new WorkflowStepRunResult
+                                {
+                                    ContinueWorkflow = false,
+                                    BranchResult = false
+                                };
+                            }
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = confirmedYes
+                            };
+                        }
+                    //case 5: // confirmation dialog
+                    //    {
+                    //        var confirmed = await DialogService.Confirm(
+                    //            step.ConfirmationDialogMessage,
+                    //            step.ConfirmationDialogTitle,
+                    //            new ConfirmOptions()
+                    //            {
+                    //                OkButtonText = "Yes",
+                    //                CancelButtonText = "No"
+                    //            });
+
+                    //        var confirmedYes = confirmed.HasValue && confirmed.Value;
+
+                    //        // If this is a branch parent, do not stop the workflow on "No".
+                    //        // Instead, return BranchResult = false so the "No" branch children run.
+                    //        if (step.IsBranch)
+                    //        {
+                    //            return new WorkflowStepRunResult
+                    //            {
+                    //                ContinueWorkflow = true,
+                    //                BranchResult = confirmedYes
+                    //            };
+                    //        }
+
+                    //        // Preserve your previous non-branch confirmation behavior
+                    //        if (!confirmedYes && !step.ConfirmationDialogContinueOnNo)
+                    //        {
+                    //            return new WorkflowStepRunResult
+                    //            {
+                    //                ContinueWorkflow = false,
+                    //                BranchResult = false
+                    //            };
+                    //        }
+
+                    //        return new WorkflowStepRunResult
+                    //        {
+                    //            ContinueWorkflow = true,
+                    //            BranchResult = confirmedYes
+                    //        };
+                    //    }
+
+                    case 1: // email
+                        {
+                            await DialogService.OpenAsync<NewEmail>(
+                                $"New Email {ticket.item.ticketNumber} | {ticket.item.title}",
+                                new Dictionary<string, object>()
+                                {
+                        { "Ticket", ticket },
+                        { "Contact", contact },
+                        { "Resource", resource },
+                        { "Company", company },
+                        { "TicketResource", ticketResource },
+                        { "TimeEntry", timeEntryRecord },
+                        { "EmailTemplateId", step.EmailTemplateId }
+                                },
+                                new DialogOptions
+                                {
+                                    Width = "800px",
+                                    Draggable = true
+                                });
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    case 2: // note
+                        {
+                            await DialogService.OpenAsync<AddNote>(
+                                $"New Note {ticket.item.ticketNumber} | {ticket.item.title}",
+                                new Dictionary<string, object>()
+                                {
+                        { "Ticket", ticket },
+                        { "Contact", contact },
+                        { "Resource", resource },
+                        { "Company", company },
+                        { "NoteTemplateId", step.NoteTemplateId }
+                                },
+                                new DialogOptions
+                                {
+                                    Width = "800px",
+                                    Draggable = true
+                                });
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    case 3: // teams message
+                        {
+                            await DialogService.OpenAsync<NewTeamsMessage>(
+                                $"New Teams Message {ticket.item.ticketNumber} | {ticket.item.title}",
+                                new Dictionary<string, object>()
+                                {
+                        { "Ticket", ticket },
+                        { "Contact", contact },
+                        { "Resource", resource },
+                        { "Company", company },
+                        { "TicketResource", ticketResource },
+                        { "TeamsMessageTemplateId", step.TeamsMessageTemplateId }
+                                },
+                                new DialogOptions
+                                {
+                                    Width = "800px",
+                                    Draggable = true
+                                });
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    case 4: // time entry template
+                        {
+                            if (step.TimeEntryTemplateId.HasValue)
+                            {
+                                await TimeEntryTemplateChange(step.TimeEntryTemplateId.Value);
+                            }
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    case 6: // notification dialog
+                        {
+                            await DialogService.Alert(
+                                step.NotificationDialogMessage,
+                                step.NotificationDialogTitle,
+                                new AlertOptions()
+                                {
+                                    OkButtonText = "OK"
+                                });
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    case 7: // n8n workflow
+                        {
+                            var picklistResult = await ATTimeService.GetTicketEntityPicklistValueCaches();
+                            var picklistRows = picklistResult?.Value ?? new List<TicketEntityPicklistValueCache>();
+
+                            var picklists = EmailService.BuildPicklistMaps(picklistRows);
+
+                            var ctx = new TemplateContext
+                            {
+                                Contact = contact?.item,
+                                Ticket = ticket?.item,
+                                Resource = resource,
+                                TicketResource = ticketResource,
+                                Company = company,
+                                Picklists = picklists
+                            };
+
+                            var renderedUrl = EmailService.Render(step.N8nWorkflowUrl ?? string.Empty, ctx);
+
+                            if (step.N8nWorkflowMethod == "GET")
+                            {
+                                await RequestUrl(renderedUrl, RequestMode.HttpGet, step);
+                            }
+                            else if (step.N8nWorkflowMethod == "POST")
+                            {
+                                var json = JsonSerializer.Serialize(new
+                                {
+                                    Ticket = ticket,
+                                    TimeEntry = timeEntryRecord
+                                });
+
+                                await RequestUrl(renderedUrl, RequestMode.HttpPostJson, json, step);
+                            }
+                            else if (step.N8nWorkflowMethod == "OPENURL")
+                            {
+                                await RequestUrl(renderedUrl, RequestMode.BrowserOpen, step);
+                            }
+                            else
+                            {
+                                await RequestUrl(renderedUrl, RequestMode.BrowserOpen, step);
+                            }
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    case 8: // Datto RMM Job
+                        {
+                            // Add Datto RMM job logic here later
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    case 9: // ticket update
+                        {
+                            var udfList = new List<TicketUpdateDto.Userdefinedfield>();
+
+                            if (!string.IsNullOrEmpty(step.TicketUdfName))
+                            {
+                                udfList.Add(new TicketUpdateDto.Userdefinedfield()
+                                {
+                                    name = step.TicketUdfName,
+                                    value = step.TicketUdfValue
+                                });
+                            }
+
+                            if (!string.IsNullOrEmpty(step.TicketUdfName1))
+                            {
+                                udfList.Add(new TicketUpdateDto.Userdefinedfield()
+                                {
+                                    name = step.TicketUdfName1,
+                                    value = step.TicketUdfValue1
+                                });
+                            }
+
+                            if (!string.IsNullOrEmpty(step.TicketUdfName2))
+                            {
+                                udfList.Add(new TicketUpdateDto.Userdefinedfield()
+                                {
+                                    name = step.TicketUdfName2,
+                                    value = step.TicketUdfValue2
+                                });
+                            }
+
+                            if (!string.IsNullOrEmpty(step.TicketUdfName3))
+                            {
+                                udfList.Add(new TicketUpdateDto.Userdefinedfield()
+                                {
+                                    name = step.TicketUdfName3,
+                                    value = step.TicketUdfValue3
+                                });
+                            }
+
+                            var updateTicket = new TicketUpdateDto()
+                            {
+                                Id = ticket.item.id,
+                                Status = step.TicketStatusId.HasValue ? step.TicketStatusId.Value : ticket.item.status,
+                                userDefinedFields = udfList.ToArray()
+                            };
+
+                            await AutotaskService.UpdateTicket(updateTicket);
+                            ticket = await AutotaskService.GetTicket(ticket.item.id);
+
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+
+                    default:
+                        {
+                            return new WorkflowStepRunResult
+                            {
+                                ContinueWorkflow = true,
+                                BranchResult = true
+                            };
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Existing code was swallowing exceptions.
+                // You may want to notify/log here later.
+
+                return new WorkflowStepRunResult
+                {
+                    ContinueWorkflow = true,
+                    BranchResult = false
+                };
+            }
+        }
+
+        
+
+        private bool CanCurrentUserRunStep(WorkflowStep step)
+        {
+            if (string.IsNullOrWhiteSpace(step.StepAssignedTo))
+            {
+                return true;
+            }
+
+            var userEmail = Security?.User?.Email;
+
+            if (string.IsNullOrWhiteSpace(userEmail))
+            {
+                return false;
+            }
+
+            return step.StepAssignedTo
+                .IndexOf(userEmail, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+        private class WorkflowStepRunResult
+        {
+            public bool ContinueWorkflow { get; set; } = true;
+
+            // Used when the step is a branch parent.
+            // true = run true children
+            // false = run false children
+            public bool? BranchResult { get; set; }
         }
 
         protected async System.Threading.Tasks.Task UpdateTicketValues()

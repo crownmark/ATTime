@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
 using Radzen.Blazor;
+using CrownATTime.Server.Models.ATTime;
 
 namespace CrownATTime.Client.Pages
 {
@@ -40,6 +41,7 @@ namespace CrownATTime.Client.Pages
 
         protected string search = "";
 
+        AddWorkflowStep draggedStepItem;
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
@@ -169,12 +171,31 @@ namespace CrownATTime.Client.Pages
         protected async Task GetChildData(CrownATTime.Server.Models.ATTime.WorkflowRule args)
         {
             workflowRuleChild = args;
-            var WorkflowStepsResult = await ATTimeService.GetWorkflowSteps(filter:$"WorkflowRuleId eq {args.WorkflowRuleId}", expand: "WorkflowRule,WorkflowStepType,EmailTemplate,NoteTemplate,TimeEntryTemplate,TeamsMessageTemplate", orderby: $"StepOrder");
+            var WorkflowStepsResult = await ATTimeService.GetWorkflowSteps(filter: $"WorkflowRuleId eq {args.WorkflowRuleId}", expand: "WorkflowRule,WorkflowStepType,EmailTemplate,NoteTemplate,TimeEntryTemplate,TeamsMessageTemplate", orderby: $"ParentWorkflowStepId, BranchResult desc, StepOrder");
             if (WorkflowStepsResult != null)
             {
                 args.WorkflowSteps = WorkflowStepsResult.Value.ToList();
             }
         }
+        
+        // void RowRender(RowRenderEventArgs<WorkflowStep> args)
+        // {
+        //     args.Attributes.Add("title", "Drag row to reorder");
+        //     args.Attributes.Add("style", "cursor:grab");
+        //     args.Attributes.Add("draggable", "true");
+        //     args.Attributes.Add("ondragover", "event.preventDefault();event.target.closest('.rz-data-row').classList.add('my-class')");
+        //     args.Attributes.Add("ondragleave", "event.target.closest('.rz-data-row').classList.remove('my-class')");
+        //     args.Attributes.Add("ondragstart", EventCallback.Factory.Create<DragEventArgs>(this, () => draggedItem = args.Data));
+        //     args.Attributes.Add("ondrop", EventCallback.Factory.Create<DragEventArgs>(this, () =>
+        //     {
+        //         var draggedIndex = employees.IndexOf(draggedStepItem);
+        //         var droppedIndex = employees.IndexOf(args.Data);
+        //         employees.Remove(draggedItem);
+        //         employees.Insert(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex, draggedItem);
+
+        //         JSRuntime.InvokeVoidAsync("eval", $"document.querySelector('.my-class').classList.remove('my-class')");
+        //     }));
+        // }
         protected CrownATTime.Server.Models.ATTime.WorkflowStep workflowStepWorkflowSteps;
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.WorkflowRule> workflowRulesForWorkflowRuleIdWorkflowSteps;

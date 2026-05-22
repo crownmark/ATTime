@@ -113,5 +113,11 @@ namespace CrownATTime.Server.Models.ATTime
 
         [MaxLength(255)]
         public string TicketUdfValue3 { get; set; }
+
+        public int? ParentWorkflowStepId { get; set; }
+
+        public bool IsBranch { get; set; }
+
+        public bool BranchResult { get; set; }
     }
 }

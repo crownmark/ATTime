@@ -42,7 +42,9 @@ namespace CrownATTime.Client.Pages
         protected List<TicketEntityPicklistValueCache> ticketCategories { get; set; }
         protected List<TicketEntityPicklistValueCache> issueTypes { get; set; }
         protected List<TicketEntityPicklistValueCache> subIssueTypes { get; set; }
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.ResourceCache> resourceCaches;
 
+        protected int resourceCachesCount;
         protected override async Task OnInitializedAsync()
         {
             workflowRule = await ATTimeService.GetWorkflowRuleByWorkflowRuleId(workflowRuleId:WorkflowRuleId);
@@ -115,6 +117,23 @@ namespace CrownATTime.Client.Pages
 
                 workflowTriggerTypes = result.Value.AsODataEnumerable();
                 workflowTriggerTypesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+            }
+        }
+
+        protected async Task resourceCachesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                var defaultFilter = $"IsActive eq true and (LicenseType eq 1 or LicenseType eq 3) and Email ne null and Email ne '' and Email ne 'bassem@ce-technology.com'";
+
+                var result = await ATTimeService.GetResourceCaches(new Query { Top = args.Top, Skip = args.Skip, Filter = $"{defaultFilter} and contains(FullName, \"{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}\")", OrderBy = args.OrderBy });
+
+                resourceCaches = result.Value.AsODataEnumerable();
+                resourceCachesCount = result.Count;
             }
             catch (Exception)
             {

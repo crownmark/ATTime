@@ -218,9 +218,16 @@ namespace CrownATTime.Client.Pages
         protected IEnumerable<CrownATTime.Server.Models.ATTime.TicketEntityPicklistValueCache> ticketEntityPicklistValueCaches;
 
         protected int ticketEntityPicklistValueCachesCount;
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.WorkflowStep> workflowSteps;
+
+        protected int workflowStepsCount;
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             workflowStep = new CrownATTime.Server.Models.ATTime.WorkflowStep();
+            workflowStep.Active = true;
+            workflowStep.IsBranch = false;
+            workflowStep.BranchResult = false;
 
             hasEmailTemplateIdValue = parameters.TryGetValue<int?>("EmailTemplateId", out var hasEmailTemplateIdResult);
 
@@ -275,6 +282,24 @@ namespace CrownATTime.Client.Pages
 
                 ticketEntityPicklistValueCaches = result.Value.AsODataEnumerable();
                 ticketEntityPicklistValueCachesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+            }
+        }
+
+
+        protected async Task workflowStepsLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"WorkflowRuleId eq {WorkflowRuleId} and IsBranch eq true and Active eq true";
+
+                var result = await ATTimeService.GetWorkflowSteps(new Query { Top = args.Top, Skip = args.Skip, Filter = $"{defaultFilter} and contains(Title, \"{(!string.IsNullOrEmpty(args.Filter) ? args.Filter: "")}\")", OrderBy = "StepOrder" });
+
+                workflowSteps = result.Value.AsODataEnumerable();
+                workflowStepsCount = result.Count;
             }
             catch (Exception)
             {

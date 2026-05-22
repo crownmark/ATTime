@@ -117,13 +117,15 @@
 </RadzenFormField>
 <RadzenFormField Text="Time Entry Created By (ResourceId)" Variant="Variant.Outlined" Component="TimeEntryCreatedBy" Visible="true">
       <ChildContent>
-        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.TimeEntryCreatedBy" Name="TimeEntryCreatedBy" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
+            <RadzenDropDown TValue="int?" ValueProperty="Id" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" @bind-Value="@workflowRule.TimeEntryCreatedBy" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" ClearSearchAfterSelection="true" />
+
   </ChildContent>
 </RadzenFormField>
 <RadzenFormField Text="Ticket Primary Resource (ResourceId)" Variant="Variant.Outlined" Component="TicketAssignedTo" Visible="true">
       <ChildContent>
-        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@workflowRule.TicketAssignedTo" Name="TicketAssignedTo" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
-  </ChildContent>
+        <RadzenDropDown TValue="int?" ValueProperty="Id" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" @bind-Value="@workflowRule.TicketAssignedTo" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowFiltering="true" ClearSearchAfterSelection="true" AllowClear="true" />
+
+    </ChildContent>
 </RadzenFormField>
             <RadzenFormField Text="Rule Order" Variant="Variant.Outlined">
                   <ChildContent>

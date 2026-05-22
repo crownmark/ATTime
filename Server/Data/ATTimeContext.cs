@@ -383,6 +383,14 @@ namespace CrownATTime.Server.Data
               .Property(p => p.ConfirmationDialogContinueOnNo)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .Property(p => p.IsBranch)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStep>()
+              .Property(p => p.BranchResult)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowStepType>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");

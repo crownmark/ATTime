@@ -221,6 +221,10 @@ namespace CrownATTime.Client.Pages
 
         [Inject]
         protected SecurityService Security { get; set; }
+
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.WorkflowStep> workflowSteps;
+
+        protected int workflowStepsCount;
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             workflowStep = new CrownATTime.Server.Models.ATTime.WorkflowStep();
@@ -273,10 +277,26 @@ namespace CrownATTime.Client.Pages
         {
             try
             {
-                var result = await ATTimeService.GetTicketEntityPicklistValueCaches(new Query { Top = args.Top, Skip = args.Skip, Filter = $"PicklistName eq 'status' and contains(Label, \"{(!string.IsNullOrEmpty(args.Filter) ? args.Filter: "")}\")", OrderBy = "Label" });
+                var result = await ATTimeService.GetTicketEntityPicklistValueCaches(new Query { Top = args.Top, Skip = args.Skip, Filter = $"PicklistName eq 'status' and contains(Label, \"{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}\")", OrderBy = "Label" });
 
                 ticketEntityPicklistValueCaches = result.Value.AsODataEnumerable();
                 ticketEntityPicklistValueCachesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
+            }
+        }
+        
+        protected async Task workflowStepsLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                string defaultFilter = $"WorkflowRuleId eq {workflowStep.WorkflowRuleId} and IsBranch eq true and Active eq true";
+                var result = await ATTimeService.GetWorkflowSteps(new Query { Top = args.Top, Skip = args.Skip, Filter = $"{defaultFilter} and contains(Title, \"{(!string.IsNullOrEmpty(args.Filter) ? args.Filter: "")}\")", OrderBy = "StepOrder" });
+
+                workflowSteps = result.Value.AsODataEnumerable();
+                workflowStepsCount = result.Count;
             }
             catch (Exception)
             {

@@ -23,7 +23,7 @@
     <RadzenRow>
       <RadzenColumn SizeMD=12>
         <RadzenDataGrid @ref="grid0" ColumnWidth="200px"   AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30]) AllowColumnResize="true"
-            Data="@(workflowRules)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" RowDoubleClick="@EditRow" RowSelect="@GetChildData">
+            Data="@(workflowRules)" LoadData="@Grid0LoadData" Count="@count" TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" RowDoubleClick="@EditRow" RowSelect="@GetChildData" PageSize="5">
             <Columns>
                 <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowRule" Property="RuleOrder" Title="Rule Order" SortOrder="Radzen.SortOrder.Ascending" SortProperty="RuleOrder" Width="150px">
                                                 </RadzenDataGridColumn>
@@ -67,10 +67,14 @@
                     <RadzenDataGrid ColumnWidth="200px" Visible="@(workflowRuleChild != null)" @ref=WorkflowStepsDataGrid AllowFiltering="true"  AllowPaging="true" PagerAlwaysVisible="true"  AllowSorting="true" ShowPagingSummary="true" PageSizeOptions=@([5, 10, 20, 30]) AllowColumnResize="true"
                       Data="@workflowRuleChild?.WorkflowSteps" TItem="CrownATTime.Server.Models.ATTime.WorkflowStep"  RowSelect="@(args => WorkflowStepsRowSelect(args, workflowRuleChild))">
                       <Columns>
-                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="StepOrder" Title="Step Order">
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="WorkflowStepId" Title="Id" Width="90px"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="Active" Title="Active" Width="125px">
                                                 </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="Active" Title="Active">
-                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="IsBranch" Title="Branch?" Width="150px"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="ParentWorkflowStepId" Title="Parent" Width="125px"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="BranchResult" Title="Result" Width="125px"></RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="StepOrder" Title="Step Order" Width="150px">
+                                                </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="Title" Title="Title">
                         </RadzenDataGridColumn>
                         <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.WorkflowStep" Property="WorkflowStepType.Title" Title="Step Type">
