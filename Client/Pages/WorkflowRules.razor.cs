@@ -1,13 +1,14 @@
+using CrownATTime.Server.Models.ATTime;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using Radzen;
+using Radzen.Blazor;
+using Radzen.Blazor.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Radzen;
-using Radzen.Blazor;
-using CrownATTime.Server.Models.ATTime;
 
 namespace CrownATTime.Client.Pages
 {
@@ -42,6 +43,8 @@ namespace CrownATTime.Client.Pages
         protected string search = "";
 
         AddWorkflowStep draggedStepItem;
+
+        RadzenTree workflowStepsTree {  get; set; }
         protected async Task Search(ChangeEventArgs args)
         {
             search = $"{args.Value}";
@@ -77,16 +80,45 @@ namespace CrownATTime.Client.Pages
             await grid0.Reload();
         }
 
+
         protected async Task GridDeleteButtonClick(MouseEventArgs args, CrownATTime.Server.Models.ATTime.WorkflowRule workflowRule)
         {
             try
             {
-                if (await DialogService.Confirm("Are you sure you want to delete this record?") == true)
+                if (await DialogService.Confirm("Are you sure you want to delete this workflow rule and all of its workflow steps?") == true)
                 {
-                    var deleteResult = await ATTimeService.DeleteWorkflowRule(workflowRuleId:workflowRule.WorkflowRuleId);
+                    var stepsResult = await ATTimeService.GetWorkflowSteps(
+                        filter: $"WorkflowRuleId eq {workflowRule.WorkflowRuleId}");
+
+                    var steps = stepsResult?.Value?.ToList()
+                        ?? new List<CrownATTime.Server.Models.ATTime.WorkflowStep>();
+
+                    foreach (var rootStep in steps
+                        .Where(x => x.ParentWorkflowStepId == null)
+                        .ToList())
+                    {
+                        await DeleteWorkflowStepAndChildren(rootStep.WorkflowStepId, steps);
+                    }
+
+                    foreach (var orphanStep in steps.ToList())
+                    {
+                        try
+                        {
+                            await ATTimeService.DeleteWorkflowStep(workflowStepId: orphanStep.WorkflowStepId);
+                        }
+                        catch
+                        {
+                            // Already deleted or not found.
+                        }
+                    }
+
+                    var deleteResult = await ATTimeService.DeleteWorkflowRule(
+                        workflowRuleId: workflowRule.WorkflowRuleId);
 
                     if (deleteResult != null)
                     {
+                        workflowRuleChild = null;
+
                         await grid0.Reload();
                     }
                 }
@@ -96,10 +128,26 @@ namespace CrownATTime.Client.Pages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"Unable to delete WorkflowRule"
+                    Summary = "Error",
+                    Detail = $"Unable to delete WorkflowRule. {ex.Message}"
                 });
             }
+        }
+
+        private async Task DeleteWorkflowStepAndChildren(int workflowStepId, List<CrownATTime.Server.Models.ATTime.WorkflowStep> allSteps)
+        {
+            var childSteps = allSteps
+                .Where(x => x.ParentWorkflowStepId == workflowStepId)
+                .ToList();
+
+            foreach (var child in childSteps)
+            {
+                await DeleteWorkflowStepAndChildren(child.WorkflowStepId, allSteps);
+            }
+
+            await ATTimeService.DeleteWorkflowStep(workflowStepId: workflowStepId);
+
+            allSteps.RemoveAll(x => x.WorkflowStepId == workflowStepId);
         }
 
         protected async Task GridCopyButtonClick(MouseEventArgs args, CrownATTime.Server.Models.ATTime.WorkflowRule workflowRule)
@@ -108,24 +156,135 @@ namespace CrownATTime.Client.Pages
             {
                 if (await DialogService.Confirm("Are you sure you want to copy this record?") == true)
                 {
-                    int ruleId = workflowRule.WorkflowRuleId;
+                    DialogService.OpenAsync("", ds =>
+                    {
+                        RenderFragment content = dialogContent =>
+                        {
+                            dialogContent.OpenComponent<RadzenRow>(0);
+                            dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+                            {
+                                rowContent.OpenComponent<RadzenColumn>(0);
+                                rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+                                rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+                                {
+                                    columnContent.AddContent(0, $"Copying Workflow Rule...");
+                                }));
+                                rowContent.CloseComponent();
+                            }));
+
+                            dialogContent.CloseComponent();
+                        };
+                        return content;
+                    }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+
+                    var originalRuleId = workflowRule.WorkflowRuleId;
+
+                    // Create a clean copy of the rule.
+                    // Do NOT use: var copiedRule = workflowRule;
+                    //var copiedRule = new CrownATTime.Server.Models.ATTime.WorkflowRule
+                    //{
+                    //    Title = $"{workflowRule.Title} (Copy)",
+                    //    Active = workflowRule.Active,
+                    //    RuleOrder = workflowRule.RuleOrder,
+
+                    //    WorkflowTriggerTypeId = workflowRule.WorkflowTriggerTypeId,
+
+                    //    // Add any other WorkflowRule fields you need copied here.
+                    //    // Example:
+                    //    // Description = workflowRule.Description,
+                    //    // EntityType = workflowRule.EntityType,
+                    //    // ConditionsJson = workflowRule.ConditionsJson,
+                    //};
+
                     var copiedRule = workflowRule;
                     copiedRule.WorkflowRuleId = 0;
-                    copiedRule.Title = $"{workflowRule.Title} (Copy)";
+                    copiedRule.Title = $"{copiedRule.Title} - COPY";
+
                     var copyresult = await ATTimeService.CreateWorkflowRule(copiedRule);
-                    var steps = await ATTimeService.GetWorkflowSteps(filter: $"WorkflowRuleId eq {ruleId}");
-                    foreach (var step in steps.Value.ToList())
+
+                    if (copyresult == null)
                     {
-                        step.WorkflowStepId = 0;
-                        step.WorkflowRuleId = copyresult.WorkflowRuleId;
-                        //step.Title = $"{step.Title} (Copy)";
-                        await ATTimeService.CreateWorkflowStep(step);
+                        NotificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Summary = "Error",
+                            Detail = "Unable to create copied WorkflowRule"
+                        });
+
+                        return;
                     }
 
-                    if (copyresult != null)
+                    var stepsResult = await ATTimeService.GetWorkflowSteps(
+                        filter: $"WorkflowRuleId eq {originalRuleId}",
+                        expand: "WorkflowStepType,EmailTemplate,NoteTemplate,TimeEntryTemplate,TeamsMessageTemplate",
+                        orderby: "ParentWorkflowStepId, BranchResult desc, StepOrder");
+
+                    var originalSteps = stepsResult?.Value?.ToList()
+                        ?? new List<CrownATTime.Server.Models.ATTime.WorkflowStep>();
+
+                    // old step id -> newly created step
+                    var copiedStepMap = new Dictionary<int, CrownATTime.Server.Models.ATTime.WorkflowStep>();
+
+                    // ------------------------------------------------------------
+                    // PASS 1:
+                    // Create every step under the new WorkflowRule.
+                    // Temporarily set ParentWorkflowStepId = null.
+                    // ------------------------------------------------------------
+                    foreach (var originalStep in originalSteps.OrderBy(x => x.ParentWorkflowStepId.HasValue).ThenBy(x => x.StepOrder))
                     {
-                        await grid0.Reload();
+                        var newStep = CopyWorkflowStepForNewRule(
+                            originalStep,
+                            copyresult.WorkflowRuleId);
+
+                        // Important:
+                        // Do not set the parent yet because the new parent id may not exist yet.
+                        newStep.ParentWorkflowStepId = null;
+
+                        var createdStep = await ATTimeService.CreateWorkflowStep(newStep);
+
+                        if (createdStep != null)
+                        {
+                            copiedStepMap[originalStep.WorkflowStepId] = createdStep;
+                        }
                     }
+
+                    // ------------------------------------------------------------
+                    // PASS 2:
+                    // Remap parent ids.
+                    // Old ParentWorkflowStepId -> New ParentWorkflowStepId
+                    // ------------------------------------------------------------
+                    foreach (var originalStep in originalSteps.Where(x => x.ParentWorkflowStepId.HasValue))
+                    {
+                        if (!copiedStepMap.TryGetValue(originalStep.WorkflowStepId, out var copiedChildStep))
+                        {
+                            continue;
+                        }
+
+                        if (!copiedStepMap.TryGetValue(originalStep.ParentWorkflowStepId.Value, out var copiedParentStep))
+                        {
+                            continue;
+                        }
+
+                        copiedChildStep.ParentWorkflowStepId = copiedParentStep.WorkflowStepId;
+
+                        // Keep the original branch side.
+                        copiedChildStep.BranchResult = originalStep.BranchResult;
+
+                        await ATTimeService.UpdateWorkflowStep(
+                            workflowStepId: copiedChildStep.WorkflowStepId,
+                            workflowStep: copiedChildStep);
+                    }
+
+                    await grid0.Reload();
+
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Copied",
+                        Detail = "WorkflowRule and branch steps copied successfully"
+                    });
+
+                    DialogService.Close();
                 }
             }
             catch (Exception ex)
@@ -133,10 +292,60 @@ namespace CrownATTime.Client.Pages
                 NotificationService.Notify(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Error,
-                    Summary = $"Error",
-                    Detail = $"Unable to copy WorkflowRule"
+                    Summary = "Error",
+                    Detail = $"Unable to copy WorkflowRule. {ex.Message}"
                 });
+                DialogService.Close();
+
             }
+        }
+
+        protected CrownATTime.Server.Models.ATTime.WorkflowStep CopyWorkflowStepForNewRule(CrownATTime.Server.Models.ATTime.WorkflowStep step, int newWorkflowRuleId)
+        {
+            return new CrownATTime.Server.Models.ATTime.WorkflowStep
+            {
+                WorkflowRuleId = newWorkflowRuleId,
+
+                Active = step.Active,
+                StepOrder = step.StepOrder,
+                Title = step.Title,
+
+                WorkflowStepTypeId = step.WorkflowStepTypeId,
+                StepAssignedTo = step.StepAssignedTo,
+
+                ParentWorkflowStepId = step.ParentWorkflowStepId,
+                IsBranch = step.IsBranch,
+                BranchResult = step.BranchResult,
+
+                EmailTemplateId = step.EmailTemplateId,
+                NoteTemplateId = step.NoteTemplateId,
+                TimeEntryTemplateId = step.TimeEntryTemplateId,
+                TeamsMessageTemplateId = step.TeamsMessageTemplateId,
+
+                ConfirmationDialogTitle = step.ConfirmationDialogTitle,
+                ConfirmationDialogMessage = step.ConfirmationDialogMessage,
+                ConfirmationDialogContinueOnNo = step.ConfirmationDialogContinueOnNo,
+
+                NotificationDialogTitle = step.NotificationDialogTitle,
+                NotificationDialogMessage = step.NotificationDialogMessage,
+
+                N8nWorkflowUrl = step.N8nWorkflowUrl,
+                N8nWorkflowMethod = step.N8nWorkflowMethod,
+
+                TicketStatusId = step.TicketStatusId,
+
+                TicketUdfName = step.TicketUdfName,
+                TicketUdfValue = step.TicketUdfValue,
+
+                TicketUdfName1 = step.TicketUdfName1,
+                TicketUdfValue1 = step.TicketUdfValue1,
+
+                TicketUdfName2 = step.TicketUdfName2,
+                TicketUdfValue2 = step.TicketUdfValue2,
+
+                TicketUdfName3 = step.TicketUdfName3,
+                TicketUdfValue3 = step.TicketUdfValue3
+            };
         }
         protected async Task WorkflowStepCopyButtonClick(MouseEventArgs args, CrownATTime.Server.Models.ATTime.WorkflowStep workflowStep)
         {
@@ -178,24 +387,7 @@ namespace CrownATTime.Client.Pages
             }
         }
         
-        // void RowRender(RowRenderEventArgs<WorkflowStep> args)
-        // {
-        //     args.Attributes.Add("title", "Drag row to reorder");
-        //     args.Attributes.Add("style", "cursor:grab");
-        //     args.Attributes.Add("draggable", "true");
-        //     args.Attributes.Add("ondragover", "event.preventDefault();event.target.closest('.rz-data-row').classList.add('my-class')");
-        //     args.Attributes.Add("ondragleave", "event.target.closest('.rz-data-row').classList.remove('my-class')");
-        //     args.Attributes.Add("ondragstart", EventCallback.Factory.Create<DragEventArgs>(this, () => draggedItem = args.Data));
-        //     args.Attributes.Add("ondrop", EventCallback.Factory.Create<DragEventArgs>(this, () =>
-        //     {
-        //         var draggedIndex = employees.IndexOf(draggedStepItem);
-        //         var droppedIndex = employees.IndexOf(args.Data);
-        //         employees.Remove(draggedItem);
-        //         employees.Insert(draggedIndex <= droppedIndex ? droppedIndex++ : droppedIndex, draggedItem);
-
-        //         JSRuntime.InvokeVoidAsync("eval", $"document.querySelector('.my-class').classList.remove('my-class')");
-        //     }));
-        // }
+        
         protected CrownATTime.Server.Models.ATTime.WorkflowStep workflowStepWorkflowSteps;
 
         protected IEnumerable<CrownATTime.Server.Models.ATTime.WorkflowRule> workflowRulesForWorkflowRuleIdWorkflowSteps;
@@ -316,7 +508,9 @@ namespace CrownATTime.Client.Pages
 
             var dialogResult = await DialogService.OpenAsync<AddWorkflowStep>("Add WorkflowSteps", new Dictionary<string, object> { {"WorkflowRuleId" , data.WorkflowRuleId} }, new DialogOptions { Resizable = false, Draggable = true });
             await GetChildData(data);
-            await WorkflowStepsDataGrid.Reload();
+            await workflowStepsTree.Reload();
+            StateHasChanged();
+            //await WorkflowStepsDataGrid.Reload();
 
         }
 
@@ -353,5 +547,180 @@ namespace CrownATTime.Client.Pages
                 });
             }
         }
+
+        protected async System.Threading.Tasks.Task Tree0Change(Radzen.TreeEventArgs args)
+        {
+            if (args.Value is WorkflowStep step)
+            {
+                var dialogResult = await DialogService.OpenAsync<EditWorkflowStep>("Edit WorkflowSteps", new Dictionary<string, object> { { "WorkflowStepId", step.WorkflowStepId } }, new DialogOptions { Resizable = false, Draggable = true });
+                await GetChildData(workflowRuleChild);
+                await workflowStepsTree.Reload();
+                StateHasChanged();
+            }
+        }
+
+        protected async System.Threading.Tasks.Task Tree0ItemContextMenu(Radzen.TreeItemContextMenuEventArgs args)
+        {
+            try
+            {
+                ContextMenuService.Open(args,
+                    new List<ContextMenuItem> {
+                        new ContextMenuItem(){ Text = "Copy Step", Value = 1, Icon = "content_copy" },
+                        new ContextMenuItem(){ Text = "Delete Step", Value = 2, Icon = "delete" },
+                        },
+                    async (e) =>
+                    {
+                        if(e.Text == "Copy Step")
+                        {
+                            try
+                            {
+                                if (args.Value is WorkflowStep step)
+                                {
+                                    if (await DialogService.Confirm("Are you sure you want to copy this record?") == true)
+                                    {
+                                        var copiedStep = step;
+                                        copiedStep.WorkflowStepId = 0;
+                                        copiedStep.Title = $"{step.Title} (Copy)";
+                                        var copyresult = await ATTimeService.CreateWorkflowStep(copiedStep);
+
+                                        if (copyresult != null)
+                                        {
+                                            var ruleRecord = await ATTimeService.GetWorkflowRuleByWorkflowRuleId("", step.WorkflowRuleId);
+                                            await GetChildData(ruleRecord);
+                                            await workflowStepsTree.Reload();
+                                            StateHasChanged();
+                                        }
+                                    }
+                                }
+                                
+                            }
+                            catch (Exception ex)
+                            {
+                                NotificationService.Notify(new NotificationMessage
+                                {
+                                    Severity = NotificationSeverity.Error,
+                                    Summary = $"Error",
+                                    Detail = $"Unable to copy WorkflowRule"
+                                });
+                            }
+                        }
+                        if(e.Text == "Delete Step")
+                        {
+                            if (args.Value is WorkflowStep step)
+                            {
+                                if (await DialogService.Confirm("Are you sure you want to delete this record?") == true)
+                                {
+                                    try
+                                    {
+                                        var deleteResult = await ATTimeService.DeleteWorkflowStep(workflowStepId: step.WorkflowStepId);
+
+                                        await GetChildData(workflowRuleChild);
+
+                                        if (deleteResult != null)
+                                        {
+                                            await workflowStepsTree.Reload();
+                                            StateHasChanged();
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        NotificationService.Notify(new NotificationMessage
+                                        {
+                                            Severity = NotificationSeverity.Error,
+                                            Summary = $"Error",
+                                            Detail = $"Unable to delete WorkflowStep"
+                                        });
+                                    }
+
+                                }
+                            }
+                            
+                        }
+                    }
+                 );
+                
+            }
+            catch (System.Exception ex)
+            {
+                
+            }
+        }
+
+        protected IEnumerable<WorkflowStep> GetRootWorkflowSteps()
+        {
+            return workflowRuleChild?.WorkflowSteps?
+                .Where(x => x.ParentWorkflowStepId == null)
+                .OrderBy(x => x.StepOrder)
+                ?? Enumerable.Empty<WorkflowStep>();
+        }
+
+        protected IEnumerable<WorkflowStep> GetChildWorkflowSteps(WorkflowStep parentStep, bool branchResult)
+        {
+            return workflowRuleChild?.WorkflowSteps?
+                .Where(x =>
+                    x.ParentWorkflowStepId == parentStep.WorkflowStepId &&
+                    x.BranchResult == branchResult)
+                .OrderBy(x => x.StepOrder)
+                ?? Enumerable.Empty<WorkflowStep>();
+        }
+
+        protected string GetWorkflowStepTreeText(WorkflowStep step)
+        {
+            var stepTypeTitle = step.WorkflowStepType?.Title ?? "No Step Type";
+            var title = string.IsNullOrWhiteSpace(step.Title) ? "Untitled Step" : step.Title;
+
+            return $"{step.StepOrder} - ({stepTypeTitle}) - {title}";
+        }
+
+        private RenderFragment RenderWorkflowStep(WorkflowStep step) => builder =>
+        {
+            var sequence = 0;
+
+            builder.OpenComponent<RadzenTreeItem>(sequence++);
+            builder.AddAttribute(sequence++, "Text", GetWorkflowStepTreeText(step));
+            builder.AddAttribute(sequence++, "Expanded", true);
+            builder.AddAttribute(sequence++, "Value", step);
+
+            if (step.IsBranch)
+            {
+                builder.AddAttribute(sequence++, "ChildContent", (RenderFragment)(childBuilder =>
+                {
+                    var childSequence = 0;
+
+                    // TRUE branch folder
+                    childBuilder.OpenComponent<RadzenTreeItem>(childSequence++);
+                    childBuilder.AddAttribute(childSequence++, "Text", "True");
+                    childBuilder.AddAttribute(childSequence++, "Expanded", true);
+                    childBuilder.AddAttribute(childSequence++, "ChildContent", (RenderFragment)(trueBranchBuilder =>
+                    {
+                        var trueSequence = 0;
+
+                        foreach (var trueChild in GetChildWorkflowSteps(step, true))
+                        {
+                            trueBranchBuilder.AddContent(trueSequence++, RenderWorkflowStep(trueChild));
+                        }
+                    }));
+                    childBuilder.CloseComponent();
+
+                    // FALSE branch folder
+                    childBuilder.OpenComponent<RadzenTreeItem>(childSequence++);
+                    childBuilder.AddAttribute(childSequence++, "Text", "False");
+                    childBuilder.AddAttribute(childSequence++, "Expanded", true);
+                    childBuilder.AddAttribute(childSequence++, "ChildContent", (RenderFragment)(falseBranchBuilder =>
+                    {
+                        var falseSequence = 0;
+
+                        foreach (var falseChild in GetChildWorkflowSteps(step, false))
+                        {
+                            falseBranchBuilder.AddContent(falseSequence++, RenderWorkflowStep(falseChild));
+                        }
+                    }));
+                    childBuilder.CloseComponent();
+                }));
+            }
+
+            builder.CloseComponent();
+        };
+
     }
 }
