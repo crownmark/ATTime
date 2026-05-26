@@ -429,7 +429,7 @@ namespace CrownATTime.Client.Pages
                     udf2Filter,
                     udf3Filter,
                     $"(TimeEntryCreatedBy eq {timeEntryRecord.ResourceId} or TimeEntryCreatedBy eq null)",
-                    $"(TicketAssignedTo eq {ticket.item.assignedResourceID} or TicketAssignedTo eq null)"
+                    $"(TicketAssignedTo eq {(ticket.item.assignedResourceID.HasValue ? ticket.item.assignedResourceID.Value : 0)} or TicketAssignedTo eq null)"
                 });
                 var workflowResult = await ATTimeService.GetWorkflowRules(filter: $"Active eq true and WorkflowTriggerTypeId eq {workflowTriggerTypeId} and {filter}", expand: "WorkflowSteps", orderby: $"RuleOrder");
                 var workflowsList = workflowResult.Value.ToList();
