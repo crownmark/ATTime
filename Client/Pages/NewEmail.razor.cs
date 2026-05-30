@@ -354,6 +354,7 @@ namespace CrownATTime.Client.Pages
             try
             {
                 sendingEmail = true;
+                var udfEmailMessage = EmailService.ConvertHtmlToText(emailMessage.Body);
 
                 if (emailAttachments.Any())
                 {
@@ -367,6 +368,8 @@ namespace CrownATTime.Client.Pages
 
                 // Convert [EmailMessage.Body} Token to plain text
                 emailMessage.Body = EmailService.ReplaceEmailBodyTokenOnSubmit(emailMessage.Body);
+
+                
 
                 // Collect emails here (case-insensitive, deduped)
                 var emailSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -463,15 +466,53 @@ namespace CrownATTime.Client.Pages
                     };
                     await AutotaskService.CreateNote(newNote);
 
-                    //Update Ticket Status
+                    //Update Ticket
                     if (selectedTemplate != null && selectedTemplate.TicketStatus.HasValue)
                     {
+
                         //update ticket status
                         var ticket = new TicketUpdateDto()
                         {
                             Id = Ticket.item.id,
-                            Status = selectedTemplate.TicketStatus.Value,                            
+                            Status = selectedTemplate.TicketStatus.Value,
+
+
                         };
+                        if(selectedTemplate.TicketStatus == 7 || selectedTemplate.TicketStatus == 31)
+                        {
+                            var userDefinedFields = new List<TicketUpdateDto.Userdefinedfield>();
+                            
+                            
+                            // If Email waiting customer update ticket udf
+                            if (selectedTemplate.TicketStatus == 7)
+                            {
+                                //update ticket udf
+                                var ticketUdf = new TicketUpdateDto.Userdefinedfield()
+                                {
+                                    name = "Waiting Customer Note To Customer",
+                                    value = udfEmailMessage
+                                };
+                                userDefinedFields.Add(ticketUdf);  
+                                //await DialogService.Alert($"{ticketUdf.value}");
+
+                            }
+                            // If email waiting customer validation update ticket udf
+                            if (selectedTemplate.TicketStatus == 31)
+                            {
+                                //update ticket udf
+                                var ticketUdf = new TicketUpdateDto.Userdefinedfield()
+                                {
+                                    name = "Waiting Customer Validation Note To Customer",
+                                    value = udfEmailMessage
+                                };
+                                userDefinedFields.Add(ticketUdf);
+                                //await DialogService.Alert($"{ticketUdf.value}");
+
+                            }
+                            ticket.userDefinedFields = userDefinedFields.Any() ? userDefinedFields.ToArray() : null;
+
+                        }
+                        
                         await AutotaskService.UpdateTicket(ticket);
                     }
                     sendingEmail = false;

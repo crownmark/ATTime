@@ -126,6 +126,54 @@
           <RadzenDropDown TValue="int?" ValueProperty="Id" TextProperty="FullName" Data="@resourceCaches" LoadData="@resourceCachesLoadData" Count="@resourceCachesCount" @bind-Value="@workflowRule.TicketAssignedTo" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" />
   </ChildContent>
 </RadzenFormField>
+<RadzenFieldset Text="SLA First Response">
+<RadzenRow style="margin-bottom: 1rem">
+    <RadzenColumn Size="4">
+        <RadzenLabel Text="First Response Met?" Component="FirstResponseMet" style="width: 100%" />
+    </RadzenColumn>
+    <RadzenColumn Size="8">
+        <RadzenCheckBox TriState="true" @bind-Value="@(workflowRule.FirstResponseMet)" Name="FirstResponseMet" />
+    </RadzenColumn>
+</RadzenRow>
+<RadzenFormField Text="First Response Due In Minutes" Variant="Variant.Outlined" Component="FirstResponseDueInMinutes" Style="width: 100%">
+      <ChildContent>
+        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@workflowRule.FirstResponseDueInMinutes" Name="FirstResponseDueInMinutes" AutoCompleteType="AutoCompleteType.Off" Step="1"/>
+  </ChildContent>
+</RadzenFormField>
+</RadzenFieldset>
+
+<RadzenFieldset Text="SLA Resolution Plan">
+  <RadzenRow style="margin-bottom: 1rem">
+    <RadzenColumn SizeXS="4" SizeMD="4">
+        <RadzenLabel Text="Resolution Plan Met?" Component="ResolutionPlanMet" style="width: 100%" />
+    </RadzenColumn>
+    <RadzenColumn Size="8">
+        <RadzenCheckBox TriState="true" @bind-Value="@(workflowRule.ResolutionPlanMet)" Name="ResolutionPlanMet" />
+    </RadzenColumn>
+</RadzenRow>
+<RadzenFormField Text="Resolution Plan Due In Minutes" Variant="Variant.Outlined" Component="ResolutionPlanDueInMinutes" Style="width: 100%">
+      <ChildContent>
+        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@workflowRule.ResolutionPlanDueInMinutes" Name="ResolutionPlanDueInMinutes" AutoCompleteType="AutoCompleteType.Off" Step="1"/>
+  </ChildContent>
+</RadzenFormField>
+</RadzenFieldset>
+
+<RadzenFieldset Text="SLA Resolved">
+<RadzenRow style="margin-bottom: 1rem">
+    <RadzenColumn Size="4">
+        <RadzenLabel Text="Resolved Met?" Component="ResolvedMet" style="width: 100%" />
+    </RadzenColumn>
+    <RadzenColumn Size="8">
+        <RadzenCheckBox TriState="true" @bind-Value="@(workflowRule.ResolvedMet)" Name="ResolvedMet" />
+    </RadzenColumn>
+</RadzenRow>
+<RadzenFormField Text="Resolved Due In Minutes" Variant="Variant.Outlined" Component="ResolvedDueInMinutes" Style="width: 100%">
+      <ChildContent>
+        <RadzenNumeric style="display: block; width: 100%" @bind-Value="@workflowRule.ResolvedDueInMinutes" Name="ResolvedDueInMinutes" AutoCompleteType="AutoCompleteType.Off" Step="1"/>
+  </ChildContent>
+</RadzenFormField>
+</RadzenFieldset>
+
 <RadzenFormField Text="Rule Order" Variant="Variant.Outlined">
                   <ChildContent>
                     <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(workflowRule.RuleOrder)" Name="RuleOrder" AutoCompleteType="AutoCompleteType.Off"/>

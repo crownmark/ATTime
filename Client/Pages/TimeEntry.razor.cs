@@ -409,6 +409,66 @@ namespace CrownATTime.Client.Pages
                 Console.WriteLine(udf1Filter);
                 Console.WriteLine(udf2Filter);
                 Console.WriteLine(udf3Filter);
+
+                //SLA FILTERS
+                string firstResponseFilter = "(FirstResponseDueInMinutes eq null)";
+                if (ticket.item.firstResponseDueDateTime != null)
+                {
+                    var dueDateTime = ticket.item.firstResponseDueDateTime.Value;
+
+                    // Convert due date to UTC if needed
+                    var dueUtc = dueDateTime.Kind == DateTimeKind.Local
+                        ? dueDateTime
+                        : dueDateTime.ToUniversalTime();
+
+                    var minutesUntilDue = (int)Math.Ceiling((dueDateTime.ToLocalTime() - DateTime.Now).TotalMinutes);
+
+                    // Optional: if already overdue, treat as 0 minutes
+                    minutesUntilDue = Math.Max(minutesUntilDue, 0);
+
+                    firstResponseFilter =
+                        $"(FirstResponseDueInMinutes ge {minutesUntilDue} or FirstResponseDueInMinutes eq null)";
+                }
+
+                string resolutionPlanFilter = "(ResolutionPlanDueInMinutes eq null)";
+                if (ticket.item.resolutionPlanDueDateTime != null)
+                {
+                    var dueDateTime = ticket.item.resolutionPlanDueDateTime.Value;
+
+                    // Convert due date to UTC if needed
+                    var dueUtc = dueDateTime.Kind == DateTimeKind.Local
+                        ? dueDateTime
+                        : dueDateTime.ToUniversalTime();
+
+                    var minutesUntilDue = (int)Math.Ceiling((dueDateTime.ToLocalTime() - DateTime.Now).TotalMinutes);
+
+                    // Optional: if already overdue, treat as 0 minutes
+                    minutesUntilDue = Math.Max(minutesUntilDue, 0);
+                    //await DialogService.Alert($"Resolution Plan SLA is due in {minutesUntilDue} minutes.", "SLA Alert", new AlertOptions() { OkButtonText = "OK" });
+                    resolutionPlanFilter =
+                        $"(ResolutionPlanDueInMinutes ge {minutesUntilDue} or ResolutionPlanDueInMinutes eq null)";
+                }
+
+                string resolutionFilter = "(ResolvedDueInMinutes eq null)";
+                if (ticket.item.resolvedDueDateTime != null)
+                {
+                    var dueDateTime = ticket.item.resolvedDueDateTime.Value;
+
+                    // Convert due date to UTC if needed
+                    var dueUtc = dueDateTime.Kind == DateTimeKind.Local
+                        ? dueDateTime
+                        : dueDateTime.ToUniversalTime();
+
+                    var minutesUntilDue = (int)Math.Ceiling((dueDateTime.ToLocalTime() - DateTime.Now).TotalMinutes);
+
+                    // Optional: if already overdue, treat as 0 minutes
+                    minutesUntilDue = Math.Max(minutesUntilDue, 0);
+
+                    resolutionFilter =
+                        $"(ResolvedDueInMinutes ge {minutesUntilDue} or ResolvedDueInMinutes eq null)";
+                }
+
+                // FINAL FILTER
                 var filter = string.Join(" and ", new[]
                 {
                     $"(TicketCreatedBy eq '{ticket.item.createdByContactID}' or TicketCreatedBy eq null)",
@@ -429,11 +489,18 @@ namespace CrownATTime.Client.Pages
                     udf2Filter,
                     udf3Filter,
                     $"(TimeEntryCreatedBy eq {timeEntryRecord.ResourceId} or TimeEntryCreatedBy eq null)",
-                    $"(TicketAssignedTo eq {(ticket.item.assignedResourceID.HasValue ? ticket.item.assignedResourceID.Value : 0)} or TicketAssignedTo eq null)"
+                    $"(TicketAssignedTo eq {(ticket.item.assignedResourceID.HasValue ? ticket.item.assignedResourceID.Value : 0)} or TicketAssignedTo eq null)",
+                    $"(FirstResponseMet eq {(ticket.item.firstResponseDateTime.HasValue.ToString().ToLowerInvariant())} or FirstResponseMet eq null)",
+                    $"(ResolutionPlanMet eq {(ticket.item.resolutionPlanDateTime.HasValue.ToString().ToLowerInvariant())} or ResolutionPlanMet eq null)",
+                    $"(ResolvedMet eq {(ticket.item.resolvedDateTime.HasValue.ToString().ToLowerInvariant())} or ResolvedMet eq null)",
+                    firstResponseFilter,
+                    resolutionPlanFilter,
+                    resolutionFilter
                 });
+                Console.WriteLine(filter);
+
                 var workflowResult = await ATTimeService.GetWorkflowRules(filter: $"Active eq true and WorkflowTriggerTypeId eq {workflowTriggerTypeId} and {filter}", expand: "WorkflowSteps", orderby: $"RuleOrder");
                 var workflowsList = workflowResult.Value.ToList();
-                Console.WriteLine(filter);
 
                 foreach (var item in workflowsList)
                 {

@@ -72,6 +72,18 @@ namespace CrownATTime.Server.Models.ATTime
 
         public int? TicketAssignedTo { get; set; }
 
+        public int? FirstResponseDueInMinutes { get; set; }
+
+        public bool? FirstResponseMet { get; set; }
+
+        public int? ResolutionPlanDueInMinutes { get; set; }
+
+        public bool? ResolutionPlanMet { get; set; }
+
+        public int? ResolvedDueInMinutes { get; set; }
+
+        public bool? ResolvedMet { get; set; }
+
         public ICollection<WorkflowStep> WorkflowSteps { get; set; }
     }
 }

@@ -519,7 +519,7 @@
                         <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Radzen.Variant.Filled" Size="Radzen.ButtonSize.Small" Shade="Radzen.Shade.Default" Icon="@(!string.IsNullOrEmpty(item.Icon) ? item.Icon : "play_circle")" Text="@item.Title" Click="@((args) => NextActionButtonClick(args, item))"></RadzenButton>
                     
                     }
-                    <RadzenSplitButton Text="Schedule Service Call" ButtonStyle="Radzen.ButtonStyle.Primary" Shade="Radzen.Shade.Default" Variant="Radzen.Variant.Filled" Size="Radzen.ButtonSize.Small" Icon="calendar_clock" Click="@ScheduleServiceCallSplitButton0Click" AlwaysOpenPopup="true" >
+                    <RadzenSplitButton Text="Schedule Service Call (Remote or Onsite)" ButtonStyle="Radzen.ButtonStyle.Primary" Shade="Radzen.Shade.Default" Variant="Radzen.Variant.Filled" Size="Radzen.ButtonSize.Small" Icon="calendar_clock" Click="@ScheduleServiceCallSplitButton0Click" AlwaysOpenPopup="true" >
                         @foreach (var item in resources)
                         {
                             <RadzenSplitButtonItem Text="@(item.FullName)" Value="@(item.Email)" Icon="person"></RadzenSplitButtonItem>

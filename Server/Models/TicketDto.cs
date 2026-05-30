@@ -1,4 +1,4 @@
-﻿namespace CrownATTime.Server.Models
+namespace CrownATTime.Server.Models
 {
     // Models/TicketDto.cs
     using System;
@@ -35,6 +35,24 @@
 
         [JsonPropertyName("companyLocationID")]
         public long? CompanyLocationID { get; set; }
+
+        [JsonPropertyName("firstResponseDateTime")]
+        public DateTime? FirstResponseDateTime { get; set; }
+
+        [JsonPropertyName("firstResponseDueDateTime")]
+        public DateTime? FirstResponseDueDateTime { get; set; }
+
+        [JsonPropertyName("resolutionPlanDateTime")]
+        public DateTime? ResolutionPlanDateTime { get; set; }
+        
+        [JsonPropertyName("resolutionPlanDueDateTime")]
+        public DateTime? ResolutionPlanDueDateTime { get; set; }
+
+        [JsonPropertyName("resolvedDateTime")]
+        public DateTime? ResolvedDateTime { get; set; }
+        
+        [JsonPropertyName("resolvedDueDateTime")]
+        public DateTime? ResolvedDueDateTime { get; set; }
         
     }
 

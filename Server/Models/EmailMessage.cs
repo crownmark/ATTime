@@ -1,4 +1,4 @@
-﻿
+
 using System.Text.Json.Serialization;
 
 
@@ -15,6 +15,8 @@ namespace CrownATTime.Server.Models
         public string BCC { get; set; }
 
         public string QuoteLink { get; set; }
+        public string WaitingCustomerNoteUdf { get; set; }
+        public string WaitingCustomerValidationNoteUdf { get; set; }
         public List<IFormFileModel> Attachments { get; set; }
         public List<EmailAddress> ReplyToList { get; set; }
 

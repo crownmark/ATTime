@@ -1,4 +1,4 @@
-﻿using CrownATTime.Client.Pages;
+using CrownATTime.Client.Pages;
 using CrownATTime.Server.Models;
 using CrownATTime.Server.Models.ATTime;
 using HtmlAgilityPack;

@@ -131,7 +131,7 @@
                     @* <RadzenRequiredValidator Component="TicketUdfName3" Text="Ticket Udf Name 3 is required" /> *@
                   </Helper>
             </RadzenFormField>
-            <RadzenFormField Text="Ticket Udf Value" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
+            <RadzenFormField Text="Ticket Udf Value 3" Variant="Variant.Outlined" Visible="@(workflowStep.WorkflowStepTypeId == 9)">
                   <ChildContent>
                     <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(workflowStep.TicketUdfValue3)" Name="TicketUdfValue3" AutoCompleteType="AutoCompleteType.Off" MaxLength="255" />
                   </ChildContent>    
