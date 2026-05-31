@@ -10,7 +10,7 @@
             </RadzenColumn>
             <RadzenColumn Size="7">
                 <RadzenStack AlignItems="AlignItems.Center" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" class="rz-px-2">
-                    <RadzenAppearanceToggle />
+                    <RadzenAppearanceToggle Visible="false" />
                     <RadzenProfileMenu Visible="@Security.IsAuthenticated()" Click="@ProfileMenuClick">
                         <ChildContent>
                             <RadzenProfileMenuItem Text="My Profile" Icon="person_edit" Value="My Profile"></RadzenProfileMenuItem>
