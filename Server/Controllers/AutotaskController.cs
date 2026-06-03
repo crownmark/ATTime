@@ -465,87 +465,93 @@ namespace CrownATTime.Server.Controllers
                 //Get ServiceCallTicketResources
 
                 var serviceCallTicketIds = ticketResourceServiceCalls.Items.Select(x => x.serviceCallTicketID).ToArray();
+                //Batch ServiceCallTicketResources
 
-
-                var ServiceCallTicketFilter = new List<object>
+                var serviceCallsResultItems = new List<ServiceCall>();
+                foreach (var batch in BatchIds(serviceCallTicketIds, 100))
                 {
-                    new { op = "in", field = "id", value = serviceCallTicketIds },
-                };
-                var scTicketResourceObject = new
-                {
-                    filter = ServiceCallTicketFilter,
-                    MaxRecords = 500
-                };
+                    var ServiceCallTicketFilter = new List<object>
+                    {
+                        new { op = "in", field = "id", value = batch },
+                    };
+                    var scTicketResourceObject = new
+                    {
+                        filter = ServiceCallTicketFilter,
+                        MaxRecords = 500
+                    };
 
-                var serviceCallTicketSearch = JsonSerializer.Serialize(scTicketResourceObject);
-                var serviceCallTicketencodedSearch = Uri.EscapeDataString(serviceCallTicketSearch);
-                var serviceCallTicketresponse = await _http.GetAsync($"v1.0/ServiceCallTickets/query?search={serviceCallTicketencodedSearch}");
+                    var serviceCallTicketSearch = JsonSerializer.Serialize(scTicketResourceObject);
+                    var serviceCallTicketencodedSearch = Uri.EscapeDataString(serviceCallTicketSearch);
+                    var serviceCallTicketresponse = await _http.GetAsync($"v1.0/ServiceCallTickets/query?search={serviceCallTicketencodedSearch}");
 
-                var serviceCallTicketcontent = await serviceCallTicketresponse.Content.ReadAsStringAsync();
-                var serviceCallTickets = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicket>>(serviceCallTicketcontent);
+                    var serviceCallTicketcontent = await serviceCallTicketresponse.Content.ReadAsStringAsync();
+                    var serviceCallTickets = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicket>>(serviceCallTicketcontent);
 
-                //Get Service Calls
-                var serviceCallIds = serviceCallTickets.Items.Select(x => x.serviceCallID).ToArray();
+                    //Get Service Calls
+                    var serviceCallIds = serviceCallTickets.Items.Select(x => x.serviceCallID).ToArray();
 
-                var ServiceCallFilter = new List<object>
-                {
-                    new { op = "in", field = "id", value = serviceCallIds },
-                };
-                var scObject = new
-                {
-                    filter = ServiceCallFilter,
-                    MaxRecords = 500
-                };
+                    var ServiceCallFilter = new List<object>
+                    {
+                        new { op = "in", field = "id", value = serviceCallIds },
+                    };
+                    var scObject = new
+                    {
+                        filter = ServiceCallFilter,
+                        MaxRecords = 500
+                    };
 
-                var serviceCallSearch = JsonSerializer.Serialize(scObject);
-                var serviceCallencodedSearch = Uri.EscapeDataString(serviceCallSearch);
-                var serviceCallresponse = await _http.GetAsync($"v1.0/ServiceCalls/query?search={serviceCallencodedSearch}");
+                    var serviceCallSearch = JsonSerializer.Serialize(scObject);
+                    var serviceCallencodedSearch = Uri.EscapeDataString(serviceCallSearch);
+                    var serviceCallresponse = await _http.GetAsync($"v1.0/ServiceCalls/query?search={serviceCallencodedSearch}");
 
-                var serviceCallcontent = await serviceCallTicketresponse.Content.ReadAsStringAsync();
-                var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
-
-
-                // ----------------------------------------------------
-                // Build lookup: serviceCallID → ticketID
-                // ----------------------------------------------------
-                var lookupServiceCall = serviceCallTickets.Items
-                    .GroupBy(x => x.serviceCallID)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(x => x.ticketID).FirstOrDefault() // or ToList() if needed
-                    );
+                    var serviceCallcontent = await serviceCallTicketresponse.Content.ReadAsStringAsync();
+                    var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
 
 
-                // ----------------------------------------------------
-                // Merge TicketId into ServiceCalls
-                // ----------------------------------------------------
-                var resultItems = serviceCalls.Items.Where(x => x.isComplete == 0).Select(sc => new ServiceCall
-                {
-                    id = sc.id,
-                    companyID = sc.companyID,
-                    companyLocationID = sc.companyLocationID,
-                    createDateTime = sc.createDateTime,
-                    creatorResourceID = sc.creatorResourceID,
-                    description = sc.description,
-                    duration = sc.duration,
-                    endDateTime = sc.endDateTime,
-                    impersonatorCreatorResourceID = sc.impersonatorCreatorResourceID,
-                    isComplete = sc.isComplete,
-                    lastModifiedDateTime = sc.lastModifiedDateTime,
-                    startDateTime = sc.startDateTime,
-                    status = sc.status,
+                    // ----------------------------------------------------
+                    // Build lookup: serviceCallID → ticketID
+                    // ----------------------------------------------------
+                    var lookupServiceCall = serviceCallTickets.Items
+                        .GroupBy(x => x.serviceCallID)
+                        .ToDictionary(
+                            g => g.Key,
+                            g => g.Select(x => x.ticketID).FirstOrDefault() // or ToList() if needed
+                        );
 
-                    // copy other properties as needed...
 
-                    ticketId = lookupServiceCall.ContainsKey(sc.id)
-                        ? lookupServiceCall[sc.id]
-                        : null,
-                }).ToList();
+                    // ----------------------------------------------------
+                    // Merge TicketId into ServiceCalls
+                    // ----------------------------------------------------
+                    var resultItems = serviceCalls.Items.Where(x => x.isComplete == 0).Select(sc => new ServiceCall
+                    {
+                        id = sc.id,
+                        companyID = sc.companyID,
+                        companyLocationID = sc.companyLocationID,
+                        createDateTime = sc.createDateTime,
+                        creatorResourceID = sc.creatorResourceID,
+                        description = sc.description,
+                        duration = sc.duration,
+                        endDateTime = sc.endDateTime,
+                        impersonatorCreatorResourceID = sc.impersonatorCreatorResourceID,
+                        isComplete = sc.isComplete,
+                        lastModifiedDateTime = sc.lastModifiedDateTime,
+                        startDateTime = sc.startDateTime,
+                        status = sc.status,
+
+                        // copy other properties as needed...
+
+                        ticketId = lookupServiceCall.ContainsKey(sc.id)
+                            ? lookupServiceCall[sc.id]
+                            : null,
+                    }).ToList();
+                    serviceCallsResultItems.AddRange(resultItems);
+                    
+                }
 
                 var result = new AutotaskItemsResponse<ServiceCall>
                 {
-                    Items = resultItems,
-                    PageDetails = serviceCalls.PageDetails
+                    Items = serviceCallsResultItems,
+                    PageDetails = null //serviceCalls.PageDetails
                 };
 
 
