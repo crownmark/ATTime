@@ -389,8 +389,25 @@ namespace CrownATTime.Client.Pages
 
                 string BuildUdfFilter(string nameField, string valueField, TicketDtoResult.Userdefinedfield[] userDefinedFields)
                 {
+                    //var matches = userDefinedFields?
+                    //    .Where(x => !string.IsNullOrWhiteSpace(x.name) && !string.IsNullOrWhiteSpace(x.value))
+                    //    .Select(x => $"({nameField} eq '{Escape(x.name.Trim())}' and {valueField} eq '{Escape(x.value.Trim())}')")
+                    //    .ToList() ?? new List<string>();
                     var matches = userDefinedFields?
                         .Where(x => !string.IsNullOrWhiteSpace(x.name) && !string.IsNullOrWhiteSpace(x.value))
+                        .Where(x =>
+                        {
+                            var udfName = x.name.Trim();
+
+                            return !string.Equals(
+                                udfName,
+                                "Waiting Customer Note To Customer",
+                                StringComparison.OrdinalIgnoreCase)
+                            && !string.Equals(
+                                udfName,
+                                "Waiting Customer Validation Note To Customer",
+                                StringComparison.OrdinalIgnoreCase);
+                        })
                         .Select(x => $"({nameField} eq '{Escape(x.name.Trim())}' and {valueField} eq '{Escape(x.value.Trim())}')")
                         .ToList() ?? new List<string>();
 
