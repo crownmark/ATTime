@@ -2028,33 +2028,73 @@ namespace CrownATTime.Server.Controllers
                 //Get secondary resources
                 var ticketIds = ticketsResult.Items.Select(x => x.id).ToArray();
 
+                //Create Batches of 100 ticketIds
+                //foreach (var batch in BatchIds(ticketIds, 100))
+                //{
+                //    var filter = new List<object>
+                //    {
+                //        new { op = "in", field = "serviceCallTicketID", value = batch }
+                //    };
 
-                var ServiceCallTicketResourceFilter = new List<object>
+                //    var searchObjBatch = new
+                //    {
+                //        filter,
+                //        MaxRecords = 500
+                //    };
+
+                //    var searchJson = JsonSerializer.Serialize(searchObjBatch);
+                //    var encodedSearchBatch = Uri.EscapeDataString(searchJson);
+
+                //    var responseBatch = await _http.GetAsync($"v1.0/ServiceCallTicketResources/query?search={encodedSearchBatch}");
+
+                //    var contentBatch = await responseBatch.Content.ReadAsStringAsync();
+
+                //    // 🔥 Debug protection (VERY important)
+                //    if (!responseBatch.IsSuccessStatusCode || content.StartsWith("<"))
+                //    {
+                //        throw new Exception($"Autotask error: {contentBatch}");
+                //    }
+
+                //    var resultBatch = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCallTicketResource>>(contentBatch);
+
+                //    if (resultBatch?.Items != null)
+                //    {
+                //        allServiceCallTicketResources.AddRange(resultBatch.Items);
+                //    }
+                //}
+
+                foreach (var batch in BatchIds(ticketIds, 100))
                 {
-                    new { op = "in", field = "ticketID", value = ticketIds },
-                };
-                var ticketSecondaryResourcesObject = new
-                {
-                    filter = ServiceCallTicketResourceFilter,
-                    MaxRecords = 500
-                };
+                    var ServiceCallTicketResourceFilter = new List<object>
+                    {
+                        new { op = "in", field = "ticketID", value = batch },
+                    };
+                    var ticketSecondaryResourcesObject = new
+                    {
+                        filter = ServiceCallTicketResourceFilter,
+                        MaxRecords = 500
+                    };
 
-                var ticketSecondaryResourcesSearch = JsonSerializer.Serialize(ticketSecondaryResourcesObject);
-                var ticketSecondaryResourcesEncodedSearch = Uri.EscapeDataString(ticketSecondaryResourcesSearch);
-                var ticketSecondaryResourcesResponse = await _http.GetAsync($"v1.0/TicketSecondaryResources/query?search={ticketSecondaryResourcesEncodedSearch}");
 
-                var ticketSecondaryResourcesContent = await ticketSecondaryResourcesResponse.Content.ReadAsStringAsync();
-                var ticketSecondaryResources = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(ticketSecondaryResourcesContent);
 
-                foreach ( var item in ticketsResult.Items)
-                {
-                    var resourceIds = ticketSecondaryResources.Items
-                    .Where(x => x.ticketID == item.id)
-                    .Select(x => x.resourceID.ToString());
+                    var ticketSecondaryResourcesSearch = JsonSerializer.Serialize(ticketSecondaryResourcesObject);
+                    var ticketSecondaryResourcesEncodedSearch = Uri.EscapeDataString(ticketSecondaryResourcesSearch);
+                    var ticketSecondaryResourcesResponse = await _http.GetAsync($"v1.0/TicketSecondaryResources/query?search={ticketSecondaryResourcesEncodedSearch}");
 
-                    item.secondaryResources = string.Join(",", resourceIds);
+                    var ticketSecondaryResourcesContent = await ticketSecondaryResourcesResponse.Content.ReadAsStringAsync();
+                    var ticketSecondaryResources = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(ticketSecondaryResourcesContent);
 
+                    foreach (var item in ticketsResult.Items)
+                    {
+                        var resourceIds = ticketSecondaryResources.Items
+                        .Where(x => x.ticketID == item.id)
+                        .Select(x => x.resourceID.ToString());
+
+                        item.secondaryResources = string.Join(",", resourceIds);
+
+                    }
                 }
+                
                 return Content(JsonSerializer.Serialize(ticketsResult), "application/json");
             }
             catch (Exception ex)
