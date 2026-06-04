@@ -2081,29 +2081,22 @@ namespace CrownATTime.Server.Controllers
                         MaxRecords = 500
                     };
 
-
-
                     var ticketSecondaryResourcesSearch = JsonSerializer.Serialize(ticketSecondaryResourcesObject);
                     var ticketSecondaryResourcesEncodedSearch = Uri.EscapeDataString(ticketSecondaryResourcesSearch);
                     var ticketSecondaryResourcesResponse = await _http.GetAsync($"v1.0/TicketSecondaryResources/query?search={ticketSecondaryResourcesEncodedSearch}");
 
                     var ticketSecondaryResourcesContent = await ticketSecondaryResourcesResponse.Content.ReadAsStringAsync();
                     var ticketSecondaryResources = JsonSerializer.Deserialize<AutotaskItemsResponse<TicketSecondaryResourcesDtoResult>>(ticketSecondaryResourcesContent);
-
-                    foreach (var item in ticketsResult.Items)
+                    var kaimiSecondaryTicket = ticketSecondaryResources.Items.Where(x => x.ticketID == 29705);
+                    foreach (var item in ticketsResult.Items.Where(x => batch.Contains(x.id)))
                     {
                         var resourceIds = ticketSecondaryResources.Items
                         .Where(x => x.ticketID == item.id)
                         .Select(x => x.resourceID.ToString());
 
                         item.secondaryResources = string.Join(",", resourceIds);
-                        if (item.secondaryResources.Contains("29682913"))
-                        {
-
-                        }
                     }
                 }
-                
                 return Content(JsonSerializer.Serialize(ticketsResult), "application/json");
             }
             catch (Exception ex)

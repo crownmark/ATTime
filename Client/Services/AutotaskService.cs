@@ -710,13 +710,10 @@ namespace CrownATTime.Client
 
                 try
                 {
-
+                    
                     if (!string.IsNullOrEmpty(item.secondaryResources))
                     {
-                        if(item.id == 29705)
-                        {
-
-                        }
+                        
                         var resourceList = item.secondaryResources?
                             .Split(',', StringSplitOptions.RemoveEmptyEntries)
                             .Select(x => int.TryParse(x, out var id) ? id : (int?)null)
@@ -1439,10 +1436,10 @@ namespace CrownATTime.Client
                 try
                 {
                     var resource = await _atTimeService.GetResourceCacheById("", resourceId);
-                    var openTickets = openTicketsWithoutServiceCalls.Items.Where(x => (x.secondaryResources != null && x.secondaryResources.Contains(resource.FullName)) || x.assignedResourceID == resourceId).ToList();
+                    var openTickets = openTicketsWithoutServiceCalls.Items.Where(x => (!string.IsNullOrEmpty(x.secondaryResources) && x.secondaryResources.Contains(resource.FullName)) || x.assignedResourceID == resourceId).ToList();
                     var ticketIds = openTickets.Select(x => x.id).ToList();
                     var serviceCallTickets = await GetServiceCallsForTickets(ticketIds.ToList());
-                    var secondaryTickets = openTickets.Where(x => x.secondaryResources != null).ToList();
+                    var secondaryTickets = openTickets.Where(x => !string.IsNullOrEmpty(x.secondaryResources)).ToList();
                     foreach (var item in serviceCallTickets.Items.Where(x => x.assignedToResourceId == resourceId))
                     {
                         string eventTitle = "Service Call";
