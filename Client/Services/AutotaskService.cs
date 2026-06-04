@@ -713,6 +713,10 @@ namespace CrownATTime.Client
 
                     if (!string.IsNullOrEmpty(item.secondaryResources))
                     {
+                        if(item.id == 29705)
+                        {
+
+                        }
                         var resourceList = item.secondaryResources?
                             .Split(',', StringSplitOptions.RemoveEmptyEntries)
                             .Select(x => int.TryParse(x, out var id) ? id : (int?)null)

@@ -2097,7 +2097,10 @@ namespace CrownATTime.Server.Controllers
                         .Select(x => x.resourceID.ToString());
 
                         item.secondaryResources = string.Join(",", resourceIds);
+                        if (item.secondaryResources.Contains("29682913"))
+                        {
 
+                        }
                     }
                 }
                 
