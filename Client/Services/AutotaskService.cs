@@ -118,26 +118,41 @@ namespace CrownATTime.Client
 
                 try
                 {
-
-                    if (!string.IsNullOrEmpty(convert.item.secondaryResources))
+                    var secondaries = await GetSecondaryResources(Convert.ToInt32(ticketId));
+                    if (secondaries.Items.Any())
                     {
-                        var resourceList = convert.item.secondaryResources?
-                            .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                            .Select(x => int.TryParse(x, out var id) ? id : (int?)null)
-                            .Where(x => x.HasValue)
-                            .Select(x => x.Value)
-                            .ToList() ?? new List<int>();
-
-                        var secondaryResources = resourcesResult.Value.Where(x => resourceList.Contains(x.Id)).ToList();
-
+                        var secondaryResources = new List<ResourceCache>();
+                        foreach (var item in secondaries.Items)
+                        {
+                            var resource = resources.FirstOrDefault(x => x.Id == item.resourceID);
+                            if (resource != null)
+                            {
+                                secondaryResources.Add(resource);
+                            }
+                        }
                         var secondaryResourceNames = secondaryResources
                             .Select(x => $"{x.FirstName} {x.LastName}");
-
                         convert.item.secondaryResources = string.Join(",", secondaryResourceNames);
                     }
-                    else
-                    {
-                    }
+                    //if (!string.IsNullOrEmpty(convert.item.secondaryResources))
+                    //{
+                    //    var resourceList = convert.item.secondaryResources?
+                    //        .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    //        .Select(x => int.TryParse(x, out var id) ? id : (int?)null)
+                    //        .Where(x => x.HasValue)
+                    //        .Select(x => x.Value)
+                    //        .ToList() ?? new List<int>();
+
+                    //    var secondaryResources = resourcesResult.Value.Where(x => resourceList.Contains(x.Id)).ToList();
+
+                    //    var secondaryResourceNames = secondaryResources
+                    //        .Select(x => $"{x.FirstName} {x.LastName}");
+
+                    //    convert.item.secondaryResources = string.Join(",", secondaryResourceNames);
+                    //}
+                    //else
+                    //{
+                    //}
                 }
                 catch (Exception ex)
                 {

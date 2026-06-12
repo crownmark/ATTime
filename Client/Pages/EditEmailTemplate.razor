@@ -156,7 +156,7 @@
             </RadzenFormField>
             <RadzenFormField Text="Ticket Status" Variant="Variant.Outlined">
                 <ChildContent>
-                    <RadzenDropDown TValue="int?" @bind-Value="@emailTemplate.TicketStatus" LoadData="@ticketEntityPicklistValueCachesLoadData" Data="@ticketEntityPicklistValueCaches" Count="@ticketEntityPicklistValueCachesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Name="TicketStatus" ValueProperty="ValueInt" TextProperty="Label" />
+                    <RadzenDropDown TValue="int?" @bind-Value="@emailTemplate.TicketStatus" LoadData="@ticketEntityPicklistValueCachesLoadData" Data="@ticketEntityPicklistValueCaches" Count="@ticketEntityPicklistValueCachesCount" AllowFiltering="true" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" Name="TicketStatus" ValueProperty="ValueInt" TextProperty="Label" ClearSearchAfterSelection="true" AllowClear="true" />
 
                 </ChildContent>
                 

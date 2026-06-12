@@ -1,3 +1,4 @@
+using CrownATTime.Client.Helpers;
 using CrownATTime.Server.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -8,10 +9,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static CrownATTime.Server.Models.EmailMessage;
-using CrownATTime.Client.Helpers;
 
 namespace CrownATTime.Client.Pages
 {
@@ -475,6 +476,30 @@ namespace CrownATTime.Client.Pages
                             NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Success, Summary = $"Success", Detail = $"Deleted Service Call", Duration = 5000 });
 
                         }
+                        var json = JsonSerializer.Serialize(new
+                        {
+                            Ticket = Ticket,
+                            ServiceCall = new ServiceCallOutlookAppointment()
+                            {
+                                ServiceCallId = data.id,
+                                Start = data.startDateTime,
+                                End = data.endDateTime,
+                                Description = data.description,
+                                //Subject = $"({selectedActivity}) {ticket.item.ticketNumber} - {ticket.item.title}",
+                                //Email = resource.Email
+
+                            }
+                        });
+
+                        try
+                        {
+                            await RequestUrl("https://automation.ce-technology.com/webhook/5f162aae-64af-4f7a-b6a3-aba758a88f1c", RequestMode.HttpPostJson, json);
+
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
 
                     }
                     
@@ -485,6 +510,91 @@ namespace CrownATTime.Client.Pages
                 NotificationService.Notify(new NotificationMessage() { Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"{ex.Message}", Duration = 5000 });
 
             }
+        }
+
+        protected enum RequestMode
+        {
+            BrowserOpen,
+            HttpGet,
+            HttpPostJson
+        }
+        protected async Task RequestUrl(string url, RequestMode mode = RequestMode.HttpPostJson, object payload = null)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(url))
+                {
+                    NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "URL is empty." });
+                    return;
+                }
+                var _httpClient = new HttpClient();
+
+                switch (mode)
+                {
+                    case RequestMode.BrowserOpen:
+                        await JSRuntime.InvokeVoidAsync("open", TimeSpan.FromSeconds(1), url);
+                        break;
+
+                    case RequestMode.HttpGet:
+                        BusyDialog($"Please wait...");
+                        // Note: CORS must be allowed by the remote server for WASM HttpClient.
+                        var getResponse = await _httpClient.GetAsync(url);
+                        DialogService.Close();
+                        if (!getResponse.IsSuccessStatusCode)
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = $"Error:", Detail = $"{(int)getResponse.StatusCode} {getResponse.ReasonPhrase}" });
+                            return;
+                        }
+                        var getBody = await getResponse.Content.ReadAsStringAsync();
+
+                        break;
+
+                    case RequestMode.HttpPostJson:
+                        BusyDialog($"Please wait...");
+
+
+                        var postResponse = await _httpClient.PostAsJsonAsync(url, payload ?? new { });
+                        DialogService.Close();
+
+                        if (!postResponse.IsSuccessStatusCode)
+                        {
+                            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = $"Error: ", Detail = $"{(int)postResponse.StatusCode} {postResponse.ReasonPhrase}" });
+                            return;
+                        }
+                        var postBody = await postResponse.Content.ReadAsStringAsync();
+
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Request error", Detail = ex.Message });
+                DialogService.Close();
+
+            }
+        }
+        async Task BusyDialog(string message)
+        {
+            await DialogService.OpenAsync("", ds =>
+            {
+                RenderFragment content = dialogContent =>
+                {
+                    dialogContent.OpenComponent<RadzenRow>(0);
+                    dialogContent.AddComponentParameter(1, nameof(RadzenRow.ChildContent), (RenderFragment)(rowContent =>
+                    {
+                        rowContent.OpenComponent<RadzenColumn>(0);
+                        rowContent.AddComponentParameter(1, nameof(RadzenColumn.Size), 12);
+                        rowContent.AddComponentParameter(2, nameof(RadzenRow.ChildContent), (RenderFragment)(columnContent =>
+                        {
+                            columnContent.AddContent(0, message);
+                        }));
+                        rowContent.CloseComponent();
+                    }));
+
+                    dialogContent.CloseComponent();
+                };
+                return content;
+            }, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
         }
     }
 }
