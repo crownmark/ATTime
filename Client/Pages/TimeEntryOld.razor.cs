@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
-using Radzen.Blazor.Markdown;
+//using Radzen.Blazor.Markdown;
 using Radzen.Blazor.Rendering;
 using System;
 using System.Collections.Generic;

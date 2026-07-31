@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using Radzen;
 using Radzen.Blazor;
-using Radzen.Blazor.Markdown;
+//using Radzen.Blazor.Markdown;
 using Radzen.Blazor.Rendering;
 using System;
 using System.Collections.Generic;
@@ -148,6 +148,9 @@ namespace CrownATTime.Client.Pages
         protected List<LiveLink> liveLinks { get; set; } = new List<LiveLink>();
         protected IEnumerable<ResourceCache> resources = new List<ResourceCache>();
         protected List<string> SecondaryResources { get; set; } = new List<string>();
+        protected List<string> AdditionalContacts { get; set; } = new List<string>();
+
+        protected string AdditionalContactsString { get; set; }
 
 
 
@@ -180,6 +183,28 @@ namespace CrownATTime.Client.Pages
                         SecondaryResources.Add(ticketSecondaryResource.FullName);
 
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        protected async void GetAdditionalContacts()
+        {
+            try
+            {
+                var ticketAdditionalContacts = await AutotaskService.GetAdditionalContacts(ticket.item.id);
+                if (ticketAdditionalContacts != null)
+                {
+                    AdditionalContacts.Clear();
+                    foreach (var secondaryResource in ticketAdditionalContacts.Items)
+                    {
+                        var ticketAdditionalContact = await AutotaskService.GetContact(secondaryResource.contactID);
+                        AdditionalContacts.Add(ticketAdditionalContact.item.fullName);
+
+                    }
+                    AdditionalContactsString = string.Join(", ", AdditionalContacts);
                 }
             }
             catch (Exception ex)
@@ -1211,7 +1236,7 @@ namespace CrownATTime.Client.Pages
                 timeEntryRecord.EndDateTime = DateTimeOffset.Now;
                 timeEntryRecord.DateWorked = DateTimeOffset.Now;
                 ticket = await AutotaskService.GetTicket(ticket.item.id);
-                //GetSecondaryResources();
+                GetAdditionalContacts();
                 timeEntryRecord.TicketTitle = ticket.item.title;
                 contact = await AutotaskService.GetContact(Convert.ToInt32(ticket.item.contactID));
                 company = await ATTimeService.GetCompanyCacheById("", ticket.item.companyID);
