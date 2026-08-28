@@ -171,6 +171,43 @@
                   </RadzenRow>
               </RadzenColumn>
           </RadzenFieldset>
+            <RadzenFieldset Text="Calendar Event Notifications" Icon="calendar_clock" AllowCollapse="true" Style="margin-bottom: 5px">
+                <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 5px">
+                  <RadzenColumn>
+                      <RadzenLabel Text="Auto Refresh Calendar (Minutes)" Component="AutoRefreshCalendarNotificationMinutes" style="width: 100%" />
+                
+                  </RadzenColumn>
+                  <RadzenColumn>
+                      <RadzenNumeric TValue="int" Style="width: 100%" Step="1" Min="0" @bind-Value="@resourceCache.AutoRefreshCalendarNotificationMinutes" Name="AutoRefreshCalendarNotificationMinutes"></RadzenNumeric>
+                  </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenFormField Text="Calendar Notification Event Type" Component="CalendarNotificationEventTypeId" Style="width: 100%">
+                        <RadzenDropDown TValue="int?" TextProperty="Title" @bind-Value="@resourceCache.CalendarAgendaRowClickEventActionId" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="TicketRowClickEventActionId" LoadData="calendarNotificationEventTypesLoadData" Data="@calendarNotificationEventTypes" ValueProperty="CalendarNotificationEventTypeId"></RadzenDropDown> 
+                    </RadzenFormField>
+                </RadzenRow>
+                <RadzenRow>
+                    <RadzenColumn>
+                        <RadzenLabel Text="Calendar Notify with Sound?" Component="CalendarNotificationTargetSound" style="width: 100%" />
+                        <RadzenCheckBox @bind-Value="resourceCache.CalendarNotificationTargetSound" Name="CalendarNotificationTargetSound" />
+
+                    </RadzenColumn>
+                </RadzenRow>
+<RadzenRow>
+                    <RadzenColumn>
+                        <RadzenLabel Text="Calendar Notify in Teams?" Component="CalendarNotificationTargetTeams" style="width: 100%" />
+                        <RadzenCheckBox @bind-Value="@resourceCache.CalendarNotificationTargetTeams" Name="CalendarNotificationTargetTeams" />
+
+                    </RadzenColumn>
+                </RadzenRow>
+<RadzenRow>
+                    <RadzenColumn>
+                        <RadzenLabel Text="Calendar Notify in Time Guard Dialog?" Component="CalendarNotificationTargetTimeGuardDialog" style="width: 100%" />
+                        <RadzenCheckBox @bind-Value="@resourceCache.CalendarNotificationTargetTimeGuardDialog" Name="CalendarNotificationTargetTimeGuardDialog" />
+
+                    </RadzenColumn>
+                </RadzenRow>
+</RadzenFieldset>
             <RadzenFieldset Text="Default Click Actions" Icon="ads_click" AllowCollapse="true" Style="margin-bottom: 5px">
             <RadzenStack>
                 <RadzenFormField Text="Ticket Row Click Action" Component="TicketRowClickEventActionId">

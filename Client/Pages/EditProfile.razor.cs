@@ -86,6 +86,10 @@ namespace CrownATTime.Client.Pages
 
         protected int clickEventActionsCount;
 
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> calendarNotificationEventTypes;
+
+        protected int calendarNotificationEventTypesCount;
+
 
 
         protected async Task FormSubmit()
@@ -200,6 +204,22 @@ namespace CrownATTime.Client.Pages
             {
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load AI Prompt templates.  {ex.Message}" });
 
+            }
+        }
+
+
+        protected async Task calendarNotificationEventTypesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                var result = await ATTimeService.GetCalendarNotificationEventTypes(new Query { Top = args.Top, Skip = args.Skip, Filter = $"contains(Title, \"{(!string.IsNullOrEmpty(args.Filter) ? args.Filter: "")}\")", OrderBy = args.OrderBy });
+
+                calendarNotificationEventTypes = result.Value.AsODataEnumerable();
+                calendarNotificationEventTypesCount = result.Count;
+            }
+            catch (Exception)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Unable to load" });
             }
         }
 

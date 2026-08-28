@@ -37,6 +37,13 @@ namespace CrownATTime.Server.Data
               .OnDelete(DeleteBehavior.ClientNoAction);
 
             builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .HasOne(i => i.CalendarNotificationEventType)
+              .WithMany(i => i.ResourceCaches)
+              .HasForeignKey(i => i.CalendarNotificationEventTypeId)
+              .HasPrincipalKey(i => i.CalendarNotificationEventTypeId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
               .HasOne(i => i.AiPromptConfiguration)
               .WithMany(i => i.ResourceCaches)
               .HasForeignKey(i => i.DefaultAitemplate)
@@ -323,6 +330,22 @@ namespace CrownATTime.Server.Data
               .Property(p => p.AutoRefreshAgendaGridMinutes)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.AutoRefreshCalendarNotificationMinutes)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.CalendarNotificationTargetSound)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.CalendarNotificationTargetTeams)
+              .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.CalendarNotificationTargetTimeGuardDialog)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
               .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
@@ -398,6 +421,10 @@ namespace CrownATTime.Server.Data
             builder.Entity<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((0))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
@@ -482,6 +509,8 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStepType> WorkflowStepTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> WorkflowTriggerTypes { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CalendarNotificationEventTypes { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

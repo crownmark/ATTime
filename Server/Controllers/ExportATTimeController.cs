@@ -396,5 +396,19 @@ namespace CrownATTime.Server.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
         }
+
+        [HttpGet("/export/ATTime/calendarnotificationeventtypes/csv")]
+        [HttpGet("/export/ATTime/calendarnotificationeventtypes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportCalendarNotificationEventTypesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetCalendarNotificationEventTypes(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/calendarnotificationeventtypes/excel")]
+        [HttpGet("/export/ATTime/calendarnotificationeventtypes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportCalendarNotificationEventTypesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetCalendarNotificationEventTypes(), Request.Query, false), fileName);
+        }
     }
 }

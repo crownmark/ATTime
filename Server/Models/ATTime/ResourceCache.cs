@@ -119,5 +119,17 @@ namespace CrownATTime.Server.Models.ATTime
         public bool AutoRefreshAgendaGrid { get; set; }
 
         public int AutoRefreshAgendaGridMinutes { get; set; }
+
+        public int AutoRefreshCalendarNotificationMinutes { get; set; }
+
+        public int? CalendarNotificationEventTypeId { get; set; }
+
+        public CalendarNotificationEventType CalendarNotificationEventType { get; set; }
+
+        public bool CalendarNotificationTargetSound { get; set; }
+
+        public bool CalendarNotificationTargetTeams { get; set; }
+
+        public bool CalendarNotificationTargetTimeGuardDialog { get; set; }
     }
 }

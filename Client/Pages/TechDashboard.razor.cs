@@ -1379,6 +1379,52 @@ namespace CrownATTime.Client.Pages
             // await agendaGrid.Reload();
         }
 
+        private async Task RefreshCalendarNotificationAsync(CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            if (resource.CalendarNotificationEventTypeId == 1)
+            {
+                //Get upcoming calendar appointment due in next 15 minutes
+                var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && (e.EventType.Contains("Remote") || e.EventType.Contains("Onsite"))).ToList();
+                
+                //Send teams notification reminder
+                foreach (var a in appt)
+                {
+                    //display notification dialog message
+                    if (resource.CalendarNotificationTargetTimeGuardDialog)
+                    {
+                        await DialogService.Alert($"You have an upcoming calendar appointment: {a.Title} at {a.Start.ToLocalTime().ToShortTimeString()}", "Upcoming Calendar Appointment", new AlertOptions() { Width = "400px", OkButtonText = "OK" });
+
+                    }
+                }
+            }
+            else if ( resource.CalendarNotificationEventTypeId == 2)
+            {
+                //Get upcoming calendar appointment due in next 15 minutes
+                var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && e.EventType.Contains("Flexible")).ToList();
+
+                //play sound notification
+            }
+            else if (resource.CalendarNotificationEventTypeId == 3)
+            {
+                //Get upcoming calendar appointment due in next 15 minutes
+               // var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && (e.EventType.Contains("Remote") || e.EventType.Contains("Onsite"))).ToList();
+
+                //display notification dialog message
+                //foreach (var a in appt)
+                //{
+                //    await DialogService.Alert($"You have an upcoming calendar appointment: {a.Title} at {a.Start.ToLocalTime().ToShortTimeString()}", "Upcoming Calendar Appointment", new AlertOptions() { Width = "400px", OkButtonText = "OK" });
+                //}
+            }
+            else
+            {
+
+            }
+
+        }
+
         private void EnableAutoRefreshTimers()
         {
             StopAutoRefreshTimers();
@@ -1408,6 +1454,12 @@ namespace CrownATTime.Client.Pages
                 enabled: resource.AutoRefreshAgendaGrid,
                 minutes: resource.AutoRefreshAgendaGridMinutes,
                 refreshAction: RefreshAgendaGridAsync,
+                token: token);
+
+            StartAutoRefreshTimer(
+                enabled: true,
+                minutes: resource.AutoRefreshCalendarNotificationMinutes,
+                refreshAction: RefreshCalendarNotificationAsync,
                 token: token);
         }
 

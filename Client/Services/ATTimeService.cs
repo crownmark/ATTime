@@ -2568,5 +2568,99 @@ namespace CrownATTime.Client
 
             return await httpClient.SendAsync(httpRequestMessage);
         }
+
+        public async System.Threading.Tasks.Task ExportCalendarNotificationEventTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/calendarnotificationeventtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/calendarnotificationeventtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async System.Threading.Tasks.Task ExportCalendarNotificationEventTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/calendarnotificationeventtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/calendarnotificationeventtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnGetCalendarNotificationEventTypes(HttpRequestMessage requestMessage);
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>> GetCalendarNotificationEventTypes(Query query)
+        {
+            return await GetCalendarNotificationEventTypes(filter:$"{query.Filter}", orderby:$"{query.OrderBy}", top:query.Top, skip:query.Skip, count:query.Top != null && query.Skip != null);
+        }
+
+        public async Task<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>> GetCalendarNotificationEventTypes(string filter = default(string), string orderby = default(string), string expand = default(string), int? top = default(int?), int? skip = default(int?), bool? count = default(bool?), string format = default(string), string select = default(string), string apply = default(string))
+        {
+            var uri = new Uri(baseUri, $"CalendarNotificationEventTypes");
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:filter, top:top, skip:skip, orderby:orderby, expand:expand, select:select, count:count, apply:apply);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetCalendarNotificationEventTypes(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<Radzen.ODataServiceResult<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>>(response);
+        }
+
+        partial void OnCreateCalendarNotificationEventType(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CreateCalendarNotificationEventType(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType calendarNotificationEventType = default(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType))
+        {
+            var uri = new Uri(baseUri, $"CalendarNotificationEventTypes");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, uri);
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(calendarNotificationEventType), Encoding.UTF8, "application/json");
+
+            OnCreateCalendarNotificationEventType(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>(response);
+        }
+
+        partial void OnDeleteCalendarNotificationEventType(HttpRequestMessage requestMessage);
+
+        public async Task<HttpResponseMessage> DeleteCalendarNotificationEventType(int calendarNotificationEventTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"CalendarNotificationEventTypes({calendarNotificationEventTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Delete, uri);
+
+            OnDeleteCalendarNotificationEventType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
+
+        partial void OnGetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(HttpRequestMessage requestMessage);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> GetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(string expand = default(string), int calendarNotificationEventTypeId = default(int))
+        {
+            var uri = new Uri(baseUri, $"CalendarNotificationEventTypes({calendarNotificationEventTypeId})");
+
+            uri = Radzen.ODataExtensions.GetODataUri(uri: uri, filter:null, top:null, skip:null, orderby:null, expand:expand, select:null, count:null);
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Get, uri);
+
+            OnGetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(httpRequestMessage);
+
+            var response = await httpClient.SendAsync(httpRequestMessage);
+
+            return await Radzen.HttpResponseMessageExtensions.ReadAsync<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>(response);
+        }
+
+        partial void OnUpdateCalendarNotificationEventType(HttpRequestMessage requestMessage);
+        
+        public async Task<HttpResponseMessage> UpdateCalendarNotificationEventType(int calendarNotificationEventTypeId = default(int), CrownATTime.Server.Models.ATTime.CalendarNotificationEventType calendarNotificationEventType = default(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType))
+        {
+            var uri = new Uri(baseUri, $"CalendarNotificationEventTypes({calendarNotificationEventTypeId})");
+
+            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Patch, uri);
+
+
+            httpRequestMessage.Content = new StringContent(Radzen.ODataJsonSerializer.Serialize(calendarNotificationEventType), Encoding.UTF8, "application/json");
+
+            OnUpdateCalendarNotificationEventType(httpRequestMessage);
+
+            return await httpClient.SendAsync(httpRequestMessage);
+        }
     }
 }
