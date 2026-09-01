@@ -4,6 +4,7 @@ namespace CrownATTime.Server.Controllers
     using CrownATTime.Server.Models;
     using CrownATTime.Server.Models.ATTime;
     using CrownATTime.Server.Services;
+    using DocumentFormat.OpenXml.ExtendedProperties;
     using DocumentFormat.OpenXml.Office2010.Excel;
     using Microsoft.AspNetCore.Http.Json;
     using Microsoft.AspNetCore.Mvc;
@@ -1342,6 +1343,7 @@ namespace CrownATTime.Server.Controllers
                     
                     foreach (var item in converted.Items)
                     {
+                        var quickbooksId = item?.userDefinedFields?.FirstOrDefault(f => f.name == "Quickbooks Account Id")?.value?.ToString();
                         var existingItem = existingItems.FirstOrDefault(x => x.Id == item.id);
                         if (existingItem != null)
                         {
@@ -1355,6 +1357,7 @@ namespace CrownATTime.Server.Controllers
                             existingItem.City = item.city;
                             existingItem.State = item.state;
                             existingItem.PostalCode = item.postalCode;
+                            existingItem.QuickBooksAccountNumber = string.IsNullOrWhiteSpace(quickbooksId) ? null : quickbooksId.Split('.')[0];
                             itemsToUpdate.Add(existingItem);
                         }
                         else
@@ -1372,7 +1375,7 @@ namespace CrownATTime.Server.Controllers
                                 City = item.city,
                                 State = item.state,
                                 PostalCode = item.postalCode,
-
+                                QuickBooksAccountNumber = string.IsNullOrWhiteSpace(quickbooksId) ? null : quickbooksId.Split('.')[0]
                             });
 
                         }

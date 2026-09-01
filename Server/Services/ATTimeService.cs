@@ -720,6 +720,168 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportCalendarNotificationEventTypesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/calendarnotificationeventtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/calendarnotificationeventtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportCalendarNotificationEventTypesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/calendarnotificationeventtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/calendarnotificationeventtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnCalendarNotificationEventTypesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>> GetCalendarNotificationEventTypes(Query query = null)
+        {
+            var items = Context.CalendarNotificationEventTypes.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnCalendarNotificationEventTypesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnCalendarNotificationEventTypeGet(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
+        partial void OnGetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(ref IQueryable<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> GetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(int calendarnotificationeventtypeid)
+        {
+            var items = Context.CalendarNotificationEventTypes
+                              .AsNoTracking()
+                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtypeid);
+
+ 
+            OnGetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnCalendarNotificationEventTypeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnCalendarNotificationEventTypeCreated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
+        partial void OnAfterCalendarNotificationEventTypeCreated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CreateCalendarNotificationEventType(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType calendarnotificationeventtype)
+        {
+            OnCalendarNotificationEventTypeCreated(calendarnotificationeventtype);
+
+            var existingItem = Context.CalendarNotificationEventTypes
+                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtype.CalendarNotificationEventTypeId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.CalendarNotificationEventTypes.Add(calendarnotificationeventtype);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(calendarnotificationeventtype).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterCalendarNotificationEventTypeCreated(calendarnotificationeventtype);
+
+            return calendarnotificationeventtype;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CancelCalendarNotificationEventTypeChanges(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnCalendarNotificationEventTypeUpdated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
+        partial void OnAfterCalendarNotificationEventTypeUpdated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> UpdateCalendarNotificationEventType(int calendarnotificationeventtypeid, CrownATTime.Server.Models.ATTime.CalendarNotificationEventType calendarnotificationeventtype)
+        {
+            OnCalendarNotificationEventTypeUpdated(calendarnotificationeventtype);
+
+            var itemToUpdate = Context.CalendarNotificationEventTypes
+                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtype.CalendarNotificationEventTypeId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(calendarnotificationeventtype).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterCalendarNotificationEventTypeUpdated(calendarnotificationeventtype);
+
+            return calendarnotificationeventtype;
+        }
+
+        partial void OnCalendarNotificationEventTypeDeleted(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
+        partial void OnAfterCalendarNotificationEventTypeDeleted(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> DeleteCalendarNotificationEventType(int calendarnotificationeventtypeid)
+        {
+            var itemToDelete = Context.CalendarNotificationEventTypes
+                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtypeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnCalendarNotificationEventTypeDeleted(itemToDelete);
+
+            Reset();
+
+            Context.CalendarNotificationEventTypes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterCalendarNotificationEventTypeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportClickEventActionsToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/clickeventactions/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/clickeventactions/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -4499,168 +4661,6 @@ namespace CrownATTime.Server
             }
 
             OnAfterWorkflowTriggerTypeDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-    
-        public async Task ExportCalendarNotificationEventTypesToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/calendarnotificationeventtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/calendarnotificationeventtypes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportCalendarNotificationEventTypesToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/calendarnotificationeventtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/calendarnotificationeventtypes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnCalendarNotificationEventTypesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> items);
-
-        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>> GetCalendarNotificationEventTypes(Query query = null)
-        {
-            var items = Context.CalendarNotificationEventTypes.AsQueryable();
-
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach(var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnCalendarNotificationEventTypesRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnCalendarNotificationEventTypeGet(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
-        partial void OnGetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(ref IQueryable<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> items);
-
-
-        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> GetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(int calendarnotificationeventtypeid)
-        {
-            var items = Context.CalendarNotificationEventTypes
-                              .AsNoTracking()
-                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtypeid);
-
- 
-            OnGetCalendarNotificationEventTypeByCalendarNotificationEventTypeId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnCalendarNotificationEventTypeGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnCalendarNotificationEventTypeCreated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
-        partial void OnAfterCalendarNotificationEventTypeCreated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CreateCalendarNotificationEventType(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType calendarnotificationeventtype)
-        {
-            OnCalendarNotificationEventTypeCreated(calendarnotificationeventtype);
-
-            var existingItem = Context.CalendarNotificationEventTypes
-                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtype.CalendarNotificationEventTypeId)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-               throw new Exception("Item already available");
-            }            
-
-            try
-            {
-                Context.CalendarNotificationEventTypes.Add(calendarnotificationeventtype);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(calendarnotificationeventtype).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterCalendarNotificationEventTypeCreated(calendarnotificationeventtype);
-
-            return calendarnotificationeventtype;
-        }
-
-        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CancelCalendarNotificationEventTypeChanges(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-              entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnCalendarNotificationEventTypeUpdated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
-        partial void OnAfterCalendarNotificationEventTypeUpdated(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> UpdateCalendarNotificationEventType(int calendarnotificationeventtypeid, CrownATTime.Server.Models.ATTime.CalendarNotificationEventType calendarnotificationeventtype)
-        {
-            OnCalendarNotificationEventTypeUpdated(calendarnotificationeventtype);
-
-            var itemToUpdate = Context.CalendarNotificationEventTypes
-                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtype.CalendarNotificationEventTypeId)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            Reset();
-
-            Context.Attach(calendarnotificationeventtype).State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterCalendarNotificationEventTypeUpdated(calendarnotificationeventtype);
-
-            return calendarnotificationeventtype;
-        }
-
-        partial void OnCalendarNotificationEventTypeDeleted(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
-        partial void OnAfterCalendarNotificationEventTypeDeleted(CrownATTime.Server.Models.ATTime.CalendarNotificationEventType item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> DeleteCalendarNotificationEventType(int calendarnotificationeventtypeid)
-        {
-            var itemToDelete = Context.CalendarNotificationEventTypes
-                              .Where(i => i.CalendarNotificationEventTypeId == calendarnotificationeventtypeid)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            OnCalendarNotificationEventTypeDeleted(itemToDelete);
-
-            Reset();
-
-            Context.CalendarNotificationEventTypes.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterCalendarNotificationEventTypeDeleted(itemToDelete);
 
             return itemToDelete;
         }

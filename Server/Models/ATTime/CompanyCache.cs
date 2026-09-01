@@ -53,6 +53,10 @@ namespace CrownATTime.Server.Models.ATTime
         [MaxLength(255)]
         public string PostalCode { get; set; }
 
+        [Column("quickBooksAccountNumber")]
+        [MaxLength(255)]
+        public string QuickBooksAccountNumber { get; set; }
+
         public ICollection<WorkflowRule> WorkflowRules { get; set; }
     }
 }

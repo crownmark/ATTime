@@ -170,6 +170,10 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((0))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.ClickEventAction>()
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
@@ -422,10 +426,6 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
-            builder.Entity<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType>()
-              .Property(p => p.Active)
-              .HasDefaultValueSql(@"((0))");
-
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
               .HasColumnType("datetimeoffset");
@@ -463,6 +463,8 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.AllowedTicketStatus> AllowedTicketStatuses { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.BillingCodeCache> BillingCodeCaches { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CalendarNotificationEventTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.ClickEventAction> ClickEventActions { get; set; }
 
@@ -509,8 +511,6 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStepType> WorkflowStepTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> WorkflowTriggerTypes { get; set; }
-
-        public DbSet<CrownATTime.Server.Models.ATTime.CalendarNotificationEventType> CalendarNotificationEventTypes { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());
