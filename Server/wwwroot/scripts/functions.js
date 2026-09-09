@@ -24,3 +24,36 @@ class Helpers {
 }
 
 window.Helpers = Helpers;
+
+window.appointmentAudio = {
+    audio: null,
+    initialized: false,
+
+    initialize: function () {
+        if (!this.audio) {
+            this.audio = new Audio('/sounds/appointment-reminder-soft-chime.mp3');
+            this.audio.preload = 'auto';
+        }
+
+        this.initialized = true;
+    },
+
+    play: function () {
+        if (!this.audio) {
+            this.initialize();
+        }
+
+        this.audio.currentTime = 0;
+
+        return this.audio.play().catch(error => {
+            console.warn("Unable to play appointment reminder sound:", error);
+        });
+    },
+
+    stop: function () {
+        if (this.audio) {
+            this.audio.pause();
+            this.audio.currentTime = 0;
+        }
+    }
+};

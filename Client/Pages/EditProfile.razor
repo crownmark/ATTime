@@ -183,7 +183,7 @@
                 </RadzenRow>
                 <RadzenRow>
                     <RadzenFormField Text="Calendar Notification Event Type" Component="CalendarNotificationEventTypeId" Style="width: 100%">
-                        <RadzenDropDown TValue="int?" TextProperty="Title" @bind-Value="@resourceCache.CalendarAgendaRowClickEventActionId" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="TicketRowClickEventActionId" LoadData="calendarNotificationEventTypesLoadData" Data="@calendarNotificationEventTypes" ValueProperty="CalendarNotificationEventTypeId"></RadzenDropDown> 
+                        <RadzenDropDown TValue="int?" TextProperty="Title" @bind-Value="@resourceCache.CalendarNotificationEventTypeId" AllowFiltering="true" FilterOperator="Radzen.StringFilterOperator.Contains" FilterCaseSensitivity="Radzen.FilterCaseSensitivity.CaseInsensitive" AllowClear="true" ClearSearchAfterSelection="true" Name="TicketRowClickEventActionId" LoadData="calendarNotificationEventTypesLoadData" Data="@calendarNotificationEventTypes" ValueProperty="CalendarNotificationEventTypeId"></RadzenDropDown> 
                     </RadzenFormField>
                 </RadzenRow>
                 <RadzenRow>
@@ -193,14 +193,14 @@
 
                     </RadzenColumn>
                 </RadzenRow>
-<RadzenRow>
+                <RadzenRow Visible=false>
                     <RadzenColumn>
                         <RadzenLabel Text="Calendar Notify in Teams?" Component="CalendarNotificationTargetTeams" style="width: 100%" />
                         <RadzenCheckBox @bind-Value="@resourceCache.CalendarNotificationTargetTeams" Name="CalendarNotificationTargetTeams" />
 
                     </RadzenColumn>
                 </RadzenRow>
-<RadzenRow>
+                <RadzenRow>
                     <RadzenColumn>
                         <RadzenLabel Text="Calendar Notify in Time Guard Dialog?" Component="CalendarNotificationTargetTimeGuardDialog" style="width: 100%" />
                         <RadzenCheckBox @bind-Value="@resourceCache.CalendarNotificationTargetTimeGuardDialog" Name="CalendarNotificationTargetTimeGuardDialog" />

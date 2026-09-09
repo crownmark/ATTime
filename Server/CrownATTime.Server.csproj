@@ -71,6 +71,9 @@
     <Content Update="wwwroot\scripts\functions.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\sounds\appointment-reminder-soft-chime.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\EmailImages\" />

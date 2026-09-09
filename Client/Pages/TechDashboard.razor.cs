@@ -1387,36 +1387,109 @@ namespace CrownATTime.Client.Pages
             if (resource.CalendarNotificationEventTypeId == 1)
             {
                 //Get upcoming calendar appointment due in next 15 minutes
-                var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && (e.EventType.Contains("Remote") || e.EventType.Contains("Onsite"))).ToList();
-                
-                //Send teams notification reminder
+                //var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && (e.EventType.Contains("Remote") || e.EventType.Contains("Onsite"))).ToList();
+                var now = DateTime.Now;
+                var fifteenMinutesFromNow = now.AddMinutes(15);
+
+                var appt = calendarEvents
+                    .Where(e =>
+                        e.Start >= now &&
+                        e.Start <= fifteenMinutesFromNow &&
+                        e.ResourceId == resource.Id &&
+                        (e.EventType?.Contains("Remote") == true || e.EventType?.Contains("Onsite") == true))
+                    .ToList();
+
                 foreach (var a in appt)
                 {
+                    //play sound notification
+                    if (resource.CalendarNotificationTargetSound)
+                    {
+                        await JSRuntime.InvokeVoidAsync("appointmentAudio.play");
+                    }
+
+                    //display notification dialog message
+                    if (resource.CalendarNotificationTargetTimeGuardDialog)
+                    {
+                        await DialogService.Alert($"You have an upcoming calendar appointment: {a.Title} at {a.Start.ToLocalTime().ToShortTimeString()}", "Upcoming Calendar Appointment", new AlertOptions() { Width = "400px", OkButtonText = "OK" });
+
+                    }                   
+
+                    //Send teams notification reminder
+
+                }
+            }
+            else if ( resource.CalendarNotificationEventTypeId == 2)
+            {
+                //Get upcoming calendar appointment due in next 15 minutes
+                //var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && e.EventType.Contains("Flexible")).ToList();
+                var now = DateTime.Now;
+                var fifteenMinutesFromNow = now.AddMinutes(15);
+
+                var appt = calendarEvents
+                    .Where(e =>
+                        e.Start >= now &&
+                        e.Start <= fifteenMinutesFromNow &&
+                        e.ResourceId == resource.Id &&
+                        (e.EventType?.Contains("Flexible") == true))
+                    .ToList();
+
+                foreach (var a in appt)
+                {
+                    //play sound notification
+                    if (resource.CalendarNotificationTargetSound)
+                    {
+                        await JSRuntime.InvokeVoidAsync("appointmentAudio.play");
+                    }
+
+                    //display notification dialog message
+                    if (resource.CalendarNotificationTargetTimeGuardDialog)
+                    {
+                        await DialogService.Alert($"You have an upcoming calendar appointment: {a.Title} at {a.Start.ToLocalTime().ToShortTimeString()}", "Upcoming Calendar Appointment", new AlertOptions() { Width = "400px", OkButtonText = "OK" });
+
+                    }                    
+
+                    //Send teams notification reminder
+                    if (resource.CalendarNotificationTargetTeams)
+                    {
+                        //await JSRuntime.InvokeVoidAsync("sendTeamsNotification", $"You have an upcoming calendar appointment: {a.Title} at {a.Start.ToLocalTime().ToShortTimeString()}");
+
+                    }
+                }
+
+            }
+            else if (resource.CalendarNotificationEventTypeId == 3)
+            {
+                //Get upcoming calendar appointment due in next 15 minutes
+                var now = DateTime.Now;
+                var fifteenMinutesFromNow = now.AddMinutes(15);
+
+                var appt = calendarEvents
+                    .Where(e =>
+                        e.Start >= now &&
+                        e.Start <= fifteenMinutesFromNow &&
+                        e.ResourceId == resource.Id &&
+                        e.EventType?.Contains("Appointment") == true)
+                    .ToList();
+
+                foreach (var a in appt)
+                {
+                    
+                    //play sound notification
+                    if (resource.CalendarNotificationTargetSound)
+                    {
+                        await JSRuntime.InvokeVoidAsync("appointmentAudio.play");
+                    }
+
                     //display notification dialog message
                     if (resource.CalendarNotificationTargetTimeGuardDialog)
                     {
                         await DialogService.Alert($"You have an upcoming calendar appointment: {a.Title} at {a.Start.ToLocalTime().ToShortTimeString()}", "Upcoming Calendar Appointment", new AlertOptions() { Width = "400px", OkButtonText = "OK" });
 
                     }
+
+                    //Send teams notification reminder
+
                 }
-            }
-            else if ( resource.CalendarNotificationEventTypeId == 2)
-            {
-                //Get upcoming calendar appointment due in next 15 minutes
-                var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && e.EventType.Contains("Flexible")).ToList();
-
-                //play sound notification
-            }
-            else if (resource.CalendarNotificationEventTypeId == 3)
-            {
-                //Get upcoming calendar appointment due in next 15 minutes
-               // var appt = calendarEvents.Where(e => e.Start.ToLocalTime() <= DateTime.Now.AddMinutes(15) && e.Start.ToLocalTime() >= DateTime.Now && e.ResourceId == resource.Id && (e.EventType.Contains("Remote") || e.EventType.Contains("Onsite"))).ToList();
-
-                //display notification dialog message
-                //foreach (var a in appt)
-                //{
-                //    await DialogService.Alert($"You have an upcoming calendar appointment: {a.Title} at {a.Start.ToLocalTime().ToShortTimeString()}", "Upcoming Calendar Appointment", new AlertOptions() { Width = "400px", OkButtonText = "OK" });
-                //}
             }
             else
             {
