@@ -4664,5 +4664,332 @@ namespace CrownATTime.Server
 
             return itemToDelete;
         }
+    
+        public async Task ExportFormsToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/forms/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/forms/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportFormsToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/forms/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/forms/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnFormsRead(ref IQueryable<CrownATTime.Server.Models.ATTime.Form> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.Form>> GetForms(Query query = null)
+        {
+            var items = Context.Forms.AsQueryable();
+
+            items = items.Include(i => i.FormCategory);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnFormsRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnFormGet(CrownATTime.Server.Models.ATTime.Form item);
+        partial void OnGetFormByFormId(ref IQueryable<CrownATTime.Server.Models.ATTime.Form> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.Form> GetFormByFormId(int formid)
+        {
+            var items = Context.Forms
+                              .AsNoTracking()
+                              .Where(i => i.FormId == formid);
+
+            items = items.Include(i => i.FormCategory);
+ 
+            OnGetFormByFormId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnFormGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnFormCreated(CrownATTime.Server.Models.ATTime.Form item);
+        partial void OnAfterFormCreated(CrownATTime.Server.Models.ATTime.Form item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Form> CreateForm(CrownATTime.Server.Models.ATTime.Form form)
+        {
+            OnFormCreated(form);
+
+            var existingItem = Context.Forms
+                              .Where(i => i.FormId == form.FormId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.Forms.Add(form);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(form).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterFormCreated(form);
+
+            return form;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.Form> CancelFormChanges(CrownATTime.Server.Models.ATTime.Form item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnFormUpdated(CrownATTime.Server.Models.ATTime.Form item);
+        partial void OnAfterFormUpdated(CrownATTime.Server.Models.ATTime.Form item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Form> UpdateForm(int formid, CrownATTime.Server.Models.ATTime.Form form)
+        {
+            OnFormUpdated(form);
+
+            var itemToUpdate = Context.Forms
+                              .Where(i => i.FormId == form.FormId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            form.FormCategory = null;
+
+            Context.Attach(form).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterFormUpdated(form);
+
+            return form;
+        }
+
+        partial void OnFormDeleted(CrownATTime.Server.Models.ATTime.Form item);
+        partial void OnAfterFormDeleted(CrownATTime.Server.Models.ATTime.Form item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.Form> DeleteForm(int formid)
+        {
+            var itemToDelete = Context.Forms
+                              .Where(i => i.FormId == formid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnFormDeleted(itemToDelete);
+
+            Reset();
+
+            Context.Forms.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterFormDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
+        public async Task ExportFormCategoriesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/formcategories/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/formcategories/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportFormCategoriesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/formcategories/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/formcategories/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnFormCategoriesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.FormCategory> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.FormCategory>> GetFormCategories(Query query = null)
+        {
+            var items = Context.FormCategories.AsQueryable();
+
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnFormCategoriesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnFormCategoryGet(CrownATTime.Server.Models.ATTime.FormCategory item);
+        partial void OnGetFormCategoryByFormCategoryId(ref IQueryable<CrownATTime.Server.Models.ATTime.FormCategory> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.FormCategory> GetFormCategoryByFormCategoryId(int formcategoryid)
+        {
+            var items = Context.FormCategories
+                              .AsNoTracking()
+                              .Where(i => i.FormCategoryId == formcategoryid);
+
+ 
+            OnGetFormCategoryByFormCategoryId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnFormCategoryGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnFormCategoryCreated(CrownATTime.Server.Models.ATTime.FormCategory item);
+        partial void OnAfterFormCategoryCreated(CrownATTime.Server.Models.ATTime.FormCategory item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.FormCategory> CreateFormCategory(CrownATTime.Server.Models.ATTime.FormCategory formcategory)
+        {
+            OnFormCategoryCreated(formcategory);
+
+            var existingItem = Context.FormCategories
+                              .Where(i => i.FormCategoryId == formcategory.FormCategoryId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.FormCategories.Add(formcategory);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(formcategory).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterFormCategoryCreated(formcategory);
+
+            return formcategory;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.FormCategory> CancelFormCategoryChanges(CrownATTime.Server.Models.ATTime.FormCategory item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnFormCategoryUpdated(CrownATTime.Server.Models.ATTime.FormCategory item);
+        partial void OnAfterFormCategoryUpdated(CrownATTime.Server.Models.ATTime.FormCategory item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.FormCategory> UpdateFormCategory(int formcategoryid, CrownATTime.Server.Models.ATTime.FormCategory formcategory)
+        {
+            OnFormCategoryUpdated(formcategory);
+
+            var itemToUpdate = Context.FormCategories
+                              .Where(i => i.FormCategoryId == formcategory.FormCategoryId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+
+            Context.Attach(formcategory).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterFormCategoryUpdated(formcategory);
+
+            return formcategory;
+        }
+
+        partial void OnFormCategoryDeleted(CrownATTime.Server.Models.ATTime.FormCategory item);
+        partial void OnAfterFormCategoryDeleted(CrownATTime.Server.Models.ATTime.FormCategory item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.FormCategory> DeleteFormCategory(int formcategoryid)
+        {
+            var itemToDelete = Context.FormCategories
+                              .Where(i => i.FormCategoryId == formcategoryid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnFormCategoryDeleted(itemToDelete);
+
+            Reset();
+
+            Context.FormCategories.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterFormCategoryDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
         }
 }

@@ -410,5 +410,33 @@ namespace CrownATTime.Server.Controllers
         {
             return ToExcel(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
         }
+
+        [HttpGet("/export/ATTime/forms/csv")]
+        [HttpGet("/export/ATTime/forms/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportFormsToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetForms(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/forms/excel")]
+        [HttpGet("/export/ATTime/forms/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportFormsToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetForms(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/formcategories/csv")]
+        [HttpGet("/export/ATTime/formcategories/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportFormCategoriesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetFormCategories(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/formcategories/excel")]
+        [HttpGet("/export/ATTime/formcategories/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportFormCategoriesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetFormCategories(), Request.Query, false), fileName);
+        }
     }
 }

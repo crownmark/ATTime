@@ -162,6 +162,13 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.WorkflowStepTypeId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.Form>()
+              .HasOne(i => i.FormCategory)
+              .WithMany(i => i.Forms)
+              .HasForeignKey(i => i.FormCategoryId)
+              .HasPrincipalKey(i => i.FormCategoryId)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
               .Property(p => p.SharedWithEveryone)
               .HasDefaultValueSql(@"((0))");
@@ -426,6 +433,10 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.FormCategory>()
+              .Property(p => p.Active)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
               .HasColumnType("datetimeoffset");
@@ -511,6 +522,10 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStepType> WorkflowStepTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> WorkflowTriggerTypes { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.Form> Forms { get; set; }
+
+        public DbSet<CrownATTime.Server.Models.ATTime.FormCategory> FormCategories { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());
