@@ -61,6 +61,8 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.Duration>("Durations");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.DurationType>("DurationTypes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.EmailTemplate>("EmailTemplates");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.FormCategory>("FormCategories");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.Form>("Forms");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.LiveLink>("LiveLinks");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.NoteTemplate>("NoteTemplates");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.ResourceCache>("ResourceCaches");
@@ -78,8 +80,7 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStep>("WorkflowSteps");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStepType>("WorkflowStepTypes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>("WorkflowTriggerTypes");
-    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.Form>("Forms");
-    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.FormCategory>("FormCategories");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>("FavoriteBillingCodes");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));

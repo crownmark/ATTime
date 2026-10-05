@@ -131,5 +131,7 @@ namespace CrownATTime.Server.Models.ATTime
         public bool CalendarNotificationTargetTeams { get; set; }
 
         public bool CalendarNotificationTargetTimeGuardDialog { get; set; }
+
+        public ICollection<FavoriteBillingCode> FavoriteBillingCodes { get; set; }
     }
 }

@@ -90,6 +90,12 @@ namespace CrownATTime.Client.Pages
 
         protected int calendarNotificationEventTypesCount;
 
+        protected IEnumerable<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> favoriteBillingCodes;
+
+        protected int favoriteBillingCodesCount;
+
+        protected RadzenDataGrid<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> favoriteBillingCodesGrid { get; set; }
+
 
 
         protected async Task FormSubmit()
@@ -224,6 +230,60 @@ namespace CrownATTime.Client.Pages
         }
 
 
+        protected async Task favoriteBillingCodesLoadData(LoadDataArgs args)
+        {
+            try
+            {
+                //var result = await ATTimeService.GetFavoriteBillingCodes(new Query {Expand = "BillingCodeCache", Top = args.Top, Skip = args.Skip, Filter = $"ResourceCacheId eq {resourceCache.Id} and {(string.IsNullOrEmpty(args.Filter)? "true" : args.Filter)}", OrderBy = $"SortOrder" });
+                var result = await ATTimeService.GetFavoriteBillingCodes(expand: "BillingCodeCache", top: args.Top, skip: args.Skip, filter: $"ResourceCacheId eq {resourceCache.Id} and {(string.IsNullOrEmpty(args.Filter)? "true" : args.Filter)}", orderby: $"SortOrder" );
+
+                favoriteBillingCodes = result.Value.AsODataEnumerable();
+                favoriteBillingCodesCount = result.Count;
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to load Favorite Billing Codes.  {ex.Message}" });
+            }
+        }
+
+
         
+
+        protected async System.Threading.Tasks.Task AddFavoriteBillingCodeButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+        {
+            await DialogService.OpenAsync<AddFavoriteBillingCode>("Add Favorite Billing Code", new Dictionary<string, object>() { {"ResourceCacheId", resourceCache.Id} });
+            await favoriteBillingCodesGrid.Reload();
+        }
+
+        protected async System.Threading.Tasks.Task FavoriteBillingCodesDataGridRowClick(Radzen.DataGridRowMouseEventArgs<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> args)
+        {
+            try
+            {
+                await DialogService.OpenAsync<EditFavoriteBillingCode>("Edit Favorite Billing Code", new Dictionary<string, object>() { { "FavoriteBillingCodeId", args.Data.FavoriteBillingCodeId } });
+                await favoriteBillingCodesGrid.Reload();
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to edit Favorite Billing Code.  {ex.Message}" });
+            }
+        }
+
+        protected async System.Threading.Tasks.Task DeleteFavoriteBillingCodeButtonClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args, FavoriteBillingCode favoriteBillingCode)
+        {
+            try
+            {
+                var confirmResult = await DialogService.Confirm("Are you sure you want to delete this Favorite Billing Code?", "Delete Favorite Billing Code", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+                if (confirmResult == true)
+                {
+                    await ATTimeService.DeleteFavoriteBillingCode(favoriteBillingCode.FavoriteBillingCodeId);
+                    await favoriteBillingCodesGrid.Reload();
+                }
+            }
+            catch(Exception ex)
+            {
+                
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Unable to delete Favorite Billing Code.  {ex.Message}" });
+            }
+        }
     }
 }

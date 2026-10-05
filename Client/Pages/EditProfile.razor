@@ -127,6 +127,22 @@
                 </RadzenColumn>
               </RadzenRow>
           </RadzenFieldset>
+          <RadzenFieldset Text="Favorite Time Entry Billing Codes" Icon="bookmark_star" AllowCollapse="true">
+              <RadzenStack>
+                   <RadzenButton Text="Add" Variant="Radzen.Variant.Outlined" Icon="bookmark_add" Style="width: 100px" Size="Radzen.ButtonSize.Small" Click="@AddFavoriteBillingCodeButtonClick"></RadzenButton>
+                   <RadzenDataGrid @ref="@favoriteBillingCodesGrid" TItem="CrownATTime.Server.Models.ATTime.FavoriteBillingCode" Data="@favoriteBillingCodes" ColumnWidth="200px" AllowSorting="true" AllowPaging="true" AllowFiltering="true" LoadData="@favoriteBillingCodesLoadData" Count="@favoriteBillingCodesCount" RowClick="@FavoriteBillingCodesDataGridRowClick" PagerAlwaysVisible="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.FavoriteBillingCode" Property="SortOrder" Title="SortOrder" Width="70px" />
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.FavoriteBillingCode" Property="BillingCodeCache.Name" Title="Billing Code" />
+                        <RadzenDataGridColumn TItem="CrownATTime.Server.Models.ATTime.FavoriteBillingCode" Width="50px">
+                            <Template Context="data">
+                                <RadzenButton Icon="delete" ButtonStyle="Radzen.ButtonStyle.Danger" Variant="Radzen.Variant.Outlined" Size="Radzen.ButtonSize.Small" Click="@((args) => DeleteFavoriteBillingCodeButtonClick(args, data))" @onclick:stopPropagation="true"></RadzenButton>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+              </RadzenStack>
+          </RadzenFieldset>
           <RadzenFieldset Text="Auto-Refresh / Timers" Icon="av_timer" AllowCollapse="true" Style="margin-bottom: 5px">
               <RadzenColumn>
                   <RadzenRow AlignItems="Radzen.AlignItems.Center" Style="margin-bottom: 5px">

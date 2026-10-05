@@ -156,7 +156,7 @@ namespace CrownATTime.Client.Pages
 
         protected string documentsSearch = "";
 
-
+        private Dictionary<int, int> favoriteLookup = new();
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -259,8 +259,43 @@ namespace CrownATTime.Client.Pages
                 }
                 var liveLinksResult = await ATTimeService.GetLiveLinks(filter: $"(contains(AssignedTo, '{resource.Email}') and Active eq true) or (ShareWithOthers eq true and Active eq true)");
                 liveLinks = liveLinksResult.Value.ToList();
-                var billingCodeItems = await ATTimeService.GetBillingCodeCaches(filter: $"IsActive eq true");// await AutotaskService.GetBillingCodes(); //cache in db
-                billingCodes = billingCodeItems.Value.ToList();
+                //var billingCodeItems = await ATTimeService.GetBillingCodeCaches(filter: $"IsActive eq true");// await AutotaskService.GetBillingCodes(); //cache in db
+                //billingCodes = billingCodeItems.Value.ToList();
+
+                var billingCodeItems = await ATTimeService.GetBillingCodeCaches(filter: "IsActive eq true");
+
+                var favoriteResult = await ATTimeService.GetFavoriteBillingCodes(
+                    expand: "BillingCodeCache",
+                    filter: $"ResourceCacheId eq {resource.Id}",
+                    orderby: "SortOrder"
+                );
+
+                var favorites = favoriteResult.Value.ToList();
+
+                // BillingCodeCacheId -> SortOrder
+                favoriteLookup = favorites
+                    .GroupBy(f => f.BillingCodeCacheId)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Min(f => f.SortOrder)
+                    );
+
+                billingCodes = billingCodeItems.Value
+                    // Favorites first
+                    .OrderBy(b => favoriteLookup.ContainsKey(b.Id) ? 0 : 1)
+
+                    // Favorites ordered by their SortOrder.
+                    // Non-favorites all get MaxValue so this doesn't affect their alpha sorting.
+                    .ThenBy(b => favoriteLookup.TryGetValue(b.Id, out var sortOrder)
+                        ? sortOrder
+                        : int.MaxValue)
+
+                    // Alphabetical within equal favorite sort orders,
+                    // and alphabetical for all non-favorites.
+                    .ThenBy(b => b.Name)
+                    .ToList();
+
+
                 var roles = await ATTimeService.GetRoleCaches(filter: $"IsActive eq true");// await AutotaskService.GetRoles(); //cache in db
                 var serviceDeskRoles = await ATTimeService.GetServiceDeskRoleCaches(filter: $"ResourceId eq {resource.Id} and IsActive eq true");// await AutotaskService.GetServiceDeskRoles(resource.id);
                 mappedRoles = AutotaskService.MapToServiceDeskRoles(roles.Value.ToList(), serviceDeskRoles.Value.ToList(), true); //get from db

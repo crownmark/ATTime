@@ -1,0 +1,37 @@
+@page "/edit-favorite-billing-code"
+
+@attribute [Authorize]
+
+<PageTitle>Edit FavoriteBillingCode</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save FavoriteBillingCode</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.ATTime.FavoriteBillingCode" Data="@(favoriteBillingCode)" Visible="@(favoriteBillingCode != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Billing Code Cache" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(billingCodeCachesForBillingCodeCacheId)" TextProperty="Name" ValueProperty="Id" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(favoriteBillingCode.BillingCodeCacheId)" Name="BillingCodeCacheId"
+                         Count=@billingCodeCachesForBillingCodeCacheIdCount LoadData=@billingCodeCachesForBillingCodeCacheIdLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Resource Cache" Variant="Variant.Outlined" Visible="false">
+                  <ChildContent>
+                    <RadzenDropDown Data="@(resourceCachesForResourceCacheId)" TextProperty="FullName" ValueProperty="Id" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(favoriteBillingCode.ResourceCacheId)" Name="ResourceCacheId"
+                         Count=@resourceCachesForResourceCacheIdCount LoadData=@resourceCachesForResourceCacheIdLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Sort Order" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(favoriteBillingCode.SortOrder)" Name="SortOrder" AutoCompleteType="AutoCompleteType.Off"/>
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+
