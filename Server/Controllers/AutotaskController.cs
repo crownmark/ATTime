@@ -773,6 +773,7 @@ namespace CrownATTime.Server.Controllers
 
                 //var serviceCallcontent = await serviceCallresponse.Content.ReadAsStringAsync();
                 //var serviceCalls = JsonSerializer.Deserialize<AutotaskItemsResponse<ServiceCall>>(serviceCallcontent);
+                
 
                 // ----------------------------------------------------
                 // Merge TicketId into ServiceCalls

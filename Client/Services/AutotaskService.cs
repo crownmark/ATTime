@@ -1455,13 +1455,15 @@ namespace CrownATTime.Client
                     var ticketIds = openTickets.Select(x => x.id).ToList();
                     var serviceCallTickets = await GetServiceCallsForTickets(ticketIds.ToList());
                     var secondaryTickets = openTickets.Where(x => !string.IsNullOrEmpty(x.secondaryResources)).ToList();
+                    var companyCaches = await _atTimeService.GetCompanyCaches();
+                    var companies = companyCaches.Value.ToList();
                     foreach (var item in serviceCallTickets.Items.Where(x => x.assignedToResourceId == resourceId))
                     {
                         string eventTitle = "Service Call";
                         var tickets = openTickets.Where(x => x.id == item.ticketId);
                         if (tickets.Any())
                         {
-                            eventTitle = $"{tickets.FirstOrDefault().ticketNumber} - {tickets.FirstOrDefault().title}";
+                            eventTitle = $"{companies.Find(x => x.Id == tickets.FirstOrDefault().companyID)?.CompanyName} | {tickets.FirstOrDefault().title} - {tickets.FirstOrDefault().ticketNumber}";
                         }
 
 
