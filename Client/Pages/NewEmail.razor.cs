@@ -129,6 +129,22 @@ namespace CrownATTime.Client.Pages
                     var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quoter Quote Link");
                     emailMessage.QuoteLink = quoteUdf.value;
                 }
+                if (Ticket.item.userDefinedFields.Any(x => x.name == "Quote Link 1"))
+                {
+                    var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quote Link 1");
+                    emailMessage.QuoteLink1 = quoteUdf.value;
+                }
+                if (Ticket.item.userDefinedFields.Any(x => x.name == "Quote Link 2"))
+                {
+                    var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quote Link 2");
+                    emailMessage.QuoteLink2 = quoteUdf.value;
+                }
+                if (Ticket.item.userDefinedFields.Any(x => x.name == "Quote Link 3"))
+                {
+                    var quoteUdf = Ticket.item.userDefinedFields.FirstOrDefault(x => x.name == "Quote Link 3");
+                    emailMessage.QuoteLink3 = quoteUdf.value;
+                }
+
                 var checklistResults = await AutotaskService.GetAllTicketChecklistItemsCompletedToday(Ticket.item.id);
                 if (checklistResults.Any())
                 {
@@ -363,8 +379,46 @@ namespace CrownATTime.Client.Pages
 
                 }
 
+                if (!emailMessage.QuoteLinkSelected &&
+                    !emailMessage.QuoteLink1Selected &&
+                    !emailMessage.QuoteLink2Selected &&
+                    !emailMessage.QuoteLink3Selected)
+                {
+                    NotificationService.Notify(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Warning,
+                        Summary = "Quote Link Required",
+                        Detail = "Please select at least one quote link to continue."
+                    });
+
+                    sendingEmail = false;
+                    return;
+                }
+                // Remove extra quote links from email body if not selected
+                emailMessage.Body = QuoteLinkHtmlHelper.RemoveUnselectedQuoteLinks(
+                    emailMessage.Body,
+                    emailMessage.QuoteLinkSelected,
+                    emailMessage.QuoteLink1Selected,
+                    emailMessage.QuoteLink2Selected,
+                    emailMessage.QuoteLink3Selected
+                );
                 // Update QuoteLink Token to Ticket UDF Value
-                emailMessage.Body = EmailService.ReplaceQuoteLinkToken(emailMessage.Body, emailMessage);
+                if (emailMessage.QuoteLinkSelected)
+                {
+                    emailMessage.Body = EmailService.ReplaceQuoteLinkToken(emailMessage.Body, emailMessage);
+                }
+                if (emailMessage.QuoteLink1Selected)
+                {
+                    emailMessage.Body = EmailService.ReplaceQuoteLink1Token(emailMessage.Body, emailMessage);
+                }
+                if (emailMessage.QuoteLink2Selected)
+                {
+                    emailMessage.Body = EmailService.ReplaceQuoteLink2Token(emailMessage.Body, emailMessage);
+                }   
+                if(emailMessage.QuoteLink3Selected)
+                {
+                    emailMessage.Body = EmailService.ReplaceQuoteLink3Token(emailMessage.Body, emailMessage);
+                }
 
                 // Convert [EmailMessage.Body} Token to plain text
                 emailMessage.Body = EmailService.ReplaceEmailBodyTokenOnSubmit(emailMessage.Body);
@@ -557,13 +611,103 @@ namespace CrownATTime.Client.Pages
                     updateTicket.Id = Ticket.item.id;
                     updateTicket.userDefinedFields = listUdf.ToArray();
                     await AutotaskService.UpdateTicket(updateTicket);
-                        
+
                 }
 
             }
             catch (Exception ex)
             {
                 NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error updating Ticket Quoter Quote Link.  {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task QuoteLinkChange1(System.String args)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(args))
+                {
+                    Ticket = await AutotaskService.GetTicket(Ticket.item.id);
+                    var listUdf = new List<TicketUpdateDto.Userdefinedfield>();
+                    var updateUdf = new TicketUpdateDto.Userdefinedfield()
+                    {
+                        name = "Quote Link 1",
+                        value = args.ToString()
+                    };
+                    listUdf.Add(updateUdf);
+                    var updateTicket = new TicketUpdateDto();
+                    updateTicket.Status = Ticket.item.status;
+                    updateTicket.Id = Ticket.item.id;
+                    updateTicket.userDefinedFields = listUdf.ToArray();
+                    await AutotaskService.UpdateTicket(updateTicket);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error updating Ticket Quote Link.  {ex.Message}" });
+
+            }
+        }
+
+        protected async System.Threading.Tasks.Task QuoteLinkChange2(System.String args)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(args))
+                {
+                    Ticket = await AutotaskService.GetTicket(Ticket.item.id);
+                    var listUdf = new List<TicketUpdateDto.Userdefinedfield>();
+                    var updateUdf = new TicketUpdateDto.Userdefinedfield()
+                    {
+                        name = "Quote Link 2",
+                        value = args.ToString()
+                    };
+                    listUdf.Add(updateUdf);
+                    var updateTicket = new TicketUpdateDto();
+                    updateTicket.Status = Ticket.item.status;
+                    updateTicket.Id = Ticket.item.id;
+                    updateTicket.userDefinedFields = listUdf.ToArray();
+                    await AutotaskService.UpdateTicket(updateTicket);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error updating Ticket Quote Link.  {ex.Message}" });
+
+            }
+        }
+        
+        protected async System.Threading.Tasks.Task QuoteLinkChange3(System.String args)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(args))
+                {
+                    Ticket = await AutotaskService.GetTicket(Ticket.item.id);
+                    var listUdf = new List<TicketUpdateDto.Userdefinedfield>();
+                    var updateUdf = new TicketUpdateDto.Userdefinedfield()
+                    {
+                        name = "Quote Link 3",
+                        value = args.ToString()
+                    };
+                    listUdf.Add(updateUdf);
+                    var updateTicket = new TicketUpdateDto();
+                    updateTicket.Status = Ticket.item.status;
+                    updateTicket.Id = Ticket.item.id;
+                    updateTicket.userDefinedFields = listUdf.ToArray();
+                    await AutotaskService.UpdateTicket(updateTicket);
+                        
+                }
+
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = $"Error updating Ticket Quote Link.  {ex.Message}" });
 
             }
         }

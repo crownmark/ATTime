@@ -1,0 +1,55 @@
+@page "/edit-streakwave-sync-rule"
+@attribute [Authorize]
+
+<PageTitle>Edit StreakwaveSyncRule</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save StreakwaveSyncRule</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.DistributorProducts.StreakwaveSyncRule" Data="@(streakwaveSyncRule)" Visible="@(streakwaveSyncRule != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Manufacturer Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(streakwaveSyncRule.ManufacturerName)" Name="ManufacturerName" AutoCompleteType="AutoCompleteType.Off" MaxLength="160" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Category Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(streakwaveSyncRule.CategoryName)" Name="CategoryName" AutoCompleteType="AutoCompleteType.Off" MaxLength="200" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Sub Category Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(streakwaveSyncRule.SubCategoryName)" Name="SubCategoryName" AutoCompleteType="AutoCompleteType.Off" MaxLength="200" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Type Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(streakwaveSyncRule.ProductTypeName)" Name="ProductTypeName" AutoCompleteType="AutoCompleteType.Off" MaxLength="200" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Keyword" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(streakwaveSyncRule.Keyword)" Name="Keyword" AutoCompleteType="AutoCompleteType.Off" MaxLength="200" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Is Enabled" Component="IsEnabled" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(streakwaveSyncRule.IsEnabled)" Name="IsEnabled" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Created At Utc" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@(streakwaveSyncRule.CreatedAtUtc)" Name="CreatedAtUtc" />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+

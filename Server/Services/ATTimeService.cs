@@ -1857,6 +1857,174 @@ namespace CrownATTime.Server
             return itemToDelete;
         }
     
+        public async Task ExportFavoriteBillingCodesToExcel(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/favoritebillingcodes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/favoritebillingcodes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        public async Task ExportFavoriteBillingCodesToCSV(Query query = null, string fileName = null)
+        {
+            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/favoritebillingcodes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/favoritebillingcodes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
+        }
+
+        partial void OnFavoriteBillingCodesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> items);
+
+        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>> GetFavoriteBillingCodes(Query query = null)
+        {
+            var items = Context.FavoriteBillingCodes.AsQueryable();
+
+            items = items.Include(i => i.BillingCodeCache);
+            items = items.Include(i => i.ResourceCache);
+
+            if (query != null)
+            {
+                if (!string.IsNullOrEmpty(query.Expand))
+                {
+                    var propertiesToExpand = query.Expand.Split(',');
+                    foreach(var p in propertiesToExpand)
+                    {
+                        items = items.Include(p.Trim());
+                    }
+                }
+
+                ApplyQuery(ref items, query);
+            }
+
+            OnFavoriteBillingCodesRead(ref items);
+
+            return await Task.FromResult(items);
+        }
+
+        partial void OnFavoriteBillingCodeGet(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
+        partial void OnGetFavoriteBillingCodeByFavoriteBillingCodeId(ref IQueryable<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> items);
+
+
+        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> GetFavoriteBillingCodeByFavoriteBillingCodeId(int favoritebillingcodeid)
+        {
+            var items = Context.FavoriteBillingCodes
+                              .AsNoTracking()
+                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcodeid);
+
+            items = items.Include(i => i.BillingCodeCache);
+            items = items.Include(i => i.ResourceCache);
+ 
+            OnGetFavoriteBillingCodeByFavoriteBillingCodeId(ref items);
+
+            var itemToReturn = items.FirstOrDefault();
+
+            OnFavoriteBillingCodeGet(itemToReturn);
+
+            return await Task.FromResult(itemToReturn);
+        }
+
+        partial void OnFavoriteBillingCodeCreated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
+        partial void OnAfterFavoriteBillingCodeCreated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> CreateFavoriteBillingCode(CrownATTime.Server.Models.ATTime.FavoriteBillingCode favoritebillingcode)
+        {
+            OnFavoriteBillingCodeCreated(favoritebillingcode);
+
+            var existingItem = Context.FavoriteBillingCodes
+                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcode.FavoriteBillingCodeId)
+                              .FirstOrDefault();
+
+            if (existingItem != null)
+            {
+               throw new Exception("Item already available");
+            }            
+
+            try
+            {
+                Context.FavoriteBillingCodes.Add(favoritebillingcode);
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(favoritebillingcode).State = EntityState.Detached;
+                throw;
+            }
+
+            OnAfterFavoriteBillingCodeCreated(favoritebillingcode);
+
+            return favoritebillingcode;
+        }
+
+        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> CancelFavoriteBillingCodeChanges(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item)
+        {
+            var entityToCancel = Context.Entry(item);
+            if (entityToCancel.State == EntityState.Modified)
+            {
+              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
+              entityToCancel.State = EntityState.Unchanged;
+            }
+
+            return item;
+        }
+
+        partial void OnFavoriteBillingCodeUpdated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
+        partial void OnAfterFavoriteBillingCodeUpdated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> UpdateFavoriteBillingCode(int favoritebillingcodeid, CrownATTime.Server.Models.ATTime.FavoriteBillingCode favoritebillingcode)
+        {
+            OnFavoriteBillingCodeUpdated(favoritebillingcode);
+
+            var itemToUpdate = Context.FavoriteBillingCodes
+                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcode.FavoriteBillingCodeId)
+                              .FirstOrDefault();
+
+            if (itemToUpdate == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            Reset();
+            favoritebillingcode.BillingCodeCache = null;
+            favoritebillingcode.ResourceCache = null;
+
+            Context.Attach(favoritebillingcode).State = EntityState.Modified;
+
+            Context.SaveChanges();
+
+            OnAfterFavoriteBillingCodeUpdated(favoritebillingcode);
+
+            return favoritebillingcode;
+        }
+
+        partial void OnFavoriteBillingCodeDeleted(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
+        partial void OnAfterFavoriteBillingCodeDeleted(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
+
+        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> DeleteFavoriteBillingCode(int favoritebillingcodeid)
+        {
+            var itemToDelete = Context.FavoriteBillingCodes
+                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcodeid)
+                              .FirstOrDefault();
+
+            if (itemToDelete == null)
+            {
+               throw new Exception("Item no longer available");
+            }
+
+            OnFavoriteBillingCodeDeleted(itemToDelete);
+
+            Reset();
+
+            Context.FavoriteBillingCodes.Remove(itemToDelete);
+
+            try
+            {
+                Context.SaveChanges();
+            }
+            catch
+            {
+                Context.Entry(itemToDelete).State = EntityState.Unchanged;
+                throw;
+            }
+
+            OnAfterFavoriteBillingCodeDeleted(itemToDelete);
+
+            return itemToDelete;
+        }
+    
         public async Task ExportFormCategoriesToExcel(Query query = null, string fileName = null)
         {
             navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/formcategories/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/formcategories/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
@@ -4988,174 +5156,6 @@ namespace CrownATTime.Server
             }
 
             OnAfterWorkflowTriggerTypeDeleted(itemToDelete);
-
-            return itemToDelete;
-        }
-    
-        public async Task ExportFavoriteBillingCodesToExcel(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/favoritebillingcodes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/favoritebillingcodes/excel(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        public async Task ExportFavoriteBillingCodesToCSV(Query query = null, string fileName = null)
-        {
-            navigationManager.NavigateTo(query != null ? query.ToUrl($"export/attime/favoritebillingcodes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')") : $"export/attime/favoritebillingcodes/csv(fileName='{(!string.IsNullOrEmpty(fileName) ? UrlEncoder.Default.Encode(fileName) : "Export")}')", true);
-        }
-
-        partial void OnFavoriteBillingCodesRead(ref IQueryable<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> items);
-
-        public async Task<IQueryable<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>> GetFavoriteBillingCodes(Query query = null)
-        {
-            var items = Context.FavoriteBillingCodes.AsQueryable();
-
-            items = items.Include(i => i.BillingCodeCache);
-            items = items.Include(i => i.ResourceCache);
-
-            if (query != null)
-            {
-                if (!string.IsNullOrEmpty(query.Expand))
-                {
-                    var propertiesToExpand = query.Expand.Split(',');
-                    foreach(var p in propertiesToExpand)
-                    {
-                        items = items.Include(p.Trim());
-                    }
-                }
-
-                ApplyQuery(ref items, query);
-            }
-
-            OnFavoriteBillingCodesRead(ref items);
-
-            return await Task.FromResult(items);
-        }
-
-        partial void OnFavoriteBillingCodeGet(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
-        partial void OnGetFavoriteBillingCodeByFavoriteBillingCodeId(ref IQueryable<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> items);
-
-
-        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> GetFavoriteBillingCodeByFavoriteBillingCodeId(int favoritebillingcodeid)
-        {
-            var items = Context.FavoriteBillingCodes
-                              .AsNoTracking()
-                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcodeid);
-
-            items = items.Include(i => i.BillingCodeCache);
-            items = items.Include(i => i.ResourceCache);
- 
-            OnGetFavoriteBillingCodeByFavoriteBillingCodeId(ref items);
-
-            var itemToReturn = items.FirstOrDefault();
-
-            OnFavoriteBillingCodeGet(itemToReturn);
-
-            return await Task.FromResult(itemToReturn);
-        }
-
-        partial void OnFavoriteBillingCodeCreated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
-        partial void OnAfterFavoriteBillingCodeCreated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> CreateFavoriteBillingCode(CrownATTime.Server.Models.ATTime.FavoriteBillingCode favoritebillingcode)
-        {
-            OnFavoriteBillingCodeCreated(favoritebillingcode);
-
-            var existingItem = Context.FavoriteBillingCodes
-                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcode.FavoriteBillingCodeId)
-                              .FirstOrDefault();
-
-            if (existingItem != null)
-            {
-               throw new Exception("Item already available");
-            }            
-
-            try
-            {
-                Context.FavoriteBillingCodes.Add(favoritebillingcode);
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(favoritebillingcode).State = EntityState.Detached;
-                throw;
-            }
-
-            OnAfterFavoriteBillingCodeCreated(favoritebillingcode);
-
-            return favoritebillingcode;
-        }
-
-        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> CancelFavoriteBillingCodeChanges(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item)
-        {
-            var entityToCancel = Context.Entry(item);
-            if (entityToCancel.State == EntityState.Modified)
-            {
-              entityToCancel.CurrentValues.SetValues(entityToCancel.OriginalValues);
-              entityToCancel.State = EntityState.Unchanged;
-            }
-
-            return item;
-        }
-
-        partial void OnFavoriteBillingCodeUpdated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
-        partial void OnAfterFavoriteBillingCodeUpdated(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> UpdateFavoriteBillingCode(int favoritebillingcodeid, CrownATTime.Server.Models.ATTime.FavoriteBillingCode favoritebillingcode)
-        {
-            OnFavoriteBillingCodeUpdated(favoritebillingcode);
-
-            var itemToUpdate = Context.FavoriteBillingCodes
-                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcode.FavoriteBillingCodeId)
-                              .FirstOrDefault();
-
-            if (itemToUpdate == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            Reset();
-            favoritebillingcode.BillingCodeCache = null;
-            favoritebillingcode.ResourceCache = null;
-
-            Context.Attach(favoritebillingcode).State = EntityState.Modified;
-
-            Context.SaveChanges();
-
-            OnAfterFavoriteBillingCodeUpdated(favoritebillingcode);
-
-            return favoritebillingcode;
-        }
-
-        partial void OnFavoriteBillingCodeDeleted(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
-        partial void OnAfterFavoriteBillingCodeDeleted(CrownATTime.Server.Models.ATTime.FavoriteBillingCode item);
-
-        public async Task<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> DeleteFavoriteBillingCode(int favoritebillingcodeid)
-        {
-            var itemToDelete = Context.FavoriteBillingCodes
-                              .Where(i => i.FavoriteBillingCodeId == favoritebillingcodeid)
-                              .FirstOrDefault();
-
-            if (itemToDelete == null)
-            {
-               throw new Exception("Item no longer available");
-            }
-
-            OnFavoriteBillingCodeDeleted(itemToDelete);
-
-            Reset();
-
-            Context.FavoriteBillingCodes.Remove(itemToDelete);
-
-            try
-            {
-                Context.SaveChanges();
-            }
-            catch
-            {
-                Context.Entry(itemToDelete).State = EntityState.Unchanged;
-                throw;
-            }
-
-            OnAfterFavoriteBillingCodeDeleted(itemToDelete);
 
             return itemToDelete;
         }

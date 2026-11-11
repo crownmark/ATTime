@@ -15,6 +15,16 @@ namespace CrownATTime.Server.Models
         public string BCC { get; set; }
 
         public string QuoteLink { get; set; }
+        public bool QuoteLinkSelected { get; set; }
+        public string QuoteLink1 { get; set; }
+        public bool QuoteLink1Selected { get; set; }
+
+        public string QuoteLink2 { get; set; }
+        public bool QuoteLink2Selected { get; set; }
+
+        public string QuoteLink3 { get; set; }
+        public bool QuoteLink3Selected { get; set; }
+
         public string WaitingCustomerNoteUdf { get; set; }
         public string WaitingCustomerValidationNoteUdf { get; set; }
         public List<IFormFileModel> Attachments { get; set; }

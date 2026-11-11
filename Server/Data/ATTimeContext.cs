@@ -36,6 +36,20 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.DurationTypeId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>()
+              .HasOne(i => i.BillingCodeCache)
+              .WithMany(i => i.FavoriteBillingCodes)
+              .HasForeignKey(i => i.BillingCodeCacheId)
+              .HasPrincipalKey(i => i.Id)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>()
+              .HasOne(i => i.ResourceCache)
+              .WithMany(i => i.FavoriteBillingCodes)
+              .HasForeignKey(i => i.ResourceCacheId)
+              .HasPrincipalKey(i => i.Id)
+              .OnDelete(DeleteBehavior.ClientNoAction);
+
             builder.Entity<CrownATTime.Server.Models.ATTime.Form>()
               .HasOne(i => i.FormCategory)
               .WithMany(i => i.Forms)
@@ -169,20 +183,6 @@ namespace CrownATTime.Server.Data
               .HasPrincipalKey(i => i.WorkflowStepTypeId)
               .OnDelete(DeleteBehavior.ClientNoAction);
 
-            builder.Entity<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>()
-              .HasOne(i => i.BillingCodeCache)
-              .WithMany(i => i.FavoriteBillingCodes)
-              .HasForeignKey(i => i.BillingCodeCacheId)
-              .HasPrincipalKey(i => i.Id)
-              .OnDelete(DeleteBehavior.ClientNoAction);
-
-            builder.Entity<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>()
-              .HasOne(i => i.ResourceCache)
-              .WithMany(i => i.FavoriteBillingCodes)
-              .HasForeignKey(i => i.ResourceCacheId)
-              .HasPrincipalKey(i => i.Id)
-              .OnDelete(DeleteBehavior.ClientNoAction);
-
             builder.Entity<CrownATTime.Server.Models.ATTime.AiPromptConfiguration>()
               .Property(p => p.SharedWithEveryone)
               .HasDefaultValueSql(@"((0))");
@@ -238,6 +238,10 @@ namespace CrownATTime.Server.Data
             builder.Entity<CrownATTime.Server.Models.ATTime.EmailTemplate>()
               .Property(p => p.NotifyTicketSecondaryResources)
               .HasDefaultValueSql(@"((0))");
+
+            builder.Entity<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>()
+              .Property(p => p.SortOrder)
+              .HasDefaultValueSql(@"((1))");
 
             builder.Entity<CrownATTime.Server.Models.ATTime.FormCategory>()
               .Property(p => p.Active)
@@ -375,6 +379,10 @@ namespace CrownATTime.Server.Data
               .Property(p => p.CalendarNotificationTargetTimeGuardDialog)
               .HasDefaultValueSql(@"((0))");
 
+            builder.Entity<CrownATTime.Server.Models.ATTime.ResourceCache>()
+              .Property(p => p.NeoAgentCollapsed)
+              .HasDefaultValueSql(@"((1))");
+
             builder.Entity<CrownATTime.Server.Models.ATTime.TeamsMessageTemplate>()
               .Property(p => p.ShareWithOthers)
               .HasDefaultValueSql(@"((0))");
@@ -451,10 +459,6 @@ namespace CrownATTime.Server.Data
               .Property(p => p.Active)
               .HasDefaultValueSql(@"((1))");
 
-            builder.Entity<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>()
-              .Property(p => p.SortOrder)
-              .HasDefaultValueSql(@"((1))");
-
             builder.Entity<CrownATTime.Server.Models.ATTime.TimeEntry>()
               .Property(p => p.DateWorked)
               .HasColumnType("datetimeoffset");
@@ -507,6 +511,8 @@ namespace CrownATTime.Server.Data
 
         public DbSet<CrownATTime.Server.Models.ATTime.EmailTemplate> EmailTemplates { get; set; }
 
+        public DbSet<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> FavoriteBillingCodes { get; set; }
+
         public DbSet<CrownATTime.Server.Models.ATTime.FormCategory> FormCategories { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.Form> Forms { get; set; }
@@ -544,8 +550,6 @@ namespace CrownATTime.Server.Data
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowStepType> WorkflowStepTypes { get; set; }
 
         public DbSet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType> WorkflowTriggerTypes { get; set; }
-
-        public DbSet<CrownATTime.Server.Models.ATTime.FavoriteBillingCode> FavoriteBillingCodes { get; set; }
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Conventions.Add(_ => new BlankTriggerAddingConvention());

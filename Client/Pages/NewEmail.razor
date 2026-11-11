@@ -77,12 +77,49 @@
                         </RadzenFormField>
                 </RadzenStack>
             </RadzenFieldset>
+            <RadzenLabel Text="Update and Select the Quote Link(s) to include in the email below:" Style="color: var(--rz-warning)" Visible="@quoteTemplate" />
             <RadzenFormField Text="Quote Link" Variant="Variant.Outlined" Visible="@quoteTemplate">
                   <ChildContent>
-                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@emailMessage.QuoteLink" Name="QuoteLink" MaxLength="255" Change="@QuoteLinkChange" />
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" Name="QuoteLinkSelected" @bind-Value="@emailMessage.QuoteLinkSelected"></RadzenCheckBox>
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@emailMessage.QuoteLink" Name="QuoteLink" MaxLength="255" Change="@QuoteLinkChange" />
+                    </RadzenStack>
                   </ChildContent>    
                   <Helper>
-                    <RadzenRequiredValidator Component="QuoteLink" Text="Quote Link is required" />
+                    <RadzenRequiredValidator Component="QuoteLink" Text="Quote Link is required" Visible="@(emailMessage.QuoteLinkSelected)"/>
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Quote Link 2" Variant="Variant.Outlined" Visible="@quoteTemplate">
+                  <ChildContent>
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" Name="QuoteLink1Selected" @bind-Value="@emailMessage.QuoteLink1Selected"></RadzenCheckBox>
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="@emailMessage.QuoteLink1" Name="QuoteLink1" MaxLength="255" Change="@QuoteLinkChange1" />
+                    </RadzenStack>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="QuoteLink" Text="Quote Link is required" Visible="@(emailMessage.QuoteLink1Selected)"/>
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Quote Link 3" Variant="Variant.Outlined" Visible="@quoteTemplate">
+                  <ChildContent>
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" Name="QuoteLink2Selected" @bind-Value="@emailMessage.QuoteLink2Selected"></RadzenCheckBox>
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="emailMessage.QuoteLink2" Name="QuoteLink2" MaxLength="255" Change="@QuoteLinkChange2" />
+                    </RadzenStack>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="QuoteLink" Text="Quote Link is required" Visible="@(emailMessage.QuoteLink2Selected)"/>
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Quote Link 4" Variant="Variant.Outlined" Visible="@quoteTemplate">
+                  <ChildContent>
+                    <RadzenStack Orientation="Radzen.Orientation.Horizontal" AlignItems="Radzen.AlignItems.Center">
+                        <RadzenCheckBox TValue="bool" Name="QuoteLink3Selected" @bind-Value="@emailMessage.QuoteLink3Selected"></RadzenCheckBox>
+                        <RadzenTextBox style="display: block; width: 100%" @bind-Value="emailMessage.QuoteLink3" Name="QuoteLink3" MaxLength="255" Change="@QuoteLinkChange3" />
+                    </RadzenStack>
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="QuoteLink" Text="Quote Link is required" Visible="@(emailMessage.QuoteLink3Selected)" />
                   </Helper>
             </RadzenFormField>
 <RadzenFormField Text="Email Subject" Variant="Variant.Outlined">

@@ -344,6 +344,39 @@ namespace CrownATTime.Client
 
             return body.Replace("{QuoteLink}", safeQuoteLink, StringComparison.OrdinalIgnoreCase);
         }
+        public static string ReplaceQuoteLink1Token(string body, EmailMessage email)
+        {
+            if (string.IsNullOrEmpty(body)) return body ?? string.Empty;
+
+            var quoteLink = email?.QuoteLink1 ?? string.Empty;
+
+            // HTML-encode so special chars don't break the email HTML
+            var safeQuoteLink = WebUtility.HtmlEncode(quoteLink);
+
+            return body.Replace("{QuoteLink1}", safeQuoteLink, StringComparison.OrdinalIgnoreCase);
+        }
+        public static string ReplaceQuoteLink2Token(string body, EmailMessage email)
+        {
+            if (string.IsNullOrEmpty(body)) return body ?? string.Empty;
+
+            var quoteLink = email?.QuoteLink2 ?? string.Empty;
+
+            // HTML-encode so special chars don't break the email HTML
+            var safeQuoteLink = WebUtility.HtmlEncode(quoteLink);
+
+            return body.Replace("{QuoteLink2}", safeQuoteLink, StringComparison.OrdinalIgnoreCase);
+        }
+        public static string ReplaceQuoteLink3Token(string body, EmailMessage email)
+        {
+            if (string.IsNullOrEmpty(body)) return body ?? string.Empty;
+
+            var quoteLink = email?.QuoteLink3 ?? string.Empty;
+
+            // HTML-encode so special chars don't break the email HTML
+            var safeQuoteLink = WebUtility.HtmlEncode(quoteLink);
+
+            return body.Replace("{QuoteLink3}", safeQuoteLink, StringComparison.OrdinalIgnoreCase);
+        }
 
         public static string ReplaceEmailBodyTokenOnSubmit(string emailBody)
         {

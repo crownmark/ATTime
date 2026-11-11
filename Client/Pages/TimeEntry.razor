@@ -577,9 +577,13 @@
 
                 </RadzenFieldset>
             </div> *@
-        
             <RadzenFieldset Text="Rocketship" AllowCollapse="true" Icon="rocket_launch" Collapsed="@RocketshipCollapsed" Visible="false">
-                <iframe class="responsive-iframe" src="@(rocketshipUrl)"></iframe>
+                <iframe class="responsive-iframe" src="@(rocketshipUrl)" ></iframe>
+        
+            </RadzenFieldset>
+
+            <RadzenFieldset Text="Neo Agent" AllowCollapse="true" Icon="cognition" Collapsed="@NeoAgentCollapsed" Visible="true">
+                <iframe class="responsive-iframe" src="@(neoAgentUrl)" sandbox="allow-forms allow-modals allow-popups allow-same-origin allow-scripts"></iframe>
         
             </RadzenFieldset>
             <RadzenFieldset Text="@($" ITGlue Passwords")" Collapsed="ItgluePasswordsCollapsed" AllowCollapse="true" Icon="password">

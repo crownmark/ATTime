@@ -73,6 +73,7 @@ namespace CrownATTime.Client.Pages
         protected bool pageLoading { get; set; }
         [Parameter]
         public string TicketId { get; set; }
+        public string neoAgentUrl { get; set; }
         public string rocketshipUrl { get; set; }
         public string timeZestUrl { get; set; }
 
@@ -124,6 +125,7 @@ namespace CrownATTime.Client.Pages
         protected bool CompanyDetailsCollapsed { get; set; } = true;
         protected bool ContactDetailsCollapsed { get; set; } = true;
         protected bool RocketshipCollapsed { get; set; } = true;
+        protected bool NeoAgentCollapsed { get; set; } = true;
         protected bool TimeZestCollapsed { get; set; } = true;
         protected bool NextActionsCollapsed { get; set; } = true;
         protected bool DeviceDetailsCollapsed { get; set; } = true;
@@ -249,6 +251,7 @@ namespace CrownATTime.Client.Pages
                     DeviceDetailsCollapsed = resource.DeviceDetailsCollapsed;
                     EmailNotesCollapsed = resource.EmailNotesCollapsed;
                     RocketshipCollapsed = resource.RocketshipCollapsed;
+                    NeoAgentCollapsed = resource.NeoAgentCollapsed;
                     TimeZestCollapsed = resource.TimeZestCollapsed;
                     NextActionsCollapsed = resource.NextActionsCollapsed;
                     ItglueDocumentsCollapsed = resource.ItglueDocumentsCollapsed;
@@ -317,6 +320,7 @@ namespace CrownATTime.Client.Pages
                 }
                 else
                 {
+                    neoAgentUrl = $"https://embed.neoagent.io/autotask/agent?isdarktheme=True&psaversion=2026.6.2.147353&resourceid={resource.Id}&insightkey=FU3UEE5KORLLMZK42JBYFTBEAK&vendorid=830&vendorsuppliedid=b9e807ee-7ce7-421d-8be8-5a5a3a241e86&entityid={ticket.item.id}&signature=TiacRYY4ixXs61W59TOz0+1gzYE=";
                     rocketshipUrl = $"https://r.giantrocketship.net/autotask-insight?isdarktheme=True&psaversion=2025.5.4.114022&resourceid={resource.Id}&vendorid=417&vendorsuppliedid=3d0ee874b9cf11f0bd9b0afe532016f9&entityid={ticket.item.id}&signature=4jO7Fi0PbtnaZtJpdF/xhD5Q92M=";
                     timeZestUrl = $"https://app.timezest.com/autotask/mVqTqmIINIgQJ7W9o5kbdPXC/insight?isdarktheme=True&psaversion=2026.2.1.128101&resourceid={resource.Id}&insightkey=FYFDIULJT76KWXXBHSSHIJECPQ&vendorid=340&vendorsuppliedid=4638&entityid={ticket.item.id}&signature=BVo5Gr+c0+b31qkIH/pXMF7Ttu4=";
 

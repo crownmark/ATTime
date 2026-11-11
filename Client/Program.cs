@@ -28,17 +28,16 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CrownATTime.Client.ApplicationAuthenticationStateProvider>();
 builder.Services.AddAIChatService(o =>
 {
-    o.Model = "gpt-4o-mini";          // example
+    o.Model = "gpt-4o-mini"; // example
     o.Temperature = 0.2;
     o.MaxTokens = 800;
-
     // IMPORTANT: call your server proxy (same-origin) from WASM
     o.Proxy = "/api/aichat";
-
     // leave ApiKey unset in WASM
     o.ApiKey = "";
     o.ApiKeyHeader = "Authorization";
 });
 builder.Services.AddScoped<AiScenarioRunnerService>();
+builder.Services.AddScoped<CrownATTime.Client.DistributorProductsService>();
 var host = builder.Build();
 await host.RunAsync();

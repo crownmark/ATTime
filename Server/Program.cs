@@ -61,6 +61,7 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.Duration>("Durations");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.DurationType>("DurationTypes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.EmailTemplate>("EmailTemplates");
+    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>("FavoriteBillingCodes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.FormCategory>("FormCategories");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.Form>("Forms");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.LiveLink>("LiveLinks");
@@ -80,7 +81,6 @@ builder.Services.AddControllers().AddOData(opt =>
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStep>("WorkflowSteps");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowStepType>("WorkflowStepTypes");
     oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.WorkflowTriggerType>("WorkflowTriggerTypes");
-    oDataBuilderATTime.EntitySet<CrownATTime.Server.Models.ATTime.FavoriteBillingCode>("FavoriteBillingCodes");
     opt.AddRouteComponents("odata/ATTime", oDataBuilderATTime.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme).AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
@@ -105,6 +105,43 @@ builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
     builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin() //.SetIsOriginAllowed((host) => true)
     .WithOrigins(new[] { "https://timeguard.crown.software", "https://localhost:5001" }).AllowCredentials();
 }));
+builder.Services.AddScoped<CrownATTime.Server.DistributorProductsService>();
+builder.Services.AddDbContext<CrownATTime.Server.Data.DistributorProductsContext>(options =>
+{
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DistributorProductsConnection"));
+});
+builder.Services.AddControllers().AddOData(opt =>
+{
+    var oDataBuilderDistributorProducts = new ODataConventionModelBuilder();
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.IngramLenovoFamilyImage>("IngramLenovoFamilyImages");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.IngramLenovoScrapeSource>("IngramLenovoScrapeSources");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.IngramManufacturerContent>("IngramManufacturerContents").EntityType.HasKey(entity => new { entity.VendorName, entity.VendorPartNumber });
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.IngramProduct>("IngramProducts");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.IngramProductEnrichment>("IngramProductEnrichments");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.IngramSyncRule>("IngramSyncRules");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.IngramWarehouseInventory>("IngramWarehouseInventories").EntityType.HasKey(entity => new { entity.IngramPartNumber, entity.WarehouseLocation });
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefedition>("LenovoPsrefeditions");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.LenovoPsreffamily>("LenovoPsreffamilies");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.LenovoPsreffamilyImage>("LenovoPsreffamilyImages");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefimageDatum>("LenovoPsrefimageData");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefskuFamilyMap>("LenovoPsrefskuFamilyMaps");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.StreakwaveProduct>("StreakwaveProducts");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.StreakwaveProductEnrichment>("StreakwaveProductEnrichments");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.StreakwaveSyncRule>("StreakwaveSyncRules");
+    oDataBuilderDistributorProducts.EntitySet<CrownATTime.Server.Models.DistributorProducts.StreakwaveWarehouseStock>("StreakwaveWarehouseStocks").EntityType.HasKey(entity => new { entity.Sku, entity.WarehouseCode });
+    oDataBuilderDistributorProducts.Function("LenovoPsrefgalleryBeforeV27S").Returns<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefgalleryBeforeV27>();
+    oDataBuilderDistributorProducts.Function("IngramProductsForQuotings").Returns<CrownATTime.Server.Models.DistributorProducts.IngramProductsForQuoting>();
+    oDataBuilderDistributorProducts.Function("IngramProductsWithDetails").Returns<CrownATTime.Server.Models.DistributorProducts.IngramProductsWithDetail>();
+    oDataBuilderDistributorProducts.Function("LenovoPsrefapprovedSkuImages").Returns<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefapprovedSkuImage>();
+    oDataBuilderDistributorProducts.Function("LenovoPsrefcurrentFamilies").Returns<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefcurrentFamily>();
+    oDataBuilderDistributorProducts.Function("LenovoPsrefimageStorageSummaries").Returns<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefimageStorageSummary>();
+    oDataBuilderDistributorProducts.Function("LenovoPsrefunmatchedSkus").Returns<CrownATTime.Server.Models.DistributorProducts.LenovoPsrefunmatchedSku>();
+    oDataBuilderDistributorProducts.Function("StreakwaveProductsForQuotings").Returns<CrownATTime.Server.Models.DistributorProducts.StreakwaveProductsForQuoting>();
+    oDataBuilderDistributorProducts.Function("StreakwaveProductsWithEnrichments").Returns<CrownATTime.Server.Models.DistributorProducts.StreakwaveProductsWithEnrichment>();
+    opt.AddRouteComponents("odata/DistributorProducts", oDataBuilderDistributorProducts.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
+});
+builder.Services.AddScoped<CrownATTime.Client.DistributorProductsService>();
 var app = builder.Build();
 var forwardingOptions = new ForwardedHeadersOptions()
 {

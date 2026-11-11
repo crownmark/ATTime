@@ -173,6 +173,20 @@ namespace CrownATTime.Server.Controllers
             return ToExcel(ApplyQuery(await service.GetEmailTemplates(), Request.Query, false), fileName);
         }
 
+        [HttpGet("/export/ATTime/favoritebillingcodes/csv")]
+        [HttpGet("/export/ATTime/favoritebillingcodes/csv(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportFavoriteBillingCodesToCSV(string fileName = null)
+        {
+            return ToCSV(ApplyQuery(await service.GetFavoriteBillingCodes(), Request.Query, false), fileName);
+        }
+
+        [HttpGet("/export/ATTime/favoritebillingcodes/excel")]
+        [HttpGet("/export/ATTime/favoritebillingcodes/excel(fileName='{fileName}')")]
+        public async Task<FileStreamResult> ExportFavoriteBillingCodesToExcel(string fileName = null)
+        {
+            return ToExcel(ApplyQuery(await service.GetFavoriteBillingCodes(), Request.Query, false), fileName);
+        }
+
         [HttpGet("/export/ATTime/formcategories/csv")]
         [HttpGet("/export/ATTime/formcategories/csv(fileName='{fileName}')")]
         public async Task<FileStreamResult> ExportFormCategoriesToCSV(string fileName = null)
@@ -437,20 +451,6 @@ namespace CrownATTime.Server.Controllers
         public async Task<FileStreamResult> ExportWorkflowTriggerTypesToExcel(string fileName = null)
         {
             return ToExcel(ApplyQuery(await service.GetWorkflowTriggerTypes(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/favoritebillingcodes/csv")]
-        [HttpGet("/export/ATTime/favoritebillingcodes/csv(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportFavoriteBillingCodesToCSV(string fileName = null)
-        {
-            return ToCSV(ApplyQuery(await service.GetFavoriteBillingCodes(), Request.Query, false), fileName);
-        }
-
-        [HttpGet("/export/ATTime/favoritebillingcodes/excel")]
-        [HttpGet("/export/ATTime/favoritebillingcodes/excel(fileName='{fileName}')")]
-        public async Task<FileStreamResult> ExportFavoriteBillingCodesToExcel(string fileName = null)
-        {
-            return ToExcel(ApplyQuery(await service.GetFavoriteBillingCodes(), Request.Query, false), fileName);
         }
     }
 }

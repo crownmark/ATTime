@@ -70,6 +70,14 @@
                 <RadzenColumn SizeMD="6">
                     <RadzenRow style="margin-bottom: 1rem">
                     <RadzenColumn SizeMD="10">
+                        <RadzenLabel Text="Neo Agent Collapsed?" Component="NeoAgentCollapsed" style="width: 100%" />
+                    </RadzenColumn>
+                    <RadzenColumn SizeMD="2">
+                        <RadzenCheckBox @bind-Value="resourceCache.NeoAgentCollapsed" Name="NeoAgentCollapsed" />
+                    </RadzenColumn>
+                </RadzenRow>
+<RadzenRow style="margin-bottom: 1rem">
+                    <RadzenColumn SizeMD="10">
                         <RadzenLabel Text="Rocketship Collapsed?" Component="RocketshipCollapsed" style="width: 100%" />
                     </RadzenColumn>
                     <RadzenColumn SizeMD="2">

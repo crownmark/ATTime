@@ -1,0 +1,76 @@
+@page "/edit-ingram-sync-rule"
+@attribute [Authorize]
+
+<PageTitle>Edit IngramSyncRule</PageTitle>
+
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save IngramSyncRule</RadzenAlert>
+        <RadzenTemplateForm TItem="CrownATTime.Server.Models.DistributorProducts.IngramSyncRule" Data="@(ingramSyncRule)" Visible="@(ingramSyncRule != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Vendor Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.VendorName)" Name="VendorName" AutoCompleteType="AutoCompleteType.Off" MaxLength="150" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="VendorName" Text="VendorName is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Category Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.CategoryName)" Name="CategoryName" AutoCompleteType="AutoCompleteType.Off" MaxLength="200" />
+                  </ChildContent>    
+                  <Helper>
+                    <RadzenRequiredValidator Component="CategoryName" Text="CategoryName is required" />
+                  </Helper>
+            </RadzenFormField>
+            <RadzenFormField Text="Sub Category Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.SubCategoryName)" Name="SubCategoryName" AutoCompleteType="AutoCompleteType.Off" MaxLength="200" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Type Name" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.ProductTypeName)" Name="ProductTypeName" AutoCompleteType="AutoCompleteType.Off" MaxLength="200" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Api Type" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.ApiType)" Name="ApiType" AutoCompleteType="AutoCompleteType.Off" MaxLength="30" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Keyword" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.Keyword)" Name="Keyword" AutoCompleteType="AutoCompleteType.Off" MaxLength="150" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenRow style="margin-bottom: 1rem">
+                <RadzenColumn SizeMD="3">
+                    <RadzenLabel Text="Is Enabled" Component="IsEnabled" style="width: 100%" />
+                </RadzenColumn>
+                <RadzenColumn SizeMD="9">
+                    <RadzenCheckBox @bind-Value="@(ingramSyncRule.IsEnabled)" Name="IsEnabled" />
+                </RadzenColumn>
+            </RadzenRow>
+            <RadzenFormField Text="Page Size" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.PageSize)" Name="PageSize" AutoCompleteType="AutoCompleteType.Off"/>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Max Pages" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.MaxPages)" Name="MaxPages" AutoCompleteType="AutoCompleteType.Off"/>
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Created At Utc" Variant="Variant.Outlined">
+                  <ChildContent>
+                    <RadzenDatePicker DateFormat="MM/dd/yyyy" style="display: block; width: 100%" @bind-Value="@(ingramSyncRule.CreatedAtUtc)" Name="CreatedAtUtc" />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+
