@@ -378,22 +378,24 @@ namespace CrownATTime.Client.Pages
                     emailMessage.Attachments = emailAttachments;
 
                 }
-
-                if (!emailMessage.QuoteLinkSelected &&
-                    !emailMessage.QuoteLink1Selected &&
-                    !emailMessage.QuoteLink2Selected &&
-                    !emailMessage.QuoteLink3Selected)
-                {
-                    NotificationService.Notify(new NotificationMessage
+                if(quoteTemplate){
+                    if (!emailMessage.QuoteLinkSelected &&
+                        !emailMessage.QuoteLink1Selected &&
+                        !emailMessage.QuoteLink2Selected &&
+                        !emailMessage.QuoteLink3Selected)
                     {
-                        Severity = NotificationSeverity.Warning,
-                        Summary = "Quote Link Required",
-                        Detail = "Please select at least one quote link to continue."
-                    });
+                        NotificationService.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Warning,
+                            Summary = "Quote Link Required",
+                            Detail = "Please select at least one quote link to continue."
+                        });
 
-                    sendingEmail = false;
-                    return;
+                        sendingEmail = false;
+                        return;
+                    }
                 }
+                
                 // Remove extra quote links from email body if not selected
                 emailMessage.Body = QuoteLinkHtmlHelper.RemoveUnselectedQuoteLinks(
                     emailMessage.Body,
